@@ -1,0 +1,149 @@
+﻿<#@ template language="C#" HostSpecific="True"  inherits="DynamicTransform" #>
+<#@ Output Extension="cs" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="EnvDTE" #>
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+<# if(!string.IsNullOrEmpty(Model.ModelTypeNamespace)) { #>
+using <#= Model.ModelTypeNamespace #>;
+<# } #>
+<# if(Model.DbContextNamespace != Model.ModelTypeNamespace) { #>
+using <#= Model.DbContextNamespace #>;
+<# } #>
+
+namespace <#= Model.ControllerNamespace #>
+{   
+<#  
+    var modelType = (CodeType)Model.ModelType; 
+    var modelName = modelType.Name; 
+    var modelNamePlural = Model.ModelTypePluralized; 
+    var modelVariable = "actionItem"; 
+    var relatedEntities = ((IEnumerable)Model.RelatedEntities).OfType<RelatedEntityInfo>();
+    var primaryKeyProperty = modelType.VisibleMembers().OfType<CodeProperty>().Single(x => x.Name == Model.PrimaryKey); 
+    var routingName = Regex.Replace(Model.ControllerName, "Controller$", "", RegexOptions.IgnoreCase);
+    var isObjectContext = ((CodeType)Model.DbContextType).IsAssignableTo<System.Data.Objects.ObjectContext>();
+#>
+    public class <#= Model.ControllerName #> : Controller
+    {
+        private <#= ((CodeType)Model.DbContextType).Name #> context = new <#= ((CodeType)Model.DbContextType).Name #>();
+
+        [HttpGet]
+        public ViewResult Index()
+        {
+<#
+    var propertiesToInclude = relatedEntities.Select(relation => relation.LazyLoadingProperty).Where(x => x != null);
+    var includeExpressions = isObjectContext 
+        ? String.Join("", propertiesToInclude.Select(x => String.Format(".Include(\"{0}\")", x.Name)))
+        : String.Join("", propertiesToInclude.Select(x => String.Format(".Include({0} => {0}.{1})", modelVariable, x.Name)));
+#>
+            return View(context.All<#= modelNamePlural #><#= includeExpressions #>.ToList());
+        }
+
+		#region CREATE
+		[HttpGet]
+        public ActionResult Create()
+        {
+<# foreach(var relatedEntity in relatedEntities.Where(x => x.RelationType == RelationType.Parent)) { #>
+            ViewBag.Possible<#= relatedEntity.RelationNamePlural #> = context.<#= relatedEntity.RelatedEntityTypeNamePlural #>;
+<# } #>
+            return View();
+        } 
+
+        [HttpPost]
+        public ActionResult Create(<#= modelName #> <#= modelVariable #>)
+        {
+            if (ModelState.IsValid)
+            {
+<# if(primaryKeyProperty.Type.AsString == "System.Guid") { #>
+                <#= modelVariable #>.<#= primaryKeyProperty.Name #> = Guid.NewGuid();
+<# } #>
+<# if(isObjectContext) { #>
+                context.All<#= modelNamePlural #>.AddObject(<#= modelVariable #>);
+<# } else { #>
+                context.Entry(<#= modelVariable #>).State = EntityState.Added;
+<# } #>
+                context.SaveChanges();
+                return RedirectToAction("Index");  
+            }
+
+<# foreach(var relatedEntity in relatedEntities.Where(x => x.RelationType == RelationType.Parent)) { #>
+            ViewBag.Possible<#= relatedEntity.RelationNamePlural #> = context.<#= relatedEntity.RelatedEntityTypeNamePlural #>;
+<# } #>
+            return View(<#= modelVariable #>);
+        }
+		#endregion
+
+		#region EDIT/UPDATE
+		[HttpGet]
+        public ActionResult Edit(<#= modelName #> <#= modelVariable #>)
+        {
+<# foreach(var relatedEntity in relatedEntities.Where(x => x.RelationType == RelationType.Parent)) { #>
+            ViewBag.Possible<#= relatedEntity.RelationNamePlural #> = context.<#= relatedEntity.RelatedEntityTypeNamePlural #>;
+<# } #>
+            return View(<#= modelVariable #>);
+        }
+
+        [HttpPost]
+        public ActionResult PostEdit(<#= modelName #> <#= modelVariable #>)
+        {
+            if (ModelState.IsValid)
+            {
+			try
+                {
+                    <#= modelName #> item = context.All<#= modelName #>s.First(e => e.Id == <#= modelVariable #>.Id);
+                    
+					// TODO: UPDATE FIELDS ON DB ENTITY
+<# if(isObjectContext) { #>
+					context.All<#= modelNamePlural #>.Attach(<#= modelVariable #>);
+					context.ObjectStateManager.ChangeObjectState(<#= modelVariable #>, EntityState.Modified);
+<# } else { #>
+					context.Entry(item).State = EntityState.Modified;
+<# } #>
+                    context.SaveChanges();
+                }
+                catch (InvalidOperationException)
+                {
+                    TempData["Message"] = "Your changes could not be saved... The item has probably been deleted in the meanwhile.";
+                }
+                return RedirectToAction("Index");
+            }
+<# foreach(var relatedEntity in relatedEntities.Where(x => x.RelationType == RelationType.Parent)) { #>
+            ViewBag.Possible<#= relatedEntity.RelationNamePlural #> = context.<#= relatedEntity.RelatedEntityTypeNamePlural #>;
+<# } #>
+            return View(<#= modelVariable #>);
+        }
+		#endregion
+
+		#region DELETE
+        public ActionResult Delete(<#= modelName #> <#= modelVariable #>)
+        {
+<# if(isObjectContext) { #>
+            context.All<#= modelNamePlural #>.DeleteObject(<#= modelVariable #>);
+<# } else { #>
+            context.Entry(<#= modelVariable #>).State = EntityState.Deleted;
+<# } #>
+            context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+		#endregion
+
+		#region DISPOSE
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) {
+                context.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+		#endregion
+    }
+}
