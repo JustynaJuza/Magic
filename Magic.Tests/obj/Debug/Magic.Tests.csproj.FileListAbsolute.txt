@@ -42,3 +42,5 @@ C:\Projects\Magic\Magic.Tests\bin\Debug\Microsoft.Owin.Security.OAuth.xml
 C:\Projects\Magic\Magic.Tests\obj\Debug\Magic.Tests.csprojResolveAssemblyReference.cache
 C:\Projects\Magic\Magic.Tests\obj\Debug\Magic.Tests.dll
 C:\Projects\Magic\Magic.Tests\obj\Debug\Magic.Tests.pdb
+C:\Projects\Magic\Magic.Tests\bin\Debug\Magic.Models.dll
+C:\Projects\Magic\Magic.Tests\bin\Debug\Magic.Models.pdb

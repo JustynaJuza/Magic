@@ -16,14 +16,16 @@ namespace Magic.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        public AccountController()
-            : this(new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDBContext())))
-        {
-        }
+        //public AccountController()
+        //    : this(new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDBContext())))
+        //{
+        //}
 
-        public AccountController(UserManager<ApplicationUser> userManager)
+        //public AccountController(UserManager<ApplicationUser> userManager)
+        public AccountController()
         {
-            UserManager = userManager;
+            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDBContext()));
+                //userManager;
         }
 
         public UserManager<ApplicationUser> UserManager { get; private set; }
@@ -79,11 +81,13 @@ namespace Magic.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser() { 
+                var user = new ApplicationUser()
+                {
                     UserName = model.UserName,
                     Email = model.Email,
                     BirthDate = model.BirthDate,
-                    DateCreated = DateTime.Now};
+                    DateCreated = DateTime.Now
+                };
 
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -311,7 +315,7 @@ namespace Magic.Controllers
         {
             var linkedAccounts = UserManager.GetLogins(User.Identity.GetUserId());
             ViewBag.ShowRemoveButton = HasPassword() || linkedAccounts.Count > 1;
-            return (ActionResult)PartialView("_RemoveAccountPartial", linkedAccounts);
+            return (ActionResult) PartialView("_RemoveAccountPartial", linkedAccounts);
         }
 
         protected override void Dispose(bool disposing)
@@ -383,7 +387,8 @@ namespace Magic.Controllers
 
         private class ChallengeResult : HttpUnauthorizedResult
         {
-            public ChallengeResult(string provider, string redirectUri) : this(provider, redirectUri, null)
+            public ChallengeResult(string provider, string redirectUri)
+                : this(provider, redirectUri, null)
             {
             }
 

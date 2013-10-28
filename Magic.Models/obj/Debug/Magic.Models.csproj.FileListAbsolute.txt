@@ -25,3 +25,11 @@ C:\Projects\Magic\Magic.Models\bin\Newtonsoft.Json.xml
 C:\Projects\Magic\Magic.Models\obj\Debug\Magic.Models.csprojResolveAssemblyReference.cache
 C:\Projects\Magic\Magic.Models\obj\Debug\Magic.Models.dll
 C:\Projects\Magic\Magic.Models\obj\Debug\Magic.Models.pdb
+C:\Projects\Magic\Magic.Models\bin\Microsoft.Web.Infrastructure.dll
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.dll
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.Integration.Web.dll
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.Integration.Web.Mvc.dll
+C:\Projects\Magic\Magic.Models\bin\WebActivator.dll
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.xml
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.Integration.Web.xml
+C:\Projects\Magic\Magic.Models\bin\SimpleInjector.Integration.Web.Mvc.xml

@@ -25,6 +25,9 @@ namespace Magic
             // Enable automatic migrations.
             var migrator = new System.Data.Entity.Migrations.DbMigrator(new Migrations.Configuration());
             migrator.Update();
+
+            // Initialise dependency injection resolver.
+            //Magic.App_Start.SimpleInjectorInitializer.Initialize();
         }
     }
 }

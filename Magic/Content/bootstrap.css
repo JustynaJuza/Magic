@@ -1967,8 +1967,19 @@ textarea.input-lg {
 }
 
 .form-horizontal .form-group {
-  margin-right: -15px;
-  margin-left: -15px;
+  /*margin-right: -15px;
+  margin-left: -15px;*/
+  *display: inline-block;
+  *padding-left: 20px;
+  margin-left: 60px;
+  margin-top: 10px;
+  margin-right: 0px;
+  margin-bottom: 10px;
+  *margin-left: 0;
+}
+
+.form-horizontal .form-actions {
+  padding-left: 180px;
 }
 
 .form-horizontal .form-group:before,

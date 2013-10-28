@@ -24,7 +24,7 @@ namespace Magic
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
+                      "~/Content/_bootstrap.css",
                       "~/Content/site.css"));
         }
     }
