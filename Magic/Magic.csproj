@@ -180,9 +180,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201310281252534_InitialCreate.cs" />
-    <Compile Include="Migrations\201310281252534_InitialCreate.Designer.cs">
-      <DependentUpon>201310281252534_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201310291243151_Initial.cs" />
+    <Compile Include="Migrations\201310291243151_Initial.Designer.cs">
+      <DependentUpon>201310291243151_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -262,16 +262,14 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Cards\Create.cshtml" />
-    <Content Include="Views\Cards\Delete.cshtml" />
-    <Content Include="Views\Cards\Details.cshtml" />
     <Content Include="Views\Cards\Edit.cshtml" />
     <Content Include="Views\Cards\Index.cshtml" />
     <Content Include="Views\CMS\Index.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201310281252534_InitialCreate.resx">
-      <DependentUpon>201310281252534_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
+    <Content Include="Views\Shared\_MessagePartial.cshtml" />
+    <Content Include="Views\_Cards\Create.cshtml" />
+    <Content Include="Views\_Cards\Edit.cshtml" />
+    <Content Include="Views\_Cards\Index.cshtml" />
+    <Content Include="Views\_Cards\_CreateOrEdit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -285,6 +283,11 @@
       <Project>{b3a5155f-0792-4dab-b60f-be1feed2bb41}</Project>
       <Name>Magic.Models</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201310291243151_Initial.resx">
+      <DependentUpon>201310291243151_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

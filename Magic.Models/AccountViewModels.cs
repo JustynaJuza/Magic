@@ -3,15 +3,45 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Magic.Models
 {
-    public class ExternalLoginConfirmationViewModel
+    public class ExternalLoginConfirmationViewModel : AbstractToString
     {
         [Required]
         [Display(Name = "User name")]
         public string UserName { get; set; }
+
+        [EmailAddress]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Your Birthday")]
+        public DateTime? BirthDate { get; set; }
+
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; }
     }
 
-    public class ManageUserViewModel
+    public class ManageUserViewModel : AbstractToString
     {
+        [EmailAddress]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Your Birthday")]
+        public DateTime? BirthDate { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Current password")]
@@ -29,7 +59,7 @@ namespace Magic.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class LoginViewModel
+    public class LoginViewModel : AbstractToString
     {
         [Required]
         [Display(Name = "User name")]
@@ -44,7 +74,7 @@ namespace Magic.Models
         public bool RememberMe { get; set; }
     }
 
-    public class RegisterViewModel
+    public class RegisterViewModel : AbstractToString
     {
         [Required]
         [StringLength(40, ErrorMessage = "Player name must be between 3-40 characters long.", MinimumLength = 3)]

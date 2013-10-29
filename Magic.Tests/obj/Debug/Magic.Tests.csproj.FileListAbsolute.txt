@@ -44,3 +44,10 @@ C:\Projects\Magic\Magic.Tests\obj\Debug\Magic.Tests.dll
 C:\Projects\Magic\Magic.Tests\obj\Debug\Magic.Tests.pdb
 C:\Projects\Magic\Magic.Tests\bin\Debug\Magic.Models.dll
 C:\Projects\Magic\Magic.Tests\bin\Debug\Magic.Models.pdb
+C:\Projects\Magic\Magic.Tests\bin\Debug\SimpleInjector.dll
+C:\Projects\Magic\Magic.Tests\bin\Debug\WebActivator.dll
+C:\Projects\Magic\Magic.Tests\bin\Debug\SimpleInjector.Integration.Web.Mvc.dll
+C:\Projects\Magic\Magic.Tests\bin\Debug\SimpleInjector.xml
+C:\Projects\Magic\Magic.Tests\bin\Debug\SimpleInjector.Integration.Web.Mvc.xml
+C:\Projects\Magic\Magic.Tests\bin\Debug\Microsoft.Owin.Security.Google.dll
+C:\Projects\Magic\Magic.Tests\bin\Debug\Microsoft.Owin.Security.Google.xml

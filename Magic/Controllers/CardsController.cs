@@ -1,128 +1,147 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Magic.Models;
 using Magic.Models.DataContext;
 
 namespace Magic.Controllers
-{
+{   
     public class CardsController : Controller
     {
-        private MagicDBContext db = new MagicDBContext();
+        private MagicDBContext context = new MagicDBContext();
 
-        // GET: /Cards/
-        public ActionResult Index()
+        [HttpGet]
+        public ViewResult Index()
         {
-            return View(db.AllCards.ToList());
+            return View(context.AllCards.ToList());
         }
 
-        // GET: /Cards/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Card card = db.AllCards.Find(id);
-            if (card == null)
-            {
-                return HttpNotFound();
-            }
-            return View(card);
-        }
-
-        // GET: /Cards/Create
+		#region CREATE
+		[HttpGet]
         public ActionResult Create()
         {
             return View();
-        }
+        } 
 
-        // POST: /Cards/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include="Id,Name")] Card card)
+        public ActionResult Create(Card actionItem)
         {
             if (ModelState.IsValid)
             {
-                db.AllCards.Add(card);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                try
+                {
+                    context.Entry(actionItem).State = EntityState.Added;
+                    context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again."
+                    + "\n (Or, if you are PRO, open the console and send us the error log ;)";
+                    ViewBag.ErrorLog = ex.ToFullString();
+                    ViewBag.ErrorLog2 = ex.ToString();
+                }
+
+                return RedirectToAction("Index");  
+            }
+            else
+            {
+                ModelState.AddModelError("", "Please correct the invalid values to proceed.");
             }
 
-            return View(card);
+            return View(actionItem);
         }
+		#endregion
 
-        // GET: /Cards/Edit/5
-        public ActionResult Edit(int? id)
+		#region EDIT/UPDATE
+		[HttpGet]
+        public ActionResult Edit(Card actionItem)
         {
-            if (id == null)
+            var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
+            if (foundItem == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Message"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile, sorry.";
+                return RedirectToAction("Index");
+                //return HttpNotFound();
             }
-            Card card = db.AllCards.Find(id);
-            if (card == null)
-            {
-                return HttpNotFound();
-            }
-            return View(card);
+
+            return View(foundItem);
         }
 
-        // POST: /Cards/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include="Id,Name")] Card card)
+        public ActionResult PostEdit(Card actionItem)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(card).State = EntityState.Modified;
-                db.SaveChanges();
+                var foundItem = context.Entry(actionItem);
+                if (foundItem == null)
+                {
+                    TempData["Message"] = "Your changes could not be saved... The card has probably been deleted in the meanwhile, sorry.";
+                    return RedirectToAction("Index");
+                }
+
+                try
+                {
+                    context.Entry(actionItem).State = EntityState.Modified;
+                    context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again.";
+                    ViewBag.ErrorLog = ex.ToFullString();
+                    ViewBag.ErrorLog2 = ex.ToString();
+                }
+                //catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException dbcex) { }
                 return RedirectToAction("Index");
             }
-            return View(card);
-        }
-
-        // GET: /Cards/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
+            else
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                ModelState.AddModelError("", "Please enter correct values to proceed.");
             }
-            Card card = db.AllCards.Find(id);
-            if (card == null)
-            {
-                return HttpNotFound();
-            }
-            return View(card);
-        }
 
-        // POST: /Cards/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+            return View(actionItem);
+        }
+		#endregion
+
+		#region DELETE
+        public ActionResult Delete(Card actionItem)
         {
-            Card card = db.AllCards.Find(id);
-            db.AllCards.Remove(card);
-            db.SaveChanges();
+            var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
+            if (foundItem == null)
+            {
+                TempData["Message"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile, sorry.";
+                return RedirectToAction("Index");
+                //return HttpNotFound();
+            }
+
+            try
+            {
+                context.Entry(foundItem).State = EntityState.Deleted;
+                context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again."
+                + "\n (Or, if you are PRO, open the console and send us the error log ;)";
+                ViewBag.ErrorLog = ex.ToFullString();
+                ViewBag.ErrorLog2 = ex.ToString();
+            }
+
             return RedirectToAction("Index");
         }
+		#endregion
 
+        #region DISPOSE
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
+            if (disposing) {
+                context.Dispose();
             }
             base.Dispose(disposing);
         }
+        #endregion
     }
 }

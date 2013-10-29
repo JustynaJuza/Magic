@@ -1,0 +1,6 @@
+@model Magic.Models.Card
+
+    @Html.LabelFor(m => m.Name, new { @class = "editor-label" })
+    @Html.EditorFor(m => m.Name, new { @class = "editor-label" })
+    @Html.ValidationMessageFor(m => m.Name)
+

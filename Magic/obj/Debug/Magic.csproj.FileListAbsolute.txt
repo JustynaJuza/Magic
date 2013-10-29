@@ -55,8 +55,6 @@ C:\Projects\Magic\Magic\obj\Debug\Magic.dll
 C:\Projects\Magic\Magic\obj\Debug\Magic.pdb
 C:\Projects\Magic\Magic\bin\Magic.Models.dll
 C:\Projects\Magic\Magic\bin\Magic.Models.pdb
-C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.InitialCreate.resources
-C:\Projects\Magic\Magic\obj\Debug\Magic.csproj.GenerateResource.Cache
 C:\Projects\Magic\Magic\bin\SimpleInjector.dll
 C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.dll
 C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.Mvc.dll
@@ -64,3 +62,5 @@ C:\Projects\Magic\Magic\bin\WebActivator.dll
 C:\Projects\Magic\Magic\bin\SimpleInjector.xml
 C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.xml
 C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.Mvc.xml
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.Initial.resources
+C:\Projects\Magic\Magic\obj\Debug\Magic.csproj.GenerateResource.Cache

@@ -14,6 +14,7 @@ namespace Magic.Migrations
             ContextKey = "Magic.Models.DataContext.MagicDBContext";
         }
 
+
         protected override void Seed(Magic.Models.DataContext.MagicDBContext context)
         {
             //  This method will be called after migrating to the latest version.

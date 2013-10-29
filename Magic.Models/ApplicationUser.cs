@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Magic.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }

@@ -11,4 +11,10 @@ namespace Magic.Models
         public string Name { get; set; }
         public virtual List<Card> Cards { get; set; }
     }
+
+    public class CardColorViewModel : AbstractToString
+    {
+        public string Name { get; set; }
+        public List<Card> Cards { get; set; }
+    }
 }
