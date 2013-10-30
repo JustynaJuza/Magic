@@ -1,18 +1,21 @@
-﻿@if (TempData["Message"] != null)
+﻿@if (TempData["Error"] != null)
 {
-    <div>
-        <h4 style="font-weight:500"><span class="text-danger">SIR! MAY I HAVE YOUR ATTENTION, PLEASE! </span>@TempData["Message"]</h4>
-        @if (ViewBag.ErrorLog != null)
-{
-    <p style="font-size:12px"> (Or, if you are PRO, open the console and send us the error log ;)</p>
+    <p><span class="text-danger">SIR! MAY I HAVE YOUR ATTENTION, PLEASE!</span> @TempData["Error"] </p>
+    if (ViewBag.ErrorLog != null)
+    {
+        <p style="font-size:10px"> (Or, if you are PRO, open the console and send us the error log ;)</p>
 
-            <script type="text/javascript">
-                if (console && console.log) {
-                    console.log("We have experienced a problem: ");
-                    console.log(@ViewBag.ErrorLog);
-                    console.log(@ViewBag.ErrorLog2);
-                }
-            </script>
-        }
-    </div>
+        <script type="text/javascript">
+            //if (console && console.log) {
+                console.log("We have experienced a problem: ");
+                console.log(@ViewBag.ErrorLog);
+                console.log(@ViewBag.ErrorLog2);
+            //}
+        </script>
+    }
+}
+
+@if (TempData["Message"] != null)
+{
+    <p class="text-success">@TempData["Message"]</p>
 }

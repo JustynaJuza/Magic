@@ -1,21 +1,27 @@
-﻿@using Magic.Models;
-@using Microsoft.AspNet.Identity;
+﻿@using Microsoft.AspNet.Identity;
+@model Magic.Models.ManageUserDetailsViewModel
+
 @{
     ViewBag.Title = "Manage Account";
 }
 
 <h2>@ViewBag.Title.</h2>
 
-<p class="text-success">@ViewBag.StatusMessage</p>
+@Html.Partial("_MessagePartial")
+
+<p>You're logged in as <strong>@Model.UserName@Model.Title</strong>.</p>
+
 <div class="row">
     <div class="col-md-12">
+        @Html.Partial("_ManageUserDetailsPartial", Model)
+
         @if (ViewBag.HasLocalPassword)
         {
-            @Html.Partial("_ChangePasswordPartial")
+            @Html.Partial("_ChangePasswordPartial", new Magic.Models.ManagePasswordViewModel())
         }
         else
         {
-            @Html.Partial("_SetPasswordPartial")
+            @Html.Partial("_SetPasswordPartial", new Magic.Models.ManagePasswordViewModel())
         }
 
         <section id="externalLogins">

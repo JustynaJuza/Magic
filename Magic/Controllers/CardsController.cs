@@ -39,7 +39,7 @@ namespace Magic.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again."
+                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again."
                     + "\n (Or, if you are PRO, open the console and send us the error log ;)";
                     ViewBag.ErrorLog = ex.ToFullString();
                     ViewBag.ErrorLog2 = ex.ToString();
@@ -49,7 +49,7 @@ namespace Magic.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "Please correct the invalid values to proceed.");
+                ModelState.AddModelError("", "Please enter correct values to proceed.");
             }
 
             return View(actionItem);
@@ -63,7 +63,7 @@ namespace Magic.Controllers
             var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
             if (foundItem == null)
             {
-                TempData["Message"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile, sorry.";
+                TempData["Error"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile.";
                 return RedirectToAction("Index");
                 //return HttpNotFound();
             }
@@ -79,7 +79,7 @@ namespace Magic.Controllers
                 var foundItem = context.Entry(actionItem);
                 if (foundItem == null)
                 {
-                    TempData["Message"] = "Your changes could not be saved... The card has probably been deleted in the meanwhile, sorry.";
+                    TempData["Error"] = "Your changes could not be saved... The card has probably been deleted in the meanwhile.";
                     return RedirectToAction("Index");
                 }
 
@@ -90,7 +90,7 @@ namespace Magic.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again.";
+                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
                     ViewBag.ErrorLog = ex.ToFullString();
                     ViewBag.ErrorLog2 = ex.ToString();
                 }
@@ -112,7 +112,7 @@ namespace Magic.Controllers
             var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
             if (foundItem == null)
             {
-                TempData["Message"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile, sorry.";
+                TempData["Error"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile.";
                 return RedirectToAction("Index");
                 //return HttpNotFound();
             }
@@ -124,7 +124,7 @@ namespace Magic.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Message"] = "Something went wrong here... That's quite unusual, maybe try again."
+                TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again."
                 + "\n (Or, if you are PRO, open the console and send us the error log ;)";
                 ViewBag.ErrorLog = ex.ToFullString();
                 ViewBag.ErrorLog2 = ex.ToString();

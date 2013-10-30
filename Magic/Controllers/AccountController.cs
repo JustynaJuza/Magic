@@ -10,20 +10,63 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using Magic.Models;
 using Magic.Models.DataContext;
+using System.Data.Entity;
 
 namespace Magic.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private MagicDBContext context = new MagicDBContext();
+
         public UserManager<ApplicationUser> UserManager { get; private set; }
         public AccountController()
         {
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDBContext()));
         }
 
-        #region LOGIN
+        #region REGISTER
         [HttpGet]
+        [AllowAnonymous]
+        public ActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser()
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    BirthDate = model.BirthDate
+                };
+
+                var result = await UserManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    await SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    AddErrors(result);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Please enter correct values to proceed.");
+            }
+
+            return View(model);
+        }
+        #endregion
+
+        #region LOG IN / LOGIN LINK / LOG OFF
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -83,7 +126,7 @@ namespace Magic.Controllers
             {
                 // If the user does not have an account, then prompt the user to create an account
                 ViewBag.ReturnUrl = returnUrl;
-                ViewBag.LoginInfo = loginInfo.Login.LoginProvider;
+                ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                 string email = "";
                 if (loginInfo.Login.LoginProvider == "Google")
                 {
@@ -149,14 +192,34 @@ namespace Magic.Controllers
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
             if (loginInfo == null)
             {
-                return RedirectToAction("Manage", new { Message = ManageMessageId.Error });
+                TempData["Error"] = "The service was unable to get your social account data. Are you logged in on your social account?";
+                return RedirectToAction("Manage");
             }
             var result = await UserManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
             if (result.Succeeded)
             {
+                TempData["Message"] = "You can now log in with " + loginInfo.Login.LoginProvider;
                 return RedirectToAction("Manage");
             }
-            return RedirectToAction("Manage", new { Message = ManageMessageId.Error });
+
+            TempData["Error"] = "There was an error while linking your " + loginInfo.Login.LoginProvider + " account, maybe try again later...";
+            return RedirectToAction("Manage");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Disassociate(string loginProvider, string providerKey)
+        {
+            IdentityResult result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(), new UserLoginInfo(loginProvider, providerKey));
+            if (result.Succeeded)
+            {
+                TempData["Message"] = "Your " + loginProvider + " login was removed.";
+            }
+            else
+            {
+                TempData["Error"] = "There was an error while disassociating your " + loginProvider + " account, maybe try again later...";
+            }
+            return RedirectToAction("Manage");
         }
 
         [HttpPost]
@@ -174,85 +237,37 @@ namespace Magic.Controllers
         }
         #endregion
 
-        #region REGISTER
         [HttpGet]
-        [AllowAnonymous]
-        public ActionResult Register()
+        public ActionResult Manage()
         {
-            return View();
-        }
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
-        {
-            if (ModelState.IsValid)
+            var foundUser = UserManager.FindById(User.Identity.GetUserId());
+            if (foundUser == null)
             {
-                var user = new ApplicationUser()
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    BirthDate = model.BirthDate
-                };
-
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    AddErrors(result);
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("", "Please correct the invalid values to proceed.");
+                TempData["Error"] = "There was an error while accessing your profile. You are probably no longer logged in.";
+                return RedirectToAction("Login", new { returnUrl = Url.Action("Manage")} );
             }
 
-            return View(model);
-        }
-        #endregion
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Disassociate(string loginProvider, string providerKey)
-        {
-            ManageMessageId? message = null;
-            IdentityResult result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(), new UserLoginInfo(loginProvider, providerKey));
-            if (result.Succeeded)
+            ManageUserDetailsViewModel userDetails = new ManageUserDetailsViewModel
             {
-                message = ManageMessageId.RemoveLoginSuccess;
-            }
-            else
-            {
-                message = ManageMessageId.Error;
-            }
-            return RedirectToAction("Manage", new { Message = message });
-        }
+                UserName = foundUser.UserName,
+                Email = foundUser.Email,
+                BirthDate = foundUser.BirthDate,
+                UserImage = foundUser.UserImage               
+            };
 
-        [HttpGet]
-        public ActionResult Manage(ManageMessageId? message)
-        {
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
-                : message == ManageMessageId.Error ? "An error has occurred."
-                : "";
             ViewBag.HasLocalPassword = HasPassword();
             ViewBag.ReturnUrl = Url.Action("Manage");
-            return View();
+            return View(userDetails);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Manage(ManageUserViewModel model)
+        public async Task<ActionResult> ManagePassword(ManagePasswordViewModel model)
         {
             bool hasPassword = HasPassword();
             ViewBag.HasLocalPassword = hasPassword;
             ViewBag.ReturnUrl = Url.Action("Manage");
+
             if (hasPassword)
             {
                 if (ModelState.IsValid)
@@ -260,7 +275,8 @@ namespace Magic.Controllers
                     IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
+                        TempData["Message"] = "Your password has been changed.";
+                        return RedirectToAction("Manage");
                     }
                     else
                     {
@@ -282,7 +298,8 @@ namespace Magic.Controllers
                     IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Manage", new { Message = ManageMessageId.SetPasswordSuccess });
+                        TempData["Message"] = "Your new password has been set.";
+                        return RedirectToAction("Manage");
                     }
                     else
                     {
@@ -292,6 +309,41 @@ namespace Magic.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManageUserDetails(ManageUserDetailsViewModel model)
+        {
+            ViewBag.HasLocalPassword = HasPassword();
+            ViewBag.ReturnUrl = Url.Action("Manage");
+
+            if (ModelState.IsValid)
+            {
+                var currentUserID = User.Identity.GetUserId();
+                var foundUser = context.Users.FirstOrDefault(u => u.Id == currentUserID);
+
+                try
+                {
+                    foundUser.Title = model.Title;
+                    foundUser.Email = model.Email;
+                    foundUser.BirthDate = model.BirthDate;
+                    foundUser.UserImage = model.UserImage;
+
+                    context.Entry(foundUser).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    TempData["Message"] = "Your details have been updated.";
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
+                    ViewBag.ErrorLog = ex.ToFullString();
+                    ViewBag.ErrorLog2 = ex.ToString();
+                }
+            }
+
+            return RedirectToAction("Manage");
         }
 
         [ChildActionOnly]
@@ -349,14 +401,6 @@ namespace Magic.Controllers
                 return user.PasswordHash != null;
             }
             return false;
-        }
-
-        public enum ManageMessageId
-        {
-            ChangePasswordSuccess,
-            SetPasswordSuccess,
-            RemoveLoginSuccess,
-            Error
         }
 
         private ActionResult RedirectToLocal(string returnUrl)

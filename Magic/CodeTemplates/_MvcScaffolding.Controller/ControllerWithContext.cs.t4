@@ -112,7 +112,7 @@ namespace <#= Model.ControllerNamespace #>
                 }
                 catch (InvalidOperationException)
                 {
-                    TempData["Message"] = "Your changes could not be saved... The item has probably been deleted in the meanwhile.";
+                    TempData["Error"] = "Your changes could not be saved... The item has probably been deleted in the meanwhile.";
                 }
                 return RedirectToAction("Index");
             }

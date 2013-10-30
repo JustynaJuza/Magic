@@ -167,6 +167,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_GlobalResources\ValidationMessages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ValidationMessages.resx</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -195,7 +200,6 @@
     </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\_bootstrap.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -217,11 +221,6 @@
     <Content Include="CodeTemplates\MvcView\Imports.include.t4" />
     <Content Include="CodeTemplates\MvcView\List.cs.t4" />
     <Content Include="CodeTemplates\MvcView\ModelMetadataFunctions.cs.include.t4" />
-    <Content Include="CodeTemplates\_MvcScaffolding.Controller\ControllerWithContext.cs.t4" />
-    <Content Include="CodeTemplates\_MvcScaffolding.RazorView\Create.cs.t4" />
-    <Content Include="CodeTemplates\_MvcScaffolding.RazorView\Edit.cs.t4" />
-    <Content Include="CodeTemplates\_MvcScaffolding.RazorView\Index.cs.t4" />
-    <Content Include="CodeTemplates\_MvcScaffolding.RazorView\_CreateOrEdit.cs.t4" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -266,10 +265,7 @@
     <Content Include="Views\Cards\Index.cshtml" />
     <Content Include="Views\CMS\Index.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
-    <Content Include="Views\_Cards\Create.cshtml" />
-    <Content Include="Views\_Cards\Edit.cshtml" />
-    <Content Include="Views\_Cards\Index.cshtml" />
-    <Content Include="Views\_Cards\_CreateOrEdit.cshtml" />
+    <Content Include="Views\Account\_ManageUserDetailsPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -285,9 +281,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_GlobalResources\ValidationMessages.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>ValidationMessages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </Content>
     <EmbeddedResource Include="Migrations\201310291243151_Initial.resx">
       <DependentUpon>201310291243151_Initial.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Shared\EditorTemplates\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
