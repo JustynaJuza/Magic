@@ -3,23 +3,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Magic.Models
 {
+    // Specifies an attribute that checks the BirthDate range.
+    public class BirthDateRange : RangeAttribute
+    {
+        private static string startDate = DateTime.Now.AddYears(-100).ToString();
+        private static string endDate = DateTime.Today.ToString();
+
+        public BirthDateRange()
+            : base(typeof(DateTime), startDate, endDate) { }
+    }
+
     public class ExternalLoginConfirmationViewModel : AbstractToString
     {
-        [Required]
-        [StringLength(40, ErrorMessage = "Player name must be between 3-40 characters long.", MinimumLength = 3)]
+        [Required(ErrorMessage="You must enter an username to be able to log in.")]
+        [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
         [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
         public string UserName { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "The email doesn't seem valid...")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        //public string StartDate = DateTime.Now.AddYears(-100).ToString();
-        //public string EndDate = DateTime.Today.ToString();
-        [DataType(DataType.Date)]
-        //[Range(typeof(DateTime), StartDate, EndDate, ErrorMessage = "The date value doesn't seem valid...")]
+        [BirthDateRange(ErrorMessage = "The date doesn't seem valid...")]
+        [DataType(DataType.Date, ErrorMessage = "You need to enter a date in format similar to 31/12/2000.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [Display(Name = "Your Birthday")]
         public DateTime? BirthDate { get; set; }
@@ -37,19 +45,20 @@ namespace Magic.Models
 
     public class ManageUserDetailsViewModel : AbstractToString
     {
-        [StringLength(40, ErrorMessage = "Player name must be between 3-40 characters long.", MinimumLength = 3)]
+        [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
         [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
-        [Display(Name = "Player")]
+        [Display(Name = "New Player")]
         public string UserName { get; set; }
 
         public string Title { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "The email doesn't seem valid...")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [DataType(DataType.Date)]
+        [BirthDateRange(ErrorMessage = "The date doesn't seem valid...")]
+        [DataType(DataType.Date, ErrorMessage = "You need to enter a date in format similar to 31/12/2000.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [Display(Name = "Your Birthday")]
         public DateTime? BirthDate { get; set; }
@@ -66,15 +75,15 @@ namespace Magic.Models
         [Display(Name = "Current password")]
         public string OldPassword { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "You must set a password to be able to log in.")]
         [StringLength(100, ErrorMessage = "The new password must be at least 6 characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "New password")]
-        public string NewPassword { get; set; }
+        public string Password { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Compare("Password", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -95,23 +104,24 @@ namespace Magic.Models
 
     public class RegisterViewModel : AbstractToString
     {
-        [Required]
-        [StringLength(30, ErrorMessage = "Player name must be between 3-30 characters long.", MinimumLength = 3)]
+        [Required(ErrorMessage = "You must enter an username to be able to log in.")]
+        [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
         [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
         public string UserName { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "The email doesn't seem valid...")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [DataType(DataType.Date)]
+        [BirthDateRange(ErrorMessage = "The date doesn't seem valid...")]
+        [DataType(DataType.Date, ErrorMessage = "You need to enter a date in format similar to 31/12/2000.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [Display(Name = "Your Birthday")]
         public DateTime? BirthDate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "You must set a password to be able to log in.")]
         [StringLength(100, ErrorMessage = "The password must be at least 6 characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]

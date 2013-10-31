@@ -26,10 +26,6 @@ namespace Magic
             var migrator = new System.Data.Entity.Migrations.DbMigrator(new Migrations.Configuration());
             migrator.Update();
 
-            // Enable custom messages for validation.
-            ClientDataTypeModelValidatorProvider.ResourceClassKey = "ValidationMessages";
-            DefaultModelBinder.ResourceClassKey = "ValidationMessages";
-
             // Initialise dependency injection resolver.
             //Magic.App_Start.SimpleInjectorInitializer.Initialize();
         }

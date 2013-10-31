@@ -13,15 +13,15 @@
 
 <div class="row">
     <div class="col-md-12">
-        @Html.Partial("_ManageUserDetailsPartial", Model)
+        @Html.Partial("_ManageUserDetailsPartial", Model, (ViewDataDictionary) ViewBag.DetailsViewData)
 
         @if (ViewBag.HasLocalPassword)
         {
-            @Html.Partial("_ChangePasswordPartial", new Magic.Models.ManagePasswordViewModel())
+            @Html.Partial("_ChangePasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
         }
         else
         {
-            @Html.Partial("_SetPasswordPartial", new Magic.Models.ManagePasswordViewModel())
+            @Html.Partial("_SetPasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
         }
 
         <section id="externalLogins">
@@ -30,6 +30,6 @@
         </section>
     </div>
 </div>
-@section Scripts {
+@*@section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-}
+}*@

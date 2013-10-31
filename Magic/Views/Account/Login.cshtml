@@ -13,7 +13,7 @@
                 @Html.AntiForgeryToken()
                 <h4>Use a local account to log in.</h4>
                 <hr />
-                @Html.ValidationSummary(true)
+                @Html.ValidationSummary(true, "The Player&Password combination was not found, make sure you entered it correctly.")
                 <div class="form-group">
                     @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })
                     <div class="col-md-10">
@@ -53,6 +53,6 @@
         </section>
     </div>
 </div>
-@section Scripts {
+@*@section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-}
+}*@

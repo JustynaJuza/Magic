@@ -167,11 +167,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_GlobalResources\ValidationMessages.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ValidationMessages.resx</DependentUpon>
-    </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -281,11 +276,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_GlobalResources\ValidationMessages.resx">
-      <Generator>GlobalResourceProxyGenerator</Generator>
-      <LastGenOutput>ValidationMessages.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </Content>
     <EmbeddedResource Include="Migrations\201310291243151_Initial.resx">
       <DependentUpon>201310291243151_Initial.cs</DependentUpon>
       <SubType>Designer</SubType>

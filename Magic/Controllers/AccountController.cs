@@ -52,16 +52,12 @@ namespace Magic.Controllers
                     await SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    AddErrors(result);
-                }
             }
             else
             {
-                ModelState.AddModelError("", "Please enter correct values to proceed.");
+                editErrorMessageConfirmPassword();
+                editErrorMessageBirthDate();
             }
-
             return View(model);
         }
         #endregion
@@ -87,12 +83,9 @@ namespace Magic.Controllers
                     await SignInAsync(user, model.RememberMe);
                     return RedirectToLocal(returnUrl);
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid username or password.");
-                }
+                //Invalid username/password combination - make model invalid.
+                ModelState.AddModelError("","");
             }
-
             return View(model);
         }
 
@@ -132,7 +125,7 @@ namespace Magic.Controllers
                 {
                     email = loginInfo.DefaultUserName.ToLower() + "@gmail.com";
                 }
-                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = loginInfo.DefaultUserName, Email = email});
+                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = loginInfo.DefaultUserName, Email = email });
             }
         }
 
@@ -155,7 +148,8 @@ namespace Magic.Controllers
                     return View("ExternalLoginFailure");
                 }
 
-                var user = new ApplicationUser() { 
+                var user = new ApplicationUser()
+                {
                     UserName = model.UserName,
                     Email = model.Email,
                     BirthDate = model.BirthDate
@@ -171,7 +165,11 @@ namespace Magic.Controllers
                         return RedirectToLocal(returnUrl);
                     }
                 }
-                AddErrors(result);
+            }
+            else
+            {
+                editErrorMessageConfirmPassword();
+                editErrorMessageBirthDate();
             }
 
             ViewBag.ReturnUrl = returnUrl;
@@ -244,7 +242,7 @@ namespace Magic.Controllers
             if (foundUser == null)
             {
                 TempData["Error"] = "There was an error while accessing your profile. You are probably no longer logged in.";
-                return RedirectToAction("Login", new { returnUrl = Url.Action("Manage")} );
+                return RedirectToAction("Login", new { returnUrl = Url.Action("Manage") });
             }
 
             ManageUserDetailsViewModel userDetails = new ManageUserDetailsViewModel
@@ -252,8 +250,13 @@ namespace Magic.Controllers
                 UserName = foundUser.UserName,
                 Email = foundUser.Email,
                 BirthDate = foundUser.BirthDate,
-                UserImage = foundUser.UserImage               
+                UserImage = foundUser.UserImage
             };
+
+            if (TempData["PasswordViewData"] != null)
+                ViewBag.PasswordViewData = TempData["PasswordViewData"];
+            if (TempData["DetailsViewData"] != null)
+                ViewBag.DetailsViewData = TempData["DetailsViewData"];
 
             ViewBag.HasLocalPassword = HasPassword();
             ViewBag.ReturnUrl = Url.Action("Manage");
@@ -272,15 +275,20 @@ namespace Magic.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
+                    IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.Password);
                     if (result.Succeeded)
                     {
                         TempData["Message"] = "Your password has been changed.";
                         return RedirectToAction("Manage");
                     }
-                    else
+                }
+                else
+                {
+                    editErrorMessageConfirmPassword();
+                    if (ModelState["OldPassword"].Errors.Count != 0)
                     {
-                        AddErrors(result);
+                        ModelState["Password"].Errors.Clear();
+                        ModelState["ConfirmPassword"].Errors.Clear();
                     }
                 }
             }
@@ -295,20 +303,20 @@ namespace Magic.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+                    IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.Password);
                     if (result.Succeeded)
                     {
                         TempData["Message"] = "Your new password has been set.";
                         return RedirectToAction("Manage");
                     }
-                    else
-                    {
-                        AddErrors(result);
-                    }
+                }
+                else
+                {
+                    editErrorMessageConfirmPassword();
                 }
             }
-
-            return View(model);
+            TempData["PasswordViewData"] = ViewData;
+            return RedirectToAction("Manage");
         }
 
         [HttpPost]
@@ -342,7 +350,11 @@ namespace Magic.Controllers
                     ViewBag.ErrorLog2 = ex.ToString();
                 }
             }
-
+            else
+            {
+                editErrorMessageBirthDate();
+            }
+            TempData["DetailsViewData"] = ViewData;
             return RedirectToAction("Manage");
         }
 
@@ -369,6 +381,36 @@ namespace Magic.Controllers
         #region HELPERS
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
+
+        private void editErrorMessageConfirmPassword()
+        {
+            if (ModelState["ConfirmPassword"].Errors.Count > 0)
+            {
+                var modelCompareError = ModelState["ConfirmPassword"].Errors.FirstOrDefault(e => e.ErrorMessage.Contains("'Confirm password'"));
+
+                if (modelCompareError != null)
+                {
+                    ModelState["ConfirmPassword"].Errors.Remove(modelCompareError);
+                    ModelState["ConfirmPassword"].Errors.Add(new ModelError("The password and confirmation password do not match."));
+                }
+
+                if (ModelState["Password"].Errors.Count != 0)
+                    ModelState["ConfirmPassword"].Errors.Clear();
+            }
+        }
+
+        private void editErrorMessageBirthDate()
+        {
+            if (ModelState["BirthDate"].Errors.Count > 0)
+            {
+                var modelInvalidError = ModelState["BirthDate"].Errors.FirstOrDefault(e => e.ErrorMessage.Contains("is not valid"));
+                if (modelInvalidError != null)
+                {
+                    ModelState["BirthDate"].Errors.Remove(modelInvalidError);
+                    ModelState["BirthDate"].Errors.Add(new ModelError("You should enter a correct date in format similar to 31/12/2000."));
+                }
+            }
+        }
 
         private IAuthenticationManager AuthenticationManager
         {
