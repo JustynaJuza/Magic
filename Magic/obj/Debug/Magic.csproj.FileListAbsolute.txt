@@ -64,3 +64,4 @@ C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.xml
 C:\Projects\Magic\Magic\bin\SimpleInjector.Integration.Web.Mvc.xml
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.Initial.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.csproj.GenerateResource.Cache
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.LastLogin.resources

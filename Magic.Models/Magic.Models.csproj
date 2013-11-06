@@ -126,6 +126,7 @@
     <Compile Include="Card.cs" />
     <Compile Include="CardColor.cs" />
     <Compile Include="CardColorCost.cs" />
+    <Compile Include="CardType.cs" />
     <Compile Include="DataContext\MagicDBContext.cs" />
     <Compile Include="ApplicationUser.cs" />
     <Compile Include="PlayerViewModel.cs" />

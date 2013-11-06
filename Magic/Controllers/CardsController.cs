@@ -9,7 +9,7 @@ using Magic.Models;
 using Magic.Models.DataContext;
 
 namespace Magic.Controllers
-{   
+{
     public class CardsController : Controller
     {
         private MagicDBContext context = new MagicDBContext();
@@ -17,131 +17,76 @@ namespace Magic.Controllers
         [HttpGet]
         public ViewResult Index()
         {
-            return View(context.AllCards.ToList());
+            return View(context.Set<Card>().ToList());
         }
 
-		#region CREATE
-		[HttpGet]
+        #region CREATE
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
-        } 
+        }
 
         [HttpPost]
         public ActionResult Create(Card actionItem)
         {
             if (ModelState.IsValid)
             {
-                try
+                Card item = new Card()
                 {
-                    context.Entry(actionItem).State = EntityState.Added;
-                    context.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again."
-                    + "\n (Or, if you are PRO, open the console and send us the error log ;)";
-                    ViewBag.ErrorLog = ex.ToFullString();
-                    ViewBag.ErrorLog2 = ex.ToString();
-                }
+                    Name = actionItem.Name
+                };
 
-                return RedirectToAction("Index");  
+                TempData["Error"] = context.Create(item);
+                return RedirectToAction("Index");
             }
-            else
-            {
-                ModelState.AddModelError("", "Please enter correct values to proceed.");
-            }
-
+            // Process model errors.
             return View(actionItem);
         }
-		#endregion
+        #endregion CREATE
 
-		#region EDIT/UPDATE
-		[HttpGet]
+        #region EDIT/UPDATE
+        [HttpGet]
         public ActionResult Edit(Card actionItem)
         {
-            var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
-            if (foundItem == null)
+            TempData["Error"] = context.Read(actionItem);
+            if (TempData["Error"].GetType() == typeof(string))
             {
-                TempData["Error"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile.";
                 return RedirectToAction("Index");
-                //return HttpNotFound();
             }
-
-            return View(foundItem);
+            return View(actionItem);
         }
 
         [HttpPost]
-        public ActionResult PostEdit(Card actionItem)
+        public ActionResult PostEdit([Bind(Include = "Id, Name")] Card actionItem)
         {
             if (ModelState.IsValid)
             {
-                var foundItem = context.Entry(actionItem);
-                if (foundItem == null)
-                {
-                    TempData["Error"] = "Your changes could not be saved... The card has probably been deleted in the meanwhile.";
-                    return RedirectToAction("Index");
-                }
-
-                try
-                {
-                    context.Entry(actionItem).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
-                    ViewBag.ErrorLog = ex.ToFullString();
-                    ViewBag.ErrorLog2 = ex.ToString();
-                }
-                //catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException dbcex) { }
+                TempData["Error"] = context.Update(actionItem);
                 return RedirectToAction("Index");
             }
-            else
-            {
-                ModelState.AddModelError("", "Please enter correct values to proceed.");
-            }
-
-            return View(actionItem);
+            // Process model errors.
+            return View("Edit", actionItem);
         }
-		#endregion
+        #endregion EDIT/UPDATE
 
-		#region DELETE
+        #region DELETE
         public ActionResult Delete(Card actionItem)
         {
-            var foundItem = context.AllCards.FirstOrDefault(i => i.Id == actionItem.Id);
-            if (foundItem == null)
-            {
-                TempData["Error"] = "This card seems to no longer be there... It has probably been deleted in the meanwhile.";
-                return RedirectToAction("Index");
-                //return HttpNotFound();
-            }
-
-            try
-            {
-                context.Entry(foundItem).State = EntityState.Deleted;
-                context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again."
-                + "\n (Or, if you are PRO, open the console and send us the error log ;)";
-                ViewBag.ErrorLog = ex.ToFullString();
-                ViewBag.ErrorLog2 = ex.ToString();
-            }
-
+            TempData["Error"] = context.Delete(actionItem);
             return RedirectToAction("Index");
         }
-		#endregion
+        #endregion DELETE
 
         #region DISPOSE
         protected override void Dispose(bool disposing)
         {
-            if (disposing) {
+            if (disposing)
+            {
                 context.Dispose();
             }
             base.Dispose(disposing);
         }
-        #endregion
+        #endregion DISPOSE
     }
 }

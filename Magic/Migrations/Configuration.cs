@@ -4,6 +4,7 @@ namespace Magic.Migrations
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
+    using Magic.Models;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Magic.Models.DataContext.MagicDBContext>
     {
@@ -17,18 +18,10 @@ namespace Magic.Migrations
 
         protected override void Seed(Magic.Models.DataContext.MagicDBContext context)
         {
-            //  This method will be called after migrating to the latest version.
-
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            foreach (Color color in Enum.GetValues(typeof(Color)))
+            {
+                context.AllCardColors.AddOrUpdate(new CardColor { Color = color });
+            }
         }
     }
 }

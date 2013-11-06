@@ -1,18 +1,6 @@
 ﻿@if (TempData["Error"] != null)
 {
     <p><span class="text-danger">SIR! MAY I HAVE YOUR ATTENTION, PLEASE!</span> @TempData["Error"] </p>
-    if (ViewBag.ErrorLog != null)
-    {
-        <p style="font-size:10px"> (Or, if you are PRO, open the console and send us the error log ;)</p>
-
-        <script type="text/javascript">
-            //if (console && console.log) {
-                console.log("We have experienced a problem: ");
-                console.log(@ViewBag.ErrorLog);
-                console.log(@ViewBag.ErrorLog2);
-            //}
-        </script>
-    }
 }
 
 @if (TempData["Message"] != null)

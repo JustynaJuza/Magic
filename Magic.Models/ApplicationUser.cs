@@ -9,6 +9,7 @@ namespace Magic.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+        public DateTime DateOfLastLogin { get; set; }
         public string Title { get; set; }
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }

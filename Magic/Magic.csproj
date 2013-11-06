@@ -184,6 +184,10 @@
     <Compile Include="Migrations\201310291243151_Initial.Designer.cs">
       <DependentUpon>201310291243151_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201311041623244_LastLogin.cs" />
+    <Compile Include="Migrations\201311041623244_LastLogin.Designer.cs">
+      <DependentUpon>201311041623244_LastLogin.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -279,6 +283,9 @@
     <EmbeddedResource Include="Migrations\201310291243151_Initial.resx">
       <DependentUpon>201310291243151_Initial.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311041623244_LastLogin.resx">
+      <DependentUpon>201311041623244_LastLogin.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

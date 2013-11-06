@@ -32,6 +32,7 @@ namespace Magic.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -58,9 +59,10 @@ namespace Magic.Controllers
                 editErrorMessageConfirmPassword();
                 editErrorMessageBirthDate();
             }
+            // Process model errors.
             return View(model);
         }
-        #endregion
+        #endregion REGISTER
 
         #region LOG IN / LOGIN LINK / LOG OFF
         [AllowAnonymous]
@@ -86,6 +88,7 @@ namespace Magic.Controllers
                 //Invalid username/password combination - make model invalid.
                 ModelState.AddModelError("","");
             }
+            // Process model errors.
             return View(model);
         }
 
@@ -94,7 +97,7 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
-            // Request a redirect to the external login provider
+            // Request a redirect to the external login provider.
             return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
         }
 
@@ -108,7 +111,7 @@ namespace Magic.Controllers
                 return RedirectToAction("Login");
             }
 
-            // Sign in the user with this external login provider if the user already has a login
+            // Sign in the user with this external login provider if the user already has a login.
             var user = await UserManager.FindAsync(loginInfo.Login);
             if (user != null)
             {
@@ -117,7 +120,7 @@ namespace Magic.Controllers
             }
             else
             {
-                // If the user does not have an account, then prompt the user to create an account
+                // If the user does not have an account, then prompt the user to create an account.
                 ViewBag.ReturnUrl = returnUrl;
                 ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                 string email = "";
@@ -180,7 +183,7 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LinkLogin(string provider)
         {
-            // Request a redirect to the external login provider to link a login for the current user
+            // Request a redirect to the external login provider to link a login for the current user.
             return new ChallengeResult(provider, Url.Action("LinkLoginCallback", "Account"), User.Identity.GetUserId());
         }
 
@@ -233,8 +236,9 @@ namespace Magic.Controllers
         {
             return View();
         }
-        #endregion
+        #endregion LOG IN / LOGIN LINK / LOG OFF
 
+        #region MANAGE
         [HttpGet]
         public ActionResult Manage()
         {
@@ -315,6 +319,7 @@ namespace Magic.Controllers
                     editErrorMessageConfirmPassword();
                 }
             }
+            // Pass and process model errors.
             TempData["PasswordViewData"] = ViewData;
             return RedirectToAction("Manage");
         }
@@ -354,6 +359,7 @@ namespace Magic.Controllers
             {
                 editErrorMessageBirthDate();
             }
+            // Pass and process model errors.
             TempData["DetailsViewData"] = ViewData;
             return RedirectToAction("Manage");
         }
@@ -365,6 +371,7 @@ namespace Magic.Controllers
             ViewBag.ShowRemoveButton = HasPassword() || linkedAccounts.Count > 1;
             return (ActionResult) PartialView("_RemoveAccountPartial", linkedAccounts);
         }
+        #endregion MANAGE
 
         #region DISPOSE
         protected override void Dispose(bool disposing)
@@ -376,7 +383,7 @@ namespace Magic.Controllers
             }
             base.Dispose(disposing);
         }
-        #endregion
+        #endregion DISPOSE
 
         #region HELPERS
         // Used for XSRF protection when adding external logins
@@ -425,6 +432,8 @@ namespace Magic.Controllers
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
+
+            user.DateOfLastLogin = DateTime.Now;
         }
 
         private void AddErrors(IdentityResult result)
@@ -485,6 +494,6 @@ namespace Magic.Controllers
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
         }
-        #endregion
+        #endregion HELPERS
     }
 }
