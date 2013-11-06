@@ -433,7 +433,7 @@ namespace Magic.Controllers
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
 
-            user.DateOfLastLogin = DateTime.Now;
+            user.LastLoginDate = DateTime.Now;
         }
 
         private void AddErrors(IdentityResult result)

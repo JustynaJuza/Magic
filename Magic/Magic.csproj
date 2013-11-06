@@ -39,6 +39,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.0.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.0.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="SimpleInjector">
       <HintPath>..\packages\SimpleInjector.2.3.6\lib\net40-client\SimpleInjector.dll</HintPath>
@@ -180,13 +188,18 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201310291243151_Initial.cs" />
-    <Compile Include="Migrations\201310291243151_Initial.Designer.cs">
-      <DependentUpon>201310291243151_Initial.cs</DependentUpon>
+    <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Migrations\201311061729089_initial.cs" />
+    <Compile Include="Migrations\201311061729089_initial.Designer.cs">
+      <DependentUpon>201311061729089_initial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201311041623244_LastLogin.cs" />
-    <Compile Include="Migrations\201311041623244_LastLogin.Designer.cs">
-      <DependentUpon>201311041623244_LastLogin.cs</DependentUpon>
+    <Compile Include="Migrations\201311061742568_LoginDateChange.cs" />
+    <Compile Include="Migrations\201311061742568_LoginDateChange.Designer.cs">
+      <DependentUpon>201311061742568_LoginDateChange.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311061749045_DateCreatedColumnUpdate.cs" />
+    <Compile Include="Migrations\201311061749045_DateCreatedColumnUpdate.Designer.cs">
+      <DependentUpon>201311061749045_DateCreatedColumnUpdate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -224,6 +237,14 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.color-2.1.2.js" />
+    <Content Include="Scripts\jquery.color-2.1.2.min.js" />
+    <Content Include="Scripts\jquery.color.svg-names-2.1.2.js" />
+    <Content Include="Scripts\jquery.color.svg-names-2.1.2.min.js" />
+    <Content Include="Scripts\jquery.signalR-1.1.3.js" />
+    <Content Include="Scripts\jquery.signalR-1.1.3.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.0.0.js" />
+    <Content Include="Scripts\jquery.signalR-2.0.0.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -280,16 +301,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201310291243151_Initial.resx">
-      <DependentUpon>201310291243151_Initial.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311041623244_LastLogin.resx">
-      <DependentUpon>201311041623244_LastLogin.cs</DependentUpon>
-    </EmbeddedResource>
+    <Folder Include="Views\Shared\EditorTemplates\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Views\Shared\EditorTemplates\" />
+    <EmbeddedResource Include="Migrations\201311061729089_initial.resx">
+      <DependentUpon>201311061729089_initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311061742568_LoginDateChange.resx">
+      <DependentUpon>201311061742568_LoginDateChange.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311061749045_DateCreatedColumnUpdate.resx">
+      <DependentUpon>201311061749045_DateCreatedColumnUpdate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
