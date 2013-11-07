@@ -40,7 +40,7 @@ namespace Magic.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser()
+                ApplicationUser user = new ApplicationUser()
                 {
                     UserName = model.UserName,
                     Email = model.Email,

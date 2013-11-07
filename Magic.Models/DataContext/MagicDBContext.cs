@@ -34,9 +34,10 @@ namespace Magic.Models.DataContext
             //    });
         }
 
-        public DbSet<Magic.Models.Card> AllCards { get; set; }
-        public DbSet<Magic.Models.CardColor> AllCardColors { get; set; }
-        public DbSet<Magic.Models.CardType> AllCardTypes { get; set; }
+        public DbSet<Magic.Models.Card> Cards { get; set; }
+        public DbSet<Magic.Models.CardColor> CardColors { get; set; }
+        public DbSet<Magic.Models.CardType> CardTypes { get; set; }
+        public DbSet<Magic.Models.ChatLog> ChatLogs { get; set; }
 
         #region CRUD
         public string Create(Object item)
@@ -59,8 +60,11 @@ namespace Magic.Models.DataContext
             Type collectionType = item.GetType();
             DbSet targetCollection = this.Set(collectionType);
 
-            var itemId = collectionType.GetProperty("Id").GetValue(item);
-            var foundItem = targetCollection.Find(itemId);
+            var itemKeyInfo = (collectionType.GetProperty("Id") != null ? collectionType.GetProperty("Id") 
+                : collectionType.GetProperty("DateCreated") != null ? collectionType.GetProperty("DateCreated") : null);
+            var itemKey = itemKeyInfo.GetValue(item);
+
+            var foundItem = targetCollection.Find(itemKey);
             if (foundItem == null)
             {
                 return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";

@@ -252,6 +252,7 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\_ChatScript.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -286,6 +287,7 @@
     <Content Include="Views\CMS\Index.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
     <Content Include="Views\Account\_ManageUserDetailsPartial.cshtml" />
+    <Content Include="Views\Shared\_ChatPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

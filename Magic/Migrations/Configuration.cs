@@ -20,7 +20,7 @@ namespace Magic.Migrations
         {
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
-                context.AllCardColors.AddOrUpdate(new CardColor { Color = color });
+                context.CardColors.AddOrUpdate(new CardColor { Color = color });
             }
         }
     }

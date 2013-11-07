@@ -10,6 +10,7 @@ using Magic.Models.DataContext;
 
 namespace Magic.Controllers
 {
+    [Authorize]
     public class CardsController : Controller
     {
         private MagicDBContext context = new MagicDBContext();

@@ -17,7 +17,7 @@ namespace Magic.Models
     {
         [Required(ErrorMessage="You must enter an username to be able to log in.")]
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
-        [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
+        [RegularExpression("^([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)$", ErrorMessage = "A Player name can only start with letters, may contain numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
         public string UserName { get; set; }
 
@@ -46,7 +46,7 @@ namespace Magic.Models
     public class ManageUserDetailsViewModel : AbstractToString
     {
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
-        [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
+        [RegularExpression("^([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)$", ErrorMessage = "A Player name can only start with letters, may contain numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
         public string UserName { get; set; }
 
@@ -106,7 +106,7 @@ namespace Magic.Models
     {
         [Required(ErrorMessage = "You must enter an username to be able to log in.")]
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
-        [RegularExpression(@"^[a-zA-Z0-9-?.?\s]*$", ErrorMessage = "A Player can be named only with letters, numbers and a few selected special characters.")]
+        [RegularExpression("^([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)$", ErrorMessage = "A Player name can only start with letters, may contain numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
         public string UserName { get; set; }
 
