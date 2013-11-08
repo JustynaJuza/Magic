@@ -125,8 +125,10 @@
     <Compile Include="AbstractToString.cs" />
     <Compile Include="AccountViewModels.cs" />
     <Compile Include="Card.cs" />
+    <Compile Include="CardAbility.cs" />
     <Compile Include="CardColor.cs" />
-    <Compile Include="CardColorCost.cs" />
+    <Compile Include="CardCost.cs" />
+    <Compile Include="CardDeck.cs" />
     <Compile Include="CardType.cs" />
     <Compile Include="ChatMessage.cs" />
     <Compile Include="DataContext\MagicDBContext.cs" />

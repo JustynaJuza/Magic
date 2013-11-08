@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class CardColorCost : AbstractToString
+    public class CardCost : AbstractToString
     {
         public CardColor CardColorId { get; set; }
         public int Cost { get; set; }

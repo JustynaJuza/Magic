@@ -11,13 +11,22 @@ namespace Magic.Models
     public class CardType
     {
         public int Id { get; set; }
-        public MainType MainType { get; set; }
+        public virtual CardMainType MainType { get; set; }
     }
 
-    public class CardSubType : CardType
+    public class CardMainType
     {
-        //public virtual List<CardSubType>  { get; set; }
+        public int Id { get; set; }
+        public MainType Type { get; set; }
+        //public virtual List<CardSubType> SubTypes { get; set; }
     }
+
+    //public class CardSubType
+    //{
+    //    public int Id { get; set; }
+    //    public MainType Type { get; set; }
+    //}
+
 
     public enum MainType
     {

@@ -25,6 +25,12 @@ namespace Magic.Models
         public ChatLog()
         {
             DateCreated = DateTime.Today;
+            MessageLog = new List<ChatMessage>();
+        }
+
+        public void AppendMessages(ChatLog tempLog)
+        {
+            MessageLog.AddRange(tempLog.MessageLog);
         }
     }
 }

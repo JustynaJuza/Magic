@@ -26,21 +26,10 @@ namespace Magic.Hubs
                 TimeSend = DateTime.Now
             };
 
-            //// Update chatlog.
-            //ChatLog currentLog = context.ChatLogs.Find(message.TimeSend.Value.Date);
-            //if (currentLog != null)
-            //{
-            //    currentLog.MessageLog.Add(message);
-            //    context.Update(currentLog);
-            //    System.Diagnostics.Debug.WriteLine(currentLog.ToString());
-            //}
-            //else
-            //{
-            //    // Create new log for Today
-            //    currentLog = new ChatLog();
-            //    currentLog.MessageLog.Add(message);
-            //    context.Create(currentLog);
-            //}
+            // Synchronize adding message to ChatLog.
+            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
+            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application["GeneralChatLog"]).MessageLog.Add(message);
+            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
 
             if (message.Recipient == null)
             {
