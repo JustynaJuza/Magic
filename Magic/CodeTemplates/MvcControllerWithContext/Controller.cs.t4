@@ -55,25 +55,14 @@ namespace <#= Namespace #>
     var primaryKeyShortTypeName = ModelMetadata.PrimaryKeys[0].ShortTypeName;
     var primaryKeyDefaultValue = ModelMetadata.PrimaryKeys[0].DefaultValue;
     var primaryKeyType = ModelMetadata.PrimaryKeys[0].TypeName;
-    var primaryKeyNullableTypeName = GetNullableTypeName(primaryKeyType, primaryKeyShortTypeName);
     var lambdaVar = ModelVariable[0];
     var relatedProperties = ModelMetadata.RelatedEntities.ToDictionary(item => item.AssociationPropertyName);
-
-    string bindAttribute;
-    if (IsOverpostingProtectionRequired)
-    {
-        bindAttribute = String.Format("[Bind(Include=\"{0}\")] ", BindAttributeIncludeText);
-    }
-    else
-    {
-        bindAttribute = String.Empty;
-    }
 #>
     public class <#= ControllerName #> : Controller
     {
-        private <#= ContextTypeName #> db = new <#= ContextTypeName #>();
+        private <#= ContextTypeName #> context = new <#= ContextTypeName #>();
 
-        // GET: <#= routePrefix #>
+		[HttpGet]
 <# if (UseAsync) { #>
         public async Task<ActionResult> Index()
 <# } else { #>
@@ -84,7 +73,7 @@ namespace <#= Namespace #>
         includeExpressions = String.Join("", relatedProperties.Values.Select(property => String.Format(".Include({0} => {0}.{1})", lambdaVar, property.AssociationPropertyName)));
 #>
 <# if(!String.IsNullOrEmpty(includeExpressions)) { #>
-            var <#= entitySetVariable #> = db.<#= entitySetName #><#= includeExpressions #>;
+            var <#= entitySetVariable #> = context.<#= entitySetName #><#= includeExpressions #>;
 <#		if (UseAsync) { #>
             return View(await <#= entitySetVariable #>.ToListAsync());
 <#		} else { #>
@@ -92,214 +81,92 @@ namespace <#= Namespace #>
 <#		} #>
 <# } else { #>
 <#		if (UseAsync) { #>
-            return View(await db.<#= entitySetName #><#= includeExpressions #>.ToListAsync());
+            return View(await context.<#= entitySetName #><#= includeExpressions #>.ToListAsync());
 <#		} else { #>
-            return View(db.<#= entitySetName #><#= includeExpressions #>.ToList());
+            return View(context.<#= entitySetName #><#= includeExpressions #>.ToList());
 <#		} #>
 <# } #>
         }
 
-        // GET: <#= routePrefix #>Details/5
-<# if (UseAsync) { #>
-        public async Task<ActionResult> Details(<#= primaryKeyNullableTypeName #> id)
-<# } else { #>
-        public ActionResult Details(<#= primaryKeyNullableTypeName #> id)
-<# } #>
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-<# if (UseAsync) { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
-<# } else { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
-<# } #>
-            if (<#= ModelVariable #> == null)
-            {
-                return HttpNotFound();
-            }
-            return View(<#= ModelVariable #>);
-        }
-
-        // GET: <#= routePrefix #>Create
+		#region CREATE
+        [HttpGet]
         public ActionResult Create()
         {
 <# foreach (var property in relatedProperties.Values) { #>
-            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>");
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>");
 <# } #>
             return View();
         }
 
-        // POST: <#= routePrefix #>Create
-<# if (IsOverpostingProtectionRequired) {
-    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
-#>
-        // <#= line #>
-<# } } #>
         [HttpPost]
         [ValidateAntiForgeryToken]
-<# if (UseAsync) { #>
-        public async Task<ActionResult> Create(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
-<# } else { #>
-        public ActionResult Create(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
-<# } #>
+        public ActionResult Create(<#= ModelTypeName #>ViewModel actionItem)
         {
             if (ModelState.IsValid)
             {
-<# if(!String.IsNullOrEmpty(primaryKeyType) && String.Equals("System.Guid", primaryKeyType, StringComparison.OrdinalIgnoreCase)) { #>
-                <#= ModelVariable #>.<#= primaryKeyName #> = Guid.NewGuid();
-<# } #>
-                db.<#= entitySetName #>.Add(<#= ModelVariable #>);
-<# if (UseAsync) {#>
-                await db.SaveChangesAsync();
-<# } else { #>
-                db.SaveChanges();
-<# } #>
+                TempData["Error"] = context.Create(actionItem);
                 return RedirectToAction("Index");
             }
 
 <# foreach (var property in relatedProperties.Values) { #>
-            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
-            return View(<#= ModelVariable #>);
+            return View(actionItem);
         }
+		#endregion CREATE
 
-        // GET: <#= routePrefix #>Edit/5
-<# if (UseAsync) { #>
-        public async Task<ActionResult> Edit(<#= primaryKeyNullableTypeName #> id)
-<# } else { #>
-        public ActionResult Edit(<#= primaryKeyNullableTypeName #> id)
-<# } #>
+        #region EDIT/UPDATE
+        [HttpGet]
+        public ActionResult Edit(<#= ModelTypeName #>ViewModel actionItem)
         {
-            if (id == null)
+            TempData["Error"] = context.Read(actionItem);
+            if (TempData["Error"].GetType() == typeof(string))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Index");
             }
-<# if (UseAsync) { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
-<# } else { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
-<# } #>
-            if (<#= ModelVariable #> == null)
-            {
-                return HttpNotFound();
-            }
+
 <# foreach (var property in relatedProperties.Values) { #>
-            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
-            return View(<#= ModelVariable #>);
+            return View(actionItem);
         }
 
-        // POST: <#= routePrefix #>Edit/5
-<# if (IsOverpostingProtectionRequired) {
-    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
-#>
-        // <#= line #>
-<# } } #>
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-<# if (UseAsync) { #>
-        public async Task<ActionResult> Edit(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
-<# } else { #>
-        public ActionResult Edit(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
-<# } #>
+        public ActionResult Edit(<#= ModelTypeName #>ViewModel actionItem)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(<#= ModelVariable #>).State = EntityState.Modified;
-<# if (UseAsync) { #>
-                await db.SaveChangesAsync();
-<# } else { #>
-                db.SaveChanges();
-<# } #>
+                TempData["Error"] = context.Update(actionItem);
                 return RedirectToAction("Index");
             }
 <# foreach (var property in relatedProperties.Values) { #>
-            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
-            return View(<#= ModelVariable #>);
+			// Process model errors.
+            return View("Edit", actionItem);
         }
+		#endregion EDIT/UPDATE
 
-        // GET: <#= routePrefix #>Delete/5
-<# if (UseAsync) { #>
-        public async Task<ActionResult> Delete(<#= primaryKeyNullableTypeName #> id)
-<# } else { #>
-        public ActionResult Delete(<#= primaryKeyNullableTypeName #> id)
-<# } #>
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-<# if (UseAsync) { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
-<# } else { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
-<# } #>
-            if (<#= ModelVariable #> == null)
-            {
-                return HttpNotFound();
-            }
-            return View(<#= ModelVariable #>);
-        }
-
-        // POST: <#= routePrefix #>Delete/5
-        [HttpPost, ActionName("Delete")]
+		#region DELETE
+        [HttpPost]
         [ValidateAntiForgeryToken]
-<# if (UseAsync) { #>
-        public async Task<ActionResult> DeleteConfirmed(<#= primaryKeyShortTypeName #> id)
-<# } else { #>
-        public ActionResult DeleteConfirmed(<#= primaryKeyShortTypeName #> id)
-<# } #>
+        public ActionResult Delete(<#= ModelTypeName #>ViewModel actionItem)
         {
-<# if (UseAsync) { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
-<# } else { #>
-            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
-<# } #>
-            db.<#= entitySetName #>.Remove(<#= ModelVariable #>);
-<# if (UseAsync) { #>
-            await db.SaveChangesAsync();
-<# } else { #>
-            db.SaveChanges();
-<# } #>
+			TempData["Error"] = context.Delete(actionItem);
             return RedirectToAction("Index");
         }
+		#endregion DELETE
 
+		#region DISPOSE
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                context.Dispose();
             }
             base.Dispose(disposing);
         }
+		#endregion DISPOSE
     }
 }
-<#+
-// This function converts the primary key short type name to its nullable equivalent when possible. This is required to make
-// sure that an HTTP 400 error is thrown when the user tries to access the edit, delete, or details action with null values.
-    string GetNullableTypeName(string typeName, string shortTypeName)
-    {
-        // The exceptions are caught because if for any reason the type is user defined, then the short type name will be used.
-        // In that case the user will receive a server error if null is passed to the edit, delete, or details actions.
-        Type primaryKeyType = null;
-        try
-        {
-            primaryKeyType = Type.GetType(typeName);
-        }
-        catch
-        {
-        }
-        if (primaryKeyType != null && (primaryKeyType.IsPrimitive || IsGuid(typeName)))
-        {
-            return shortTypeName + "?";
-        }
-        return shortTypeName;
-    }
-
-    bool IsGuid(string typeName) {
-        return String.Equals("System.Guid", typeName, StringComparison.OrdinalIgnoreCase);
-    }
-#>

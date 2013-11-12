@@ -194,8 +194,8 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CardsController.cs" />
-    <Compile Include="Controllers\CMSController.cs" />
     <Compile Include="Controllers\ChatLogController.cs" />
+    <Compile Include="Controllers\CMSController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
@@ -297,12 +297,12 @@
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
     <Content Include="Views\Account\_ManageDetailsPartial.cshtml" />
     <Content Include="Views\Shared\_ChatPartial.cshtml" />
+    <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
     <Content Include="Views\ChatLog\Create.cshtml" />
     <Content Include="Views\ChatLog\Delete.cshtml" />
     <Content Include="Views\ChatLog\Details.cshtml" />
     <Content Include="Views\ChatLog\Edit.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
-    <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
