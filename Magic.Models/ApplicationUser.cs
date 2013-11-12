@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,7 +17,14 @@ namespace Magic.Models
         [DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
         [DataType(DataType.ImageUrl)]
-        public string UserImage { get; set; }
+        public string Image { get; set; }
+        public string ColorCode { get; set; }
+
+        // Constructor.
+        public ApplicationUser()
+        {
+            assignRandomColorCode();
+        }
 
         public override string ToString()
         {
@@ -28,6 +36,19 @@ namespace Magic.Models
 
             return toString;
         }
+
+        #region HELPERS
+        public void assignRandomColorCode()
+        {
+            Random random = new Random();
+            int red = random.Next(255); // Not 256, because black is the system message color.
+            int green = random.Next(255);
+            int blue = random.Next(255);
+            System.Drawing.Color color = System.Drawing.Color.FromArgb(red, green, blue);
+
+            this.ColorCode = System.Drawing.ColorTranslator.ToHtml(color);
+        }
+        #endregion HELPERS
     }
     // IdentityDbContext included in DataContext namespace => see MagicDBContext.
 }

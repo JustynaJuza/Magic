@@ -202,6 +202,14 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Migrations\201311111524177_userColorCode.cs" />
+    <Compile Include="Migrations\201311111524177_userColorCode.Designer.cs">
+      <DependentUpon>201311111524177_userColorCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311121123558_messagesavingtest.cs" />
+    <Compile Include="Migrations\201311121123558_messagesavingtest.Designer.cs">
+      <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -310,6 +318,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Shared\EditorTemplates\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201311111524177_userColorCode.resx">
+      <DependentUpon>201311111524177_userColorCode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311121123558_messagesavingtest.resx">
+      <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

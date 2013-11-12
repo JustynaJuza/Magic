@@ -11,18 +11,23 @@ namespace Magic.Hubs
 {
     public class ChatHub : Hub
     {
-        MagicDBContext context = new MagicDBContext();
+        private static MagicDBContext context = new MagicDBContext();
 
         public void Send(string messageText)
         {
-            string recipient = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
-            if (recipient.Length > 0) recipient = recipient.Substring(1);
+            string recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
+            if (recipientName.Length > 0)
+            {
+                // Get message text after username and following space.
+                messageText = messageText.Substring(recipientName.Length+1);
+                recipientName = recipientName.Substring(1);
+            }
 
-            ChatMessage message = new ChatMessage()
+            var message = new ChatMessage()
             {
                 Message = messageText,
                 Sender = context.Users.Find(Context.User.Identity.GetUserId()),
-                Recipient = context.Users.FirstOrDefault(u => u.UserName == recipient),
+                Recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName),
                 TimeSend = DateTime.Now
             };
 
@@ -31,16 +36,65 @@ namespace Magic.Hubs
             ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application["GeneralChatLog"]).MessageLog.Add(message);
             HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
 
+            // Use callback method to update clients.
             if (message.Recipient == null)
             {
-                // Use callback method to update clients.
-                Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Message);
+                Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
             else
             {
-                Clients.Caller.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Message);
-                Clients.User(message.Recipient.Id).addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Message);
+                Clients.Caller.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                Clients.User(message.Recipient.Id).addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
         }
+
+        public static void UserActionBroadcast(ApplicationUser user, bool joinedChat = true)
+        {
+
+            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            var message = new ChatMessage()
+            {
+                Sender = user,
+                TimeSend = DateTime.Now
+            };
+
+            if (joinedChat)
+            {
+                message.Message = " joined the conversation.";
+            }
+            else
+            {
+                message.Message = " left.";
+            }
+
+            // Synchronize adding message to ChatLog.
+            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
+            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application["GeneralChatLog"]).MessageLog.Add(message);
+            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
+
+            context.Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        }
+
+        #region CHATLOG SAVE
+        // This function is called by schedule from Global.asax and uses the static context.
+        public static string SaveChatLogToDatabase(ChatLog currentLog)
+        {
+            ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);
+            if (todayLog != null)
+            {
+                todayLog.AppendMessages(currentLog);
+                return context.Update(todayLog);
+            }
+            else
+            {
+                // Create new log for Today.
+                todayLog = new ChatLog()
+                {
+                    MessageLog = currentLog.MessageLog
+                };
+                return context.Create(todayLog);
+            }
+        }
+        #endregion CHATLOG SAVE
     }
 }

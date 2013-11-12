@@ -65,7 +65,9 @@ namespace Magic.Models
 
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Your Plainswalker image")]
-        public string UserImage { get; set; }
+        public string Image { get; set; }
+
+        public string ColorCode { get; set; }
     }
 
     public class ManagePasswordViewModel : AbstractToString

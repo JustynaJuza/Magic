@@ -11,6 +11,7 @@ using Microsoft.Owin.Security;
 using Magic.Models;
 using Magic.Models.DataContext;
 using System.Data.Entity;
+using Magic.Hubs;
 
 namespace Magic.Controllers
 {
@@ -254,7 +255,8 @@ namespace Magic.Controllers
                 UserName = foundUser.UserName,
                 Email = foundUser.Email,
                 BirthDate = foundUser.BirthDate,
-                UserImage = foundUser.UserImage
+                Image = foundUser.Image,
+                ColorCode = foundUser.ColorCode
             };
 
             if (TempData["PasswordViewData"] != null)
@@ -265,6 +267,16 @@ namespace Magic.Controllers
             ViewBag.HasLocalPassword = HasPassword();
             ViewBag.ReturnUrl = Url.Action("Manage");
             return View(userDetails);
+        }
+
+        public ActionResult ManageUserColor()
+        {
+            var foundUser = UserManager.FindById(User.Identity.GetUserId());
+            foundUser.assignRandomColorCode();
+
+            TempData["Error"] = context.Update(foundUser);
+
+            return RedirectToAction("Manage");
         }
 
         [HttpPost]
@@ -341,18 +353,16 @@ namespace Magic.Controllers
                     foundUser.Title = model.Title;
                     foundUser.Email = model.Email;
                     foundUser.BirthDate = model.BirthDate;
-                    foundUser.UserImage = model.UserImage;
+                    foundUser.Image = model.Image;
 
                     context.Entry(foundUser).State = EntityState.Modified;
                     context.SaveChanges();
 
                     TempData["Message"] = "Your details have been updated.";
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
-                    ViewBag.ErrorLog = ex.ToFullString();
-                    ViewBag.ErrorLog2 = ex.ToString();
                 }
             }
             else
@@ -434,6 +444,7 @@ namespace Magic.Controllers
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
 
             user.LastLoginDate = DateTime.Now;
+            ChatHub.UserActionBroadcast(user);
         }
 
         private void AddErrors(IdentityResult result)

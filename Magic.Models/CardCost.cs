@@ -7,7 +7,7 @@ namespace Magic.Models
 {
     public class CardCost : AbstractToString
     {
-        public CardColor CardColorId { get; set; }
+        public CardColor Color { get; set; }
         public int Cost { get; set; }
     }
 }

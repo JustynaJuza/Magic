@@ -9,10 +9,14 @@
 
 @Html.Partial("_MessagePartial")
 
-<p>You're logged in as <strong>@Model.UserName@Model.Title</strong>.</p>
+<p>You're logged in as <strong style="color:@Model.ColorCode">@Model.UserName@Model.Title</strong>.</p>
 
 <div class="row">
     <div class="col-md-12">
+
+        @*<div style="background-color:@Model.ColorCode;width:50px;height:50px"></div>*@
+        @Html.ActionLink("Randomize my chat color.", "ManageUserColor", null, new { @class = "btn btn-default", @style = "color:" + Model.ColorCode })
+
         @Html.Partial("_ManageUserDetailsPartial", Model, (ViewDataDictionary) ViewBag.DetailsViewData)
 
         @if (ViewBag.HasLocalPassword)
@@ -31,5 +35,5 @@
     </div>
 </div>
 @*@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}*@
+        @Scripts.Render("~/bundles/jqueryval")
+    }*@

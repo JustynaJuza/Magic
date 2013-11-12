@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -22,15 +23,18 @@ namespace Magic.Models
         public DateTime DateCreated { get; set; }
         public virtual List<ChatMessage> MessageLog { get; set; }
 
+        // Constructor.
         public ChatLog()
         {
             DateCreated = DateTime.Today;
             MessageLog = new List<ChatMessage>();
         }
 
+        #region HELPERS
         public void AppendMessages(ChatLog tempLog)
         {
             MessageLog.AddRange(tempLog.MessageLog);
         }
+        #endregion HELPERS
     }
 }

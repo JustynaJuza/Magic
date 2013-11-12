@@ -38,6 +38,7 @@ namespace Magic.Models.DataContext
         public DbSet<Magic.Models.CardColor> CardColors { get; set; }
         public DbSet<Magic.Models.CardType> CardTypes { get; set; }
         public DbSet<Magic.Models.ChatLog> ChatLogs { get; set; }
+        public DbSet<Magic.Models.ChatMessage> ChatMessages { get; set; }
 
         #region CRUD
         public string Create(Object item)
@@ -47,6 +48,16 @@ namespace Magic.Models.DataContext
                 this.Entry(item).State = EntityState.Added;
                 this.SaveChanges();
             }
+            //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            //{
+            //    foreach (var validationErrors in ex.EntityValidationErrors)
+            //    {
+            //        foreach (var validationError in validationErrors.ValidationErrors)
+            //        {
+            //            System.Diagnostics.Trace.TraceInformation("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
+            //        }
+            //    }
+            //}
             catch (Exception)
             {
                 return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
