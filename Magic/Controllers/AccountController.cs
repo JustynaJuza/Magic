@@ -12,6 +12,7 @@ using Magic.Models;
 using Magic.Models.DataContext;
 using System.Data.Entity;
 using Magic.Hubs;
+using System.IO;
 
 namespace Magic.Controllers
 {
@@ -60,6 +61,7 @@ namespace Magic.Controllers
                 editErrorMessageConfirmPassword();
                 editErrorMessageBirthDate();
             }
+
             // Process model errors.
             return View(model);
         }
@@ -87,8 +89,9 @@ namespace Magic.Controllers
                     return RedirectToLocal(returnUrl);
                 }
                 //Invalid username/password combination - make model invalid.
-                ModelState.AddModelError("","");
+                ModelState.AddModelError("", "");
             }
+
             // Process model errors.
             return View(model);
         }
@@ -129,6 +132,7 @@ namespace Magic.Controllers
                 {
                     email = loginInfo.DefaultUserName.ToLower() + "@gmail.com";
                 }
+
                 return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = loginInfo.DefaultUserName, Email = email });
             }
         }
@@ -243,6 +247,8 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Manage()
         {
+            ViewBag.HasLocalPassword = HasPassword();
+
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
             if (foundUser == null)
             {
@@ -259,13 +265,26 @@ namespace Magic.Controllers
                 ColorCode = foundUser.ColorCode
             };
 
+            // Check for Model error processing from partial views.
+            System.Diagnostics.Debug.WriteLine(foundUser.Image);
             if (TempData["PasswordViewData"] != null)
                 ViewBag.PasswordViewData = TempData["PasswordViewData"];
             if (TempData["DetailsViewData"] != null)
                 ViewBag.DetailsViewData = TempData["DetailsViewData"];
+            if (TempData["ImageViewData"] != null)
+                ViewBag.ImageViewData = TempData["ImageViewData"];
 
-            ViewBag.HasLocalPassword = HasPassword();
-            ViewBag.ReturnUrl = Url.Action("Manage");
+            // Determine with which loginProviders user can still associate.
+            List<AuthenticationDescription> loginProviders = new List<AuthenticationDescription>();
+            foreach (var provider in HttpContext.ApplicationInstance.Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes().ToList())
+            {
+                if (!foundUser.Logins.Any(l => l.LoginProvider == provider.AuthenticationType))
+                {
+                    loginProviders.Add(provider);
+                }
+            }
+            ViewBag.LoginProviders = loginProviders.Count > 0 ? loginProviders : null;
+
             return View(userDetails);
         }
 
@@ -275,7 +294,74 @@ namespace Magic.Controllers
             foundUser.assignRandomColorCode();
 
             TempData["Error"] = context.Update(foundUser);
+            return RedirectToAction("Manage");
+        }
 
+        public ActionResult ManageUserImage(HttpPostedFileBase file)
+        {
+            ViewBag.HasLocalPassword = HasPassword();
+
+            if (file != null)
+            {
+                bool imageFile = System.Text.RegularExpressions.Regex.IsMatch(file.ContentType, "image");
+                if (!imageFile)
+                {
+                    // Invalid file type - make model invalid.
+                    ModelState.AddModelError("Image", "This must be an image file.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    var foundUser = UserManager.FindById(User.Identity.GetUserId());
+
+                    var extension = file.FileName.Split('.').Last();
+                    var imagePath = "~/Content/Images/Users/" + foundUser.UserName + "." + extension;
+                    file.SaveAs(Server.MapPath(imagePath));
+
+                    foundUser.Image = imagePath;
+
+                    TempData["Error"] = context.Update(foundUser);
+                }
+            }
+
+            // Pass and process model errors.
+            TempData["ImageViewData"] = ViewData;
+            return RedirectToAction("Manage");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManageUserDetails(ManageUserDetailsViewModel model)
+        {
+            ViewBag.HasLocalPassword = HasPassword();
+
+            if (ModelState.IsValid)
+            {
+                var foundUser = UserManager.FindById(User.Identity.GetUserId());
+                try
+                {
+                    foundUser.Title = model.Title;
+                    foundUser.Email = model.Email;
+                    foundUser.BirthDate = model.BirthDate;
+                    foundUser.Image = model.Image;
+
+                    context.Entry(foundUser).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    TempData["Message"] = "Your details have been updated.";
+                }
+                catch (Exception)
+                {
+                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
+                }
+            }
+            else
+            {
+                editErrorMessageBirthDate();
+            }
+
+            // Pass and process model errors.
+            TempData["DetailsViewData"] = ViewData;
             return RedirectToAction("Manage");
         }
 
@@ -285,7 +371,6 @@ namespace Magic.Controllers
         {
             bool hasPassword = HasPassword();
             ViewBag.HasLocalPassword = hasPassword;
-            ViewBag.ReturnUrl = Url.Action("Manage");
 
             if (hasPassword)
             {
@@ -333,44 +418,6 @@ namespace Magic.Controllers
             }
             // Pass and process model errors.
             TempData["PasswordViewData"] = ViewData;
-            return RedirectToAction("Manage");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ManageUserDetails(ManageUserDetailsViewModel model)
-        {
-            ViewBag.HasLocalPassword = HasPassword();
-            ViewBag.ReturnUrl = Url.Action("Manage");
-
-            if (ModelState.IsValid)
-            {
-                var currentUserID = User.Identity.GetUserId();
-                var foundUser = context.Users.FirstOrDefault(u => u.Id == currentUserID);
-
-                try
-                {
-                    foundUser.Title = model.Title;
-                    foundUser.Email = model.Email;
-                    foundUser.BirthDate = model.BirthDate;
-                    foundUser.Image = model.Image;
-
-                    context.Entry(foundUser).State = EntityState.Modified;
-                    context.SaveChanges();
-
-                    TempData["Message"] = "Your details have been updated.";
-                }
-                catch (Exception)
-                {
-                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
-                }
-            }
-            else
-            {
-                editErrorMessageBirthDate();
-            }
-            // Pass and process model errors.
-            TempData["DetailsViewData"] = ViewData;
             return RedirectToAction("Manage");
         }
 

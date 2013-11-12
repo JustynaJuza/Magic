@@ -39,12 +39,12 @@ namespace Magic.Hubs
             // Use callback method to update clients.
             if (message.Recipient == null)
             {
-                Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
             else
             {
-                Clients.Caller.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                Clients.User(message.Recipient.Id).addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                Clients.Caller.addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                Clients.User(message.Recipient.Id).addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Magic.Hubs
             ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application["GeneralChatLog"]).MessageLog.Add(message);
             HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
 
-            context.Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("hh:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            context.Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
 
         #region CHATLOG SAVE

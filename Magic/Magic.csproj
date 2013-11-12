@@ -280,10 +280,10 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-    <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
+    <Content Include="Views\Account\_ManagePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\_RemoveAccountPartial.cshtml" />
-    <Content Include="Views\Account\_SetPasswordPartial.cshtml" />
+    <Content Include="Views\Account\_ManageNewPasswordPartial.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
@@ -295,13 +295,14 @@
     <Content Include="Views\Cards\Index.cshtml" />
     <Content Include="Views\CMS\Index.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
-    <Content Include="Views\Account\_ManageUserDetailsPartial.cshtml" />
+    <Content Include="Views\Account\_ManageDetailsPartial.cshtml" />
     <Content Include="Views\Shared\_ChatPartial.cshtml" />
     <Content Include="Views\ChatLog\Create.cshtml" />
     <Content Include="Views\ChatLog\Delete.cshtml" />
     <Content Include="Views\ChatLog\Details.cshtml" />
     <Content Include="Views\ChatLog\Edit.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
+    <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -317,6 +318,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Content\Images\Users\" />
     <Folder Include="Views\Shared\EditorTemplates\" />
   </ItemGroup>
   <ItemGroup>

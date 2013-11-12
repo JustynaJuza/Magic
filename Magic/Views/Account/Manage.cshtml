@@ -15,22 +15,26 @@
     <div class="col-md-12">
 
         @*<div style="background-color:@Model.ColorCode;width:50px;height:50px"></div>*@
-        @Html.ActionLink("Randomize my chat color.", "ManageUserColor", null, new { @class = "btn btn-default", @style = "color:" + Model.ColorCode })
 
-        @Html.Partial("_ManageUserDetailsPartial", Model, (ViewDataDictionary) ViewBag.DetailsViewData)
+        @Html.Partial("_ManagePlayerPartial", Model, (ViewDataDictionary) ViewBag.ImageViewData)
+
+        @Html.Partial("_ManageDetailsPartial", Model, (ViewDataDictionary) ViewBag.DetailsViewData)
 
         @if (ViewBag.HasLocalPassword)
         {
-            @Html.Partial("_ChangePasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
+            @Html.Partial("_ManagePasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
         }
         else
         {
-            @Html.Partial("_SetPasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
+            @Html.Partial("_ManageNewPasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
         }
 
         <section id="externalLogins">
             @Html.Action("RemoveAccountList")
-            @Html.Partial("_ExternalLoginsListPartial", new { Action = "LinkLogin", ReturnUrl = ViewBag.ReturnUrl })
+            @if (ViewBag.LoginProviders != null)
+            {
+                @Html.Partial("_ExternalLoginsListPartial", new { Action = "LinkLogin", ReturnUrl = Url.Action("Manage") })
+            }
         </section>
     </div>
 </div>

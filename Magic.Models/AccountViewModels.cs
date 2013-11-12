@@ -64,7 +64,7 @@ namespace Magic.Models
         public DateTime? BirthDate { get; set; }
 
         [DataType(DataType.ImageUrl)]
-        [Display(Name = "Your Plainswalker image")]
+        [Display(Name = "Your Plainswalker")]
         public string Image { get; set; }
 
         public string ColorCode { get; set; }
