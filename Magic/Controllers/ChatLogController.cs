@@ -13,116 +13,81 @@ namespace Magic.Controllers
 {
     public class ChatLogController : Controller
     {
-        private MagicDBContext db = new MagicDBContext();
+        private MagicDBContext context = new MagicDBContext();
 
-        // GET: /Default1/
+		[HttpGet]
         public ActionResult Index()
         {
-            return View(db.ChatLogs.ToList());
+            return View(context.ChatLogs.ToList());
         }
 
-        // GET: /Default1/Details/5
-        public ActionResult Details(DateTime id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ChatLog chatlog = db.ChatLogs.Find(id);
-            if (chatlog == null)
-            {
-                return HttpNotFound();
-            }
-            return View(chatlog);
-        }
-
-        // GET: /Default1/Create
+		#region CREATE
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: /Default1/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "DateCreated")] ChatLog chatlog)
+        public ActionResult Create(ChatLog actionItem)
         {
             if (ModelState.IsValid)
             {
-                db.ChatLogs.Add(chatlog);
-                db.SaveChanges();
+                TempData["Error"] = context.Create(actionItem);
                 return RedirectToAction("Index");
             }
 
-            return View(chatlog);
+            return View(actionItem);
         }
+		#endregion CREATE
 
-        // GET: /Default1/Edit/5
-        public ActionResult Edit(DateTime id)
+        #region EDIT/UPDATE
+        [HttpGet]
+        public ActionResult Edit(ChatLog actionItem)
         {
-            if (id == null)
+            TempData["Error"] = context.Read(actionItem);
+            if (TempData["Error"].GetType() == typeof(string))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Index");
             }
-            ChatLog chatlog = db.ChatLogs.Find(id);
-            if (chatlog == null)
-            {
-                return HttpNotFound();
-            }
-            return View(chatlog);
+
+            return View(actionItem);
         }
 
-        // POST: /Default1/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "DateCreated")] ChatLog chatlog)
+        public ActionResult Edit(ChatLog actionItem)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(chatlog).State = EntityState.Modified;
-                db.SaveChanges();
+                TempData["Error"] = context.Update(actionItem);
                 return RedirectToAction("Index");
             }
-            return View(chatlog);
+			// Process model errors.
+            return View("Edit", actionItem);
         }
+		#endregion EDIT/UPDATE
 
-        // GET: /Default1/Delete/5
-        public ActionResult Delete(DateTime id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ChatLog chatlog = db.ChatLogs.Find(id);
-            if (chatlog == null)
-            {
-                return HttpNotFound();
-            }
-            return View(chatlog);
-        }
-
-        // POST: /Default1/Delete/5
-        [HttpPost, ActionName("Delete")]
+		#region DELETE
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(DateTime id)
+        public ActionResult Delete(ChatLog actionItem)
         {
-            ChatLog chatlog = db.ChatLogs.Find(id);
-            db.ChatLogs.Remove(chatlog);
-            db.SaveChanges();
+			TempData["Error"] = context.Delete(actionItem);
             return RedirectToAction("Index");
         }
+		#endregion DELETE
 
+		#region DISPOSE
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                context.Dispose();
             }
             base.Dispose(disposing);
         }
+		#endregion DISPOSE
     }
 }

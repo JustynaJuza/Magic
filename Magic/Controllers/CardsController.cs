@@ -29,16 +29,17 @@ namespace Magic.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(Card actionItem)
         {
             if (ModelState.IsValid)
             {
-                Card item = new Card()
-                {
-                    Name = actionItem.Name
-                };
+                //Card item = new Card()
+                //{
+                //    Name = actionItem.Name
+                //};
 
-                TempData["Error"] = context.Create(item);
+                TempData["Error"] = context.Create(actionItem);
                 return RedirectToAction("Index");
             }
             // Process model errors.
@@ -58,7 +59,8 @@ namespace Magic.Controllers
             return View(actionItem);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
+        [ValidateAntiForgeryToken]
         public ActionResult PostEdit([Bind(Include = "Id, Name")] Card actionItem)
         {
             if (ModelState.IsValid)
