@@ -45,10 +45,12 @@ namespace Magic.Models
 
     public class ManageUserDetailsViewModel : AbstractToString
     {
+        public string Id { get; private set; }
+
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
         [RegularExpression("^([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)$", ErrorMessage = "A Player name can only start with letters, may contain numbers and a few selected special characters.")]
         [Display(Name = "New Player")]
-        public string UserName { get; set; }
+        public string UserName { get; private set; }
 
         public string Title { get; set; }
 
@@ -67,7 +69,18 @@ namespace Magic.Models
         [Display(Name = "Your Plainswalker")]
         public string Image { get; set; }
 
-        public string ColorCode { get; set; }
+        public string ColorCode { get; private set; }
+
+        public ManageUserDetailsViewModel(ApplicationUser user)
+        {
+            Id = user.Id;
+            UserName = user.UserName;
+            Title = user.Title;
+            Email = user.Email;
+            BirthDate = user.BirthDate;
+            Image = user.Image;
+            ColorCode = user.ColorCode;
+        }
     }
 
     public class ManagePasswordViewModel : AbstractToString

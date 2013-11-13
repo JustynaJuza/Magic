@@ -57,7 +57,7 @@ namespace Magic.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(ChatLog actionItem)
+        public ActionResult PostEdit(ChatLog actionItem)
         {
             if (ModelState.IsValid)
             {

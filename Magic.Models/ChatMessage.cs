@@ -20,6 +20,8 @@ namespace Magic.Models
     public class ChatLog : AbstractToString
     {
         [Key]
+        [Display(Name = "Date")]
+        [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
         public virtual List<ChatMessage> MessageLog { get; set; }
 

@@ -48,13 +48,14 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UserActionBroadcast(ApplicationUser user, bool joinedChat = true)
+        public static void UserActionBroadcast(string userId, bool joinedChat = true)
         {
 
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            var hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
             var message = new ChatMessage()
             {
-                Sender = user,
+                Sender = context.Users.Find(userId),
                 TimeSend = DateTime.Now
             };
 
@@ -72,18 +73,18 @@ namespace Magic.Hubs
             ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application["GeneralChatLog"]).MessageLog.Add(message);
             HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
 
-            context.Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            hubContext.Clients.All.addNewMessageToPage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
 
         #region CHATLOG SAVE
         // This function is called by schedule from Global.asax and uses the static context.
         public static string SaveChatLogToDatabase(ChatLog currentLog)
         {
-            ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);
+            ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);//context.Set<ChatLog>().AsNoTracking().FirstOrDefault(c => c.DateCreated == currentLog.DateCreated);
             if (todayLog != null)
             {
                 todayLog.AppendMessages(currentLog);
-                return context.Update(todayLog);
+                return context.Update(todayLog, true);
             }
             else
             {

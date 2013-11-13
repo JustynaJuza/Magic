@@ -84,11 +84,15 @@ namespace Magic.Models.DataContext
             return foundItem;
         }
 
-        public string Update(Object item)
+        public string Update(Object item, bool updateOnly = false)
         {
-            var foundItem = Read(item);
-            if (foundItem.GetType() == typeof(string))
-                return (string) foundItem; // Error string returned.
+            var foundItem = item;
+            if (!updateOnly)
+            {
+                foundItem = Read(item);
+                if (foundItem.GetType() == typeof(string))
+                    return (string) foundItem; // Error string returned.
+            }
 
             try
             {

@@ -196,6 +196,7 @@
     <Compile Include="Controllers\CardsController.cs" />
     <Compile Include="Controllers\ChatLogController.cs" />
     <Compile Include="Controllers\CMSController.cs" />
+    <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
@@ -230,10 +231,7 @@
     <Content Include="CodeTemplates\MvcArea\Area.cs.t4" />
     <Content Include="CodeTemplates\MvcArea\web.cs.t4" />
     <Content Include="CodeTemplates\MvcControllerEmpty\Controller.cs.t4" />
-    <Content Include="CodeTemplates\MvcControllerWithActions\Controller.cs.t4" />
     <Content Include="CodeTemplates\MvcControllerWithContext\Controller.cs.t4" />
-    <Content Include="CodeTemplates\MvcViewWithoutModel\Empty.cs.t4" />
-    <Content Include="CodeTemplates\MvcViewWithoutModel\Imports.include.t4" />
     <Content Include="CodeTemplates\MvcView\Create.cs.t4" />
     <Content Include="CodeTemplates\MvcView\Delete.cs.t4" />
     <Content Include="CodeTemplates\MvcView\Details.cs.t4" />
@@ -300,9 +298,10 @@
     <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
     <Content Include="Views\ChatLog\Create.cshtml" />
     <Content Include="Views\ChatLog\Delete.cshtml" />
-    <Content Include="Views\ChatLog\Details.cshtml" />
+    <Content Include="Views\ChatLog\MessageLog.cshtml" />
     <Content Include="Views\ChatLog\Edit.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
+    <Content Include="Views\Game\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

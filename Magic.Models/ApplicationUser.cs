@@ -48,6 +48,11 @@ namespace Magic.Models
 
             this.ColorCode = System.Drawing.ColorTranslator.ToHtml(color);
         }
+
+        public ManageUserDetailsViewModel getViewModel()
+        {
+            return new ManageUserDetailsViewModel(this);
+        }
         #endregion HELPERS
     }
     // IdentityDbContext included in DataContext namespace => see MagicDBContext.

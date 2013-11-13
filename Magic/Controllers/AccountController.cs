@@ -208,7 +208,7 @@ namespace Magic.Controllers
                 return RedirectToAction("Manage");
             }
 
-            TempData["Error"] = "There was an error while linking your " + loginInfo.Login.LoginProvider + " account, maybe try again later...";
+            TempData["Error"] = "There was an error while linking your " + loginInfo.Login.LoginProvider + " account. Have you already associated it with a different account?";
             return RedirectToAction("Manage");
         }
 
@@ -256,15 +256,6 @@ namespace Magic.Controllers
                 return RedirectToAction("Login", new { returnUrl = Url.Action("Manage") });
             }
 
-            ManageUserDetailsViewModel userDetails = new ManageUserDetailsViewModel
-            {
-                UserName = foundUser.UserName,
-                Email = foundUser.Email,
-                BirthDate = foundUser.BirthDate,
-                Image = foundUser.Image,
-                ColorCode = foundUser.ColorCode
-            };
-
             // Check for Model error processing from partial views.
             System.Diagnostics.Debug.WriteLine(foundUser.Image);
             if (TempData["PasswordViewData"] != null)
@@ -285,7 +276,7 @@ namespace Magic.Controllers
             }
             ViewBag.LoginProviders = loginProviders.Count > 0 ? loginProviders : null;
 
-            return View(userDetails);
+            return View(foundUser.getViewModel());
         }
 
         public ActionResult ManageUserColor()
@@ -338,22 +329,12 @@ namespace Magic.Controllers
             if (ModelState.IsValid)
             {
                 var foundUser = UserManager.FindById(User.Identity.GetUserId());
-                try
-                {
-                    foundUser.Title = model.Title;
-                    foundUser.Email = model.Email;
-                    foundUser.BirthDate = model.BirthDate;
-                    foundUser.Image = model.Image;
 
-                    context.Entry(foundUser).State = EntityState.Modified;
-                    context.SaveChanges();
-
-                    TempData["Message"] = "Your details have been updated.";
-                }
-                catch (Exception)
-                {
-                    TempData["Error"] = "Something went wrong here... That's quite unusual, maybe try again.";
-                }
+                    TempData["Error"] = context.Update(foundUser);
+                    if (TempData["Error"] == null)
+                    {
+                        TempData["Message"] = "Your details have been updated.";
+                    }
             }
             else
             {
@@ -490,8 +471,9 @@ namespace Magic.Controllers
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
 
+            ChatHub.UserActionBroadcast(user.Id);
             user.LastLoginDate = DateTime.Now;
-            ChatHub.UserActionBroadcast(user);
+            context.Update(user);
         }
 
         private void AddErrors(IdentityResult result)

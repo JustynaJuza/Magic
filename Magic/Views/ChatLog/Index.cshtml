@@ -12,15 +12,26 @@
 </p>
 <table class="table">
     <tr>
+        <th>
+            @Html.DisplayName("Date")
+        </th>
+        <th>
+            @Html.DisplayName("Messages")
+        </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.DateCreated }) |
-            @Html.ActionLink("Details", "Details", new { id=item.DateCreated }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.DateCreated })
+            @Html.DisplayFor(modelItem => item.DateCreated)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.MessageLog.Count)
+        </td>
+        <td>
+            @Html.ActionLink("View", "MessageLog", item) | |
+            @Html.ActionLink("Delete", "Delete", item)
         </td>
     </tr>
 }

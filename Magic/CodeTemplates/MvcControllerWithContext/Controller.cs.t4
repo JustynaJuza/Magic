@@ -133,7 +133,7 @@ namespace <#= Namespace #>
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(<#= ModelTypeName #>ViewModel actionItem)
+        public ActionResult PostEdit(<#= ModelTypeName #>ViewModel actionItem)
         {
             if (ModelState.IsValid)
             {
