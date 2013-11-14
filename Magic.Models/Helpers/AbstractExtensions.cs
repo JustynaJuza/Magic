@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Magic.Models
+namespace Magic.Models.Helpers
 {
-    public abstract class AbstractToString
+    public abstract class AbstractExtensions
     {
         public override string ToString()
         {
@@ -16,6 +17,15 @@ namespace Magic.Models
                 toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
 
             return toString;
+        }
+
+        // Returns a new instance of the related viewModel.
+        public IViewModel getViewModel()
+        {
+            string viewModelName = this.GetType().FullName + "ViewModel ";
+            var viewModel = Type.GetType(viewModelName);
+
+            return (IViewModel) Activator.CreateInstance(viewModel, this);
         }
     }
 

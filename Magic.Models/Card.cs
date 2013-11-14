@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Magic.Models.Helpers;
+using Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +9,7 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class Card : AbstractToString
+    public class Card : AbstractExtensions
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -17,7 +19,14 @@ namespace Magic.Models
         public virtual List<CardAbility> Abilities { get; set; }
     }
 
-    public class CardViewModel : AbstractToString
+    public class CreatureCard : Card
+    {
+        public int Power { get; set; }
+        public int Toughness { get; set; }
+    }
+
+
+    public class CardViewModel : AbstractExtensions, ICard, IViewModel
     {
         public int Id { get {return this.Id;} }
         [Required(ErrorMessage = "The card must have a name.")]
@@ -32,15 +41,10 @@ namespace Magic.Models
         {
             Tapped = true;
         }
-        public void Untap()
+        public void UnTap()
         {
             Tapped = false;
         }
-    }
-
-    public class CreatureCard : Card
-    {
-        public int Power { get; set; }
-        public int Toughness { get; set; }
+        public bool Play() { return true; }
     }
 }

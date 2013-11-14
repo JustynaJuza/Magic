@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magic.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class ChatMessage : AbstractToString
+    public class ChatMessage : AbstractExtensions
     {
         public int Id { get; set; }
         public DateTime? TimeRead { get; set; }
@@ -17,7 +18,7 @@ namespace Magic.Models
         public string Message { get; set; }
     }
 
-    public class ChatLog : AbstractToString
+    public class ChatLog : AbstractExtensions
     {
         [Key]
         [Display(Name = "Date")]

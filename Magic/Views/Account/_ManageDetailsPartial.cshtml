@@ -1,4 +1,4 @@
-﻿@model Magic.Models.ManageUserDetailsViewModel
+﻿@model Magic.Models.ManageUserViewModel
 
 @using (Html.BeginForm("ManageUserDetails", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
@@ -6,7 +6,7 @@
     <h4>Your Details</h4>
     <hr />
     @Html.ValidationSummary(true, "Please enter correct values to update!")
-    
+
     <div class="form-group">
         @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
@@ -14,15 +14,15 @@
             @Html.ValidationMessageFor(m => m.Email)
         </div>
     </div>
-    
+
     <div class="form-group">
         @Html.LabelFor(m => m.BirthDate, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => Model.BirthDate, new {type = "date", @class = "form-control"})
+            @Html.TextBoxFor(m => Model.BirthDate, new { type = "date", @class = "form-control" })
             @Html.ValidationMessageFor(m => m.BirthDate)
         </div>
     </div>
-    
+
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" value="Update details" class="btn btn-default" />

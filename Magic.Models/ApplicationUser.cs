@@ -19,22 +19,12 @@ namespace Magic.Models
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
         public string ColorCode { get; set; }
+        public virtual List<CardDeck> DeckCollection { get; set; }
 
         // Constructor.
         public ApplicationUser()
         {
             assignRandomColorCode();
-        }
-
-        public override string ToString()
-        {
-            string toString = this.GetType().FullName + ": ";
-            var classMembers = this.GetType().GetProperties();
-
-            foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
-
-            return toString;
         }
 
         #region HELPERS
@@ -49,9 +39,20 @@ namespace Magic.Models
             this.ColorCode = System.Drawing.ColorTranslator.ToHtml(color);
         }
 
-        public ManageUserDetailsViewModel getViewModel()
+        public ManageUserViewModel getViewModel()
         {
-            return new ManageUserDetailsViewModel(this);
+            return new ManageUserViewModel(this);
+        }
+        
+        public override string ToString()
+        {
+            string toString = this.GetType().FullName + ": ";
+            var classMembers = this.GetType().GetProperties();
+
+            foreach (System.Reflection.PropertyInfo member in classMembers)
+                toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
+
+            return toString;
         }
         #endregion HELPERS
     }

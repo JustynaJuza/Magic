@@ -74,6 +74,7 @@ namespace Magic.Controllers
         #endregion EDIT/UPDATE
 
         #region DELETE
+        [ValidateAntiForgeryToken]
         public ActionResult Delete(Card actionItem)
         {
             TempData["Error"] = context.Delete(actionItem);

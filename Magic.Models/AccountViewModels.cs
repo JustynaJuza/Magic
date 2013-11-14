@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Magic.Models.Helpers;
+using Magic.Models.Interfaces;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Magic.Models
@@ -13,7 +15,7 @@ namespace Magic.Models
             : base(typeof(DateTime), startDate, endDate) { }
     }
 
-    public class ExternalLoginConfirmationViewModel : AbstractToString
+    public class ExternalLoginConfirmationViewModel : AbstractExtensions, IViewModel
     {
         [Required(ErrorMessage="You must enter an username to be able to log in.")]
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
@@ -43,7 +45,7 @@ namespace Magic.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class ManageUserDetailsViewModel : AbstractToString
+    public class ManageUserViewModel : AbstractExtensions, IViewModel
     {
         public string Id { get; private set; }
 
@@ -71,7 +73,10 @@ namespace Magic.Models
 
         public string ColorCode { get; private set; }
 
-        public ManageUserDetailsViewModel(ApplicationUser user)
+        // Constructor.
+        public ManageUserViewModel(){ }
+        // Constructor.
+        public ManageUserViewModel(ApplicationUser user)
         {
             Id = user.Id;
             UserName = user.UserName;
@@ -83,7 +88,7 @@ namespace Magic.Models
         }
     }
 
-    public class ManagePasswordViewModel : AbstractToString
+    public class ManagePasswordViewModel : AbstractExtensions, IViewModel
     {
         [Required]
         [DataType(DataType.Password)]
@@ -102,7 +107,7 @@ namespace Magic.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class LoginViewModel : AbstractToString
+    public class LoginViewModel : AbstractExtensions, IViewModel
     {
         [Required]
         [Display(Name = "Player")]
@@ -117,7 +122,7 @@ namespace Magic.Models
         public bool RememberMe { get; set; }
     }
 
-    public class RegisterViewModel : AbstractToString
+    public class RegisterViewModel : AbstractExtensions, IViewModel
     {
         [Required(ErrorMessage = "You must enter an username to be able to log in.")]
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]

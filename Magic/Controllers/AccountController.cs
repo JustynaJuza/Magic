@@ -322,7 +322,7 @@ namespace Magic.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ManageUserDetails(ManageUserDetailsViewModel model)
+        public ActionResult ManageUserDetails(ManageUserViewModel model)
         {
             ViewBag.HasLocalPassword = HasPassword();
 

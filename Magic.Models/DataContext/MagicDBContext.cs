@@ -18,10 +18,8 @@ namespace Magic.Models.DataContext
             // Make table names singular.
             // modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
 
-            //modelBuilder.Entity<CardColor>()
-            //    .HasMany(cc => cc.Cards)
-            //    .WithRequired(p => p.CardCardColor)
-            //    .WillCascadeOnDelete(true);
+            //modelBuilder.Entity<ApplicationUser>()
+            //    .HasOptional(u => u.DeckCollection).WithOptionalDependent(d => d.);
 
             //modelBuilder.Entity<CardColor>()
             //    .HasMany<Card>(c => c.Cards)

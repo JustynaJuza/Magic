@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Magic.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
 namespace Magic.Models
 {    
-    public class CardColor : AbstractToString
+    public class CardColor : AbstractExtensions
     {
         public int Id { get; set; }
         public Color Color { get; set; }

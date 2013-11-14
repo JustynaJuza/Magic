@@ -211,6 +211,18 @@
     <Compile Include="Migrations\201311121123558_messagesavingtest.Designer.cs">
       <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201311141535326_deckRelations.cs" />
+    <Compile Include="Migrations\201311141535326_deckRelations.Designer.cs">
+      <DependentUpon>201311141535326_deckRelations.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311141604485_userdeckcollection.cs" />
+    <Compile Include="Migrations\201311141604485_userdeckcollection.Designer.cs">
+      <DependentUpon>201311141604485_userdeckcollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311141607132_deckthings.cs" />
+    <Compile Include="Migrations\201311141607132_deckthings.Designer.cs">
+      <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -326,6 +338,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311121123558_messagesavingtest.resx">
       <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311141535326_deckRelations.resx">
+      <DependentUpon>201311141535326_deckRelations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311141604485_userdeckcollection.resx">
+      <DependentUpon>201311141604485_userdeckcollection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311141607132_deckthings.resx">
+      <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

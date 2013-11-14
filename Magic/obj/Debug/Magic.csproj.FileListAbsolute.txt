@@ -75,3 +75,6 @@ C:\Projects\Magic\Magic\bin\System.Web.Http.WebHost.xml
 C:\Projects\Magic\Magic\obj\Debug\Magic.csproj.GenerateResource.Cache
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.userColorCode.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.messagesavingtest.resources
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.deckRelations.resources
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.userdeckcollection.resources
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.deckthings.resources
