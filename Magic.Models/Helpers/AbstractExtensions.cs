@@ -20,7 +20,7 @@ namespace Magic.Models.Helpers
         }
 
         // Returns a new instance of the related viewModel.
-        public IViewModel getViewModel()
+        public IViewModel GetViewModel()
         {
             string viewModelName = this.GetType().FullName + "ViewModel ";
             var viewModel = Type.GetType(viewModelName);

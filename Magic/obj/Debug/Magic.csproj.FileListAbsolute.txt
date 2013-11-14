@@ -78,3 +78,4 @@ C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.messagesavingtest.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.deckRelations.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.userdeckcollection.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.deckthings.resources
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.changes.resources

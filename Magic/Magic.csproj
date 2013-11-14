@@ -203,6 +203,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Migrations\201311111524177_userColorCode.cs" />
     <Compile Include="Migrations\201311111524177_userColorCode.Designer.cs">
       <DependentUpon>201311111524177_userColorCode.cs</DependentUpon>
@@ -222,6 +223,10 @@
     <Compile Include="Migrations\201311141607132_deckthings.cs" />
     <Compile Include="Migrations\201311141607132_deckthings.Designer.cs">
       <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311141802055_changes.cs" />
+    <Compile Include="Migrations\201311141802055_changes.Designer.cs">
+      <DependentUpon>201311141802055_changes.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -347,6 +352,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311141607132_deckthings.resx">
       <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311141802055_changes.resx">
+      <DependentUpon>201311141802055_changes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

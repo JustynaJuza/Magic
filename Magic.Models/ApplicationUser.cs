@@ -24,11 +24,11 @@ namespace Magic.Models
         // Constructor.
         public ApplicationUser()
         {
-            assignRandomColorCode();
+            AssignRandomColorCode();
         }
 
         #region HELPERS
-        public void assignRandomColorCode()
+        public void AssignRandomColorCode()
         {
             Random random = new Random();
             int red = random.Next(255); // Not 256, because black is the system message color.
@@ -39,9 +39,9 @@ namespace Magic.Models
             this.ColorCode = System.Drawing.ColorTranslator.ToHtml(color);
         }
 
-        public ManageUserViewModel getViewModel()
+        public UserViewModel GetViewModel()
         {
-            return new ManageUserViewModel(this);
+            return new UserViewModel(this);
         }
         
         public override string ToString()

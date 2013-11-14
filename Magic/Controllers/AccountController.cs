@@ -58,8 +58,8 @@ namespace Magic.Controllers
             }
             else
             {
-                editErrorMessageConfirmPassword();
-                editErrorMessageBirthDate();
+                EditErrorMessageConfirmPassword();
+                EditErrorMessageBirthDate();
             }
 
             // Process model errors.
@@ -176,8 +176,8 @@ namespace Magic.Controllers
             }
             else
             {
-                editErrorMessageConfirmPassword();
-                editErrorMessageBirthDate();
+                EditErrorMessageConfirmPassword();
+                EditErrorMessageBirthDate();
             }
 
             ViewBag.ReturnUrl = returnUrl;
@@ -276,13 +276,13 @@ namespace Magic.Controllers
             }
             ViewBag.LoginProviders = loginProviders.Count > 0 ? loginProviders : null;
 
-            return View(foundUser.getViewModel());
+            return View(foundUser.GetViewModel());
         }
 
         public ActionResult ManageUserColor()
         {
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
-            foundUser.assignRandomColorCode();
+            foundUser.AssignRandomColorCode();
 
             TempData["Error"] = context.Update(foundUser);
             return RedirectToAction("Manage");
@@ -322,7 +322,7 @@ namespace Magic.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ManageUserDetails(ManageUserViewModel model)
+        public ActionResult ManageUserDetails(UserViewModel model)
         {
             ViewBag.HasLocalPassword = HasPassword();
 
@@ -338,7 +338,7 @@ namespace Magic.Controllers
             }
             else
             {
-                editErrorMessageBirthDate();
+                EditErrorMessageBirthDate();
             }
 
             // Pass and process model errors.
@@ -366,7 +366,7 @@ namespace Magic.Controllers
                 }
                 else
                 {
-                    editErrorMessageConfirmPassword();
+                    EditErrorMessageConfirmPassword();
                     if (ModelState["OldPassword"].Errors.Count != 0)
                     {
                         ModelState["Password"].Errors.Clear();
@@ -394,7 +394,7 @@ namespace Magic.Controllers
                 }
                 else
                 {
-                    editErrorMessageConfirmPassword();
+                    EditErrorMessageConfirmPassword();
                 }
             }
             // Pass and process model errors.
@@ -427,7 +427,7 @@ namespace Magic.Controllers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private void editErrorMessageConfirmPassword()
+        private void EditErrorMessageConfirmPassword()
         {
             if (ModelState["ConfirmPassword"].Errors.Count > 0)
             {
@@ -444,7 +444,7 @@ namespace Magic.Controllers
             }
         }
 
-        private void editErrorMessageBirthDate()
+        private void EditErrorMessageBirthDate()
         {
             if (ModelState["BirthDate"].Errors.Count > 0)
             {

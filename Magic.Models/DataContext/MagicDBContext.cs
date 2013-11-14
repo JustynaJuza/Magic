@@ -35,6 +35,7 @@ namespace Magic.Models.DataContext
         public DbSet<Magic.Models.Card> Cards { get; set; }
         public DbSet<Magic.Models.CardColor> CardColors { get; set; }
         public DbSet<Magic.Models.CardType> CardTypes { get; set; }
+        public DbSet<Magic.Models.CardDeck> CardDecks { get; set; }
         public DbSet<Magic.Models.ChatLog> ChatLogs { get; set; }
         public DbSet<Magic.Models.ChatMessage> ChatMessages { get; set; }
 

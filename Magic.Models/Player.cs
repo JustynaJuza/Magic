@@ -9,8 +9,10 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class PlayerViewModel : AbstractExtensions, IViewModel
+    public class Player : AbstractExtensions, IViewModel
     {
+        private int defaultHP = 20;
+
         public string Id { get; private set; }
         public string Username { get; private set; }
         public string Title { get; private set; }
@@ -22,24 +24,50 @@ namespace Magic.Models
         public List<CardViewModel> Library { get; set; }
         public List<CardViewModel> CardsInHand { get; set; }
 
-        public PlayerViewModel (ApplicationUser user, CardDeck deck)
+        // Constructor.
+        public Player(ApplicationUser user)
         {
             Id = user.Id;
             Username = user.UserName;
             Title = user.Title;
             Image = user.Image;
-            Deck = (CardDeckViewModel) deck.getViewModel();
-            HPTotal = 20;
-            HPCurrent = 20;
-            Library = Deck.Cards;
-            CardsInLibraryTotal = Library.Count;
+            HPTotal = defaultHP;
+            HPCurrent = defaultHP;
+            Library = new List<CardViewModel>();
+        }
+        // Constructor.
+        public Player(ApplicationUser user, CardDeck deck)
+        {
+            Id = user.Id;
+            Username = user.UserName;
+            Title = user.Title;
+            Image = user.Image;
+            Deck = (CardDeckViewModel) deck.GetViewModel();
+            HPTotal = defaultHP;
+            HPCurrent = defaultHP;
+            Library = new List<CardViewModel>();
 
+            SelectDeck((CardDeckViewModel) deck.GetViewModel());
+            DrawHand();
+        }
+
+        #region HELPERS
+        public void SelectDeck(CardDeckViewModel deck)
+        {
+            Deck = (CardDeckViewModel) deck.GetViewModel();
+            foreach (var card in Deck.Cards)
+                Library.Add((CardViewModel) card.GetViewModel());
+            CardsInLibraryTotal = Library.Count;
+        }
+
+        public void DrawHand(int cards = 7)
+        {
             // Shuffle library.
             Random random = new Random();
             ShuffleLibrary(random);
 
-            CardsInHand = Library.Take(7).ToList();
-            Library.RemoveRange(0, 7);
+            CardsInHand = Library.Take(cards).ToList();
+            Library.RemoveRange(0, cards);
         }
 
         public bool DrawCard(int index = 0)
@@ -74,5 +102,6 @@ namespace Magic.Models
             }
             Library = deck.ToList();
         }
+        #endregion HELPERS
     }
 }

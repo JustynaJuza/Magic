@@ -46,5 +46,10 @@ namespace Magic.Models
             Tapped = false;
         }
         public bool Play() { return true; }
+
+        public CardViewModel()
+        {
+
+        }
     }
 }

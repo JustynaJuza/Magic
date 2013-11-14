@@ -45,7 +45,7 @@ namespace Magic.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class ManageUserViewModel : AbstractExtensions, IViewModel
+    public class UserViewModel : AbstractExtensions, IViewModel
     {
         public string Id { get; private set; }
 
@@ -74,9 +74,9 @@ namespace Magic.Models
         public string ColorCode { get; private set; }
 
         // Constructor.
-        public ManageUserViewModel(){ }
+        public UserViewModel(){ }
         // Constructor.
-        public ManageUserViewModel(ApplicationUser user)
+        public UserViewModel(ApplicationUser user)
         {
             Id = user.Id;
             UserName = user.UserName;
