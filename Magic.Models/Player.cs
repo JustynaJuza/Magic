@@ -22,7 +22,9 @@ namespace Magic.Models
         public int HPCurrent { get; set; }
         public int CardsInLibraryTotal { get; set; }
         public List<CardViewModel> Library { get; set; }
-        public List<CardViewModel> CardsInHand { get; set; }
+        public List<CardViewModel> Graveyard { get; set; }
+        public List<CardViewModel> Hand { get; set; }
+        public List<CardViewModel> Exiled { get; set; }
 
         // Constructor.
         public Player(ApplicationUser user)
@@ -34,8 +36,10 @@ namespace Magic.Models
             HPTotal = defaultHP;
             HPCurrent = defaultHP;
             Library = new List<CardViewModel>();
+            Graveyard = new List<CardViewModel>();
+            Exiled = new List<CardViewModel>();
         }
-        // Constructor.
+        // Constructor with deck.
         public Player(ApplicationUser user, CardDeck deck)
         {
             Id = user.Id;
@@ -46,47 +50,20 @@ namespace Magic.Models
             HPTotal = defaultHP;
             HPCurrent = defaultHP;
             Library = new List<CardViewModel>();
+            Graveyard = new List<CardViewModel>();
+            Exiled = new List<CardViewModel>();
 
             SelectDeck((CardDeckViewModel) deck.GetViewModel());
             DrawHand();
         }
 
-        #region HELPERS
+        #region DECK MANAGEMENT
         public void SelectDeck(CardDeckViewModel deck)
         {
             Deck = (CardDeckViewModel) deck.GetViewModel();
             foreach (var card in Deck.Cards)
                 Library.Add((CardViewModel) card.GetViewModel());
             CardsInLibraryTotal = Library.Count;
-        }
-
-        public void DrawHand(int cards = 7)
-        {
-            // Shuffle library.
-            Random random = new Random();
-            ShuffleLibrary(random);
-
-            CardsInHand = Library.Take(cards).ToList();
-            Library.RemoveRange(0, cards);
-        }
-
-        public bool DrawCard(int index = 0)
-        {
-            if (Library.Count == 0)
-            {
-                return false;
-            }
-
-            this.CardsInHand.Add(Library.ElementAt(index));
-            Library.RemoveAt(index);
-            return true;
-        }
-
-        public bool PlayCard(CardViewModel card)
-        {
-            this.CardsInHand.Remove(card);
-            card.Play();
-            return true;
         }
 
         // Fisher-Yates shuffle algorithm.
@@ -102,6 +79,91 @@ namespace Magic.Models
             }
             Library = deck.ToList();
         }
-        #endregion HELPERS
+
+        public void DrawHand(int cards = 7)
+        {
+            // Shuffle library.
+            Random random = new Random();
+            ShuffleLibrary(random);
+
+            Hand = Library.Take(cards).ToList();
+            Library.RemoveRange(0, cards);
+        }
+
+        public bool DrawCard(int index = 0)
+        {
+            if (Library.Count == 0)
+            {
+                return false;
+            }
+
+            Hand.Add(Library.ElementAt(index));
+            Library.RemoveAt(index);
+            return true;
+        }
+        #endregion DECK MANAGEMENT
+
+        #region CARD MANAGEMENT
+        public bool PlayCard(CardViewModel card)
+        {
+            if (Hand.Exists(c => c.Id == card.Id))
+            {
+                Hand.Remove(card);
+                card.Play();
+                return true;
+            }
+            return false;
+        }
+
+        public bool PutCardToGraveyard(CardViewModel card, List<CardViewModel> targetCollection)
+        {
+            if (targetCollection.Exists(c => c.Id == card.Id))
+            {
+                targetCollection.Remove(card);
+                Graveyard.Add(card);
+                return true;
+            }
+            return false;
+        }
+
+        public bool RestoreCardFromGraveyard(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
+        {
+            if (Graveyard.Exists(c => c.Id == card.Id))
+            {
+                targetCollection.Add(card);
+                if (!copy)
+                {
+                    Graveyard.Remove(card);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public bool ExileCard(CardViewModel card, List<CardViewModel> targetCollection)
+        {
+            if (targetCollection.Exists(c => c.Id == card.Id))
+            {
+                Exiled.Add(card);
+                targetCollection.Remove(card);
+                return true;
+            }
+            return false;
+        }
+
+        public bool RestoreCardFromExile(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
+        {
+            if (Exiled.Exists(c => c.Id == card.Id))
+            {
+                targetCollection.Add(card);
+                if (!copy)
+                {
+                    Exiled.Remove(card);
+                }
+                return true;
+            }
+            return false;
+        }
+        #endregion CARD MANAGEMENT
     }
 }

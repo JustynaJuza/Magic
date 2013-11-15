@@ -2,7 +2,7 @@
 @model Magic.Models.ChatLog
 
 <div class="chat-container">
-    <h2>Discuss</h2>
+    <h3>Discuss</h3>
     Want to ask a question or join in the talk about Magic events? <br />
 
     @if (Request.IsAuthenticated)
@@ -10,7 +10,6 @@
         @: Please show class and be polite and respectful towards other people.
 
         <p class="form-horizontal form-group">
-            @*@Html.HiddenFor(m => m.SenderName, @User.Identity.Name)*@
             @Html.TextBox("chat-message", null, new { id = "chat-message", @class = "form-control" })
 
             <input type="button" id="chat-send" class="btn btn-primary" value="Send" />
@@ -37,44 +36,4 @@
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
 @Scripts.Render("~/bundles/jquerysignalR")
 @Scripts.Render("~/signalr/hubs")
-
-<script>
-
-    $(function () {
-        // Reference the auto-generated proxy for the hub.
-        var chat = $.connection.chatHub;
-
-        // Hub callback function.
-        chat.client.addNewMessageToPage = function (time, sender, senderColor, message, recipient, recipientColor) {
-            $('#discussion').append('<li>' + time + ' <strong style="color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
-                + '</strong> ' + (recipient != null ? ' <strong style="color:' + htmlEncode(recipientColor) + '">@@' + htmlEncode(recipient)
-                + '</strong> ': '') + htmlEncode(message) + '</li>');
-        };
-
-        // Start the connection.
-        $.connection.hub.start().done(function () {
-            $('#chat-send').click(function () {
-                // Call the Send method on the hub.
-                chat.server.send($('#chat-message').val());
-
-                // Clear text box and reset focus for next comment.
-                $('#chat-message').val('').focus();
-            });
-        });
-    });
-
-    // Send messages on enter.
-    $('#chat-message').keyup(function (e) {
-        if (e.keyCode == 13) {
-            $('#chat-send').toggleClass("clicked");
-            $('#chat-send').trigger("click");
-        }
-    });
-
-    // This optional function html-encodes messages for display in the page.
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
-    }
-
-</script>
+@Scripts.Render("~/Scripts/_ChatScript.js")

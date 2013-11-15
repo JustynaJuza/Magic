@@ -232,6 +232,13 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            var userId = User.Identity.GetUserId();
+            var user = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+
+            ChatHub.UserActionBroadcast(user.Id, false);
+            user.Status = UserStatus.Offline;
+            context.Update(user);
+
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
@@ -473,6 +480,7 @@ namespace Magic.Controllers
 
             ChatHub.UserActionBroadcast(user.Id);
             user.LastLoginDate = DateTime.Now;
+            user.Status = UserStatus.Online;
             context.Update(user);
         }
 

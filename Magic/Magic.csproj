@@ -228,6 +228,10 @@
     <Compile Include="Migrations\201311141802055_changes.Designer.cs">
       <DependentUpon>201311141802055_changes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201311151333232_UserStatus.cs" />
+    <Compile Include="Migrations\201311151333232_UserStatus.Designer.cs">
+      <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -355,6 +359,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311141802055_changes.resx">
       <DependentUpon>201311141802055_changes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311151333232_UserStatus.resx">
+      <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

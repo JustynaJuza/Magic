@@ -24,7 +24,7 @@ namespace Magic.Models.Helpers
         {
             string viewModelName = this.GetType().FullName + "ViewModel ";
             var viewModel = Type.GetType(viewModelName);
-
+            //Convert.ChangeType(Activator.CreateInstance(viewModel, this), viewModel);
             return (IViewModel) Activator.CreateInstance(viewModel, this);
         }
     }

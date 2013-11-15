@@ -12,6 +12,7 @@ namespace Magic.Models
         public DateTime DateCreated { get; set; }
         public DateTime? LastLoginDate { get; set; }
         public string Title { get; set; }
+        public UserStatus Status { get; set; }
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
         [DataType(DataType.Date)]

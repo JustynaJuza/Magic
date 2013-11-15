@@ -58,7 +58,7 @@ namespace Magic
         public bool SaveChatLog(bool save = true, bool skipInterval = true, TimeSpan? intervalMinutes = null)
         {
             var currentLog = (ChatLog) this.Application["GeneralChatLog"];
-            if (currentLog != null && currentLog.MessageLog.Count > 0)
+            if (currentLog != null && currentLog.MessageLog.Count > 10)
             {
                 //if (!skipInterval)
                 //{
@@ -74,9 +74,10 @@ namespace Magic
                 //    }
                 //}
 
-                // Synchronize clearing the current ChatLog to save memory and allow logging new messages.
+                // Synchronize clearing the current ChatLog to save memory but preserve recent messages.
                 this.Application.Lock();
                 this.Application["GeneralChatLog"] = new ChatLog();
+                ((ChatLog) this.Application["GeneralChatLog"]).AppendMessages(currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10));
                 this.Application.UnLock();
 
                 if (save)

@@ -9,6 +9,7 @@ namespace Magic.Hubs
 {
     public class GameHub : Hub
     {
+        #region GROUPS
         public async Task JoinRoom(string roomName)
         {
             await Groups.Add(Context.ConnectionId, roomName);
@@ -24,5 +25,6 @@ namespace Magic.Hubs
             }
             catch (Exception) { }
         }
+        #endregion GROUPS
     }
 }

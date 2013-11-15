@@ -7,7 +7,7 @@ namespace Magic.App_Start
 
     using SimpleInjector;
     using SimpleInjector.Integration.Web.Mvc;
-    using Magic.Models.Repository;
+    using Magic.Models.Repositories;
     
     public static class SimpleInjectorInitializer
     {

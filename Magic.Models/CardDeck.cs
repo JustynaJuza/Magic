@@ -29,13 +29,14 @@ namespace Magic.Models
         public virtual List<Card> Cards { get; set; }
         public virtual UserViewModel Creator { get; set; }
 
-        public CardDeckViewModel(CardDeck deck) {
+        public CardDeckViewModel(CardDeck deck)
+        {
             Id = deck.Id;
             Name = deck.Name;
             CardsPerTypeNumber = deck.CardsPerTypeNumber;
             CardColors = deck.CardColors;
             Cards = deck.Cards;
             Creator = deck.Creator.GetViewModel();
-    }
+        }
     }
 }
