@@ -26,7 +26,7 @@
             {
                 foreach (var message in Model.MessageLog)
                 {
-                    <li>@message.TimeSend.Value.ToString("hh:mm:ss") <strong>@message.Sender.UserName </strong> @message.Message</li>
+                    <li>@message.TimeSend.Value.ToString("HH:mm:ss") <strong>@message.Sender.UserName </strong> @message.Message</li>
                 }
             }
         </ul>

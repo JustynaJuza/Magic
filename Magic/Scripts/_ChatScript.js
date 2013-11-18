@@ -5,7 +5,7 @@
     $chatSendButton.prop("disabled", true);
 
     $chatMessage.on('input', function () {
-        if ($chatSendButton.val() == '') {
+        if ($chatMessage.val() == '') {
             $chatSendButton.prop('disabled', true);
         }
         else {
@@ -19,7 +19,7 @@
     // Hub callback function.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
         $('#discussion').append('<li>' + time + ' <strong style="color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
-            + '</strong> ' + (recipient != null ? ' <strong style="color:' + htmlEncode(recipientColor) + '">@@' + htmlEncode(recipient)
+            + '</strong> ' + (recipient != null ? ' <strong style="color:' + htmlEncode(recipientColor) + '">@' + htmlEncode(recipient)
             + '</strong> ' : '') + htmlEncode(message) + '</li>');
     };
     //myDiv.animate({ scrollTop: myDiv.attr("scrollHeight") - myDiv.height() }, 3000);

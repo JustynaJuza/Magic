@@ -65,7 +65,7 @@ namespace Magic.Models.DataContext
             return null;
         }
 
-        public Object Read(Object item)
+        public object Read(Object item)
         {
             Type collectionType = item.GetType();
             DbSet targetCollection = this.Set(collectionType);

@@ -71,7 +71,6 @@ namespace Magic.Controllers
 
 		#region DELETE
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult Delete(ChatLog actionItem)
         {
 			TempData["Error"] = context.Delete(actionItem);

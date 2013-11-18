@@ -150,7 +150,6 @@ namespace <#= Namespace #>
 
 		#region DELETE
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult Delete(<#= ModelTypeName #>ViewModel actionItem)
         {
 			TempData["Error"] = context.Delete(actionItem);

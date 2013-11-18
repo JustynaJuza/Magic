@@ -336,12 +336,14 @@ namespace Magic.Controllers
             if (ModelState.IsValid)
             {
                 var foundUser = UserManager.FindById(User.Identity.GetUserId());
+                foundUser.BirthDate = model.BirthDate;
+                foundUser.Email = model.Email;
 
-                    TempData["Error"] = context.Update(foundUser);
-                    if (TempData["Error"] == null)
-                    {
-                        TempData["Message"] = "Your details have been updated.";
-                    }
+                TempData["Error"] = context.Update(foundUser);
+                if (TempData["Error"] == null)
+                {
+                    TempData["Message"] = "Your details have been updated.";
+                }
             }
             else
             {
