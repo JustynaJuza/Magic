@@ -21,11 +21,14 @@ namespace Magic.Models
         public string Image { get; set; }
         public string ColorCode { get; set; }
         public virtual List<CardDeck> DeckCollection { get; set; }
+        public virtual List<ApplicationUserConnection> Connections { get; set; }
 
         // Constructor.
         public ApplicationUser()
         {
             AssignRandomColorCode();
+            Connections = new List<ApplicationUserConnection>();
+            DeckCollection = new List<CardDeck>();
         }
 
         #region HELPERS

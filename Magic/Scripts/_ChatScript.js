@@ -1,6 +1,7 @@
 ﻿$(function () {
-    var $chatSendButton = $("#chat-send");
-    var $chatMessage = $("#chat-message");
+    var $chatSendButton = $('#chat-send');
+    var $chatMessage = $('#chat-message');
+    var $chatLog = $('.chat-log');
 
     $chatSendButton.prop("disabled", true);
 
@@ -18,11 +19,14 @@
 
     // Hub callback function.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
-        $('#discussion').append('<li>' + time + ' <strong style="color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
-            + '</strong> ' + (recipient != null ? ' <strong style="color:' + htmlEncode(recipientColor) + '">@' + htmlEncode(recipient)
-            + '</strong> ' : '') + htmlEncode(message) + '</li>');
+        $('#discussion').append('<li>' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
+            + '</span> ' + (recipient != null ? ' <span class="chat-message-recipient" style="font-weight:bold;color:' + htmlEncode(recipientColor) + '">@' + htmlEncode(recipient)
+            + '</span> ' : '') + htmlEncode(message) + '</li>');
+
+        // Scroll to bottom message.
+        $chatLog.animate({ scrollTop: $chatLog[0].scrollHeight }, 1000);
+        //$chatLog.animate($chatLog.scrollTop(200), 1000); //removes scrollbars for some reason
     };
-    //myDiv.animate({ scrollTop: myDiv.attr("scrollHeight") - myDiv.height() }, 3000);
 
     // Start the connection.
     $.connection.hub.start().done(function () {
@@ -42,6 +46,17 @@
             $chatSendButton.trigger('click');
             $chatSendButton.prop("disabled", true);
         }
+    });
+
+    // Make chat sender/recipient names clickable for reply.
+    $(document).on('click', '.chat-message-sender', function () {
+        $chatMessage.val('@' + $(this).text() + ' ');
+        $chatMessage.focus();
+    });
+
+    $(document).on('click', '.chat-message-recipient', function () {
+        $chatMessage.val($(this).text() + ' ');
+        $chatMessage.focus();
     });
 
     // This optional function html-encodes messages for display in the page.

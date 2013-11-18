@@ -232,12 +232,12 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            var userId = User.Identity.GetUserId();
-            var user = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            //var userId = User.Identity.GetUserId();
+            //var user = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
-            ChatHub.UserActionBroadcast(user.Id, false);
-            user.Status = UserStatus.Offline;
-            context.Update(user);
+            //ChatHub.UserActionBroadcast(user.Id, false);
+            //user.Status = UserStatus.Offline;
+            //context.Update(user);
 
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
@@ -480,9 +480,9 @@ namespace Magic.Controllers
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
 
-            ChatHub.UserActionBroadcast(user.Id);
+            //ChatHub.UserActionBroadcast(user.Id);
+            //user.Status = UserStatus.Online;
             user.LastLoginDate = DateTime.Now;
-            user.Status = UserStatus.Online;
             context.Update(user);
         }
 

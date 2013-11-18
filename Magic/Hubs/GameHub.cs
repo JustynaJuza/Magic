@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magic.Hubs
 {
+    [Authorize]
     public class GameHub : Hub
     {
         #region GROUPS

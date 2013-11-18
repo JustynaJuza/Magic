@@ -20,13 +20,19 @@
         @: Log in to take part in the chat conversation with other users!
     }
 
-    <div class="form-control chat-log" style="width: 500px; height: 200px; overflow: auto;">
+    <div class="form-control chat-log" style="width: 500px; height: 215px; overflow: auto;">
         <ul id="discussion" style="list-style-type: none; margin:0px">
             @if (Model != null)
             {
                 foreach (var message in Model.MessageLog)
                 {
-                    <li>@message.TimeSend.Value.ToString("HH:mm:ss") <strong>@message.Sender.UserName </strong> @message.Message</li>
+                    <li>
+                        @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
+                        @if (message.Recipient != null) {
+                            <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
+                        }
+                        @message.Message
+                    </li>
                 }
             }
         </ul>

@@ -13,13 +13,12 @@ namespace Magic.Models.DataContext
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             // Make table names singular.
             // modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
 
-            //modelBuilder.Entity<ApplicationUser>()
-            //    .HasOptional(u => u.DeckCollection).WithOptionalDependent(d => d.);
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
 
             //modelBuilder.Entity<CardColor>()
             //    .HasMany<Card>(c => c.Cards)
@@ -32,6 +31,7 @@ namespace Magic.Models.DataContext
             //    });
         }
 
+        public DbSet<Magic.Models.ApplicationUserConnection> UserConnections { get; set; }
         public DbSet<Magic.Models.Card> Cards { get; set; }
         public DbSet<Magic.Models.CardColor> CardColors { get; set; }
         public DbSet<Magic.Models.CardType> CardTypes { get; set; }
@@ -93,15 +93,15 @@ namespace Magic.Models.DataContext
                     return (string) foundItem; // Error string returned.
             }
 
-            try
-            {
+            //try
+            //{
                 this.Entry(foundItem).CurrentValues.SetValues(item);
                 this.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
+            //}
 
             return null;
         }
