@@ -19,16 +19,6 @@ namespace Magic.Models.DataContext
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
-
-            //modelBuilder.Entity<CardColor>()
-            //    .HasMany<Card>(c => c.Cards)
-            //    .WithMany(cc => cc.CardColors)
-            //    .Map(p =>
-            //    {
-            //        p.MapLeftKey(new string[] { });
-            //        p.MapRightKey(new string[] { });
-            //        p.ToTable("CardsCardColor");
-            //    });
         }
 
         public DbSet<Magic.Models.ApplicationUserConnection> UserConnections { get; set; }
@@ -70,7 +60,7 @@ namespace Magic.Models.DataContext
             Type collectionType = item.GetType();
             DbSet targetCollection = this.Set(collectionType);
 
-            var itemKeyInfo = (collectionType.GetProperty("Id") != null ? collectionType.GetProperty("Id") 
+            var itemKeyInfo = (collectionType.GetProperty("Id") != null ? collectionType.GetProperty("Id")
                 : collectionType.GetProperty("DateCreated") != null ? collectionType.GetProperty("DateCreated") : null);
             var itemKey = itemKeyInfo.GetValue(item);
 
@@ -93,24 +83,28 @@ namespace Magic.Models.DataContext
                     return (string) foundItem; // Error string returned.
             }
 
-            //try
-            //{
+            try
+            {
                 this.Entry(foundItem).CurrentValues.SetValues(item);
                 this.SaveChanges();
-            //}
-            //catch (Exception)
-            //{
-            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            //}
+            }
+            catch (Exception)
+            {
+                return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
+            }
 
             return null;
         }
 
-        public string Delete(Object item)
+        public string Delete(Object item, bool deleteOnly = false)
         {
-            var foundItem = Read(item);
-            if (foundItem.GetType() == typeof(string))
-                return (string) foundItem; // Error string returned.
+            var foundItem = item;
+            if (!deleteOnly)
+            {
+                foundItem = Read(item);
+                if (foundItem.GetType() == typeof(string))
+                    return (string) foundItem; // Error string returned.
+            }
 
             try
             {

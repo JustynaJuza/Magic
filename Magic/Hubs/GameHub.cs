@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Magic.Hubs
 {
     [Authorize]
-    public class GameHub : Hub
+    public class GameHub : ConnectionHub
     {
         #region GROUPS
         public async Task JoinRoom(string roomName)

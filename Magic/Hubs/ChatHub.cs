@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Magic.Hubs
 {
     [Authorize]
-    public class ChatHub : Hub
+    public class ChatHub : ConnectionHub
     {
         private static MagicDBContext context = new MagicDBContext();
 
@@ -29,12 +29,12 @@ namespace Magic.Hubs
                 var recipient = (ApplicationUser) foundRecipient;
                 if (recipient != null)
                 {
-                    //if (recipient.Status == UserStatus.Offline)
-                    //{
-                    //    // Valid recipient but is offline, alert sender.
-                    //    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
-                    //    return;
-                    //}
+                    if (recipient.Status == UserStatus.Offline)
+                    {
+                        // Valid recipient but is offline, alert sender.
+                        Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
+                        return;
+                    }
                     if (messageText.Length < recipient.UserName.Length + 2)
                     {
                         // Valid recipient but no message appended, alert sender.
@@ -52,11 +52,10 @@ namespace Magic.Hubs
                     Recipient = recipient
                 };
 
-                AddMessageToChatLog(message, "GeneralChatLog");
-
                 // Use callback method to update clients.
                 if (recipient == null)
                 {
+                    AddMessageToChatLog(message, "GeneralChatLog");
                     if (roomName != "")
                     {
                         Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
@@ -68,10 +67,14 @@ namespace Magic.Hubs
                 }
                 else
                 {
-                    //foreach (var connection in recipient.Connections.Where(c => c.Connected == true)
-                    var connection = recipient.Connections.First(c => c.Connected == true);
-                    Clients.Caller.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    foreach (var connection in message.Recipient.Connections) //.Where(c => c.Connected == true))
+                    {
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                    }
+                    foreach (var connection in message.Sender.Connections)
+                    {
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                    }
                 }
             }
         }
@@ -106,53 +109,6 @@ namespace Magic.Hubs
             catch (Exception) { }
         }
         #endregion GROUPS
-
-        #region CONNECTION STATUS UPDATE
-        public override Task OnConnected()
-        {
-            using (MagicDBContext tempContext = new MagicDBContext())
-            {
-                var userId = Context.User.Identity.GetUserId();
-                var foundUser = tempContext.Users.Find(userId);
-
-                var connection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                if (connection == null)
-                {
-                    foundUser.Connections.Add(new ApplicationUserConnection
-                    {
-                        Id = Context.ConnectionId,
-                        UserAgent = Context.Request.Headers["User-Agent"],
-                        Connected = true
-                    });
-                    foundUser.Status = UserStatus.Online;
-                }
-                else
-                {
-                    connection.Connected = true;
-                    foundUser.Status = UserStatus.Online;
-                }
-
-                tempContext.Update(foundUser);
-                UserActionBroadcast(userId);
-            }
-
-            return base.OnConnected();
-        }
-
-        public override Task OnDisconnected()
-        {
-            using (MagicDBContext tempContext = new MagicDBContext())
-            {
-                var connection = tempContext.UserConnections.Find(Context.ConnectionId);
-                connection.Connected = false;
-                connection.User.Status = UserStatus.Offline;
-                tempContext.Update(connection);
-
-                UserActionBroadcast(connection.User.Id, false);
-            }
-            return base.OnDisconnected();
-        }
-        #endregion CONNECTION STATUS UPDATE
 
         #region HELPERS
         private object DecodeRecipient(string messageText)
