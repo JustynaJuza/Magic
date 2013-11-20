@@ -67,5 +67,16 @@ namespace Magic.Hubs
             return base.OnDisconnected();
         }
         #endregion CONNECTION STATUS UPDATE
+
+        #region DISPOSE
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                context.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        #endregion DISPOSE
     }
 }

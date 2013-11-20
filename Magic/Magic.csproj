@@ -197,6 +197,7 @@
     <Compile Include="Controllers\ChatLogController.cs" />
     <Compile Include="Controllers\CMSController.cs" />
     <Compile Include="Controllers\GameController.cs" />
+    <Compile Include="Controllers\GameRoomController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
@@ -318,12 +319,13 @@
     <Content Include="Views\Account\_ManageDetailsPartial.cshtml" />
     <Content Include="Views\Shared\_ChatPartial.cshtml" />
     <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
-    <Content Include="Views\ChatLog\Create.cshtml" />
-    <Content Include="Views\ChatLog\Delete.cshtml" />
     <Content Include="Views\ChatLog\MessageLog.cshtml" />
-    <Content Include="Views\ChatLog\Edit.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
-    <Content Include="Views\Game\Index.cshtml" />
+    <Content Include="Views\GameRoom\Game\Index.cshtml" />
+    <Content Include="Views\GameRoom\Create.cshtml" />
+    <Content Include="Views\GameRoom\Edit.cshtml" />
+    <Content Include="Views\GameRoom\Index.cshtml" />
+    <Content Include="Views\GameRoom\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

@@ -20,8 +20,9 @@ namespace Magic.Models
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
         public string ColorCode { get; set; }
-        public virtual List<CardDeck> DeckCollection { get; set; }
-        public virtual List<ApplicationUserConnection> Connections { get; set; }
+        public virtual IList<CardDeck> DeckCollection { get; set; }
+        public virtual IList<ApplicationUserConnection> Connections { get; set; }
+        public virtual IList<PlayerGameStatus> Games { get; set; }
 
         // Constructor.
         public ApplicationUser()

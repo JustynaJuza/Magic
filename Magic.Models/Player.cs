@@ -13,10 +13,7 @@ namespace Magic.Models
     {
         private int defaultHP = 20;
 
-        public string Id { get; private set; }
-        public string Username { get; private set; }
-        public string Title { get; private set; }
-        public string Image { get; private set; }
+        public virtual ApplicationUser User { get; set; }
         public virtual CardDeckViewModel Deck { get; set; }
         public int HPTotal { get; set; }
         public int HPCurrent { get; set; }
@@ -25,33 +22,30 @@ namespace Magic.Models
         public List<CardViewModel> Graveyard { get; set; }
         public List<CardViewModel> Hand { get; set; }
         public List<CardViewModel> Exiled { get; set; }
+        public List<CardViewModel> Battlefield { get; set; }
 
         // Constructor.
         public Player(ApplicationUser user)
         {
-            Id = user.Id;
-            Username = user.UserName;
-            Title = user.Title;
-            Image = user.Image;
+            User = user;
             HPTotal = defaultHP;
             HPCurrent = defaultHP;
             Library = new List<CardViewModel>();
             Graveyard = new List<CardViewModel>();
             Exiled = new List<CardViewModel>();
+            Battlefield = new List<CardViewModel>();
         }
         // Constructor with deck.
         public Player(ApplicationUser user, CardDeck deck)
         {
-            Id = user.Id;
-            Username = user.UserName;
-            Title = user.Title;
-            Image = user.Image;
+            User = user;
             Deck = (CardDeckViewModel) deck.GetViewModel();
             HPTotal = defaultHP;
             HPCurrent = defaultHP;
             Library = new List<CardViewModel>();
             Graveyard = new List<CardViewModel>();
             Exiled = new List<CardViewModel>();
+            Battlefield = new List<CardViewModel>();
 
             SelectDeck((CardDeckViewModel) deck.GetViewModel());
             DrawHand();
@@ -106,7 +100,7 @@ namespace Magic.Models
         #region CARD MANAGEMENT
         public bool PlayCard(CardViewModel card)
         {
-            if (Hand.Exists(c => c.Id == card.Id))
+            if (Hand.Any(c => c.Id == card.Id))
             {
                 Hand.Remove(card);
                 card.Play();
@@ -128,7 +122,7 @@ namespace Magic.Models
 
         public bool RestoreCardFromGraveyard(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
         {
-            if (Graveyard.Exists(c => c.Id == card.Id))
+            if (Graveyard.Any(c => c.Id == card.Id))
             {
                 targetCollection.Add(card);
                 if (!copy)
@@ -153,7 +147,7 @@ namespace Magic.Models
 
         public bool RestoreCardFromExile(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
         {
-            if (Exiled.Exists(c => c.Id == card.Id))
+            if (Exiled.Any(c => c.Id == card.Id))
             {
                 targetCollection.Add(card);
                 if (!copy)

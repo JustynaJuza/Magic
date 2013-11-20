@@ -12,7 +12,7 @@ if(IsPartialView) {
 #>
 
 @{
-    ViewBag.Title = "<#= ViewName#>";
+    ViewBag.Title = "All your <#= ViewDataTypeName #>s";
 <#
 if (!String.IsNullOrEmpty(LayoutPageFile)) {
 #>
@@ -22,8 +22,8 @@ if (!String.IsNullOrEmpty(LayoutPageFile)) {
 #>
 }
 
-<h2><#= ViewName#></h2>
-
+<h2>All your <#= ViewDataTypeName #>s</h2>
+@Html.Partial("_MessagePartial")
 <#
 } else {
 #>
@@ -45,72 +45,74 @@ if (!String.IsNullOrEmpty(LayoutPageFile)) {
 }
 #>
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Add new", "Create")
 </p>
 <table class="table">
-    <tr>
+	</thead>
+		<tr>
 <#
-IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;
-foreach (PropertyMetadata property in properties) {
-    if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+	IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;
+	foreach (PropertyMetadata property in properties) {
+		if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
 #>
 <#
-        // This is a temporary work around until core scaffolding provides support for independent associations.
-        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
-            continue;
-        }
+			// This is a temporary work around until core scaffolding provides support for independent associations.
+			if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
+				continue;
+			}
 #>
-        <th>
-            @Html.DisplayNameFor(model => model.<#= GetValueExpression(property) #>)
-        </th>
-<#
-    }
-}
-#>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-<#
-foreach (PropertyMetadata property in properties) {
-    if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
-#>
-<#
-        // This is a temporary work around until core scaffolding provides support for independent associations.
-        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
-            continue;
-        }
-#>
-        <td>
-            @Html.DisplayFor(modelItem => <#= "item." + GetValueExpression(property) #>)
-        </td>
+			<th>
+				@Html.DisplayNameFor(model => model.<#= GetValueExpression(property) #>)
+			</th>
 <#
     }
 }
-
-string pkName = GetPrimaryKeyName();
-if (pkName != null) {
 #>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.<#= pkName #> }) |
-            @Html.ActionLink("Details", "Details", new { id=item.<#= pkName #> }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.<#= pkName #> })
-        </td>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model) {
+			<tr>
+<#
+			foreach (PropertyMetadata property in properties) {
+			if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+#>
+<#
+			// This is a temporary work around until core scaffolding provides support for independent associations.
+			if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
+				continue;
+			}
+#>
+			<td>
+				@Html.DisplayFor(modelItem => <#= "item." + GetValueExpression(property) #>)
+			</td>
+<#
+		}
+	}
+
+	string pkName = GetPrimaryKeyName();
+	if (pkName != null) {
+#>
+			<td>
+				@Html.ActionLink("Edit", "Edit", item) |
+				@Html.ActionLink("Delete", "Delete", item)
+			</td>
 <#
 } else {
 #>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-        </td>
+			<td>
+				@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+				@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+				@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+			</td>
 <#
 }
 #>
-    </tr>
+		</tr>
 }
-
+	</tbody>
+    <tfoot></tfoot>
 </table>
 <#
 // The following code closes the tag used in the case of a view using a layout page and the body and html tags in the case of a regular view page

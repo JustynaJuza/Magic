@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Magic.Models.GameViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create new Game", "Create")
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayName("Players")
+            </th>
+            <th>
+                @Html.DisplayName("Status")
+            </th>
+            <th>
+                @Html.DisplayName("Game Time")
+            </th>
+            <th>
+                @Html.Display("Observers")
+            </th>
+        </tr>
+        </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink("Join!", "Join", item) |
+                </td>
+                <td>
+                    @foreach (var player in item.Players)
+                    {
+                        @Html.DisplayFor(x => player.User.UserName)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateStarted == null ? "Starts soon" : (item.DateEnded == null ? "In progress" : "Ended"));
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => DateTime.Now - item.DateStarted)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Observers.Count)
+                </td>
+            </tr>
+        }
+        </tbody>
+    <tfoot>
+    </tfoot>
+
+</table>

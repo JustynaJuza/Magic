@@ -12,6 +12,7 @@ namespace Magic.Models
         public string Message { get; set; }
         public virtual ApplicationUser Sender { get; set; }
         public virtual ApplicationUser Recipient { get; set; }
+        public virtual ChatLog Log { get; set; }
 
         // Constructor.
         public ChatMessage()

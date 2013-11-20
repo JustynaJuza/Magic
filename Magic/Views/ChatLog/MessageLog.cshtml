@@ -1,19 +1,47 @@
-﻿@model Magic.Models.ChatLog
+﻿@using Magic.Models;
+@model IEnumerable<Magic.Models.ChatMessage>
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "View messages";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Details</h2>
+<h2>Message Log</h2>
+@Html.Partial("_MessagePartial")
 
-<div>
-    <h4>ChatLog</h4>
-	<hr />
-    <dl class="dl-horizontal">
-    </dl>
-</div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.DateCreated }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Date")
+            </th>
+            <th>
+                @Html.DisplayName("Sender")
+            </th>
+            <th>
+                @Html.DisplayName("Message")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimeSend)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sender)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Message)
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "Delete", item)
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot></tfoot>
+</table>

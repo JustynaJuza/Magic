@@ -1,7 +1,8 @@
 ﻿using Magic.Models.Helpers;
+using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -12,26 +13,28 @@ namespace Magic.Models
         public int Id { get; set; }
         public DateTime DateStarted { get; set; }
         public DateTime DateEnded { get; set; }
-        public virtual List<PlayerGameStatus> Players { get; set; }
+        public virtual IList<PlayerGameStatus> Players { get; set; }
     }
 
-    [ComplexType]
-    public class PlayerGameStatus : AbstractExtensions
+    public class GameViewModel : AbstractExtensions, IViewModel
     {
-        public virtual ApplicationUser Player { get; set; }
-        public GameStatus Status { get; set; }
-        public virtual CardDeck Deck { get; set; }
-        //public virtual GameStatistics Statistics { get; set; }
-    }
+        public int Id { get; set; }
+        public DateTime DateStarted { get; set; }
+        public DateTime DateEnded { get; set; }
+        public virtual IList<Player> Players { get; set; }
+        public virtual IList<ApplicationUser> Observers { get; set; }
 
-    [ComplexType]
-    public class GameStatistics : AbstractExtensions
-    {
-        public int CardsInLibrary { get; set; }
-        public int CardsInGraveyard { get; set; }
-        public int CardsExiled { get; set; }
-        public int CardsInHand { get; set; }
-        public int CardsPlayed { get; set; }
-        public int HP { get; set; }
+        // Constructor with number of players.
+        public GameViewModel(int playerCount)
+        {
+            Players = new List<Player>(playerCount);
+            Observers = new List<ApplicationUser>();
+        }
+        // Constructor with players.
+        public GameViewModel(IList<Player> players)
+        {
+            Players = players;
+            Observers = new List<ApplicationUser>();
+        }
     }
 }

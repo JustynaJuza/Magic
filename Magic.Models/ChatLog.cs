@@ -10,7 +10,6 @@ namespace Magic.Models
     public class ChatLog : AbstractExtensions
     {
         [Key]
-        [Display(Name = "Date")]
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
         public virtual List<ChatMessage> MessageLog { get; set; }
@@ -22,11 +21,9 @@ namespace Magic.Models
             MessageLog = new List<ChatMessage>();
         }
 
-        #region HELPERS
         public void AppendMessages(List<ChatMessage> tempLog)
         {
             MessageLog.AddRange(tempLog);
         }
-        #endregion HELPERS
     }
 }

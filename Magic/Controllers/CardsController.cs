@@ -30,53 +30,54 @@ namespace Magic.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Card actionItem)
+        public ActionResult Create(Card model)
         {
             if (ModelState.IsValid)
             {
                 //Card item = new Card()
                 //{
-                //    Name = actionItem.Name
+                //    Name = model.Name
                 //};
 
-                TempData["Error"] = context.Create(actionItem);
+                TempData["Error"] = context.Create(model);
                 return RedirectToAction("Index");
             }
             // Process model errors.
-            return View(actionItem);
+            return View(model);
         }
         #endregion CREATE
 
         #region EDIT/UPDATE
         [HttpGet]
-        public ActionResult Edit(Card actionItem)
+        public ActionResult Edit(Card model)
         {
-            TempData["Error"] = context.Read(actionItem);
+            TempData["Error"] = context.Read(model);
             if (TempData["Error"].GetType() == typeof(string))
             {
                 return RedirectToAction("Index");
             }
-            return View(actionItem);
+            TempData["Error"] = null;
+            return View(model);
         }
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult PostEdit([Bind(Include = "Id, Name")] Card actionItem)
+        public ActionResult PostEdit([Bind(Include = "Id, Name")] Card model)
         {
             if (ModelState.IsValid)
             {
-                TempData["Error"] = context.Update(actionItem);
+                TempData["Error"] = context.Update(model);
                 return RedirectToAction("Index");
             }
             // Process model errors.
-            return View("Edit", actionItem);
+            return View("Edit", model);
         }
         #endregion EDIT/UPDATE
 
         #region DELETE
-        public ActionResult Delete(Card actionItem)
+        public ActionResult Delete(Card model)
         {
-            TempData["Error"] = context.Delete(actionItem);
+            TempData["Error"] = context.Delete(model);
             return RedirectToAction("Index");
         }
         #endregion DELETE

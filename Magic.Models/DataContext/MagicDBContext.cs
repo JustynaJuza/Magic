@@ -17,8 +17,10 @@ namespace Magic.Models.DataContext
             // modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
 
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
+
+            //modelBuilder.Entity<ChatLog>().HasKey(cl => cl.DateCreated);
+            //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.Game, pgs.Player });
         }
 
         public DbSet<Magic.Models.ApplicationUserConnection> UserConnections { get; set; }
@@ -28,6 +30,8 @@ namespace Magic.Models.DataContext
         public DbSet<Magic.Models.CardDeck> CardDecks { get; set; }
         public DbSet<Magic.Models.ChatLog> ChatLogs { get; set; }
         public DbSet<Magic.Models.ChatMessage> ChatMessages { get; set; }
+        public DbSet<Magic.Models.Game> Games { get; set; }
+        public DbSet<Magic.Models.PlayerGameStatus> PlayerGameStatuses { get; set; }
 
         #region CRUD
         public string Create(Object item)

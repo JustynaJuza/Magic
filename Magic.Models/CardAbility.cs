@@ -11,8 +11,8 @@ namespace Magic.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public virtual List<CardColor> CardColors { get; set; }
-        public List<int> CardCostPerColor { get; set; }
+        public virtual IList<CardColor> CardColors { get; set; }
+        public IList<int> CardCostPerColor { get; set; }
 
         [NotMapped]
         public virtual Card target { get; set; }

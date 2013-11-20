@@ -93,18 +93,26 @@ namespace Magic.Hubs
         }
 
         #region GROUPS
-        public async Task JoinRoom(string roomName)
+        public async Task JoinRoom(string userId, string roomName)
         {
-            await Groups.Add(Context.ConnectionId, roomName);
-            Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " joined.");
+            var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            foreach (var connection in foundUser.Connections)
+            {
+                await Groups.Add(connection.Id, roomName);
+            }
+            Clients.Group(roomName).addChatMessage(foundUser.UserName + " entered the game room.");
         }
 
-        public async Task LeaveRoom(string roomName)
+        public async Task LeaveRoom(string userId, string roomName)
         {
             try
             {
-                await Groups.Remove(Context.ConnectionId, roomName);
-                Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left.");
+                var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+                foreach (var connection in foundUser.Connections)
+                {
+                    await Groups.Remove(Context.ConnectionId, roomName);
+                }
+                Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left the game room.");
             }
             catch (Exception) { }
         }

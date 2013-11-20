@@ -100,26 +100,26 @@ namespace <#= Namespace #>
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(<#= ModelTypeName #>ViewModel actionItem)
+        public ActionResult Create(<#= ModelTypeName #>ViewModel model)
         {
             if (ModelState.IsValid)
             {
-                TempData["Error"] = context.Create(actionItem);
+                TempData["Error"] = context.Create(model);
                 return RedirectToAction("Index");
             }
 
 <# foreach (var property in relatedProperties.Values) { #>
             ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
-            return View(actionItem);
+            return View(model);
         }
 		#endregion CREATE
 
         #region EDIT/UPDATE
         [HttpGet]
-        public ActionResult Edit(<#= ModelTypeName #>ViewModel actionItem)
+        public ActionResult Edit(<#= ModelTypeName #>ViewModel model)
         {
-            TempData["Error"] = context.Read(actionItem);
+            TempData["Error"] = context.Read(model);
             if (TempData["Error"].GetType() == typeof(string))
             {
                 return RedirectToAction("Index");
@@ -128,31 +128,31 @@ namespace <#= Namespace #>
 <# foreach (var property in relatedProperties.Values) { #>
             ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
-            return View(actionItem);
+            return View(model);
         }
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult PostEdit(<#= ModelTypeName #>ViewModel actionItem)
+        public ActionResult PostEdit(<#= ModelTypeName #>ViewModel model)
         {
             if (ModelState.IsValid)
             {
-                TempData["Error"] = context.Update(actionItem);
+                TempData["Error"] = context.Update(model);
                 return RedirectToAction("Index");
             }
 <# foreach (var property in relatedProperties.Values) { #>
             ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(context.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
 <# } #>
 			// Process model errors.
-            return View("Edit", actionItem);
+            return View("Edit", model);
         }
 		#endregion EDIT/UPDATE
 
 		#region DELETE
         [HttpPost]
-        public ActionResult Delete(<#= ModelTypeName #>ViewModel actionItem)
+        public ActionResult Delete(<#= ModelTypeName #>ViewModel model)
         {
-			TempData["Error"] = context.Delete(actionItem);
+			TempData["Error"] = context.Delete(model);
             return RedirectToAction("Index");
         }
 		#endregion DELETE

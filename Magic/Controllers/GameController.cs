@@ -13,55 +13,79 @@ namespace Magic.Controllers
     {
         private MagicDBContext context = new MagicDBContext();
         private static List<Player> players = new List<Player>(2);
+        private static List<ApplicationUser> observers = new List<ApplicationUser>();
 
-        public GameController() { }
+        // Constructor with predefined player list.
+        //public GameController(IList<string> playerIdList = null)
+        //{
+        //    if (playerIdList != null)
+        //    {
+        //        foreach (var playerId in playerIdList)
+        //        {
+        //            var foundPlayer = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == playerId);
+        //            players.Add(new Player(foundPlayer));
+        //        }
+        //    }
+        //}
 
+        [Authorize]
+        [HttpGet]
         public ActionResult Index()
         {
-            var userId =  User.Identity.GetUserId();
+            var userId = User.Identity.GetUserId();
             var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
-            if (currentUser != null){
-                if (players.Count == players.Capacity)
+            if (players.Count != players.Capacity)
+            {
+                if (!players.Any(p => p.User.Id == currentUser.Id))
                 {
-                    TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.";
-                }
-                else if (currentUser.DeckCollection.Count == 0)
-                {
-                    lock (players)
+                    if (currentUser.DeckCollection.Count == 0)
                     {
-                    players.Add(new Player(currentUser));   
+                        lock (players)
+                        {
+                            players.Add(new Player(currentUser));
+                        }
+                        TempData["Message"] = "Please select a deck to play with before starting the game.";
+                        ViewBag.SelectDeck = true;
                     }
-                    TempData["Message"] = "Please select a deck to play with.";
-                    RedirectToAction("SelectDeck");
-                }
-                else
-                {
-                    // Play with last used deck.
-                    lock (players)
+                    else
                     {
-                        players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
+                        // Play with last used deck.
+                        lock (players)
+                        {
+                            players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
+                        }
                     }
                 }
             }
-            else {
-                TempData["Message"] = "You must be logged in to join the game";
+            else
+            {
+                if (!observers.Any(o => o.Id == currentUser.Id))
+                {
+                    lock (observers)
+                    {
+                        observers.Add(currentUser);
+                    }
+                    TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken."
+                                        + "You can join by refreshing the page if a spot becomes available.";
+                }
             }
+
             return View();
         }
 
-        public ActionResult SelectDeck(CardDeckViewModel actionItem)
+        public ActionResult SelectDeck(CardDeckViewModel model)
         {
-            var userId =  User.Identity.GetUserId();
+            var userId = User.Identity.GetUserId();
             var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
             var player = new Player(currentUser);
-            player.SelectDeck(actionItem);
+            player.SelectDeck(model);
 
-            var selectedDeck = currentUser.DeckCollection.FirstOrDefault(d => d.Id == actionItem.Id);
+            var selectedDeck = currentUser.DeckCollection.FirstOrDefault(d => d.Id == model.Id);
             if (selectedDeck == null)
             {
-                selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == actionItem.Id);
+                selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
                 currentUser.DeckCollection.Insert(0, selectedDeck);
                 context.Update(currentUser);
             }
@@ -73,5 +97,29 @@ namespace Magic.Controllers
 
             return View("Index");
         }
-	}
+
+        public ActionResult Start()
+        {
+            UpdateUserStatuses();
+
+   
+            return View("Index");
+        }
+
+        #region HELPERS
+        private void UpdateUserStatuses()
+        {
+            foreach (var user in observers)
+            {
+                user.Status = UserStatus.Observing; ;
+                context.Update(user);
+            }
+            foreach (var user in players)
+            {
+                user.User.Status = UserStatus.Playing;
+                context.Update(user.User);
+            }
+        }
+        #endregion HELPERS
+    }
 }

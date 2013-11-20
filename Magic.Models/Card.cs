@@ -14,9 +14,9 @@ namespace Magic.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public virtual CardType Type { get; set; }
-        public List<int> CostPerColor { get; set; }
-        public virtual List<CardColor> Colors { get; set; }
-        public virtual List<CardAbility> Abilities { get; set; }
+        public IList<int> CostPerColor { get; set; }
+        public virtual IList<CardColor> Colors { get; set; }
+        public virtual IList<CardAbility> Abilities { get; set; }
     }
 
     public class CreatureCard : Card
@@ -33,9 +33,9 @@ namespace Magic.Models
         public string Name { get; set; }
         public bool Tapped { get; set; }
         public bool Permanent { get; set; }
-        public List<int> CostPerColor { get; set; }
-        public virtual List<CardColor> Colors { get; set; }
-        public virtual List<CardAbility> Abilities { get; set; }
+        public IList<int> CostPerColor { get; set; }
+        public virtual IList<CardColor> Colors { get; set; }
+        public virtual IList<CardAbility> Abilities { get; set; }
 
         public void Tap()
         {

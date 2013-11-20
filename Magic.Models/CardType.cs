@@ -19,13 +19,13 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public MainType Type { get; set; }
-        public virtual List<CardSubType> SubTypes { get; set; }
+        public virtual IList<CardSubType> SubTypes { get; set; }
     }
 
     public class CardSubType : AbstractExtensions
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual List<CardMainType> MainTypes { get; set; }
+        public virtual IList<CardMainType> MainTypes { get; set; }
     }
 }

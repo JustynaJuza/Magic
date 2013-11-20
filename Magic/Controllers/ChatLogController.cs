@@ -21,59 +21,24 @@ namespace Magic.Controllers
             return View(context.ChatLogs.ToList());
         }
 
-		#region CREATE
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult View(ChatLog model)
         {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(ChatLog actionItem)
-        {
-            if (ModelState.IsValid)
-            {
-                TempData["Error"] = context.Create(actionItem);
-                return RedirectToAction("Index");
-            }
-
-            return View(actionItem);
-        }
-		#endregion CREATE
-
-        #region EDIT/UPDATE
-        [HttpGet]
-        public ActionResult Edit(ChatLog actionItem)
-        {
-            TempData["Error"] = context.Read(actionItem);
+            TempData["Error"] = context.Read(model);
             if (TempData["Error"].GetType() == typeof(string))
             {
                 return RedirectToAction("Index");
             }
-
-            return View(actionItem);
+            TempData["Error"] = null;
+            System.Diagnostics.Debug.WriteLine(model.ToString());
+            return View("MessageLog", context.Set<ChatMessage>().Where(m => m.Log.DateCreated == model.DateCreated));
         }
-
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public ActionResult PostEdit(ChatLog actionItem)
-        {
-            if (ModelState.IsValid)
-            {
-                TempData["Error"] = context.Update(actionItem);
-                return RedirectToAction("Index");
-            }
-			// Process model errors.
-            return View("Edit", actionItem);
-        }
-		#endregion EDIT/UPDATE
 
 		#region DELETE
         [HttpPost]
-        public ActionResult Delete(ChatLog actionItem)
+        public ActionResult Delete(Object model)
         {
-			TempData["Error"] = context.Delete(actionItem);
+			TempData["Error"] = context.Delete(model);
             return RedirectToAction("Index");
         }
 		#endregion DELETE

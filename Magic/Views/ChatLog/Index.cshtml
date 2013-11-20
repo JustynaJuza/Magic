@@ -1,39 +1,41 @@
 ﻿@model IEnumerable<Magic.Models.ChatLog>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "All saved Chats";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
+<h2>All saved Chats</h2>
+@Html.Partial("_MessagePartial")
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
 <table class="table">
-    <tr>
-        <th>
-            @Html.DisplayName("Date")
-        </th>
-        <th>
-            @Html.DisplayName("Messages")
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.DateCreated)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.MessageLog.Count)
-        </td>
-        <td>
-            @Html.ActionLink("View", "MessageLog", item) | |
-            @Html.ActionLink("Delete", "Delete", item)
-        </td>
-    </tr>
-}
-
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Date")
+            </th>
+            <th>
+                @Html.DisplayName("Messages")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateCreated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MessageLog.Count)
+                </td>
+                <td>
+                    @Html.ActionLink("View", "View", item) |
+                    @Html.ActionLink("Delete", "Delete", item)
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot></tfoot>
 </table>

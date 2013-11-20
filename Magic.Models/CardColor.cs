@@ -10,7 +10,7 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public Color Color { get; set; }
-        public virtual List<Card> Cards { get; set; }
+        public virtual IList<Card> Cards { get; set; }
     }
 
     public enum Color
