@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Threading.Tasks;
 using Magic.Models.DataContext;
+using Magic.Models;
 
 namespace Magic.Hubs
 {
@@ -15,6 +16,29 @@ namespace Magic.Hubs
         private MagicDBContext context = new MagicDBContext();
 
         #region GROUPS
+        public static void ActivateGame(string userId, string roomName, bool joinedGame = true)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
+            using (MagicDBContext context = new MagicDBContext())
+            {
+                var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+                if (joinedGame)
+                {
+                    foreach (var connection in foundUser.Connections)
+                    {
+                        hubContext.Groups.Add(connection.Id, roomName);
+                    }
+                }
+                else
+                {
+                    foreach (var connection in foundUser.Connections)
+                    {
+                        hubContext.Groups.Remove(connection.Id, roomName);
+                    }
+                }
+            }
+        }
+
         public async Task JoinGame(string game)
         {
             await Groups.Add(Context.ConnectionId, game);

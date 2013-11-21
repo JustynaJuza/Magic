@@ -6,15 +6,13 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Magic.Models.DataContext;
+using Magic.Hubs;
 
 namespace Magic.Controllers
 {
     public class GameController : Controller
     {
         private MagicDBContext context = new MagicDBContext();
-        private static List<Player> players = new List<Player>(2);
-        private static List<ApplicationUser> observers = new List<ApplicationUser>();
-
         // Constructor with predefined player list.
         //public GameController(IList<string> playerIdList = null)
         //{
@@ -30,47 +28,55 @@ namespace Magic.Controllers
 
         [Authorize]
         [HttpGet]
-        public ActionResult Index()
+        public ActionResult Index(GameViewModel game)
         {
+            Session["Game"] = game;
+
             var userId = User.Identity.GetUserId();
             var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
-            if (players.Count != players.Capacity)
+            if (game.Players.Count < game.PlayerCount)
             {
-                if (!players.Any(p => p.User.Id == currentUser.Id))
+                if (!game.Players.Any(p => p.User.Id == currentUser.Id))
                 {
                     if (currentUser.DeckCollection.Count == 0)
                     {
-                        lock (players)
+                        lock (game.Players)
                         {
-                            players.Add(new Player(currentUser));
+                            game.Players.Add(new Player(currentUser));
                         }
                         TempData["Message"] = "Please select a deck to play with before starting the game.";
                         ViewBag.SelectDeck = true;
                     }
                     else
                     {
-                        // Play with last used deck.
-                        lock (players)
+                        // Initialise with last used deck.
+                        lock (game.Players)
                         {
-                            players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
+                            game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
                         }
                     }
                 }
             }
             else
             {
-                if (!observers.Any(o => o.Id == currentUser.Id))
+                if (!game.Observers.Any(o => o.Id == currentUser.Id))
                 {
-                    lock (observers)
+                    lock (game.Observers)
                     {
-                        observers.Add(currentUser);
+                        game.Observers.Add(currentUser);
                     }
-                    TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken."
-                                        + "You can join by refreshing the page if a spot becomes available.";
+                    TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
+                                        + "You can take a player seat by refreshing the page if a spot becomes available.";
                 }
             }
 
+            // Join game room chat.
+            ChatHub.ActivateGameChat(currentUser.Id, game.Id);
+
+
+            var hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            hubContext.Clients.Group(game.Id).addMessage(DateTime.Now.ToString("HH:mm:ss"), "Server", "#000000", "joined");
             return View();
         }
 
@@ -100,21 +106,27 @@ namespace Magic.Controllers
 
         public ActionResult Start()
         {
-            UpdateUserStatuses();
+            var game = (GameViewModel) Session["Game"];
+            UpdateUserStatuses(game);
 
-   
+            foreach (var player in game.Players)
+            {
+                GameHub.ActivateGame(player.User.Id, game.Id);
+            }
+
             return View("Index");
         }
 
         #region HELPERS
-        private void UpdateUserStatuses()
+        private void UpdateUserStatuses(GameViewModel game)
         {
-            foreach (var user in observers)
+            if (game.Observers != null) { 
+            foreach (var user in game.Observers)
             {
                 user.Status = UserStatus.Observing; ;
                 context.Update(user);
-            }
-            foreach (var user in players)
+            }}
+            foreach (var user in game.Players)
             {
                 user.User.Status = UserStatus.Playing;
                 context.Update(user.User);

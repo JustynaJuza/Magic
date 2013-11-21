@@ -26,4 +26,26 @@ namespace Magic.Models
             TimeSend = DateTime.Now;
         }
     }
+
+    public class ChatMessageViewModel : AbstractExtensions
+    {
+        public int Id { get; set; }
+        public DateTime? TimeSend { get; set; }
+        public string Message { get; set; }
+        public string SenderName { get; set; }
+        public string RecipientName { get; set; }
+
+        // Constructor.
+        public ChatMessageViewModel(ChatMessage message)
+        {
+            Id = message.Id;
+            TimeSend = message.TimeSend;
+            Message = message.Message;
+            SenderName = message.Sender.UserName;
+            if (message.Recipient != null)
+            {
+                RecipientName = message.Recipient.UserName;
+            }
+        }
+    }
 }

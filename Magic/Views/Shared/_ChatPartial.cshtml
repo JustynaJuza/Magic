@@ -28,8 +28,7 @@
             {
                 foreach (var message in Model.MessageLog)
                 {
-                    <li>
-                        @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
+                    <li> @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
                         @if (message.Recipient != null) {
                             <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
                         }

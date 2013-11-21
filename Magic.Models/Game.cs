@@ -10,7 +10,7 @@ namespace Magic.Models
 {
     public class Game : AbstractExtensions
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public DateTime DateStarted { get; set; }
         public DateTime DateEnded { get; set; }
         public virtual IList<PlayerGameStatus> Players { get; set; }
@@ -18,21 +18,33 @@ namespace Magic.Models
 
     public class GameViewModel : AbstractExtensions, IViewModel
     {
-        public int Id { get; set; }
-        public DateTime DateStarted { get; set; }
-        public DateTime DateEnded { get; set; }
-        public virtual IList<Player> Players { get; set; }
-        public virtual IList<ApplicationUser> Observers { get; set; }
+        public string Id { get; set; }
+        public int PlayerCount { get; set; }
+        public DateTime? DateStarted { get; set; }
+        public DateTime? DateEnded { get; set; }
+        public virtual List<Player> Players { get; set; }
+        public virtual List<ApplicationUser> Observers { get; set; }
 
+        // Constructor.
+        public GameViewModel() {
+            Id = Guid.NewGuid().ToString();
+            PlayerCount = 2;
+            Players = new List<Player>();
+            Observers = new List<ApplicationUser>();
+        }
         // Constructor with number of players.
         public GameViewModel(int playerCount)
         {
-            Players = new List<Player>(playerCount);
+            Id = Guid.NewGuid().ToString();
+            PlayerCount = playerCount;
+            Players = new List<Player>();
             Observers = new List<ApplicationUser>();
         }
         // Constructor with players.
-        public GameViewModel(IList<Player> players)
+        public GameViewModel(List<Player> players)
         {
+            Id = Guid.NewGuid().ToString();
+            PlayerCount = players.Count;
             Players = players;
             Observers = new List<ApplicationUser>();
         }

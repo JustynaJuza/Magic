@@ -11,7 +11,7 @@ namespace Magic.Models
     public class PlayerGameStatus : AbstractExtensions
     {
         [Key, Column(Order = 0)]
-        public int GameId { get; set; }
+        public string GameId { get; set; }
         [Key, Column(Order = 1)]
         public string PlayerId { get; set; }
         public virtual Game Game { get; set; }

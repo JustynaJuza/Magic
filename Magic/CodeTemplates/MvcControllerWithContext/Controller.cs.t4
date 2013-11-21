@@ -149,7 +149,6 @@ namespace <#= Namespace #>
 		#endregion EDIT/UPDATE
 
 		#region DELETE
-        [HttpPost]
         public ActionResult Delete(<#= ModelTypeName #>ViewModel model)
         {
 			TempData["Error"] = context.Delete(model);

@@ -206,25 +206,9 @@
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Hubs\ConnectionHub.cs" />
-    <Compile Include="Migrations\201311111524177_userColorCode.cs" />
-    <Compile Include="Migrations\201311111524177_userColorCode.Designer.cs">
-      <DependentUpon>201311111524177_userColorCode.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\201311121123558_messagesavingtest.cs" />
     <Compile Include="Migrations\201311121123558_messagesavingtest.Designer.cs">
       <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311141535326_deckRelations.cs" />
-    <Compile Include="Migrations\201311141535326_deckRelations.Designer.cs">
-      <DependentUpon>201311141535326_deckRelations.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311141604485_userdeckcollection.cs" />
-    <Compile Include="Migrations\201311141604485_userdeckcollection.Designer.cs">
-      <DependentUpon>201311141604485_userdeckcollection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311141607132_deckthings.cs" />
-    <Compile Include="Migrations\201311141607132_deckthings.Designer.cs">
-      <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\201311141802055_changes.cs" />
     <Compile Include="Migrations\201311141802055_changes.Designer.cs">
@@ -233,6 +217,10 @@
     <Compile Include="Migrations\201311151333232_UserStatus.cs" />
     <Compile Include="Migrations\201311151333232_UserStatus.Designer.cs">
       <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201311211703029_gameKey.cs" />
+    <Compile Include="Migrations\201311211703029_gameKey.Designer.cs">
+      <DependentUpon>201311211703029_gameKey.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -321,7 +309,7 @@
     <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
     <Content Include="Views\ChatLog\MessageLog.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
-    <Content Include="Views\GameRoom\Game\Index.cshtml" />
+    <Content Include="Views\Game\Index.cshtml" />
     <Content Include="Views\GameRoom\Create.cshtml" />
     <Content Include="Views\GameRoom\Edit.cshtml" />
     <Content Include="Views\GameRoom\Index.cshtml" />
@@ -345,26 +333,17 @@
     <Folder Include="Views\Shared\EditorTemplates\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201311111524177_userColorCode.resx">
-      <DependentUpon>201311111524177_userColorCode.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311121123558_messagesavingtest.resx">
       <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311141535326_deckRelations.resx">
-      <DependentUpon>201311141535326_deckRelations.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311141604485_userdeckcollection.resx">
-      <DependentUpon>201311141604485_userdeckcollection.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311141607132_deckthings.resx">
-      <DependentUpon>201311141607132_deckthings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311141802055_changes.resx">
       <DependentUpon>201311141802055_changes.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311151333232_UserStatus.resx">
       <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201311211703029_gameKey.resx">
+      <DependentUpon>201311211703029_gameKey.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

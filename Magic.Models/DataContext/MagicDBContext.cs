@@ -19,8 +19,8 @@ namespace Magic.Models.DataContext
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
 
-            //modelBuilder.Entity<ChatLog>().HasKey(cl => cl.DateCreated);
-            //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.Game, pgs.Player });
+            //modelBuilder.Entity<ChatLog>().HasKey(l => l.DateCreated);
+            //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
         }
 
         public DbSet<Magic.Models.ApplicationUserConnection> UserConnections { get; set; }
@@ -36,11 +36,11 @@ namespace Magic.Models.DataContext
         #region CRUD
         public string Create(Object item)
         {
-            try
-            {
+            //try
+            //{
                 this.Entry(item).State = EntityState.Added;
                 this.SaveChanges();
-            }
+            //}
             //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             //{
             //    foreach (var validationErrors in ex.EntityValidationErrors)
@@ -51,10 +51,11 @@ namespace Magic.Models.DataContext
             //        }
             //    }
             //}
-            catch (Exception)
-            {
-                return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            }
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
+            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
+            //}
 
             return null;
         }
@@ -87,15 +88,26 @@ namespace Magic.Models.DataContext
                     return (string) foundItem; // Error string returned.
             }
 
-            try
-            {
+            //try
+            //{
                 this.Entry(foundItem).CurrentValues.SetValues(item);
                 this.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            }
+            //}
+            //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            //{
+            //    foreach (var validationErrors in ex.EntityValidationErrors)
+            //    {
+            //        foreach (var validationError in validationErrors.ValidationErrors)
+            //        {
+            //            System.Diagnostics.Trace.TraceInformation("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
+            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
+            //}
 
             return null;
         }
@@ -110,15 +122,17 @@ namespace Magic.Models.DataContext
                     return (string) foundItem; // Error string returned.
             }
 
-            try
-            {
+            //try
+            //{
                 this.Entry(foundItem).State = EntityState.Deleted;
                 this.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
+            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
+            //}
+
             return null;
         }
         #endregion CRUD

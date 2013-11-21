@@ -27,32 +27,39 @@
                 @Html.Display("Observers")
             </th>
         </tr>
-        </thead>
+    </thead>
     <tbody>
         @foreach (var item in Model)
         {
+            //<script>alert('@item');</script>
             <tr>
                 <td>
-                    @Html.ActionLink("Join!", "Join", item) |
+                    @Html.ActionLink("Join!", "Join", new { Id = item.Id })
                 </td>
                 <td>
-                    @foreach (var player in item.Players)
+                    @if (item.Players.Count > 0) {
+                    foreach (var player in item.Players)
                     {
+                        <script>alert('@player');</script>
                         @Html.DisplayFor(x => player.User.UserName)
                     }
+                    }
+                    else{@Html.Display("None")}
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DateStarted == null ? "Starts soon" : (item.DateEnded == null ? "In progress" : "Ended"));
+                    @{ var status = item.DateStarted == null ? "Starts soon" : (item.DateEnded == null ? "In progress" : "Ended"); }
+                    @Html.Display(@status)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => DateTime.Now - item.DateStarted)
+                    @{ var timeElapsed = DateTime.Now - item.DateStarted; }
+                    @Html.Display(@timeElapsed.ToString())
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Observers.Count)
                 </td>
             </tr>
         }
-        </tbody>
+    </tbody>
     <tfoot>
     </tfoot>
 

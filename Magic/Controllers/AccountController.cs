@@ -257,7 +257,6 @@ namespace Magic.Controllers
             }
 
             // Check for Model error processing from partial views.
-            System.Diagnostics.Debug.WriteLine(foundUser.Image);
             if (TempData["PasswordViewData"] != null)
                 ViewBag.PasswordViewData = TempData["PasswordViewData"];
             if (TempData["DetailsViewData"] != null)

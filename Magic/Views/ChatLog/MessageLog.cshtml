@@ -1,5 +1,4 @@
-﻿@using Magic.Models;
-@model IEnumerable<Magic.Models.ChatMessage>
+﻿@model IEnumerable<Magic.Models.ChatMessage>
 
 @{
     ViewBag.Title = "View messages";
@@ -32,13 +31,13 @@
                     @Html.DisplayFor(modelItem => item.TimeSend)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Sender)
+                    @Html.DisplayFor(modelItem => item.Sender.UserName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Message)
                 </td>
                 <td>
-                    @Html.ActionLink("Delete", "Delete", item)
+                    @Html.ActionLink("Delete", "ChatMessageDelete", item)
                 </td>
             </tr>
         }

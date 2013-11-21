@@ -18,7 +18,7 @@ namespace Magic.Controllers
         [HttpGet]
         public ViewResult Index()
         {
-            return View(context.Set<Card>().ToList());
+            return View(context.Cards.ToList());
         }
 
         #region CREATE

@@ -5,19 +5,19 @@
     var $chatGeneralCheckbox = $('#chat-general-check');
     var $chatPrivateCheckbox = $('#chat-private-check');
 
-    // Send button enabled only on chat message input.
-    $chatSendButton.prop("disabled", true);
-    $chatMessage.on('input', function () {
-        if ($chatMessage.val() == '') {
-            $chatSendButton.prop('disabled', true);
-        }
-        else {
-            $chatSendButton.prop('disabled', false);
-        }
-    })
-
+    // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
     var chat = $.connection.chatHub;
+
+    // Start the connection.
+    $.connection.hub.start().done(function () {
+        $chatSendButton.click(function () {
+            // Call the Send method on the hub.
+            chat.server.send($chatMessage.val(), "");
+            // Clear text box and reset focus for next comment.
+            $chatMessage.val('').focus();
+        });
+    });
 
     // Hub callback delivering new messages.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
@@ -35,52 +35,31 @@
         $.connection.hub.stop();
     };
 
-    $chatLog.scroll(function () {
-
-        var lineHeightInPixels = 20;
-        var marginSize = 10;
-        var linesVisible = ($chatLog.height() / lineHeightInPixels).toFixed(0);
-        var linesTotal = (($chatLog[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
-
-        // Get number of lines to fade out based on line height and scrollable area.
-        var linesToFadeUpper = ($chatLog.scrollTop() / lineHeightInPixels).toFixed(0);//$chatLog[0].scrollHeight - marginSize - $chatLog.height(); // when scrolling down
-        var linesToFadeLower = (($chatLog[0].scrollHeight - marginSize - $chatLog.scrollTop()) / lineHeightInPixels).toFixed(0) - linesVisible; // when scrolling up
-        //alert(linesToFadeUpper + " " + linesVisible + " " + linesTotal);
-
-        var $chatMessageList = $chatLog.find('li');
-        // Fade upper lines out.
-        $chatMessageList.slice(0, linesToFadeUpper).fadeTo(100, 0.01, null);
-        // Fade visible lines in.
-        $chatMessageList.slice(linesToFadeUpper == 0? linesToFadeUpper: linesToFadeUpper+1, linesVisible).fadeTo(100, 1, null);
-        // Fade lower lines out.
-        $chatMessageList.slice(linesToFadeUpper == 0? linesVisible : linesToFadeUpper + linesVisible, linesTotal).fadeTo(100, 0.01, null);
-    });
-
     // Hub callback to make client join appointed group.
     chat.client.joinRoom = function (userId, roomName) {
-        // Client invoke to join room.
         chat.server.joinRoom(userId, roomName)
     }
 
     // Hub callback to make client leave appointed group.
     chat.client.leaveRoom = function (userId, roomName) {
-        // Client invoke to leave room.
         chat.server.leaveRoom(userId, roomName)
     }
 
     $.connection.hub.connectionSlow(function () {
-        alert("slow connection"); // Your function to notify user.
+        alert("slow connection");
     });
+    // ---------------------------- HUB ---------------------------- END
 
-    // Start the connection.
-    $.connection.hub.start().done(function () {
-        $chatSendButton.click(function () {
-            // Call the Send method on the hub.
-            chat.server.send($chatMessage.val(), "");
-            // Clear text box and reset focus for next comment.
-            $chatMessage.val('').focus();
-        });
-    });
+    // Send button enabled only on chat message input.
+    $chatSendButton.prop("disabled", true);
+    $chatMessage.on('input', function () {
+        if ($chatMessage.val() == '') {
+            $chatSendButton.prop('disabled', true);
+        }
+        else {
+            $chatSendButton.prop('disabled', false);
+        }
+    })
 
     // Send messages on enter.
     $chatMessage.keyup(function (e) {
@@ -92,6 +71,7 @@
     });
 
     // Provide checkboxes for hiding general/private messages.
+    // TODO: Check why this doesn't work sometimes... Maybe bacause of dynamically added elements? Maybe because of fading scroll?
     $chatGeneralCheckbox.change(function () {
         $('#discussion li').each(function () {
             if ($(this).find($('.chat-message-recipient')).length == 0) {
@@ -105,6 +85,31 @@
                 $(this).toggle();
             }
         });
+    });
+    //$chatGeneralCheckbox.change(function () {
+    //    var $chatMessageList = $chatLog.find('li');
+    //    $chatMessageList.not('.chat-message-recipient').each(function () {
+    //            $(this).toggle();
+    //        })
+    //});
+
+    // Enable smooth scrolling chat messages.
+    $chatLog.scroll(function () {
+        var lineHeightInPixels = 20;
+        var marginSize = 10;
+        var linesVisible = ($chatLog.height() / lineHeightInPixels).toFixed(0);
+        var linesTotal = (($chatLog[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
+
+        // Get number of oldest message lines to fade out based on line height and scroll position.
+        var linesToFadeUpper = ($chatLog.scrollTop() / lineHeightInPixels).toFixed(0);
+
+        var $chatMessageList = $chatLog.find('li');
+        // Fade upper lines out.
+        $chatMessageList.slice(0, linesToFadeUpper).fadeTo(0, 0.01, null);
+        // Fade visible lines in.
+        $chatMessageList.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1, null);
+        // Fade lower lines out.
+        $chatMessageList.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01, null);
     });
 
     // Make chat sender/recipient names clickable for reply (works with dynamically added elements).

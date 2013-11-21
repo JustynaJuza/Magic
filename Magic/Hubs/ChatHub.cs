@@ -48,7 +48,7 @@ namespace Magic.Hubs
                 var userId = Context.User.Identity.GetUserId();
                 var message = new ChatMessage(messageText)
                 {
-                    Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
+                    Sender = context.Users.Find(userId),
                     Recipient = recipient
                 };
 
@@ -81,11 +81,11 @@ namespace Magic.Hubs
 
         public static void UserActionBroadcast(string userId, bool joinedChat = true)
         {
-            var hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
 
             var message = new ChatMessage()
             {
-                Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
+                Sender = context.Users.Find(userId),
                 Message = joinedChat ? " joined the conversation." : " left."
             };
 
@@ -93,14 +93,36 @@ namespace Magic.Hubs
         }
 
         #region GROUPS
-        public async Task JoinRoom(string userId, string roomName)
+        public static void ActivateGameChat(string userId, string roomName, bool joinedChat = true)
         {
-            var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-            foreach (var connection in foundUser.Connections)
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
+            var message = new ChatMessage()
             {
-                await Groups.Add(connection.Id, roomName);
+                Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
+                Message = joinedChat ? " entered the game." : " left the game."
+            };
+
+            if (joinedChat)
+            {
+                foreach (var connection in message.Sender.Connections)
+                {
+                    hubContext.Groups.Add(connection.Id, roomName);
+                }
             }
-            Clients.Group(roomName).addChatMessage(foundUser.UserName + " entered the game room.");
+            else
+            {
+                foreach (var connection in message.Sender.Connections)
+                {
+                    hubContext.Groups.Remove(connection.Id, roomName);
+                }
+            }
+            hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        }
+
+        public async Task JoinRoom(string connectionId, string roomName)
+        {
+            await Groups.Add(connectionId, roomName);
         }
 
         public async Task LeaveRoom(string userId, string roomName)
@@ -125,7 +147,7 @@ namespace Magic.Hubs
             if (recipientName.Length > 0)
             {
                 recipientName = recipientName.Substring(1);
-                var recipient = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.UserName == recipientName);
+                var recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
                 if (recipient == null)
                 {
                     return recipientName;
@@ -138,6 +160,21 @@ namespace Magic.Hubs
             // No recipient at all.
             return null;
         }
+
+        private string DecodeGroup(string messageText)
+        {
+            string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
+            if (groupName.Length > 0)
+            {
+                switch (groupName)
+                {
+                    case "$Game":
+                        return "game";
+                }
+            }
+            return null;
+        }
+
 
         private static void AddMessageToChatLog(ChatMessage message, string logName)
         {

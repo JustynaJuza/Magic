@@ -18,11 +18,10 @@ namespace Magic.Controllers
 		[HttpGet]
         public ActionResult Index()
         {
-            return View(context.ChatLogs.ToList());
+            return View(context.ChatLogs.Include(l => l.MessageLog).ToList());
         }
 
-        [HttpGet]
-        public ActionResult View(ChatLog model)
+        public ActionResult MessageLog(ChatLog model)
         {
             TempData["Error"] = context.Read(model);
             if (TempData["Error"].GetType() == typeof(string))
@@ -30,16 +29,21 @@ namespace Magic.Controllers
                 return RedirectToAction("Index");
             }
             TempData["Error"] = null;
-            System.Diagnostics.Debug.WriteLine(model.ToString());
-            return View("MessageLog", context.Set<ChatMessage>().Where(m => m.Log.DateCreated == model.DateCreated));
+            return View("MessageLog", context.ChatMessages.Where(m => m.Log.DateCreated == model.DateCreated));
         }
 
 		#region DELETE
-        [HttpPost]
-        public ActionResult Delete(Object model)
+        [ActionName("ChatLogDelete")]
+        public ActionResult Delete(ChatLog model)
         {
 			TempData["Error"] = context.Delete(model);
             return RedirectToAction("Index");
+        }
+        [ActionName("ChatMessageDelete")]
+        public ActionResult Delete(ChatMessage model)
+        {
+            TempData["Error"] = context.Delete(model);
+            return RedirectToAction("MessageLog", context.ChatLogs.Where(m => m.DateCreated == model.Log.DateCreated));
         }
 		#endregion DELETE
 

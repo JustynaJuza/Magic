@@ -14,66 +14,26 @@ namespace Magic.Controllers
     [Authorize]
     public class GameRoomController : Controller
     {
-        private static List<GameViewModel> activeGames = new List<GameViewModel>();
+        public static List<GameViewModel> activeGames = new List<GameViewModel>();
 
-		[HttpGet]
+        [HttpGet]
         public ActionResult Index()
         {
             return View(activeGames);
         }
 
-		#region CREATE
-        [HttpGet]
         public ActionResult Create()
         {
-            return View();
+            GameViewModel game = new GameViewModel();
+            activeGames.Add(game);
+            return RedirectToAction("Index", "Game", game);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(GameViewModel model)
+        public ActionResult Join(string Id)
         {
-            if (ModelState.IsValid)
-            {
-                activeGames.Add(model);
-                return RedirectToAction("Index");
-            }
-
-            return View(model);
-        }
-		#endregion CREATE
-
-        #region EDIT/UPDATE
-        [HttpGet]
-        public ActionResult Edit(GameViewModel model)
-        {
-            if (TempData["Error"].GetType() == typeof(string))
-            {
-                return RedirectToAction("Index");
-            }
-
-            return View(model);
+            var game = activeGames.FirstOrDefault(g => g.Id == Id);
+            return RedirectToAction("Index", "Game", game);
         }
 
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public ActionResult PostEdit(GameViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                return RedirectToAction("Index");
-            }
-			// Process model errors.
-            return View("Edit", model);
-        }
-		#endregion EDIT/UPDATE
-
-		#region DELETE
-        [HttpPost]
-        public ActionResult Delete(GameViewModel model)
-        {
-            return RedirectToAction("Index");
-        }
-		#endregion DELETE
     }
 }
