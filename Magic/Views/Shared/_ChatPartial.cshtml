@@ -1,5 +1,4 @@
-﻿@using Magic.Models
-@model Magic.Models.ChatLog
+﻿@using Magic.Hubs;
 
 <div class="chat-container">
     <h3>Discuss</h3>
@@ -14,8 +13,8 @@
 
             <input type="button" id="chat-send" class="btn btn-primary" value="Send" />
         </p>
-    <input type="checkbox" id="chat-general-check" checked="checked"> @: General chat.
-    <input type="checkbox" id="chat-private-check" checked="checked"> @: Private chat.
+        <input type="checkbox" id="chat-general-check" checked="checked"> @: General chat.
+        <input type="checkbox" id="chat-private-check" checked="checked"> @: Private chat.
     }
     else
     {
@@ -24,17 +23,21 @@
 
     <div class="form-control chat-log" style="width: 500px; height: 215px; overflow: auto;">
         <ul id="discussion" style="list-style-type: none; margin:0px">
-            @if (Model != null)
-            {
-                foreach (var message in Model.MessageLog)
-                {
-                    <li> @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
-                        @if (message.Recipient != null) {
+            @{ var recentLog = ChatHub.GetRecentChatLog();
+             if (recentLog != null)
+             {
+                 foreach (var message in recentLog)
+                 {
+                    <li>
+                        @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
+                        @if (message.Recipient != null)
+                        {
                             <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
                         }
                         @message.Message
                     </li>
-                }
+                 }
+             }
             }
         </ul>
     </div>

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 
 namespace Magic.Models.Helpers
@@ -17,6 +18,17 @@ namespace Magic.Models.Helpers
                 toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
 
             return toString;
+        }
+
+        public string ToHtmlString()
+        {
+            string toString = this.GetType().FullName + ": ";
+            var classMembers = this.GetType().GetProperties();
+
+            foreach (System.Reflection.PropertyInfo member in classMembers)
+                toString += "<br />" + member.Name + " : " + member.GetValue(this) + "; ";
+
+            return WebUtility.HtmlDecode(toString);
         }
 
         // Returns a new instance of the related viewModel.

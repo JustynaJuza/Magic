@@ -28,16 +28,22 @@ namespace Magic.Controllers
 
         [Authorize]
         [HttpGet]
-        public ActionResult Index(GameViewModel game)
+        public ActionResult Index(string gameId)
         {
-            Session["Game"] = game;
+            Session["GameId"] = gameId;
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameId);
+            if (game == null)
+            {
+                TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
+                RedirectToAction("Index", "GameRoom");
+            }
 
             var userId = User.Identity.GetUserId();
             var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
-            if (game.Players.Count < game.PlayerCount)
+            if (!game.Players.Any(p => p.User.Id == currentUser.Id))
             {
-                if (!game.Players.Any(p => p.User.Id == currentUser.Id))
+                if (game.Players.Count < game.PlayerCount)
                 {
                     if (currentUser.DeckCollection.Count == 0)
                     {
@@ -57,24 +63,22 @@ namespace Magic.Controllers
                         }
                     }
                 }
-            }
-            else
-            {
-                if (!game.Observers.Any(o => o.Id == currentUser.Id))
+                else
                 {
-                    lock (game.Observers)
+                    if (!game.Observers.Any(o => o.Id == currentUser.Id))
                     {
-                        game.Observers.Add(currentUser);
+                        lock (game.Observers)
+                        {
+                            game.Observers.Add(currentUser);
+                        }
+                        TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
+                                            + "You can take a player seat by refreshing the page if a spot becomes available.";
                     }
-                    TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
-                                        + "You can take a player seat by refreshing the page if a spot becomes available.";
                 }
             }
 
             // Join game room chat.
-            ChatHub.ActivateGameChat(currentUser.Id, game.Id);
-
-
+            ChatHub.ActivateGameChat(currentUser.Id, gameId);
             var hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
             hubContext.Clients.Group(game.Id).addMessage(DateTime.Now.ToString("HH:mm:ss"), "Server", "#000000", "joined");
             return View();
@@ -106,7 +110,7 @@ namespace Magic.Controllers
 
         public ActionResult Start()
         {
-            var game = (GameViewModel) Session["Game"];
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == (string) Session["GameId"]);
             UpdateUserStatuses(game);
 
             foreach (var player in game.Players)
@@ -123,12 +127,26 @@ namespace Magic.Controllers
             if (game.Observers != null) { 
             foreach (var user in game.Observers)
             {
+                user.Games.Add(new PlayerGameStatus()
+                {
+                    GameId = game.Id,
+                    UserId = user.Id,
+                    User = user,
+                    Status = GameStatus.Observed
+                });
                 user.Status = UserStatus.Observing; ;
                 context.Update(user);
             }}
             foreach (var user in game.Players)
             {
                 user.User.Status = UserStatus.Playing;
+                user.User.Games.Add(new PlayerGameStatus()
+                {
+                    GameId = game.Id,
+                    UserId = user.User.Id,
+                    User = user.User,
+                    Status = GameStatus.Unfinished
+                });
                 context.Update(user.User);
             }
         }

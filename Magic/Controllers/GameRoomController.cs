@@ -26,13 +26,16 @@ namespace Magic.Controllers
         {
             GameViewModel game = new GameViewModel();
             activeGames.Add(game);
-            return RedirectToAction("Index", "Game", game);
+            return RedirectToAction("Index", "Game", new { gameId = game.Id });
         }
 
         public ActionResult Join(string Id)
         {
             var game = activeGames.FirstOrDefault(g => g.Id == Id);
-            return RedirectToAction("Index", "Game", game);
+            if (game == null)
+            { TempData["Error"] = "This game is already finished or is no longer available."
+            }
+            return RedirectToAction("Index", "Game", new { gameId = Id });
         }
 
     }

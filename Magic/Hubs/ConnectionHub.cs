@@ -22,25 +22,17 @@ namespace Magic.Hubs
                 var userId = Context.User.Identity.GetUserId();
                 var foundUser = tempContext.Users.Find(userId);
 
-                var connection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                if (connection == null)
-                {
-                    foundUser.Connections.Add(new ApplicationUserConnection
-                    {
-                        Id = Context.ConnectionId,
-                        UserAgent = Context.Request.Headers["User-Agent"],
-                        // Connected = true
-                    });
-                    foundUser.Status = UserStatus.Online;
-                }
-                else
-                {
-                    connection.Connected = true;
-                    foundUser.Status = UserStatus.Online;
-                }
-
+                foundUser.Status = UserStatus.Online;
+                foundUser.Connections.Add(new ApplicationUserConnection(){
+                    Id = Context.ConnectionId,
+                    User = foundUser
+                });
                 tempContext.Update(foundUser);
-                ChatHub.UserActionBroadcast(userId);
+
+                if (foundUser.Connections.Count == 1)
+                {
+                    ChatHub.UserActionBroadcast(userId);
+                }
             }
             System.Diagnostics.Debug.WriteLine("Connect");
             return base.OnConnected();
@@ -58,7 +50,10 @@ namespace Magic.Hubs
             {
                 var connection = tempContext.UserConnections.Find(Context.ConnectionId);
                 connection.User.Status = UserStatus.Offline;
-                ChatHub.UserActionBroadcast(connection.User.Id, false);
+                if (connection.User.Connections.Count == 1)
+                {
+                    ChatHub.UserActionBroadcast(connection.User.Id, false);
+                }
 
                 tempContext.Update(connection, true);
                 tempContext.Delete(connection, true);

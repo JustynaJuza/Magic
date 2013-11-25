@@ -21,7 +21,7 @@ namespace Magic.Hubs
             if (foundRecipient != null && foundRecipient.GetType() == typeof(string))
             {
                 // Recipient included but invalid, alert sender.
-                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "- no such user found, have you misspelled the name?", foundRecipient, "#575757");
+                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "- no such user found, have you misspelled the name?", foundRecipient, "#696969");
             }
             else
             {
@@ -55,13 +55,14 @@ namespace Magic.Hubs
                 // Use callback method to update clients.
                 if (recipient == null)
                 {
-                    AddMessageToChatLog(message, "GeneralChatLog");
                     if (roomName != "")
                     {
+                        AddMessageToChatLog(message, roomName);
                         Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                     }
                     else
                     {
+                        AddMessageToChatLog(message);
                         Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                     }
                 }
@@ -120,25 +121,36 @@ namespace Magic.Hubs
             hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
 
-        public async Task JoinRoom(string connectionId, string roomName)
-        {
-            await Groups.Add(connectionId, roomName);
-        }
+        //public async Task JoinRoom(string connectionId, string roomName)
+        //{
+        //    await Groups.Add(connectionId, roomName);
+        //}
 
-        public async Task LeaveRoom(string userId, string roomName)
-        {
-            try
-            {
-                var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-                foreach (var connection in foundUser.Connections)
-                {
-                    await Groups.Remove(Context.ConnectionId, roomName);
-                }
-                Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left the game room.");
-            }
-            catch (Exception) { }
-        }
+        //public async Task LeaveRoom(string userId, string roomName)
+        //{
+        //    try
+        //    {
+        //        var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+        //        foreach (var connection in foundUser.Connections)
+        //        {
+        //            await Groups.Remove(Context.ConnectionId, roomName);
+        //        }
+        //        Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left the game room.");
+        //    }
+        //    catch (Exception) { }
+        //}
         #endregion GROUPS
+
+        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
+        {
+            // TODO: Filter private messages.
+            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
+            if (currentLog.MessageLog.Count > 10)
+            {
+                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
+            }
+            return currentLog.MessageLog;
+        }
 
         #region HELPERS
         private object DecodeRecipient(string messageText)
@@ -161,22 +173,21 @@ namespace Magic.Hubs
             return null;
         }
 
-        private string DecodeGroup(string messageText)
-        {
-            string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
-            if (groupName.Length > 0)
-            {
-                switch (groupName)
-                {
-                    case "$Game":
-                        return "game";
-                }
-            }
-            return null;
-        }
+        //private string DecodeGroup(string messageText)
+        //{
+        //    string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
+        //    if (groupName.Length > 0)
+        //    {
+        //        switch (groupName)
+        //        {
+        //            case "$Game":
+        //                return "game";
+        //        }
+        //    }
+        //    return null;
+        //}
 
-
-        private static void AddMessageToChatLog(ChatMessage message, string logName)
+        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
         {
             // TODO: Possible issue occuring over periof of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
             // Suggested solution: Add new temporary message log or explicitly call log saving.

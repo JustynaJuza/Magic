@@ -18,6 +18,7 @@ namespace Magic.Models
         public int HPTotal { get; set; }
         public int HPCurrent { get; set; }
         public int CardsInLibraryTotal { get; set; }
+        public int CardsPlayed { get; set; }
         public List<CardViewModel> Library { get; set; }
         public List<CardViewModel> Graveyard { get; set; }
         public List<CardViewModel> Hand { get; set; }

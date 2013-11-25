@@ -2,9 +2,11 @@
 {
     public enum GameStatus
     {
-        Loser,
-        Winner,
+        Lost,
+        Won,
         Draw,
-        Unfinished
+        Finished,
+        Unfinished,
+        Observed
     }
 }

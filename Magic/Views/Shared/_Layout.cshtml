@@ -35,6 +35,11 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
+        <div class="row">
+            <div class="col-md-10">
+                @Html.Partial("_ChatPartial")
+            </div>
+        </div>
         <footer>
             <p>&copy; @DateTime.Now.Year Justyna</p>
         </footer>

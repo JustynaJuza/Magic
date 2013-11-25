@@ -24,14 +24,13 @@
                 @Html.DisplayName("Game Time")
             </th>
             <th>
-                @Html.Display("Observers")
+                @Html.DisplayName("Observers")
             </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            //<script>alert('@item');</script>
             <tr>
                 <td>
                     @Html.ActionLink("Join!", "Join", new { Id = item.Id })
@@ -40,19 +39,19 @@
                     @if (item.Players.Count > 0) {
                     foreach (var player in item.Players)
                     {
-                        <script>alert('@player');</script>
                         @Html.DisplayFor(x => player.User.UserName)
+                        @: @*Insert space*@
                     }
                     }
-                    else{@Html.Display("None")}
+                    else{@Html.DisplayName("None")}
                 </td>
                 <td>
                     @{ var status = item.DateStarted == null ? "Starts soon" : (item.DateEnded == null ? "In progress" : "Ended"); }
-                    @Html.Display(@status)
+                    @Html.DisplayName(@status)
                 </td>
                 <td>
-                    @{ var timeElapsed = DateTime.Now - item.DateStarted; }
-                    @Html.Display(@timeElapsed.ToString())
+                    @{ var timeElapsed = item.DateStarted == null ? new TimeSpan(0) : DateTime.Now - item.DateStarted; }
+                    @Html.DisplayName(timeElapsed.Value.TotalMinutes.ToString("F0") + " min")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Observers.Count)

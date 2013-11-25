@@ -15,14 +15,7 @@ namespace Magic.Controllers
 
         public ActionResult Index()
         {
-            // TODO: Filter private messages.
-            ChatLog currentLog = (ChatLog) HttpContext.ApplicationInstance.Context.Application["GeneralChatLog"];
-            if (currentLog.MessageLog.Count > 10)
-            {
-                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
-            }
-
-            return View(currentLog);
+            return View();
         }
 
         public ActionResult About()
