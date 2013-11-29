@@ -33,7 +33,8 @@ namespace Magic.Controllers
         {
             var game = activeGames.FirstOrDefault(g => g.Id == Id);
             if (game == null)
-            { TempData["Error"] = "This game is already finished or is no longer available."
+            {
+                TempData["Error"] = "This game is already finished or no longer available.";
             }
             return RedirectToAction("Index", "Game", new { gameId = Id });
         }

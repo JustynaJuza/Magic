@@ -11,7 +11,7 @@ namespace Magic.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
-            AutomaticMigrationDataLossAllowed = false;
+            AutomaticMigrationDataLossAllowed = true;
             ContextKey = "Magic.Models.DataContext.MagicDBContext";
         }
 

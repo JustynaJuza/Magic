@@ -36,6 +36,12 @@ namespace Magic
             // Initialise dependency injection resolver.
             //Magic.App_Start.SimpleInjectorInitializer.Initialize();
 
+            // Clears WebFormsViewEngine (no longer searching for .aspx files).
+            ViewEngines.Engines.Clear();
+            // Registers only Razor C# specific view engine.
+            // This can also be registered using dependency injection through the new IDependencyResolver interface.
+            ViewEngines.Engines.Add(new RazorViewEngine());
+
             #region HUB CONFIG
             // Make long polling connections wait a maximum of 110 seconds for a
             // response. When that time expires, trigger a timeout command and

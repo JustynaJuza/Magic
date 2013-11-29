@@ -94,32 +94,85 @@ namespace Magic.Hubs
         }
 
         #region GROUPS
-        public static void ActivateGameChat(string userId, string roomName, bool joinedChat = true)
+        public void ActivateGameChat(string roomName = "")
         {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
+            bool joinedChat = roomName != "";
 
+            var userId = Context.User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
             var message = new ChatMessage()
             {
-                Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
+                Sender = foundUser,
                 Message = joinedChat ? " entered the game." : " left the game."
             };
 
             if (joinedChat)
             {
-                foreach (var connection in message.Sender.Connections)
+                //await this.OnConnected();
+                // Add the connection as main connection and subscribe all other connections.
+                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+                mainConnection.GameId = roomName;
+                context.Update(mainConnection);
+
+                foreach (var connection in foundUser.Connections)
                 {
-                    hubContext.Groups.Add(connection.Id, roomName);
+                    Groups.Add(connection.Id, roomName);
                 }
+
+                System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
             }
             else
             {
-                foreach (var connection in message.Sender.Connections)
+                // If closing main connection to a game remove subscribtion from all other connections.
+                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId && c.GameId.Length > 0);
+                if (mainConnection != null)
                 {
-                    hubContext.Groups.Remove(connection.Id, roomName);
+                    roomName = mainConnection.Id;
+                    // Remove all the connection subscriptions for this game.
+                    System.Diagnostics.Debug.WriteLine("Removed all");
+                    foreach (var connection in message.Sender.Connections)
+                    {
+                        Groups.Remove(connection.Id, roomName);
+                    }
                 }
+
+                System.Diagnostics.Debug.WriteLine("ActivatedfromDisconnect");
             }
-            hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+
+            if (roomName != "")
+            {
+                Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            }
         }
+
+        //public static Task ActivateGameChat(string userId, string roomName, bool joinedChat = true)
+        //{
+        //    var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
+        //    var message = new ChatMessage()
+        //    {
+        //        Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
+        //        Message = joinedChat ? " entered the game." : " left the game."
+        //    };
+
+        //    if (joinedChat)
+        //    {
+        //        foreach (var connection in message.Sender.Connections)
+        //        {
+        //            hubContext.Groups.Add(connection.Id, roomName);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        foreach (var connection in message.Sender.Connections)
+        //        {
+        //            hubContext.Groups.Remove(connection.Id, roomName);
+        //        }
+        //    }
+        //    System.Diagnostics.Debug.WriteLine("Activated");
+        //    return hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        //}
 
         //public async Task JoinRoom(string connectionId, string roomName)
         //{
@@ -151,6 +204,24 @@ namespace Magic.Hubs
             }
             return currentLog.MessageLog;
         }
+
+        #region CONNECTION STATUS UPDATE
+        public override Task OnConnected()
+        {
+            return base.OnConnected();
+        }
+
+        public override Task OnReconnected()
+        {
+            return base.OnReconnected();
+        }
+
+        public override Task OnDisconnected()
+        {
+            ActivateGameChat();
+            return base.OnDisconnected();
+        }
+        #endregion CONNECTION STATUS UPDATE
 
         #region HELPERS
         private object DecodeRecipient(string messageText)

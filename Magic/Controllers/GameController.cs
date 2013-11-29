@@ -35,7 +35,7 @@ namespace Magic.Controllers
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
-                RedirectToAction("Index", "GameRoom");
+                return RedirectToAction("Index", "GameRoom");
             }
 
             var userId = User.Identity.GetUserId();
@@ -78,10 +78,8 @@ namespace Magic.Controllers
             }
 
             // Join game room chat.
-            ChatHub.ActivateGameChat(currentUser.Id, gameId);
-            var hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-            hubContext.Clients.Group(game.Id).addMessage(DateTime.Now.ToString("HH:mm:ss"), "Server", "#000000", "joined");
-            return View();
+            //ChatHub.ActivateGameChat(currentUser.Id, gameId);
+            return View(game);
         }
 
         public ActionResult SelectDeck(CardDeckViewModel model)
