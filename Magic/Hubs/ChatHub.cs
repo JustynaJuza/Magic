@@ -90,6 +90,9 @@ namespace Magic.Hubs
                 Message = joinedChat ? " joined the conversation." : " left."
             };
 
+            message.Sender.Status = joinedChat ? UserStatus.Online : UserStatus.Offline;
+            context.Update(message.Sender, true);
+
             hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
 
@@ -128,7 +131,7 @@ namespace Magic.Hubs
                 var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId && c.GameId.Length > 0);
                 if (mainConnection != null)
                 {
-                    roomName = mainConnection.Id;
+                    roomName = mainConnection.GameId;
                     // Remove all the connection subscriptions for this game.
                     System.Diagnostics.Debug.WriteLine("Removed all");
                     foreach (var connection in message.Sender.Connections)
@@ -140,10 +143,10 @@ namespace Magic.Hubs
                 System.Diagnostics.Debug.WriteLine("ActivatedfromDisconnect");
             }
 
-            if (roomName != "")
-            {
+            //if (roomName != "")
+            //{
                 Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-            }
+            //}
         }
 
         //public static Task ActivateGameChat(string userId, string roomName, bool joinedChat = true)
@@ -218,7 +221,7 @@ namespace Magic.Hubs
 
         public override Task OnDisconnected()
         {
-            ActivateGameChat();
+            //ActivateGameChat();
             return base.OnDisconnected();
         }
         #endregion CONNECTION STATUS UPDATE

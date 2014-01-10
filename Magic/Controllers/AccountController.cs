@@ -232,6 +232,12 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            var userId = User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+            foundUser.Connections.Clear();
+            foundUser.Status = UserStatus.Offline;
+            context.Update(foundUser);
+
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }

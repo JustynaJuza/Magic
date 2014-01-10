@@ -10,6 +10,7 @@
     var chat = $.connection.chatHub;
 
     // Start the connection.
+    $.connection.hub.stop();
     $.connection.hub.start().done(function () {
         $chatSendButton.click(function () {
             // Call the Send method on the hub.

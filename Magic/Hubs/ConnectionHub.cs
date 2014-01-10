@@ -49,7 +49,6 @@ namespace Magic.Hubs
             using (MagicDBContext tempContext = new MagicDBContext())
             {
                 var connection = tempContext.UserConnections.Find(Context.ConnectionId);
-                connection.User.Status = UserStatus.Offline;
                 if (connection.User.Connections.Count == 1)
                 {
                     ChatHub.UserActionBroadcast(connection.User.Id, false);
@@ -61,6 +60,7 @@ namespace Magic.Hubs
             System.Diagnostics.Debug.WriteLine("Disconnect");
             return base.OnDisconnected();
         }
+
         #endregion CONNECTION STATUS UPDATE
 
         #region DISPOSE

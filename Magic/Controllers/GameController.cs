@@ -78,7 +78,7 @@ namespace Magic.Controllers
             }
 
             // Join game room chat.
-            //ChatHub.ActivateGameChat(currentUser.Id, gameId);
+            // ChatHub.ActivateGameChat(currentUser.Id, gameId);
             return View(game);
         }
 
