@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Magic.Hubs
 {
     [Authorize]
-    public class ChatHub : ConnectionHub
+    public class ChatHub : Hub
     {
         private static MagicDBContext context = new MagicDBContext();
 
@@ -80,26 +80,9 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UserActionBroadcast(string userId, bool joinedChat = true)
-        {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
-            var message = new ChatMessage()
-            {
-                Sender = context.Users.Find(userId),
-                Message = joinedChat ? " joined the conversation." : " left."
-            };
-
-            message.Sender.Status = joinedChat ? UserStatus.Online : UserStatus.Offline;
-            context.Update(message.Sender, true);
-
-            hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-        }
-
         #region GROUPS
         public void ActivateGameChat(string roomName = "")
         {
-            System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
             bool joinedChat = roomName != "";
 
             var userId = Context.User.Identity.GetUserId();
@@ -112,90 +95,68 @@ namespace Magic.Hubs
 
             if (joinedChat)
             {
-                //await this.OnConnected();
+                //var gameConnection = foundUser.Connections.FirstOrDefault(c => c.GameId == roomName);
+                //if (gameConnection != null)
+                //{
+                //    // Check if game connection already exist, i.e. page was refreshed.
+                //    //gameConnection.Id = Context.ConnectionId;
+                //}
+                //else
+                //{
                 // Add the connection as main connection and subscribe all other connections.
-                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                mainConnection.GameId = roomName;
-                context.Update(mainConnection);
+                var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+                gameConnection.GameId = roomName;
+                //}
+                context.Update(gameConnection);
 
                 foreach (var connection in foundUser.Connections)
                 {
                     Groups.Add(connection.Id, roomName);
                 }
-
-                System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
             }
             else
             {
                 // If closing main connection to a game remove subscribtion from all other connections.
-                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId && c.GameId.Length > 0);
-                if (mainConnection != null)
+                var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+                if (gameConnection != null)
                 {
-                    roomName = mainConnection.GameId;
+                    roomName = gameConnection.GameId;
                     // Remove all the connection subscriptions for this game.
-                    System.Diagnostics.Debug.WriteLine("Removed all");
                     foreach (var connection in message.Sender.Connections)
                     {
                         Groups.Remove(connection.Id, roomName);
                     }
-                }
 
-                System.Diagnostics.Debug.WriteLine("ActivatedfromDisconnect");
+                    System.Diagnostics.Debug.WriteLine("Removed all for " + gameConnection.Id);
+                }
             }
 
-            //if (roomName != "")
-            //{
-                Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-            //}
+            Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
-
-        //public static Task ActivateGameChat(string userId, string roomName, bool joinedChat = true)
-        //{
-        //    var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
-        //    var message = new ChatMessage()
-        //    {
-        //        Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
-        //        Message = joinedChat ? " entered the game." : " left the game."
-        //    };
-
-        //    if (joinedChat)
-        //    {
-        //        foreach (var connection in message.Sender.Connections)
-        //        {
-        //            hubContext.Groups.Add(connection.Id, roomName);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        foreach (var connection in message.Sender.Connections)
-        //        {
-        //            hubContext.Groups.Remove(connection.Id, roomName);
-        //        }
-        //    }
-        //    System.Diagnostics.Debug.WriteLine("Activated");
-        //    return hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-        //}
-
-        //public async Task JoinRoom(string connectionId, string roomName)
-        //{
-        //    await Groups.Add(connectionId, roomName);
-        //}
-
-        //public async Task LeaveRoom(string userId, string roomName)
-        //{
-        //    try
-        //    {
-        //        var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-        //        foreach (var connection in foundUser.Connections)
-        //        {
-        //            await Groups.Remove(Context.ConnectionId, roomName);
-        //        }
-        //        Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left the game room.");
-        //    }
-        //    catch (Exception) { }
-        //}
         #endregion GROUPS
+
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
+            var message = new ChatMessage()
+            {
+                Sender = context.Users.Find(userId),
+                Message = UserStatusBroadcastMessage(status)
+            };
+
+            message.Sender.Status = status;
+            context.Update(message.Sender, true);
+
+            if (roomName != "")
+            {
+                hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            }
+            else
+            {
+                hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            }
+        }
 
         public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
         {
@@ -211,22 +172,71 @@ namespace Magic.Hubs
         #region CONNECTION STATUS UPDATE
         public override Task OnConnected()
         {
+            var userId = Context.User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+
+            foundUser.Status = UserStatus.Online;
+            foundUser.Connections.Add(new ApplicationUserConnection()
+            {
+                Id = Context.ConnectionId,
+                User = foundUser
+            });
+            context.Update(foundUser);
+
+            if (foundUser.Connections.Count == 1)
+            {
+                // If this is the user's only connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+            }
+
+            System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
 
         public override Task OnReconnected()
         {
+            System.Diagnostics.Debug.WriteLine("Reconnected: " + Context.ConnectionId);
             return base.OnReconnected();
         }
 
         public override Task OnDisconnected()
         {
-            //ActivateGameChat();
+            var connection = context.Connections.Find(Context.ConnectionId);
+            if (connection != null && connection.GameId != null)
+            {
+                ActivateGameChat();
+                GameHub.PlayerLeft(connection);
+            }
+
+            if (connection.User.Connections.Count == 1)
+            {
+                // If this is the user's last connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
+            }
+
+            System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+            context.Delete(connection, true);
+
             return base.OnDisconnected();
         }
         #endregion CONNECTION STATUS UPDATE
 
         #region HELPERS
+        private static string UserStatusBroadcastMessage(UserStatus status)
+        {
+            switch (status)
+            {
+                case UserStatus.AFK: return " is away.";
+                case UserStatus.Online: return " joined the conversation.";
+                case UserStatus.Offline: return " left.";
+                case UserStatus.Observing: return " is observing a duel.";
+                case UserStatus.Playing: return " concentrates on a game right now.";
+                case UserStatus.Ready: return " is ready for action.";
+                case UserStatus.Unready: return " seems to be not prepared!";
+                default: return null;
+            }
+        }
+
         private object DecodeRecipient(string messageText)
         {
             string recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;

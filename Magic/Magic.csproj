@@ -205,7 +205,6 @@
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Hubs\ConnectionHub.cs" />
     <Compile Include="Migrations\201311121123558_messagesavingtest.cs" />
     <Compile Include="Migrations\201311121123558_messagesavingtest.Designer.cs">
       <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>

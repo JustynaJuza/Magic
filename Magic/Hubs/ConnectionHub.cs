@@ -12,8 +12,6 @@ namespace Magic.Hubs
 {
     public class ConnectionHub : Hub
     {
-        private MagicDBContext context = new MagicDBContext();
-
         #region CONNECTION STATUS UPDATE
         public override Task OnConnected()
         {
@@ -31,7 +29,7 @@ namespace Magic.Hubs
 
                 if (foundUser.Connections.Count == 1)
                 {
-                    ChatHub.UserActionBroadcast(userId);
+                    ChatHub.UserStatusBroadcast(userId);
                 }
             }
             System.Diagnostics.Debug.WriteLine("Connect");
@@ -48,30 +46,19 @@ namespace Magic.Hubs
         {
             using (MagicDBContext tempContext = new MagicDBContext())
             {
-                var connection = tempContext.UserConnections.Find(Context.ConnectionId);
+                var connection = tempContext.Connections.Find(Context.ConnectionId);
                 if (connection.User.Connections.Count == 1)
                 {
-                    ChatHub.UserActionBroadcast(connection.User.Id, false);
+                    ChatHub.UserStatusBroadcast(connection.User.Id, false);
                 }
 
-                tempContext.Update(connection, true);
                 tempContext.Delete(connection, true);
             }
+
             System.Diagnostics.Debug.WriteLine("Disconnect");
             return base.OnDisconnected();
         }
 
         #endregion CONNECTION STATUS UPDATE
-
-        #region DISPOSE
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                context.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-        #endregion DISPOSE
     }
 }

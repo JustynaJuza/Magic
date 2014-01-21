@@ -10,7 +10,6 @@
     var chat = $.connection.chatHub;
 
     // Start the connection.
-    $.connection.hub.stop();
     $.connection.hub.start().done(function () {
         $chatSendButton.click(function () {
             // Call the Send method on the hub.
@@ -51,6 +50,7 @@
     });
     // ---------------------------- HUB ---------------------------- END
 
+    // ---------------------------- CHAT --------------------------- START
     // Send button enabled only on chat message input.
     $chatSendButton.prop("disabled", true);
     $chatMessage.on('input', function () {
@@ -128,4 +128,5 @@
         var encodedValue = $('<div />').text(value).html();
         return encodedValue;
     }
+    // ---------------------------- CHAT --------------------------- END
 });
