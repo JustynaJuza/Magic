@@ -62,7 +62,7 @@
         var $chatGeneralCheckbox = $('#chat-general-check');
         var $chatPrivateCheckbox = $('#chat-private-check');
 
-        var playerReady = false;
+        var isReady = false;
         var $gameId = $('#gameId');
         var $playerReadyButton = $('#player-ready');
         var $playerName = $('.player-name');
@@ -74,7 +74,7 @@
 
         // Start the connection.
         $.connection.hub.start().done(function () {
-            chat.server.activateGameChat($gameId.val());
+            chat.server.toggleGameSubscription($gameId.val(), true);
 
             $chatSendButton.click(function () {
                 // Call the Send method on the hub.
@@ -84,13 +84,13 @@
             });
 
             $playerReadyButton.click(function () {
-                playerReady = !playerReady;
-                if (playerReady) {
-                    game.server.activateGame($gameId.val());
+                isReady = !isReady;
+                if (isReady) {
+                    game.server.togglePlayerReady($gameId.val());
                     $playerReadyButton.val("Not ready!");
                 }
                 else {
-                    game.server.activateGame("");
+                    game.server.togglePlayerReady("");
                     $playerReadyButton.val("Ready to start");
                 }
             });
@@ -107,34 +107,52 @@
             //$chatLog.animate($chatLog.scrollTop(200), 1000); //removes scrollbars for some reason
         };
 
-        game.client.playerReady = function (playerName, playerColor) {
+        game.client.togglePlayerReady = function (playerName, playerColor, resetPlayerReadyButton) {
             var $existingPlayer = $playerName.filter(function (element) {
                 return $(this).text() == playerName;
             });
-            $existingPlayer.css('color', playerColor);
-        };
 
-        game.client.playerNotReady = function (playerName) {
-            var $existingPlayer = $playerName.filter(function (element) {
-                return $(this).text() == playerName;
-            });
-            $existingPlayer.css('color', '#808080');
+            if (playerColor) {
+                $existingPlayer.css('color', playerColor);
+            }
+            else {
+                $existingPlayer.css('color', '#808080');
+                if (resetPlayerReadyButton) {
+                    $playerReadyButton.val("Ready to start");
+                }
+            }
         };
 
         game.client.playerJoined = function (playerName) {
             var $existingPlayer = $playerName.filter(function (element) {
                 return $(this).text() == playerName;
             });
-            if ($existingPlayer == null) {
+            if ($existingPlayer.length == 0) {
+                $('#players-list').append('<h2 class="player-name" style="color:#808080">' + playerName + '</h2>');
+            }
+            // Refresh the variable content.
+            $playerName = $($playerName.selector);
+        };
+
+        game.client.observerJoined = function (playerName) {
+            var $existingPlayer = $playerName.filter(function (element) {
+                return $(this).text() == playerName;
+            });
+            if ($existingPlayer.length == 0) {
                 $('#players-list').append('<h2 class="player-name" style="color:#808080">' + playerName + '</h2>');
             }
         };
 
-        game.client.playerLeft = function (playerName) {
+        game.client.userLeft = function (playerName) {
             var $existingPlayer = $playerName.filter(function (element) {
                 return $(this).text() == playerName;
             });
             $existingPlayer.remove();
+            $playerName = $($playerName.selector);
+
+            $playerName.each(function () {
+                $(this).css('color', '#808080');
+            });
         };
 
         //window.onbeforeunload = function (e) {

@@ -16,29 +16,26 @@ namespace Magic.Hubs
     {
         private static MagicDBContext context = new MagicDBContext();
 
-        public void ActivateGame(string roomName = "")
+        public void TogglePlayerReady(string gameId = "")
         {
-            bool joinedGame = roomName != "";
+            bool isReady = gameId != "";
 
             var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
-            if (joinedGame)
+            if (isReady)
             {
-                Groups.Add(Context.ConnectionId, roomName);
-
-                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == roomName);
+                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameId);
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = Context.ConnectionId;
 
-                Clients.Group(roomName).playerReady(foundUser.UserName, foundUser.ColorCode);
-                ChatHub.UserStatusBroadcast(userId, UserStatus.Ready, roomName);
+                DisplayPlayerReady(foundUser, gameId, isReady);
 
-                if (game.Players.All(p => p.ConnectionId != null))
+                if (game.Players.FindAll(p => p.ConnectionId != null).Count == game.PlayerCapacity)
                 {
                     // TODO: START THE GAME!
                     System.Diagnostics.Debug.WriteLine("LET THE GAMES BEGIN!");
-                    Clients.Group(roomName).activateGame();
+                    Clients.Group(gameId).activateGame();
                 }
             }
             else
@@ -48,50 +45,82 @@ namespace Magic.Hubs
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = null;
 
-                ChatHub.UserStatusBroadcast(userId, UserStatus.Unready, roomName);
-                Clients.Group(roomName).playerNotReady(foundUser.UserName);
-                Groups.Remove(Context.ConnectionId, gameConnection.GameId);
+                DisplayPlayerReady(foundUser, gameConnection.GameId, isReady);
             }
         }
 
-        public static void PlayerJoined(string userName, string roomName)
+        #region GAME DISPLAY UPDATES
+        public static void DisplayPlayerReady(ApplicationUser user, string gameId, bool isReady, bool broadcastMessage = true)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-
-            gameHubContext.Clients.Group(roomName).playerJoined(userName);
-        }
-
-        public static void PlayerLeft(ApplicationUserConnection connection)
-        {
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-
-            gameHubContext.Clients.Group(connection.GameId).playerLeft(connection.User.UserName);
-            gameHubContext.Groups.Remove(connection.Id, connection.GameId);
-        }
-
-        #region GROUPS
-        public static void ActivateGameForPlayer(string userId, string roomName, bool joinedGame = true)
-        {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
-            hubContext.Clients.Group(roomName).activateGame();
-            using (MagicDBContext context = new MagicDBContext())
+            if (isReady)
             {
-                var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-                if (joinedGame)
+                gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, user.ColorCode);
+                ChatHub.UserStatusBroadcast(user.Id, UserStatus.Ready, gameId);
+            }
+            else
+            {
+                if (broadcastMessage)
                 {
-                    foreach (var connection in foundUser.Connections)
+                    ChatHub.UserStatusBroadcast(user.Id, UserStatus.Unready, gameId);
+                    gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
+                }
+                else
+                {
+                    gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, null, true);
+                }
+            }
+        }
+
+        public static void DisplayPlayerJoined(string userName, string gameId)
+        {
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            gameHubContext.Clients.Group(gameId).playerJoined(userName);
+        }
+
+        public static void DisplayObserverJoined(string userName, string gameId)
+        {
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            gameHubContext.Clients.Group(gameId).observerJoined(userName);
+        }
+
+        public static void DisplayUserLeft(ApplicationUserConnection gameConnection)
+        {
+
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
+            var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
+            if (foundPlayer != 0)
+            {
+                if (game.DateStarted == null)
+                {
+                    foreach (var player in game.Players)
                     {
-                        hubContext.Groups.Add(connection.Id, roomName);
+                        GameHub.DisplayPlayerReady(player.User, game.Id, false, false);
                     }
                 }
                 else
                 {
-                    foreach (var connection in foundUser.Connections)
-                    {
-                        hubContext.Groups.Remove(connection.Id, roomName);
-                    }
+                    // TODO: STOP THE GAME, A PLAYER IS MISSING!
                 }
             }
+            game.Observers.RemoveAll(o => o.Id == gameConnection.User.Id);
+
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            gameHubContext.Clients.Group(gameConnection.GameId).userLeft(gameConnection.User.UserName);
+        }
+        #endregion GAME DISPLAY UPDATES
+
+        #region GROUPS
+        public static Task JoinGame(string connectionId, string gameId)
+        {
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            return gameHubContext.Groups.Add(connectionId, gameId);
+        }
+
+        public static Task LeaveGame(string connectionId, string gameId)
+        {
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            return gameHubContext.Groups.Remove(connectionId, gameId);
         }
         #endregion GROUPS
     }

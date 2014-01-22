@@ -65,7 +65,7 @@ namespace Magic.Controllers
                     }
 
                     ViewBag.IsPlayer = true;
-                    GameHub.PlayerJoined(currentUser.UserName, game.Id);
+                    GameHub.DisplayPlayerJoined(currentUser.UserName, game.Id);
                 }
                 else
                 {
@@ -78,6 +78,9 @@ namespace Magic.Controllers
                         TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
                                             + "You can take a player seat by refreshing the page if a spot becomes available.";
                     }
+
+                    ViewBag.IsPlayer = false;
+                    GameHub.DisplayObserverJoined(currentUser.UserName, game.Id);
                 }
             }
             else
@@ -86,7 +89,7 @@ namespace Magic.Controllers
             }
 
             // Join game room chat.
-            // ChatHub.ActivateGameChat(currentUser.Id, gameId);
+            // ChatHub.ToggleGameSubscription(currentUser.Id, gameId);
             return View(game);
         }
 
@@ -124,7 +127,7 @@ namespace Magic.Controllers
 
             foreach (var player in game.Players)
             {
-                GameHub.ActivateGameForPlayer(player.User.Id, game.Id);
+                //GameHub.ActivateGameForPlayer(player.User.Id, game.Id);
             }
 
             return View("Index");
