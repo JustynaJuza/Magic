@@ -18,19 +18,19 @@ namespace Magic.Hubs
 
         public void TogglePlayerReady(string gameId = "")
         {
-            bool isReady = gameId != "";
-
-            var userId = Context.User.Identity.GetUserId();
-            var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var isReady = gameId.Length > 0;
 
             if (isReady)
             {
+                // Set the player's game connection for future game calls.
                 var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameId);
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = Context.ConnectionId;
 
-                DisplayPlayerReady(foundUser, gameId, isReady);
+                GameHub.DisplayPlayerReady(foundPlayer.User, gameId, isReady);
 
+                // Start the game if all players are ready.
                 if (game.Players.FindAll(p => p.ConnectionId != null).Count == game.PlayerCapacity)
                 {
                     // TODO: START THE GAME!
@@ -40,12 +40,13 @@ namespace Magic.Hubs
             }
             else
             {
+                // Reset the game connection data when the player is unready to play.
                 var gameConnection = context.Set<ApplicationUserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
                 var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = null;
 
-                DisplayPlayerReady(foundUser, gameConnection.GameId, isReady);
+                GameHub.DisplayPlayerReady(foundPlayer.User, game.Id, isReady);
             }
         }
 
@@ -53,8 +54,10 @@ namespace Magic.Hubs
         public static void DisplayPlayerReady(ApplicationUser user, string gameId, bool isReady, bool broadcastMessage = true)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+
             if (isReady)
             {
+                // Update display to show player is ready.
                 gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, user.ColorCode);
                 ChatHub.UserStatusBroadcast(user.Id, UserStatus.Ready, gameId);
             }
@@ -62,11 +65,13 @@ namespace Magic.Hubs
             {
                 if (broadcastMessage)
                 {
+                    // Update display to show player is not yet ready.
                     ChatHub.UserStatusBroadcast(user.Id, UserStatus.Unready, gameId);
                     gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
                 }
                 else
                 {
+                    // Automatically update display without message if other player leaves game before start.
                     gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, null, true);
                 }
             }
@@ -86,9 +91,10 @@ namespace Magic.Hubs
 
         public static void DisplayUserLeft(ApplicationUserConnection gameConnection)
         {
-
             var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
+
+            // Update game accordingly if a player left.
             if (foundPlayer != 0)
             {
                 if (game.DateStarted == null)
@@ -103,14 +109,19 @@ namespace Magic.Hubs
                     // TODO: STOP THE GAME, A PLAYER IS MISSING!
                 }
             }
-            game.Observers.RemoveAll(o => o.Id == gameConnection.User.Id);
+            else
+            {
+                // Remove observer who left.
+                game.Observers.RemoveAll(o => o.Id == gameConnection.User.Id);
+            }
 
+            // Update display and remove the user who left.
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             gameHubContext.Clients.Group(gameConnection.GameId).userLeft(gameConnection.User.UserName);
         }
         #endregion GAME DISPLAY UPDATES
 
-        #region GROUPS
+        #region MANAGE GAME GROUPS
         public static Task JoinGame(string connectionId, string gameId)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
@@ -122,6 +133,6 @@ namespace Magic.Hubs
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             return gameHubContext.Groups.Remove(connectionId, gameId);
         }
-        #endregion GROUPS
+        #endregion MANAGE GAME GROUPS
     }
 }

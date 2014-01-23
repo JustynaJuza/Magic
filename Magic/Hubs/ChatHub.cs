@@ -18,111 +18,73 @@ namespace Magic.Hubs
         #region CHAT MESSAGE HANDLING
         public void Send(string messageText, string roomName = "")
         {
-            if (messageText != "")
+            ApplicationUser recipient;
+            var messageIsValid = ValidateMessage(messageText, out recipient);
+
+            if (messageIsValid)
             {
-                var foundRecipient = DecodeRecipient(messageText);
-                if (foundRecipient != null && foundRecipient.GetType() == typeof(string))
+                var userId = Context.User.Identity.GetUserId();
+                var message = new ChatMessage(messageText)
                 {
-                    // Recipient included but invalid, alert sender.
-                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                        "- no such user found, have you misspelled the name?", foundRecipient, "#696969");
-                }
-                else
+                    Sender = context.Users.Find(userId),
+                    Message = messageText
+                };
+
+                // Depending on settings, use callback method to update clients.
+                if (recipient == null)
                 {
-                    // Valid recipient found.
-                    var recipient = (ApplicationUser) foundRecipient;
-                    if (recipient != null)
+                    if (roomName.Length > 0)
                     {
-                        if (recipient.Status == UserStatus.Offline)
-                        {
-                            // Valid recipient but is offline, alert sender.
-                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                                "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
-                            return;
-                        }
-                        if (messageText.Length < recipient.UserName.Length + 2)
-                        {
-                            // Valid recipient but no message appended, alert sender.
-                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                                "is online but no message was included.", recipient.UserName, recipient.ColorCode);
-                            return;
-                        }
-                        // Get message text after username and following space.
-                        messageText = messageText.Substring(recipient.UserName.Length + 2);
-                    }
-
-                    var userId = Context.User.Identity.GetUserId();
-                    var message = new ChatMessage(messageText)
-                    {
-                        Sender = context.Users.Find(userId),
-                        Recipient = recipient
-                    };
-
-                    // Use callback method to update clients.
-                    if (recipient == null)
-                    {
-                        if (roomName != "")
-                        {
-                            AddMessageToChatLog(message, roomName);
-                            Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                        }
-                        else
-                        {
-                            AddMessageToChatLog(message);
-                            Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                        }
+                        AddMessageToChatLog(message, roomName);
+                        Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                     }
                     else
                     {
-                        foreach (var connection in message.Recipient.Connections) //.Where(c => c.Connected == true))
-                        {
-                            Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                                message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                        }
-                        foreach (var connection in message.Sender.Connections)
-                        {
-                            Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                                message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                        }
+                        AddMessageToChatLog(message);
+                        Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    }
+                }
+                else
+                {
+                    // Get message text after username and following space.
+                    message.Message = messageText.Substring(recipient.UserName.Length + 2);
+                    // Set message recipient.
+                    message.Recipient = recipient;
+
+                    // Send message to all recipient and all sender connections.
+                    foreach (var connection in message.Recipient.Connections)
+                    {
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                            message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                    }
+                    foreach (var connection in message.Sender.Connections)
+                    {
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                            message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
                     }
                 }
             }
         }
 
-        private string ValidateMessageRecipient(string messageText)
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
         {
-            var foundRecipient = DecodeRecipient(messageText);
-            if (foundRecipient != null && foundRecipient.GetType() == typeof(string))
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
+            var message = new ChatMessage()
             {
-                // Recipient included but invalid, alert sender.
-                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                    "- no such user found, have you misspelled the name?", foundRecipient, "#696969");
-                return null;
+                Sender = context.Users.Find(userId),
+                Message = UserStatusBroadcastMessage(status)
+            };
+            message.Sender.Status = status;
+            context.Update(message.Sender, true);
+
+            if (roomName.Length > 0)
+            {
+                hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
             else
             {
-                // Valid recipient found.
-                var recipient = (ApplicationUser) foundRecipient;
-                if (recipient != null)
-                {
-                    if (recipient.Status == UserStatus.Offline)
-                    {
-                        // Valid recipient but is offline, alert sender.
-                        Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                            "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
-                        return null;
-                    }
-                    if (messageText.Length < recipient.UserName.Length + 2)
-                    {
-                        // Valid recipient but no message appended, alert sender.
-                        Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                            "is online but no message was included.", recipient.UserName, recipient.ColorCode);
-                        return null;
-                    }
-                }
-
-                // Get message text after username and following space.
-                return messageText = messageText.Substring(recipient.UserName.Length + 2);
+                hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
         }
 
@@ -141,28 +103,78 @@ namespace Magic.Hubs
             }
         }
 
-        private object DecodeRecipient(string messageText)
+        private bool ValidateMessage(string messageText, out ApplicationUser recipient)
         {
-            string recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
-            if (recipientName.Length > 0)
+            if (messageText.Length > 0)
             {
-                recipientName = recipientName.Substring(1);
-                var recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
-                if (recipient == null)
+                var recipientName = DecodeRecipient(messageText, out recipient);
+
+                if (recipientName.Length > 0 && recipient == null)
                 {
-                    return recipientName;
+                    // Recipient included but invalid, alert sender.
+                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                        "- no such user found, have you misspelled the name?", recipientName, "#696969");
+                    return false;
                 }
                 else
                 {
-                    return recipient;
+                    if (recipient != null)
+                    {
+                        // Valid recipient found.
+                        if (recipient.Status == UserStatus.Offline)
+                        {
+                            // Valid recipient but is offline, alert sender.
+                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                                "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
+                            return false;
+                        }
+                        if (messageText.Length < recipient.UserName.Length + 2)
+                        {
+                            // Valid recipient but no message appended, alert sender.
+                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                                "is online but no message was included.", recipient.UserName, recipient.ColorCode);
+                            return false;
+                        }
+                    }
+
+                    // Everything OK.
+                    return true;
                 }
             }
-            // No recipient at all.
-            return null;
+
+            // No message text at all.
+            recipient = null;
+            return false;
         }
+
+        private string DecodeRecipient(string messageText, out ApplicationUser recipient)
+        {
+            var recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
+            if (recipientName.Length > 0)
+            {
+                recipientName = recipientName.Substring(1);
+            }
+            // Try to find recipient.
+            recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
+            return recipientName;
+        }
+
+        //private string DecodeGroup(string messageText)
+        //{
+        //    string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
+        //    if (groupName.Length > 0)
+        //    {
+        //        switch (groupName)
+        //        {
+        //            case "$Game":
+        //                return "game";
+        //        }
+        //    }
+        //    return null;
+        //}
         #endregion CHAT MESSAGE HANDLING
 
-        #region MANAGE GAME GROUPS
+        #region MANAGE CHAT & GAME GROUPS
         public async void ToggleGameSubscription(string gameId, bool activate)
         {
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
@@ -180,7 +192,7 @@ namespace Magic.Hubs
                 gameConnection.GameId = gameId;
                 context.Update(gameConnection, true);
 
-                // Await to join the group so the joining user get's the info message.
+                // Await to join the group on main connection so the joining user get's the info message.
                 await GameHub.JoinGame(gameConnection.Id, gameId);
 
                 // Subscribe all other chat connections.
@@ -201,41 +213,7 @@ namespace Magic.Hubs
             // Sent info message on joining and leaving group.
             Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
-        #endregion MANAGE GAME GROUPS
-
-        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
-        {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
-            var message = new ChatMessage()
-            {
-                Sender = context.Users.Find(userId),
-                Message = UserStatusBroadcastMessage(status)
-            };
-
-            message.Sender.Status = status;
-            context.Update(message.Sender, true);
-
-            if (roomName != "")
-            {
-                hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-            }
-            else
-            {
-                hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-            }
-        }
-
-        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
-        {
-            // TODO: Filter private messages.
-            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
-            if (currentLog.MessageLog.Count > 10)
-            {
-                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
-            }
-            return currentLog.MessageLog;
-        }
+        #endregion MANAGE CHAT & GAME GROUPS
 
         #region CONNECTION STATUS UPDATE
         public override Task OnConnected()
@@ -290,38 +268,19 @@ namespace Magic.Hubs
         }
         #endregion CONNECTION STATUS UPDATE
 
-        #region HELPERS
-        //private string DecodeGroup(string messageText)
-        //{
-        //    string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
-        //    if (groupName.Length > 0)
-        //    {
-        //        switch (groupName)
-        //        {
-        //            case "$Game":
-        //                return "game";
-        //        }
-        //    }
-        //    return null;
-        //}
-
-        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
+        #region CHATLOG HANDLING
+        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
         {
-            // TODO: Possible issue occuring over periof of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
-            // Suggested solution: Add new temporary message log or explicitly call log saving.
-
-            //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
-            //{
-            // Synchronize adding message to ChatLog.
-            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
-            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).MessageLog.Add(message);
-            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
-            //}
+            // TODO: Filter private/game/other messages.
+            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
+            if (currentLog.MessageLog.Count > 10)
+            {
+                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
+            }
+            return currentLog.MessageLog;
         }
-        #endregion HELPERS
 
-        #region SAVE CHATLOG
-        // This function is called by schedule from Global.asax and uses the static context.
+        // This function is called by schedule from Global.asax and uses the static context to save recent chat messages.
         public static string SaveChatLogToDatabase(ChatLog currentLog)
         {
             ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);//context.Set<ChatLog>().AsNoTracking().FirstOrDefault(c => c.DateCreated == currentLog.DateCreated);
@@ -340,6 +299,20 @@ namespace Magic.Hubs
                 return context.Create(todayLog);
             }
         }
-        #endregion SAVE CHATLOG
+
+        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
+        {
+            // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
+            // Suggested solution: Add new temporary message log or explicitly call log saving.
+
+            //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
+            //{
+            // Synchronize adding message to ChatLog.
+            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
+            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).MessageLog.Add(message);
+            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
+            //}
+        }
+        #endregion CHATLOG HANDLING
     }
 }
