@@ -14,6 +14,7 @@ namespace Magic.Hubs
     public class ChatHub : Hub
     {
         private static MagicDBContext context = new MagicDBContext();
+        private static List<string> chatUserNames = new List<string>();
 
         #region CHAT MESSAGE HANDLING
         public void Send(string messageText, string roomName = "")
@@ -175,6 +176,20 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
+        public void JoinChat(string userName)
+        {
+            if (chatUserNames.FirstOrDefault(u => u == userName) == null)
+            {
+                chatUserNames.Add(userName);
+            }
+            else
+            {
+                chatUserNames.Remove(userName);
+            }
+
+            Clients.All.updateChatUsersList(chatUserNames);
+        }
+
         public async void ToggleGameSubscription(string gameId, bool activate)
         {
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
@@ -235,6 +250,7 @@ namespace Magic.Hubs
                 ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
             }
 
+            JoinChat(foundUser.UserName);
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
@@ -252,7 +268,7 @@ namespace Magic.Hubs
             {
                 ToggleGameSubscription(connection.GameId, false);
                 GameHub.DisplayUserLeft(connection);
-                GameHub.LeaveGame(connection.Id, connection.GameId);
+                GameHub.LeaveGame(connection);
             }
 
             if (connection.User.Connections.Count == 1)
@@ -261,6 +277,10 @@ namespace Magic.Hubs
                 ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
             }
 
+            if (chatUserNames.FirstOrDefault(u => u == connection.User.UserName) != null)
+            {
+                chatUserNames.Remove(connection.User.UserName);
+            }
             System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
             context.Delete(connection, true);
 

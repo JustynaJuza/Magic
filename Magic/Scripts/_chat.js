@@ -1,9 +1,13 @@
 ﻿$(function () {
-    var $chatSendButton = $('#chat-send');
-    var $chatMessage = $('#chat-message');
-    var $chatLog = $('.chat-log');
-    var $chatGeneralCheckbox = $('#chat-general-check');
-    var $chatPrivateCheckbox = $('#chat-private-check');
+    var $chatSendButton = $('#chat-send'),
+        $newChatMessage = $('#new-chat-message'),
+        $chatLog = $('#chat-log'),
+        $chatMessages = $('#chat-messages'),
+        $chatMessage = $('.chat-message'),
+        $chatUsers = $('#chat-users'),
+        $chatUser = $('.chat-user'),
+        $chatGeneralCheckbox = $('#chat-general-check'),
+        $chatPrivateCheckbox = $('#chat-private-check');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -13,15 +17,15 @@
     $.connection.hub.start().done(function () {
         $chatSendButton.click(function () {
             // Call the message sending method on server.
-            chat.server.send($chatMessage.val(), "");
+            chat.server.send($newChatMessage.val(), "");
             // Clear text box and reset focus for next comment.
-            $chatMessage.val('').focus();
+            $newChatMessage.val('').focus();
         });
     });
 
     // Hub callback delivering new messages.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
-        $('#discussion').append('<li>' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
+        $chatMessages.append('<li>' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
             + ' </span>' + (recipient != null ? ' <span class="chat-message-recipient" style="font-weight:bold;color:' + htmlEncode(recipientColor) + '">@' + htmlEncode(recipient)
             + '</span> ' : '') + htmlEncode(message) + '</li>');
 
@@ -53,8 +57,8 @@
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
     // Send button enabled only on chat message input.
     $chatSendButton.prop("disabled", true);
-    $chatMessage.on('input', function () {
-        if ($chatMessage.val() == '') {
+    $newChatMessage.on('input', function () {
+        if ($newChatMessage.val() == '') {
             $chatSendButton.prop('disabled', true);
         }
         else {
@@ -63,8 +67,8 @@
     })
 
     // Send messages on enter.
-    $chatMessage.keyup(function (e) {
-        if (e.keyCode == 13 && $chatMessage.val().length > 0) {
+    $newChatMessage.keyup(function (e) {
+        if (e.keyCode == 13 && $newChatMessage.val().length > 0) {
             $chatSendButton.toggleClass('clicked');
             $chatSendButton.trigger('click');
             $chatSendButton.prop("disabled", true);
@@ -74,14 +78,14 @@
     // Provide checkboxes for hiding general/private messages.
     // TODO: Check why this doesn't work sometimes... Maybe bacause of dynamically added elements? Maybe because of fading scroll?
     $chatGeneralCheckbox.change(function () {
-        $('#discussion li').each(function () {
+        $chatMessage.each(function () {
             if ($(this).find($('.chat-message-recipient')).length == 0) {
                 $(this).toggle();
             }
         });
     });
     $chatPrivateCheckbox.change(function () {
-        $('#discussion li').each(function () {
+        $chatMessage.each(function () {
             if ($(this).find($('.chat-message-recipient')).length != 0) {
                 $(this).toggle();
             }
@@ -115,12 +119,12 @@
 
     // Make chat sender/recipient names clickable for reply (works with dynamically added elements).
     $(document).on('click', '.chat-message-sender', function () {
-        $chatMessage.val('@' + $(this).text() + ' ');
-        $chatMessage.focus();
+        $newChatMessage.val('@' + $(this).text() + ' ');
+        $newChatMessage.focus();
     });
     $(document).on('click', '.chat-message-recipient', function () {
-        $chatMessage.val($(this).text() + ' ');
-        $chatMessage.focus();
+        $newChatMessage.val($(this).text() + ' ');
+        $newChatMessage.focus();
     });
 
     // Html-encode messages for display in the page.

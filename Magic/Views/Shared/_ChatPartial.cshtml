@@ -9,7 +9,7 @@
         @: Please show class and be polite and respectful towards other people.
 
         <p class="form-horizontal form-group">
-            @Html.TextBox("chat-message", null, new { id = "chat-message", @class = "form-control" })
+            @Html.TextBox("new-chat-message", null, new { id = "new-chat-message", @class = "form-control" })
 
             <input type="button" id="chat-send" class="btn btn-primary" value="Send" />
         </p>
@@ -21,14 +21,14 @@
         @: Log in to take part in the chat conversation with other users!
     }
 
-    <div class="form-control chat-log" style="width: 500px; height: 215px; overflow: auto;">
-        <ul id="discussion" style="list-style-type: none; margin:0px">
+    <div class="form-control" id="chat-log" style="width: 500px; height: 215px; overflow: auto;">
+        <ul id="chat-messages" style="list-style-type: none; margin:0px">
             @{ var recentLog = ChatHub.GetRecentChatLog();
              if (recentLog != null)
              {
                  foreach (var message in recentLog)
                  {
-                    <li>
+                    <li class="chat-message">
                         @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
                         @if (message.Recipient != null)
                         {
@@ -41,9 +41,15 @@
             }
         </ul>
     </div>
+
+    <div class="form-control" style="width: 100px; height: 215px; overflow: auto;">
+        <ul id="chat-users" style="list-style-type: none; margin:0px">
+                    <li class="chat-user" style="font-weight:bold" />
+        </ul>
+    </div>
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
 @Scripts.Render("~/bundles/jquerysignalR")
 @Scripts.Render("~/signalr/hubs")
-@Scripts.Render("~/Scripts/_ChatScript.js")
+@Scripts.Render("~/Scripts/_chat.js")

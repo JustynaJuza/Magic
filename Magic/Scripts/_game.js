@@ -42,6 +42,7 @@
             $existingPlayer.css('color', '#808080');
             // Set player to 'not ready' if other player left before game start.
             if (resetPlayerReadyButton) {
+                isReady = false;
                 $playerReadyButton.val("Ready to start");
             }
         }

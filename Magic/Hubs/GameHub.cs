@@ -91,6 +91,21 @@ namespace Magic.Hubs
 
         public static void DisplayUserLeft(ApplicationUserConnection gameConnection)
         {
+            // Update display and remove the user who left.
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            gameHubContext.Clients.Group(gameConnection.GameId).userLeft(gameConnection.User.UserName);
+        }
+        #endregion GAME DISPLAY UPDATES
+
+        #region MANAGE GAME GROUPS
+        public static Task JoinGame(string connectionId, string gameId)
+        {
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            return gameHubContext.Groups.Add(connectionId, gameId);
+        }
+
+        public static Task LeaveGame(ApplicationUserConnection gameConnection)
+        {
             var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
 
@@ -99,8 +114,10 @@ namespace Magic.Hubs
             {
                 if (game.DateStarted == null)
                 {
+                    // Set all other player to 'not ready'.
                     foreach (var player in game.Players)
                     {
+                        player.ConnectionId = null;
                         GameHub.DisplayPlayerReady(player.User, game.Id, false, false);
                     }
                 }
@@ -115,23 +132,8 @@ namespace Magic.Hubs
                 game.Observers.RemoveAll(o => o.Id == gameConnection.User.Id);
             }
 
-            // Update display and remove the user who left.
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            gameHubContext.Clients.Group(gameConnection.GameId).userLeft(gameConnection.User.UserName);
-        }
-        #endregion GAME DISPLAY UPDATES
-
-        #region MANAGE GAME GROUPS
-        public static Task JoinGame(string connectionId, string gameId)
-        {
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            return gameHubContext.Groups.Add(connectionId, gameId);
-        }
-
-        public static Task LeaveGame(string connectionId, string gameId)
-        {
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            return gameHubContext.Groups.Remove(connectionId, gameId);
+            return gameHubContext.Groups.Remove(gameConnection.Id, gameConnection.GameId);
         }
         #endregion MANAGE GAME GROUPS
     }
