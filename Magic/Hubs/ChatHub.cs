@@ -7,14 +7,26 @@ using Microsoft.AspNet.Identity;
 using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
+using System.Web.Helpers;
 
 namespace Magic.Hubs
 {
     [Authorize]
     public class ChatHub : Hub
     {
+        private class ChatUserViewModel {
+            public string UserName { get; set; }
+            public string ColorCode { get; set; }
+
+            public ChatUserViewModel(ApplicationUser user)
+            {
+                UserName = user.UserName;
+                ColorCode = user.ColorCode;
+            }
+        };
+
         private static MagicDBContext context = new MagicDBContext();
-        private static List<string> chatUserNames = new List<string>();
+        private static List<ChatUserViewModel> chatUsers = new List<ChatUserViewModel>();
 
         #region CHAT MESSAGE HANDLING
         public void Send(string messageText, string roomName = "")
@@ -176,18 +188,19 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public void JoinChat(string userName)
+        public void ToggleChatSubscription(ApplicationUser user)
         {
-            if (chatUserNames.FirstOrDefault(u => u == userName) == null)
+            var chatUserListEntry = new ChatUserViewModel(user);
+            if (chatUsers.FirstOrDefault(u => u.UserName == chatUserListEntry.UserName) == null)
             {
-                chatUserNames.Add(userName);
+                chatUsers.Add(chatUserListEntry);
             }
             else
             {
-                chatUserNames.Remove(userName);
+                chatUsers.Remove(chatUserListEntry);
             }
 
-            Clients.All.updateChatUsersList(chatUserNames);
+            Clients.All.updateChatUsers(Json.Encode(chatUsers));
         }
 
         public async void ToggleGameSubscription(string gameId, bool activate)
@@ -250,7 +263,7 @@ namespace Magic.Hubs
                 ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
             }
 
-            JoinChat(foundUser.UserName);
+            ToggleChatSubscription(foundUser);
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
@@ -277,10 +290,7 @@ namespace Magic.Hubs
                 ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
             }
 
-            if (chatUserNames.FirstOrDefault(u => u == connection.User.UserName) != null)
-            {
-                chatUserNames.Remove(connection.User.UserName);
-            }
+            ToggleChatSubscription(connection.User);
             System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
             context.Delete(connection, true);
 

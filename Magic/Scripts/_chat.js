@@ -4,6 +4,7 @@
         $chatLog = $('#chat-log'),
         $chatMessages = $('#chat-messages'),
         $chatMessage = $('.chat-message'),
+        $userList = $('#user-list'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
         $chatGeneralCheckbox = $('#chat-general-check'),
@@ -32,6 +33,17 @@
         // Scroll to bottom message.
         $chatLog.animate({ scrollTop: $chatLog[0].scrollHeight }, 1000);
         //$chatLog.animate($chatLog.scrollTop(200), 1000); //removes scrollbars for some reason
+    };
+
+    chat.client.updateChatUsers = function (chatUsers) {
+            chatUsers = $.parseJSON(chatUsers);
+            var $updatedChatUsers = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
+            for (var i = 0; i < chatUsers.length; i++) {
+                $updatedChatUsers = $updatedChatUsers.concat('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>');
+            }
+            $updatedChatUsers = $updatedChatUsers.concat('</ul>');
+
+        $chatUsers.replaceWith($updatedChatUsers);
     };
 
     // Hub callback disconnecting client. 
@@ -98,24 +110,9 @@
     //        })
     //});
 
-    // Enable smooth scrolling chat messages.
-    $chatLog.scroll(function () {
-        var lineHeightInPixels = 20;
-        var marginSize = 10;
-        var linesVisible = ($chatLog.height() / lineHeightInPixels).toFixed(0);
-        var linesTotal = (($chatLog[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
-
-        // Get number of oldest message lines to fade out based on line height and scroll position.
-        var linesToFadeUpper = ($chatLog.scrollTop() / lineHeightInPixels).toFixed(0);
-
-        var $chatMessageList = $chatLog.find('li');
-        // Fade upper lines out.
-        $chatMessageList.slice(0, linesToFadeUpper).fadeTo(0, 0.01, null);
-        // Fade visible lines in.
-        $chatMessageList.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1, null);
-        // Fade lower lines out.
-        $chatMessageList.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01, null);
-    });
+    // Enable smooth scrolling chat messages and user list.
+    $chatLog.scroll(smoothScroll($chatLog, $chatMessage));
+    $userList.scroll(smoothScroll($userList, $chatUser));
 
     // Make chat sender/recipient names clickable for reply (works with dynamically added elements).
     $(document).on('click', '.chat-message-sender', function () {
@@ -126,6 +123,23 @@
         $newChatMessage.val($(this).text() + ' ');
         $newChatMessage.focus();
     });
+
+    function smoothScroll ($container, $scrollingEntry) {
+        var lineHeightInPixels = 20;
+        var marginSize = 10;
+        var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
+        var linesTotal = (($container[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
+
+        // Get number of oldest message lines to fade out based on line height and scroll position.
+        var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
+
+        // Fade upper lines out.
+        $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01, null);
+        // Fade visible lines in.
+        $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1, null);
+        // Fade lower lines out.
+        $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01, null);
+    }
 
     // Html-encode messages for display in the page.
     function htmlEncode(value) {
