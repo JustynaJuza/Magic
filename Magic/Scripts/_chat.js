@@ -1,10 +1,10 @@
 ﻿$(function () {
-    var $chatSendButton = $('#chat-send'),
+    var $chatSendButton = $('#new-chat-message-send'),
         $newChatMessage = $('#new-chat-message'),
-        $chatLog = $('#chat-log'),
+        $chatMessagesContainer = $('#chat-messages-container'),
         $chatMessages = $('#chat-messages'),
         $chatMessage = $('.chat-message'),
-        $userList = $('#user-list'),
+        $chatUsersContainer = $('#chat-users-container'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
         $chatGeneralCheckbox = $('#chat-general-check'),
@@ -31,8 +31,8 @@
             + '</span> ' : '') + htmlEncode(message) + '</li>');
 
         // Scroll to bottom message.
-        $chatLog.animate({ scrollTop: $chatLog[0].scrollHeight }, 1000);
-        //$chatLog.animate($chatLog.scrollTop(200), 1000); //removes scrollbars for some reason
+        $chatMessagesContainer.animate({ scrollTop: $chatMessagesContainer[0].scrollHeight }, 1000);
+        //$chatMessagesContainer.animate($chatMessagesContainer.scrollTop(200), 1000); //removes scrollbars for some reason
     };
 
     chat.client.updateChatUsers = function (chatUsers) {
@@ -43,7 +43,10 @@
             }
             $updatedChatUsers = $updatedChatUsers.concat('</ul>');
 
-        $chatUsers.replaceWith($updatedChatUsers);
+            console.log($chatUsers);
+            $chatUsers.replaceWith($updatedChatUsers);
+        // Refresh the variable content.
+            $chatUsers = $($chatUsers.selector);
     };
 
     // Hub callback disconnecting client. 
@@ -104,18 +107,18 @@
         });
     });
     //$chatGeneralCheckbox.change(function () {
-    //    var $chatMessageList = $chatLog.find('li');
+    //    var $chatMessageList = $chatMessagesContainer.find('li');
     //    $chatMessageList.not('.chat-message-recipient').each(function () {
     //            $(this).toggle();
     //        })
     //});
 
     // Enable smooth scrolling chat messages and user list.
-    $chatLog.scroll(smoothScroll($chatLog, $chatMessage));
-    $userList.scroll(smoothScroll($userList, $chatUser));
+    $chatMessagesContainer.scroll(smoothScroll($chatMessagesContainer, $chatMessage));
+    $chatUsersContainer.scroll(smoothScroll($chatUsersContainer, $chatUser));
 
     // Make chat sender/recipient names clickable for reply (works with dynamically added elements).
-    $(document).on('click', '.chat-message-sender', function () {
+    $(document).on('click', '.chat-message-sender, .chat-user', function () {
         $newChatMessage.val('@' + $(this).text() + ' ');
         $newChatMessage.focus();
     });

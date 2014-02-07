@@ -81,8 +81,6 @@ namespace Magic.Hubs
 
         public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
         {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
             var message = new ChatMessage()
             {
                 Sender = context.Users.Find(userId),
@@ -91,13 +89,14 @@ namespace Magic.Hubs
             message.Sender.Status = status;
             context.Update(message.Sender, true);
 
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
             if (roomName.Length > 0)
             {
-                hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                chatHubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
             else
             {
-                hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                chatHubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
         }
 
@@ -188,7 +187,7 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public void ToggleChatSubscription(ApplicationUser user)
+        public static void ToggleChatSubscription(ApplicationUser user)
         {
             var chatUserListEntry = new ChatUserViewModel(user);
             if (chatUsers.FirstOrDefault(u => u.UserName == chatUserListEntry.UserName) == null)
@@ -197,10 +196,12 @@ namespace Magic.Hubs
             }
             else
             {
-                chatUsers.Remove(chatUserListEntry);
+                var rem = chatUsers.Remove(chatUserListEntry);
+                System.Diagnostics.Debug.WriteLine("removed:" + rem);
             }
 
-            Clients.All.updateChatUsers(Json.Encode(chatUsers));
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            chatHubContext.Clients.All.updateChatUsers(Json.Encode(chatUsers));
         }
 
         public async void ToggleGameSubscription(string gameId, bool activate)
@@ -217,7 +218,7 @@ namespace Magic.Hubs
             {
                 // Set the connection as main connection.
                 var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                gameConnection.GameId = gameId;
+                gameConnection.Game = new Game { Id = gameId };
                 context.Update(gameConnection, true);
 
                 // Await to join the group on main connection so the joining user get's the info message.
@@ -270,6 +271,25 @@ namespace Magic.Hubs
 
         public override Task OnReconnected()
         {
+            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+
+            if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
+            {
+                foundUser.Connections.Add(new ApplicationUserConnection()
+                {
+                    Id = Context.ConnectionId,
+                    User = foundUser
+                });
+                context.Update(foundUser);
+            }
+
+            if (foundUser.Connections.Count == 1)
+            {
+                // If this is the user's only connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+            }
+
             System.Diagnostics.Debug.WriteLine("Reconnected: " + Context.ConnectionId);
             return base.OnReconnected();
         }
@@ -277,9 +297,9 @@ namespace Magic.Hubs
         public override Task OnDisconnected()
         {
             var connection = context.Connections.Find(Context.ConnectionId);
-            if (connection != null && connection.GameId != null)
+            if (connection != null && connection.Game != null)
             {
-                ToggleGameSubscription(connection.GameId, false);
+                ToggleGameSubscription(connection.Game.Id, false);
                 GameHub.DisplayUserLeft(connection);
                 GameHub.LeaveGame(connection);
             }
@@ -292,7 +312,7 @@ namespace Magic.Hubs
 
             ToggleChatSubscription(connection.User);
             System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
-            context.Delete(connection, true);
+            context.Delete(connection);
 
             return base.OnDisconnected();
         }

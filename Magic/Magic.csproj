@@ -205,21 +205,9 @@
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Migrations\201311121123558_messagesavingtest.cs" />
-    <Compile Include="Migrations\201311121123558_messagesavingtest.Designer.cs">
-      <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311141802055_changes.cs" />
-    <Compile Include="Migrations\201311141802055_changes.Designer.cs">
-      <DependentUpon>201311141802055_changes.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311151333232_UserStatus.cs" />
-    <Compile Include="Migrations\201311151333232_UserStatus.Designer.cs">
-      <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201311211703029_gameKey.cs" />
-    <Compile Include="Migrations\201311211703029_gameKey.Designer.cs">
-      <DependentUpon>201311211703029_gameKey.cs</DependentUpon>
+    <Compile Include="Migrations\201402031721187_Init.cs" />
+    <Compile Include="Migrations\201402031721187_Init.Designer.cs">
+      <DependentUpon>201402031721187_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -333,17 +321,8 @@
     <Folder Include="Views\Shared\EditorTemplates\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201311121123558_messagesavingtest.resx">
-      <DependentUpon>201311121123558_messagesavingtest.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311141802055_changes.resx">
-      <DependentUpon>201311141802055_changes.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311151333232_UserStatus.resx">
-      <DependentUpon>201311151333232_UserStatus.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201311211703029_gameKey.resx">
-      <DependentUpon>201311211703029_gameKey.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201402031721187_Init.resx">
+      <DependentUpon>201402031721187_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

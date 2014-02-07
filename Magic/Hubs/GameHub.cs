@@ -42,7 +42,7 @@ namespace Magic.Hubs
             {
                 // Reset the game connection data when the player is unready to play.
                 var gameConnection = context.Set<ApplicationUserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
+                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = null;
 
@@ -93,7 +93,7 @@ namespace Magic.Hubs
         {
             // Update display and remove the user who left.
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            gameHubContext.Clients.Group(gameConnection.GameId).userLeft(gameConnection.User.UserName);
+            gameHubContext.Clients.Group(gameConnection.Game.Id).userLeft(gameConnection.User.UserName);
         }
         #endregion GAME DISPLAY UPDATES
 
@@ -106,7 +106,7 @@ namespace Magic.Hubs
 
         public static Task LeaveGame(ApplicationUserConnection gameConnection)
         {
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.GameId);
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
 
             // Update game accordingly if a player left.
@@ -133,7 +133,7 @@ namespace Magic.Hubs
             }
 
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            return gameHubContext.Groups.Remove(gameConnection.Id, gameConnection.GameId);
+            return gameHubContext.Groups.Remove(gameConnection.Id, gameConnection.Game.Id);
         }
         #endregion MANAGE GAME GROUPS
     }
