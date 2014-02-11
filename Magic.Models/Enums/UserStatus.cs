@@ -3,7 +3,10 @@
     public enum UserStatus
     {
         Online,
+        AFK,
         Playing,
+        Ready,
+        Unready,
         Observing,
         Offline
     }

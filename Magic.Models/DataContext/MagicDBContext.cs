@@ -23,7 +23,7 @@ namespace Magic.Models.DataContext
             //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
         }
 
-        public DbSet<Magic.Models.ApplicationUserConnection> UserConnections { get; set; }
+        public DbSet<Magic.Models.ApplicationUserConnection> Connections { get; set; }
         public DbSet<Magic.Models.Card> Cards { get; set; }
         public DbSet<Magic.Models.CardColor> CardColors { get; set; }
         public DbSet<Magic.Models.CardType> CardTypes { get; set; }

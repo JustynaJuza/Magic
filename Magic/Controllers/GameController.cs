@@ -7,9 +7,11 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Magic.Models.DataContext;
 using Magic.Hubs;
+using Microsoft.AspNet.SignalR;
 
 namespace Magic.Controllers
 {
+    [System.Web.Mvc.Authorize]
     public class GameController : Controller
     {
         private MagicDBContext context = new MagicDBContext();
@@ -26,7 +28,6 @@ namespace Magic.Controllers
         //    }
         //}
 
-        [Authorize]
         [HttpGet]
         public ActionResult Index(string gameId)
         {
@@ -43,7 +44,7 @@ namespace Magic.Controllers
 
             if (!game.Players.Any(p => p.User.Id == currentUser.Id))
             {
-                if (game.Players.Count < game.PlayerCount)
+                if (game.Players.Count < game.PlayerCapacity)
                 {
                     if (currentUser.DeckCollection.Count == 0)
                     {
@@ -62,6 +63,9 @@ namespace Magic.Controllers
                             game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
                         }
                     }
+
+                    ViewBag.IsPlayer = true;
+                    GameHub.DisplayPlayerJoined(currentUser.UserName, game.Id);
                 }
                 else
                 {
@@ -74,11 +78,18 @@ namespace Magic.Controllers
                         TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
                                             + "You can take a player seat by refreshing the page if a spot becomes available.";
                     }
+
+                    ViewBag.IsPlayer = false;
+                    GameHub.DisplayObserverJoined(currentUser.UserName, game.Id);
                 }
+            }
+            else
+            {
+                ViewBag.IsPlayer = true;
             }
 
             // Join game room chat.
-            //ChatHub.ActivateGameChat(currentUser.Id, gameId);
+            // ChatHub.ToggleGameSubscription(currentUser.Id, gameId);
             return View(game);
         }
 
@@ -111,9 +122,12 @@ namespace Magic.Controllers
             var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == (string) Session["GameId"]);
             UpdateUserStatuses(game);
 
+                var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
+                hubContext.Clients.Group(game.Id).activateGame();
+
             foreach (var player in game.Players)
             {
-                GameHub.ActivateGame(player.User.Id, game.Id);
+                //GameHub.ActivateGameForPlayer(player.User.Id, game.Id);
             }
 
             return View("Index");

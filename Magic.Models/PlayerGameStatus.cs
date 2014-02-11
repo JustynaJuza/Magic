@@ -15,8 +15,8 @@ namespace Magic.Models
         [Key, Column(Order = 1)]
         public string UserId { get; set; }
         public virtual Game Game { get; set; }
+        //public virtual Player Player { get; set; }
         public virtual ApplicationUser User { get; set; }
         public GameStatus? Status { get; set; }
-        //public virtual Player Player { get; set; }
     }
 }

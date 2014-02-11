@@ -15,6 +15,7 @@ namespace Magic.Models
 
         public virtual ApplicationUser User { get; set; }
         public virtual CardDeckViewModel Deck { get; set; }
+        public string ConnectionId { get; set; }
         public int HPTotal { get; set; }
         public int HPCurrent { get; set; }
         public int CardsInLibraryTotal { get; set; }

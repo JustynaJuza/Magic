@@ -72,8 +72,5 @@ C:\Projects\Magic\Magic\bin\System.Web.Http.WebHost.dll
 C:\Projects\Magic\Magic\bin\System.Net.Http.Formatting.xml
 C:\Projects\Magic\Magic\bin\System.Web.Http.xml
 C:\Projects\Magic\Magic\bin\System.Web.Http.WebHost.xml
+C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.Init.resources
 C:\Projects\Magic\Magic\obj\Debug\Magic.csproj.GenerateResource.Cache
-C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.messagesavingtest.resources
-C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.changes.resources
-C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.UserStatus.resources
-C:\Projects\Magic\Magic\obj\Debug\Magic.Migrations.gameKey.resources

@@ -7,55 +7,46 @@ using Microsoft.AspNet.Identity;
 using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
+using System.Web.Helpers;
 
 namespace Magic.Hubs
 {
     [Authorize]
-    public class ChatHub : ConnectionHub
+    public class ChatHub : Hub
     {
-        private static MagicDBContext context = new MagicDBContext();
+        private class ChatUserViewModel {
+            public string UserName { get; set; }
+            public string ColorCode { get; set; }
 
+            public ChatUserViewModel(ApplicationUser user)
+            {
+                UserName = user.UserName;
+                ColorCode = user.ColorCode;
+            }
+        };
+
+        private static MagicDBContext context = new MagicDBContext();
+        private static List<ChatUserViewModel> chatUsers = new List<ChatUserViewModel>();
+
+        #region CHAT MESSAGE HANDLING
         public void Send(string messageText, string roomName = "")
         {
-            var foundRecipient = DecodeRecipient(messageText);
-            if (foundRecipient != null && foundRecipient.GetType() == typeof(string))
-            {
-                // Recipient included but invalid, alert sender.
-                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "- no such user found, have you misspelled the name?", foundRecipient, "#696969");
-            }
-            else
-            {
-                // Valid recipient found.
-                var recipient = (ApplicationUser) foundRecipient;
-                if (recipient != null)
-                {
-                    if (recipient.Status == UserStatus.Offline)
-                    {
-                        // Valid recipient but is offline, alert sender.
-                        Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
-                        return;
-                    }
-                    if (messageText.Length < recipient.UserName.Length + 2)
-                    {
-                        // Valid recipient but no message appended, alert sender.
-                        Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "is online but no message was included.", recipient.UserName, recipient.ColorCode);
-                        return;
-                    }
-                    // Get message text after username and following space.
-                    messageText = messageText.Substring(recipient.UserName.Length + 2);
-                }
+            ApplicationUser recipient;
+            var messageIsValid = ValidateMessage(messageText, out recipient);
 
+            if (messageIsValid)
+            {
                 var userId = Context.User.Identity.GetUserId();
                 var message = new ChatMessage(messageText)
                 {
                     Sender = context.Users.Find(userId),
-                    Recipient = recipient
+                    Message = messageText
                 };
 
-                // Use callback method to update clients.
+                // Depending on settings, use callback method to update clients.
                 if (recipient == null)
                 {
-                    if (roomName != "")
+                    if (roomName.Length > 0)
                     {
                         AddMessageToChatLog(message, roomName);
                         Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
@@ -68,180 +59,116 @@ namespace Magic.Hubs
                 }
                 else
                 {
-                    foreach (var connection in message.Recipient.Connections) //.Where(c => c.Connected == true))
+                    // Get message text after username and following space.
+                    message.Message = messageText.Substring(recipient.UserName.Length + 2);
+                    // Set message recipient.
+                    message.Recipient = recipient;
+
+                    // Send message to all recipient and all sender connections.
+                    foreach (var connection in message.Recipient.Connections)
                     {
-                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                            message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
                     }
                     foreach (var connection in message.Sender.Connections)
                     {
-                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                        Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                            message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
                     }
                 }
             }
         }
 
-        public static void UserActionBroadcast(string userId, bool joinedChat = true)
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
         {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
             var message = new ChatMessage()
             {
                 Sender = context.Users.Find(userId),
-                Message = joinedChat ? " joined the conversation." : " left."
+                Message = UserStatusBroadcastMessage(status)
             };
+            message.Sender.Status = status;
+            context.Update(message.Sender, true);
 
-            hubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-        }
-
-        #region GROUPS
-        public void ActivateGameChat(string roomName = "")
-        {
-            System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
-            bool joinedChat = roomName != "";
-
-            var userId = Context.User.Identity.GetUserId();
-            var foundUser = context.Users.Find(userId);
-            var message = new ChatMessage()
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            if (roomName.Length > 0)
             {
-                Sender = foundUser,
-                Message = joinedChat ? " entered the game." : " left the game."
-            };
-
-            if (joinedChat)
-            {
-                //await this.OnConnected();
-                // Add the connection as main connection and subscribe all other connections.
-                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                mainConnection.GameId = roomName;
-                context.Update(mainConnection);
-
-                foreach (var connection in foundUser.Connections)
-                {
-                    Groups.Add(connection.Id, roomName);
-                }
-
-                System.Diagnostics.Debug.WriteLine("ActivatedfromJS");
+                chatHubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
             else
             {
-                // If closing main connection to a game remove subscribtion from all other connections.
-                var mainConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId && c.GameId.Length > 0);
-                if (mainConnection != null)
+                chatHubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            }
+        }
+
+        private static string UserStatusBroadcastMessage(UserStatus status)
+        {
+            switch (status)
+            {
+                case UserStatus.AFK: return " is away.";
+                case UserStatus.Online: return " joined the conversation.";
+                case UserStatus.Offline: return " left.";
+                case UserStatus.Observing: return " is observing a duel.";
+                case UserStatus.Playing: return " concentrates on a game right now.";
+                case UserStatus.Ready: return " is ready for action.";
+                case UserStatus.Unready: return " seems to be not prepared!";
+                default: return null;
+            }
+        }
+
+        private bool ValidateMessage(string messageText, out ApplicationUser recipient)
+        {
+            if (messageText.Length > 0)
+            {
+                var recipientName = DecodeRecipient(messageText, out recipient);
+
+                if (recipientName.Length > 0 && recipient == null)
                 {
-                    roomName = mainConnection.Id;
-                    // Remove all the connection subscriptions for this game.
-                    System.Diagnostics.Debug.WriteLine("Removed all");
-                    foreach (var connection in message.Sender.Connections)
-                    {
-                        Groups.Remove(connection.Id, roomName);
-                    }
-                }
-
-                System.Diagnostics.Debug.WriteLine("ActivatedfromDisconnect");
-            }
-
-            if (roomName != "")
-            {
-                Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-            }
-        }
-
-        //public static Task ActivateGameChat(string userId, string roomName, bool joinedChat = true)
-        //{
-        //    var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-
-        //    var message = new ChatMessage()
-        //    {
-        //        Sender = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId),
-        //        Message = joinedChat ? " entered the game." : " left the game."
-        //    };
-
-        //    if (joinedChat)
-        //    {
-        //        foreach (var connection in message.Sender.Connections)
-        //        {
-        //            hubContext.Groups.Add(connection.Id, roomName);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        foreach (var connection in message.Sender.Connections)
-        //        {
-        //            hubContext.Groups.Remove(connection.Id, roomName);
-        //        }
-        //    }
-        //    System.Diagnostics.Debug.WriteLine("Activated");
-        //    return hubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-        //}
-
-        //public async Task JoinRoom(string connectionId, string roomName)
-        //{
-        //    await Groups.Add(connectionId, roomName);
-        //}
-
-        //public async Task LeaveRoom(string userId, string roomName)
-        //{
-        //    try
-        //    {
-        //        var foundUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-        //        foreach (var connection in foundUser.Connections)
-        //        {
-        //            await Groups.Remove(Context.ConnectionId, roomName);
-        //        }
-        //        Clients.Group(roomName).addChatMessage(Context.User.Identity.Name + " left the game room.");
-        //    }
-        //    catch (Exception) { }
-        //}
-        #endregion GROUPS
-
-        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
-        {
-            // TODO: Filter private messages.
-            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
-            if (currentLog.MessageLog.Count > 10)
-            {
-                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
-            }
-            return currentLog.MessageLog;
-        }
-
-        #region CONNECTION STATUS UPDATE
-        public override Task OnConnected()
-        {
-            return base.OnConnected();
-        }
-
-        public override Task OnReconnected()
-        {
-            return base.OnReconnected();
-        }
-
-        public override Task OnDisconnected()
-        {
-            ActivateGameChat();
-            return base.OnDisconnected();
-        }
-        #endregion CONNECTION STATUS UPDATE
-
-        #region HELPERS
-        private object DecodeRecipient(string messageText)
-        {
-            string recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
-            if (recipientName.Length > 0)
-            {
-                recipientName = recipientName.Substring(1);
-                var recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
-                if (recipient == null)
-                {
-                    return recipientName;
+                    // Recipient included but invalid, alert sender.
+                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                        "- no such user found, have you misspelled the name?", recipientName, "#696969");
+                    return false;
                 }
                 else
                 {
-                    return recipient;
+                    if (recipient != null)
+                    {
+                        // Valid recipient found.
+                        if (recipient.Status == UserStatus.Offline)
+                        {
+                            // Valid recipient but is offline, alert sender.
+                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                                "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
+                            return false;
+                        }
+                        if (messageText.Length < recipient.UserName.Length + 2)
+                        {
+                            // Valid recipient but no message appended, alert sender.
+                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                                "is online but no message was included.", recipient.UserName, recipient.ColorCode);
+                            return false;
+                        }
+                    }
+
+                    // Everything OK.
+                    return true;
                 }
             }
-            // No recipient at all.
-            return null;
+
+            // No message text at all.
+            recipient = null;
+            return false;
+        }
+
+        private string DecodeRecipient(string messageText, out ApplicationUser recipient)
+        {
+            var recipientName = System.Text.RegularExpressions.Regex.Match(messageText, "^@([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)").Value;
+            if (recipientName.Length > 0)
+            {
+                recipientName = recipientName.Substring(1);
+            }
+            // Try to find recipient.
+            recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
+            return recipientName;
         }
 
         //private string DecodeGroup(string messageText)
@@ -257,24 +184,153 @@ namespace Magic.Hubs
         //    }
         //    return null;
         //}
+        #endregion CHAT MESSAGE HANDLING
 
-        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
+        #region MANAGE CHAT & GAME GROUPS
+        public static void ToggleChatSubscription(ApplicationUser user)
         {
-            // TODO: Possible issue occuring over periof of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
-            // Suggested solution: Add new temporary message log or explicitly call log saving.
+            var chatUserListEntry = new ChatUserViewModel(user);
+            if (chatUsers.FirstOrDefault(u => u.UserName == chatUserListEntry.UserName) == null)
+            {
+                chatUsers.Add(chatUserListEntry);
+            }
+            else
+            {
+                var rem = chatUsers.Remove(chatUserListEntry);
+                System.Diagnostics.Debug.WriteLine("removed:" + rem);
+            }
 
-            //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
-            //{
-            // Synchronize adding message to ChatLog.
-            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
-            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).MessageLog.Add(message);
-            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
-            //}
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            chatHubContext.Clients.All.updateChatUsers(Json.Encode(chatUsers));
         }
-        #endregion HELPERS
 
-        #region CHATLOG SAVE
-        // This function is called by schedule from Global.asax and uses the static context.
+        public async void ToggleGameSubscription(string gameId, bool activate)
+        {
+            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+            var message = new ChatMessage()
+            {
+                Sender = foundUser,
+                Message = activate ? " entered the game." : " left the game."
+            };
+
+            if (activate)
+            {
+                // Set the connection as main connection.
+                var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+                gameConnection.Game = new Game { Id = gameId };
+                context.Update(gameConnection, true);
+
+                // Await to join the group on main connection so the joining user get's the info message.
+                await GameHub.JoinGame(gameConnection.Id, gameId);
+
+                // Subscribe all other chat connections.
+                foreach (var connection in foundUser.Connections)
+                {
+                    Groups.Add(connection.Id, gameId);
+                }
+            }
+            else
+            {
+                // Closing main connection to a game, remove chat subscribtion from all other connections.
+                foreach (var connection in message.Sender.Connections)
+                {
+                    Groups.Remove(connection.Id, gameId);
+                }
+            }
+
+            // Sent info message on joining and leaving group.
+            Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        }
+        #endregion MANAGE CHAT & GAME GROUPS
+
+        #region CONNECTION STATUS UPDATE
+        public override Task OnConnected()
+        {
+            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+
+            foundUser.Status = UserStatus.Online;
+            foundUser.Connections.Add(new ApplicationUserConnection()
+            {
+                Id = Context.ConnectionId,
+                User = foundUser
+            });
+            context.Update(foundUser);
+
+            if (foundUser.Connections.Count == 1)
+            {
+                // If this is the user's only connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+            }
+
+            ToggleChatSubscription(foundUser);
+            System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
+            return base.OnConnected();
+        }
+
+        public override Task OnReconnected()
+        {
+            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
+
+            if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
+            {
+                foundUser.Connections.Add(new ApplicationUserConnection()
+                {
+                    Id = Context.ConnectionId,
+                    User = foundUser
+                });
+                context.Update(foundUser);
+            }
+
+            if (foundUser.Connections.Count == 1)
+            {
+                // If this is the user's only connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+            }
+
+            System.Diagnostics.Debug.WriteLine("Reconnected: " + Context.ConnectionId);
+            return base.OnReconnected();
+        }
+
+        public override Task OnDisconnected()
+        {
+            var connection = context.Connections.Find(Context.ConnectionId);
+            if (connection != null && connection.Game != null)
+            {
+                ToggleGameSubscription(connection.Game.Id, false);
+                GameHub.DisplayUserLeft(connection);
+                GameHub.LeaveGame(connection);
+            }
+
+            if (connection.User.Connections.Count == 1)
+            {
+                // If this is the user's last connection broadcast a chat info.
+                ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
+            }
+
+            ToggleChatSubscription(connection.User);
+            System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+            context.Delete(connection);
+
+            return base.OnDisconnected();
+        }
+        #endregion CONNECTION STATUS UPDATE
+
+        #region CHATLOG HANDLING
+        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
+        {
+            // TODO: Filter private/game/other messages.
+            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
+            if (currentLog.MessageLog.Count > 10)
+            {
+                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
+            }
+            return currentLog.MessageLog;
+        }
+
+        // This function is called by schedule from Global.asax and uses the static context to save recent chat messages.
         public static string SaveChatLogToDatabase(ChatLog currentLog)
         {
             ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);//context.Set<ChatLog>().AsNoTracking().FirstOrDefault(c => c.DateCreated == currentLog.DateCreated);
@@ -293,6 +349,20 @@ namespace Magic.Hubs
                 return context.Create(todayLog);
             }
         }
-        #endregion CHATLOG SAVE
+
+        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
+        {
+            // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
+            // Suggested solution: Add new temporary message log or explicitly call log saving.
+
+            //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
+            //{
+            // Synchronize adding message to ChatLog.
+            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
+            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).MessageLog.Add(message);
+            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
+            //}
+        }
+        #endregion CHATLOG HANDLING
     }
 }

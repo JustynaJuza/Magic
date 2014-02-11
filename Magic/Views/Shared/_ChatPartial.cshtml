@@ -8,27 +8,25 @@
     {
         @: Please show class and be polite and respectful towards other people.
 
-        <p class="form-horizontal form-group">
-            @Html.TextBox("chat-message", null, new { id = "chat-message", @class = "form-control" })
+        <div class="form-horizontal form-group" style="margin: 3px 3px 0 3px; width: 500px; overflow: hidden; float: left; ">
+            @Html.TextBox("new-chat-message", null, new { id = "new-chat-message", @class = "form-control", style = "margin: 3px 3px 3px 0; max-width:435px; float: left;" })
+            <input type="button" id="new-chat-message-send" class="btn btn-primary" value="Send" style="margin: 3px 0 3px 3px; float: left; " />
+        </div>
 
-            <input type="button" id="chat-send" class="btn btn-primary" value="Send" />
-        </p>
-        <input type="checkbox" id="chat-general-check" checked="checked"> @: General chat.
-        <input type="checkbox" id="chat-private-check" checked="checked"> @: Private chat.
     }
     else
     {
         @: Log in to take part in the chat conversation with other users!
     }
 
-    <div class="form-control chat-log" style="width: 500px; height: 215px; overflow: auto;">
-        <ul id="discussion" style="list-style-type: none; margin:0px">
+    <div class="form-control" id="chat-messages-container" style="margin: 3px; width: 500px; height: 215px; overflow: auto; float: left;">
+        <ul id="chat-messages" style="list-style-type: none; margin:0px">
             @{ var recentLog = ChatHub.GetRecentChatLog();
              if (recentLog != null)
              {
                  foreach (var message in recentLog)
                  {
-                    <li>
+                    <li class="chat-message">
                         @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
                         @if (message.Recipient != null)
                         {
@@ -41,9 +39,19 @@
             }
         </ul>
     </div>
+    
+    <div class="form-control" id="chat-users-container" style="margin: 6px 6px 3px 3px; width: 200px; height: 255px; overflow: auto;">
+        <ul id="chat-users" style="list-style-type: none; margin:0px">
+            <li class="chat-user" style="font-weight:bold" />
+        </ul>
+    </div>
+
+    <input type="checkbox" id="chat-general-check" checked="checked"> General chat.
+    <input type="checkbox" id="chat-private-check" checked="checked"> Private chat.
+
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
 @Scripts.Render("~/bundles/jquerysignalR")
 @Scripts.Render("~/signalr/hubs")
-@Scripts.Render("~/Scripts/_ChatScript.js")
+@Scripts.Render("~/Scripts/_chat.js")

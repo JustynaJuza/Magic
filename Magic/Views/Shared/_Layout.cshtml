@@ -9,6 +9,7 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/modernizr")
+    @RenderSection("AdditionalScripts", required: false)
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -37,7 +38,7 @@
         <hr />
         <div class="row">
             <div class="col-md-10">
-                @*@Html.Partial("_ChatPartial")*@
+                @Html.Partial("_ChatPartial")
             </div>
         </div>
         <footer>
