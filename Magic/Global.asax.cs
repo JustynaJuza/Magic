@@ -59,6 +59,12 @@ namespace Magic
             #endregion HUB CONFIG
         }
 
+        protected void Session_End(Object sender, EventArgs E)
+        {
+            // Remove from chat? after 20 mins...
+        }
+
+
         #region CHATLOG SAVE
         // Schedule ChatLog saving with stealthy Cache object.
         private static CacheItemRemovedCallback OnCacheRemove = null;
