@@ -189,15 +189,14 @@ namespace Magic.Hubs
         #region MANAGE CHAT & GAME GROUPS
         public static void ToggleChatSubscription(ApplicationUser user)
         {
-            var chatUserListEntry = new ChatUserViewModel(user);
-            if (chatUsers.FirstOrDefault(u => u.UserName == chatUserListEntry.UserName) == null)
+            var foundChatUser = chatUsers.FirstOrDefault(u => u.UserName == user.UserName);
+            if (foundChatUser != null)
             {
-                chatUsers.Add(chatUserListEntry);
+                chatUsers.Remove(foundChatUser);
             }
             else
             {
-                var rem = chatUsers.Remove(chatUserListEntry);
-                System.Diagnostics.Debug.WriteLine("removed:" + rem);
+                chatUsers.Add(new ChatUserViewModel(user));
             }
 
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
@@ -250,21 +249,24 @@ namespace Magic.Hubs
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
 
-            foundUser.Status = UserStatus.Online;
-            foundUser.Connections.Add(new ApplicationUserConnection()
+            if (foundUser != null)
             {
-                Id = Context.ConnectionId,
-                User = foundUser
-            });
-            context.Update(foundUser);
+                foundUser.Status = UserStatus.Online;
+                foundUser.Connections.Add(new ApplicationUserConnection()
+                {
+                    Id = Context.ConnectionId,
+                    User = foundUser
+                });
+                context.Update(foundUser);
 
-            if (foundUser.Connections.Count == 1)
-            {
-                // If this is the user's only connection broadcast a chat info.
-                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                if (foundUser.Connections.Count == 1)
+                {
+                    // If this is the user's only connection broadcast a chat info.
+                    ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                }
+
+                ToggleChatSubscription(foundUser);
             }
-
-            ToggleChatSubscription(foundUser);
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
@@ -274,20 +276,23 @@ namespace Magic.Hubs
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
 
-            if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
+            if (foundUser != null)
             {
-                foundUser.Connections.Add(new ApplicationUserConnection()
+                if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
                 {
-                    Id = Context.ConnectionId,
-                    User = foundUser
-                });
-                context.Update(foundUser);
-            }
+                    foundUser.Connections.Add(new ApplicationUserConnection()
+                    {
+                        Id = Context.ConnectionId,
+                        User = foundUser
+                    });
+                    context.Update(foundUser);
+                }
 
-            if (foundUser.Connections.Count == 1)
-            {
-                // If this is the user's only connection broadcast a chat info.
-                ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                if (foundUser.Connections.Count == 1)
+                {
+                    // If this is the user's only connection broadcast a chat info.
+                    ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                }
             }
 
             System.Diagnostics.Debug.WriteLine("Reconnected: " + Context.ConnectionId);
@@ -297,22 +302,26 @@ namespace Magic.Hubs
         public override Task OnDisconnected()
         {
             var connection = context.Connections.Find(Context.ConnectionId);
-            if (connection != null && connection.Game != null)
-            {
-                ToggleGameSubscription(connection.Game.Id, false);
-                GameHub.DisplayUserLeft(connection);
-                GameHub.LeaveGame(connection);
-            }
 
-            if (connection.User.Connections.Count == 1)
+            if (connection != null)
             {
-                // If this is the user's last connection broadcast a chat info.
-                ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
-            }
+                if (connection.Game != null)
+                {
+                    ToggleGameSubscription(connection.Game.Id, false);
+                    GameHub.DisplayUserLeft(connection);
+                    GameHub.LeaveGame(connection);
+                }
 
-            ToggleChatSubscription(connection.User);
-            System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
-            context.Delete(connection);
+                if (connection.User.Connections.Count == 1)
+                {
+                    // If this is the user's last connection broadcast a chat info.
+                    ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
+                }
+
+                ToggleChatSubscription(connection.User);
+                System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+                context.Delete(connection);
+            }
 
             return base.OnDisconnected();
         }

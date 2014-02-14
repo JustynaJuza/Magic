@@ -5,6 +5,8 @@ namespace Magic.Migrations
     
     public partial class Init : DbMigration
     {
+        // To revert the first migration use 'Update-Database –TargetMigration:$InitialDatabase'.
+
         public override void Up()
         {
             CreateTable(
@@ -180,8 +182,8 @@ namespace Magic.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
-                        DateStarted = c.DateTime(nullable: false),
-                        DateEnded = c.DateTime(nullable: false),
+                        DateStarted = c.DateTime(),
+                        DateEnded = c.DateTime(),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -212,9 +214,9 @@ namespace Magic.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        TimeSend = c.DateTime(),
+                        TimeSend = c.DateTime(nullable: false, defaultValueSql: "GETDATE()"),
                         Message = c.String(),
-                        Log_DateCreated = c.DateTime(nullable: false, defaultValueSql: "GETDATE()"),
+                        Log_DateCreated = c.DateTime(nullable: false),
                         Recipient_Id = c.String(maxLength: 128),
                         Sender_Id = c.String(maxLength: 128),
                     })

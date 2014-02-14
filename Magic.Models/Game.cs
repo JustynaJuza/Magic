@@ -11,8 +11,8 @@ namespace Magic.Models
     public class Game : AbstractExtensions
     {
         public string Id { get; set; }
-        public DateTime DateStarted { get; set; }
-        public DateTime DateEnded { get; set; }
+        public DateTime? DateStarted { get; set; }
+        public DateTime? DateEnded { get; set; }
         public virtual IList<PlayerGameStatus> Players { get; set; }
     }
 

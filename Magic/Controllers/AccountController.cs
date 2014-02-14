@@ -235,11 +235,14 @@ namespace Magic.Controllers
             var userId = User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
 
-            ChatHub.ToggleChatSubscription(foundUser);
+            if (foundUser != null)
+            {
+                ChatHub.ToggleChatSubscription(foundUser);
 
-            foundUser.Connections.Clear();
-            foundUser.Status = UserStatus.Offline;
-            context.Update(foundUser);
+                foundUser.Connections.Clear();
+                foundUser.Status = UserStatus.Offline;
+                context.Update(foundUser);
+            }
 
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
