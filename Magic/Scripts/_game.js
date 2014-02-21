@@ -1,16 +1,16 @@
 ﻿$(function () {
-    var isReady = false;
-    var $gameId = $('#gameId');
-    var $playerReadyButton = $('#player-ready');
-    var $playerName = $('.player-name');
+    var isReady = false,
+        $gameId = $('#gameId'),
+        $playerReadyButton = $('#player-ready'),
+        $playerName = $('.player-name');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
-    var chat = $.connection.chatHub;
-    var game = $.connection.gameHub;
+    var chat = window.chat = $.connection.chatHub;
+    var game = window.game = $.connection.gameHub;
 
-    // Start the connection.
-    $.connection.hub.start().done(function () {
+    // Initialize game handling.
+    window.game.initialize = function initializeGame() {
         chat.server.toggleGameSubscription($gameId.val(), true);
 
         $playerReadyButton.click(function () {
@@ -24,8 +24,9 @@
                 $playerReadyButton.val("Ready to start");
             }
         });
-    });
+    }
     // ---------------------------- HUB ---------------------------- END
+    
 
     // ------------------------ GAME DISPLAY ----------------------- START
     // Toggle player ready handler on server.

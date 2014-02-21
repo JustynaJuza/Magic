@@ -14,7 +14,8 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private class ChatUserViewModel {
+        private class ChatUserViewModel
+        {
             public string UserName { get; set; }
             public string ColorCode { get; set; }
 
@@ -217,7 +218,15 @@ namespace Magic.Hubs
             {
                 // Set the connection as main connection.
                 var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                gameConnection.Game = new Game { Id = gameId };
+                var game = context.Games.Find(gameId);
+                if (game != null)
+                {
+                    gameConnection.Game = game;
+                }
+                else
+                {
+                    gameConnection.Game = new Game { Id = gameId };
+                }
                 context.Update(gameConnection, true);
 
                 // Await to join the group on main connection so the joining user get's the info message.
@@ -238,8 +247,9 @@ namespace Magic.Hubs
                 }
             }
 
+            System.Diagnostics.Debug.WriteLine("Joining " + gameId);
             // Sent info message on joining and leaving group.
-            Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            await Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
         }
         #endregion MANAGE CHAT & GAME GROUPS
 

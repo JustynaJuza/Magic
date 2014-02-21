@@ -12,17 +12,18 @@
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
-    var chat = $.connection.chatHub;
+    window.chat = $.connection.chatHub;
+    var chat = window.chat;
 
-    // Start the connection.
-    $.connection.hub.start().done(function () {
+    // Initialize chat handling.
+    window.chat.initialize = function initializeChat() {
         $chatSendButton.click(function () {
             // Call the message sending method on server.
             chat.server.send($newChatMessage.val(), "");
             // Clear text box and reset focus for next comment.
             $newChatMessage.val('').focus();
         });
-    });
+    }
 
     // Hub callback delivering new messages.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
@@ -36,17 +37,17 @@
     };
 
     chat.client.updateChatUsers = function (chatUsers) {
-            chatUsers = $.parseJSON(chatUsers);
-            var $updatedChatUsers = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
-            for (var i = 0; i < chatUsers.length; i++) {
-                $updatedChatUsers = $updatedChatUsers.concat('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>');
-            }
-            $updatedChatUsers = $updatedChatUsers.concat('</ul>');
+        chatUsers = $.parseJSON(chatUsers);
+        var $updatedChatUsers = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
+        for (var i = 0; i < chatUsers.length; i++) {
+            $updatedChatUsers = $updatedChatUsers.concat('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>');
+        }
+        $updatedChatUsers = $updatedChatUsers.concat('</ul>');
 
-            console.log($chatUsers);
-            $chatUsers.replaceWith($updatedChatUsers);
+        console.log($chatUsers);
+        $chatUsers.replaceWith($updatedChatUsers);
         // Refresh the variable content.
-            $chatUsers = $($chatUsers.selector);
+        $chatUsers = $($chatUsers.selector);
     };
 
     // Hub callback disconnecting client. 
@@ -127,7 +128,7 @@
         $newChatMessage.focus();
     });
 
-    function smoothScroll ($container, $scrollingEntry) {
+    function smoothScroll($container, $scrollingEntry) {
         var lineHeightInPixels = 20;
         var marginSize = 10;
         var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
