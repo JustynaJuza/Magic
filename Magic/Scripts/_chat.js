@@ -7,8 +7,8 @@
         $chatUsersContainer = $('#chat-users-container'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
-        $chatGeneralCheckbox = $('#chat-general-check'),
-        $chatPrivateCheckbox = $('#chat-private-check');
+        $chatGeneralCheckbox = $('#chat-messages-general-check'),
+        $chatPrivateCheckbox = $('#chat-messages-private-check');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -27,7 +27,7 @@
 
     // Hub callback delivering new messages.
     chat.client.addMessage = function (time, sender, senderColor, message, recipient, recipientColor) {
-        $chatMessages.append('<li>' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
+        $chatMessages.append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
             + ' </span>' + (recipient != null ? ' <span class="chat-message-recipient" style="font-weight:bold;color:' + htmlEncode(recipientColor) + '">@' + htmlEncode(recipient)
             + '</span> ' : '') + htmlEncode(message) + '</li>');
 
@@ -36,6 +36,7 @@
         //$chatMessagesContainer.animate($chatMessagesContainer.scrollTop(200), 1000); //removes scrollbars for some reason
     };
 
+    // Hub callback for updating chat user list on each change.
     chat.client.updateChatUsers = function (chatUsers) {
         chatUsers = $.parseJSON(chatUsers);
         var $updatedChatUsers = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
@@ -44,7 +45,6 @@
         }
         $updatedChatUsers = $updatedChatUsers.concat('</ul>');
 
-        console.log($chatUsers);
         $chatUsers.replaceWith($updatedChatUsers);
         // Refresh the variable content.
         $chatUsers = $($chatUsers.selector);
@@ -65,14 +65,14 @@
         chat.server.leaveRoom(userId, roomName)
     }
 
-    $.connection.hub.connectionSlow(function () {
-        alert("slow connection");
-    });
+    //$.connection.hub.connectionSlow(function () {
+    //    alert('slow connection');
+    //});
     // ---------------------------- HUB ---------------------------- END
 
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
     // Send button enabled only on chat message input.
-    $chatSendButton.prop("disabled", true);
+    $chatSendButton.prop('disabled', true);
     $newChatMessage.on('input', function () {
         if ($newChatMessage.val() == '') {
             $chatSendButton.prop('disabled', true);
@@ -87,32 +87,28 @@
         if (e.keyCode == 13 && $newChatMessage.val().length > 0) {
             $chatSendButton.toggleClass('clicked');
             $chatSendButton.trigger('click');
-            $chatSendButton.prop("disabled", true);
+            $chatSendButton.prop('disabled', true);
         }
     });
 
     // Provide checkboxes for hiding general/private messages.
     // TODO: Check why this doesn't work sometimes... Maybe bacause of dynamically added elements? Maybe because of fading scroll?
     $chatGeneralCheckbox.change(function () {
+        $chatMessage = $($chatMessage.selector);
         $chatMessage.each(function () {
-            if ($(this).find($('.chat-message-recipient')).length == 0) {
+            if ($(this).find('.chat-message-recipient').length == 0) {
                 $(this).toggle();
             }
         });
     });
     $chatPrivateCheckbox.change(function () {
+        $chatMessage = $($chatMessage.selector);
         $chatMessage.each(function () {
-            if ($(this).find($('.chat-message-recipient')).length != 0) {
+            if ($(this).find($('.chat-message-recipient')).length > 0) {
                 $(this).toggle();
             }
         });
     });
-    //$chatGeneralCheckbox.change(function () {
-    //    var $chatMessageList = $chatMessagesContainer.find('li');
-    //    $chatMessageList.not('.chat-message-recipient').each(function () {
-    //            $(this).toggle();
-    //        })
-    //});
 
     // Enable smooth scrolling chat messages and user list.
     $chatMessagesContainer.scroll(smoothScroll($chatMessagesContainer, $chatMessage));

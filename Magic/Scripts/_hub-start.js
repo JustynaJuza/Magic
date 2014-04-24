@@ -7,7 +7,6 @@
                 window.chat.initialize();
             }
             if (typeof window.game != 'undefined') {
-                alert('start')
                 window.game.initialize();
             }
         });
