@@ -17,8 +17,26 @@
 
     ul {
         padding: 0px 0px 0px 3px;
+        margin: 0px
     }
+
+    #chat-room-users-selectlist li {
+        float: left;
+        display: block;
+        line-height: 34px;
+        overflow: hidden;
+        text-align: center;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: #ffffff;
+        background-color: #428bca;
+        border-color: #357ebd;
+    }
+
 </style>
+
+<input type="button" id="add-tab" class="btn btn-primary" value="Add" style="display: inline; margin: 0px 0px 3px 0px;" />
+<input type="button" id="remove-tab" class="btn btn-primary" value="Remove" style="display: inline; margin: 0px 0px 3px 0px;" />
 
 <div class="chat container">
 
@@ -27,10 +45,18 @@
 
     <div class="container">
 
-        <div class="form-control right" id="chat-users-container" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px; overflow: auto;">
-            <ul id="chat-users" style="list-style-type: none; margin: 0px">
-                <li class="chat-user" style="font-weight:bold" />
+        <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
+            <ul id="chat-room-users-selectlist" style="width: auto; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
+                <li class="chat-room-users-selection">
+                    Online
+                </li>
             </ul>
+
+            <div class="form-control " id="chat-users-container" style="overflow: auto; height: 221px;">
+                <ul id="chat-users" style="list-style-type: none;">
+                    <li class="chat-user" style="font-weight:bold" />
+                </ul>
+            </div>
         </div>
 
         <div class="container left">
@@ -40,9 +66,19 @@
                 //@: Please show class and be polite and respectful towards other people.
 
                 <div class="container" style="margin: 0px 0px 3px 0px; white-space: nowrap;">
-                    @*<input type="button" id="room-setting" class="btn btn-primary" value="" style="float: right;" />*@
+
+                    <input type="button" class="btn btn-primary chat-room-selection" value="" style="position:absolute; width: auto; background:white;" />
                     @Html.TextBox("new-chat-message", null, new { id = "new-chat-message", @class = "form-control", style = "width:100%; max-width: 100%; display:inline; margin: 0px -63px 3px 0px; padding-right: 67px" })
                     <input type="button" id="new-chat-message-send" class="btn btn-primary" value="Send" style="width: 60px; display: inline; margin: 0px 0px 3px 0px;" />
+
+                    <ul id="chat-room-selectlist" style="position: absolute; width: auto; display: none; list-style-type: none; background: #ffd800; margin:-3px 0px 0px 0px">
+                        <li>
+                            justyna
+                        </li>
+                        <li>
+                            game
+                        </li>
+                    </ul>
                 </div>
             }
             else

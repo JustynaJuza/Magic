@@ -4,11 +4,18 @@
         $chatMessagesContainer = $('#chat-messages-container'),
         $chatMessages = $('#chat-messages'),
         $chatMessage = $('.chat-message'),
+        $chatRoomSelection = $('.chat-room-selection'),
+        $chatRoomSelectList = $('#chat-room-selectlist'),
+        $chatRoomUsersSelectList = $('#chat-room-users-selectlist')
         $chatUsersContainer = $('#chat-users-container'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
         $chatGeneralCheckbox = $('#chat-messages-general-check'),
-        $chatPrivateCheckbox = $('#chat-messages-private-check');
+        $chatPrivateCheckbox = $('#chat-messages-private-check'),
+        basicNewMessagePadding = parseInt($newChatMessage.css('padding-left'));
+
+    adjustNewMessageElementPadding();
+    adjustRoomTabs();
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -146,5 +153,37 @@
         var encodedValue = $('<div />').text(value).html();
         return encodedValue;
     }
-    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
+
+    function adjustNewMessageElementPadding() {
+        var newPadding = basicNewMessagePadding + parseInt($chatRoomSelection.css('width'))
+        $newChatMessage.css('padding-left', newPadding);
+    }
+
+    function adjustRoomTabs() {
+        $('#chat-room-users-selectlist li').css('width', Math.floor(parseInt($chatRoomUsersSelectList.css('width')) / $chatRoomUsersSelectList.children().length))
+    }
+
+    $chatRoomSelection.click(function () {
+        $chatRoomSelectList.toggle();
+    });
+
+    $(document).on('click', '#chat-room-selectlist li, .chat-message-sender, .chat-user', function () {
+        $chatRoomSelectList.hide();
+        $chatRoomSelection.val($(this).text());
+        $chatRoomSelection.css('color', $(this).css('color'));
+        adjustNewMessageElementPadding();
+    });
+
+
+    $('#add-tab').click(function (roomName, tabColor, tabBorderColor) {
+        $chatRoomUsersSelectList.append('<li style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
+        adjustRoomTabs();
+    });
+
+    $('#remove-tab').click(function (roomName) {
+        $('#chat-room-users-selectlist li:contains(' + roomName + ')').remove();
+        adjustRoomTabs();
+    });
+
+    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
 });
