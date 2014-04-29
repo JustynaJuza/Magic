@@ -1,4 +1,5 @@
 ﻿$(function () {
+    window.chatRoomUsers = [];
     var $chatSendButton = $('#new-chat-message-send'),
         $newChatMessage = $('#new-chat-message'),
         $chatMessagesContainer = $('#chat-messages-container'),
@@ -16,6 +17,23 @@
 
     adjustNewMessageElementPadding();
     adjustRoomTabs();
+
+    function ChatRoomUsers(chatUsersHtml, roomName) {
+        /// <summary>Creates an object storing the chat room user list related identified by room name, can also be used as clone constructor.</summary>
+        /// <param name="chatUsersHtml" type="String" optional="false">The chat room related user list in HTML markup.</param>
+        /// <param name="roomName" type="String" optional="false">The chat room name.</param>
+        /// <returns type="ChatRoomUsers">An object storing the chat room user list related identified by room name.</returns>
+        /// <field name="chatUsersHtml" type="String">The chat room related user list in HTML markup.</field>
+        /// <field name="roomName" type="String">The chat room name.</field>
+        if (arguments.length > 1){
+            this.chatUsersHtml = chatUsersHtml;
+            this.roomName = roomName;
+        }
+        else {
+            this.chatUsersHtml = arguments[0].chatUsersHtml;
+            this.roomName = arguments[0].roomName;
+        }
+    }
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -44,33 +62,54 @@
     };
 
     // Hub callback for updating chat user list on each change.
-    chat.client.updateChatUsers = function (chatUsers) {
+    chat.client.updateChatRoomUsers = function (chatUsers, roomName) {
         chatUsers = $.parseJSON(chatUsers);
-        var $updatedChatUsers = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
+        var updatedChatUsersHtml = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
         for (var i = 0; i < chatUsers.length; i++) {
-            $updatedChatUsers = $updatedChatUsers.concat('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>');
+            updatedChatUsersHtml += '<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>';
         }
-        $updatedChatUsers = $updatedChatUsers.concat('</ul>');
+        updatedChatUsersHtml += '</ul>';
 
-        $chatUsers.replaceWith($updatedChatUsers);
-        // Refresh the variable content.
-        $chatUsers = $($chatUsers.selector);
+        var foundChatRoomUsers = _.find(window.chatRoomUsers, function (element, index) {
+            return element.roomName == roomName;
+        });
+        
+        if (foundChatRoomUsers != null) {
+            foundChatRoomUsers.chatUsersHtml = updatedChatUsersHtml;
+        }
+        else {
+            window.chatRoomUsers.push(new ChatRoomUsers(updatedChatUsersHtml, roomName));
+        }
+
+        filterChatUsers(roomName);
     };
 
-    // Hub callback disconnecting client. 
-    chat.client.stopClient = function () {
-        $.connection.hub.stop();
-    };
-
-    // Hub callback to make client join appointed group.
-    chat.client.joinRoom = function (userId, roomName) {
-        chat.server.joinRoom(userId, roomName)
+    // Hub callback to remove chat room tab when current user leaves.
+    chat.client.leaveChatRoom = function(roomName) {
+        $('#chat-room-users-selectlist li:contains(' + roomName + ')').remove();
+        adjustRoomTabs();
     }
 
-    // Hub callback to make client leave appointed group.
-    chat.client.leaveRoom = function (userId, roomName) {
-        chat.server.leaveRoom(userId, roomName)
+    // Hub callback to add  chat room tab when current user joins.
+    chat.client.joinChatRoom = function(roomName, tabColor, tabBorderColor) {
+        $chatRoomUsersSelectList.append('<li style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
+        adjustRoomTabs();
     }
+
+    //// Hub callback disconnecting client. 
+    //chat.client.stopClient = function () {
+    //    $.connection.hub.stop();
+    //};
+
+    //// Hub callback to make client join appointed group.
+    //chat.client.joinRoom = function (userId, roomName) {
+    //    chat.server.joinRoom(userId, roomName)
+    //}
+
+    //// Hub callback to make client leave appointed group.
+    //chat.client.leaveRoom = function (userId, roomName) {
+    //    chat.server.leaveRoom(userId, roomName)
+    //}
 
     //$.connection.hub.connectionSlow(function () {
     //    alert('slow connection');
@@ -174,16 +213,26 @@
         adjustNewMessageElementPadding();
     });
 
+    function filterChatUsers(roomName) {
+        var chatRoomUsers = _.find(window.chatRoomUsers, function (element) {
+            return element.roomName == roomName;
+        });
 
-    $('#add-tab').click(function (roomName, tabColor, tabBorderColor) {
-        $chatRoomUsersSelectList.append('<li style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
-        adjustRoomTabs();
-    });
+        console.log(chatRoomUsers)
+        $chatUsers.replaceWith(chatRoomUsers.chatUsersHtml);
+        // Refresh the variable content.
+        $chatUsers = $($chatUsers.selector);
+    }
+    
+    //$('#add-tab').click(alert(window.chatRoomUsers)); //chat.client.joinChatRoom);
 
-    $('#remove-tab').click(function (roomName) {
-        $('#chat-room-users-selectlist li:contains(' + roomName + ')').remove();
-        adjustRoomTabs();
-    });
+    $('#remove-tab').click(chat.client.leaveChatRoom);
 
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
+
+    // --------------------- HELPER FUNCTIONS ---------------------- START
+
+
+    
+    // --------------------- HELPER FUNCTIONS ---------------------- START
 });

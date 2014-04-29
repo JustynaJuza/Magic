@@ -11,7 +11,7 @@
 
     // Initialize game handling.
     window.game.initialize = function initializeGame() {
-        chat.server.toggleGameSubscription($gameId.val(), true);
+        chat.server.toggleGameChatSubscription($gameId.val(), true);
 
         $playerReadyButton.click(function () {
             isReady = !isReady;

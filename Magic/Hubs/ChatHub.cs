@@ -188,7 +188,7 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public static void ToggleChatSubscription(ApplicationUser user)
+        public static void ToggleChatSubscription(ApplicationUser user, string roomName = "")
         {
             var foundChatUser = chatUsers.FirstOrDefault(u => u.UserName == user.UserName);
             if (foundChatUser != null)
@@ -201,10 +201,10 @@ namespace Magic.Hubs
             }
 
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-            chatHubContext.Clients.All.updateChatUsers(Json.Encode(chatUsers));
+            chatHubContext.Clients.All.updateChatRoomUsers(Json.Encode(chatUsers));
         }
 
-        public async void ToggleGameSubscription(string gameId, bool activate)
+        public async void ToggleGameChatSubscription(string gameId, bool activate)
         {
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
@@ -317,7 +317,7 @@ namespace Magic.Hubs
             {
                 if (connection.Game != null)
                 {
-                    ToggleGameSubscription(connection.Game.Id, false);
+                    ToggleGameChatSubscription(connection.Game.Id, false);
                     GameHub.DisplayUserLeft(connection);
                     GameHub.LeaveGame(connection);
                 }
