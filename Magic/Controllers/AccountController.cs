@@ -237,8 +237,7 @@ namespace Magic.Controllers
 
             if (foundUser != null)
             {
-                ChatHub.ToggleChatSubscription(foundUser);
-
+                //ChatHub.ToggleChatSubscription(foundUser);
                 foundUser.Connections.Clear();
                 foundUser.Status = UserStatus.Offline;
                 context.Update(foundUser);

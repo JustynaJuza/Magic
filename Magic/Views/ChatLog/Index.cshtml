@@ -28,10 +28,10 @@
                     @Html.DisplayFor(modelItem => item.DateCreated)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.MessageLog.Count)
+                    @Html.DisplayFor(modelItem => item.Messages.Count)
                 </td>
                 <td>
-                    @Html.ActionLink("View", "MessageLog", item) |
+                    @Html.ActionLink("View", "Messages", item) |
                     @Html.ActionLink("Delete", "ChatLogDelete", item)
                 </td>
             </tr>

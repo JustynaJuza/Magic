@@ -26,12 +26,12 @@ namespace Magic
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             // Add ChatLog and stealthy Cache scheduler.
-            this.Application["GeneralChatLog"] = new ChatLog();
-            RecurringTask("SaveChatLog", 3);
+            //this.Application["GeneralChatLog"] = new ChatLog();
+            //RecurringTask("SaveChatLog", 3);
 
             // Enable automatic migrations.
-            var migrator = new System.Data.Entity.Migrations.DbMigrator(new Migrations.Configuration());
-            migrator.Update();
+            //var migrator = new System.Data.Entity.Migrations.DbMigrator(new Migrations.Configuration());
+            //migrator.Update();
 
             // Initialise dependency injection resolver.
             //Magic.App_Start.SimpleInjectorInitializer.Initialize();
@@ -128,7 +128,7 @@ namespace Magic
         public bool SaveChatLog(bool save = true, bool skipInterval = true, TimeSpan? intervalMinutes = null)
         {
             var currentLog = (ChatLog) this.Application["GeneralChatLog"];
-            if (currentLog != null && currentLog.MessageLog.Count > 10)
+            if (currentLog != null && currentLog.Messages.Count > 10)
             {
                 //if (!skipInterval)
                 //{
@@ -147,7 +147,7 @@ namespace Magic
                 // Synchronize clearing the current ChatLog to save memory but preserve recent messages.
                 this.Application.Lock();
                 this.Application["GeneralChatLog"] = new ChatLog();
-                ((ChatLog) this.Application["GeneralChatLog"]).AppendMessages(currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10));
+                ((ChatLog) this.Application["GeneralChatLog"]).AppendMessages(currentLog.Messages.GetRange(currentLog.Messages.Count - 10, 10));
                 this.Application.UnLock();
 
                 if (save)

@@ -27,7 +27,7 @@ namespace Magic.Hubs
         };
 
         private static MagicDBContext context = new MagicDBContext();
-        private static List<ChatUserViewModel> chatUsers = new List<ChatUserViewModel>();
+        //private static List<ChatUserViewModel> chatUsers = new List<ChatUserViewModel>();
 
         #region CHAT MESSAGE HANDLING
         public void Send(string messageText, string roomName = "")
@@ -49,12 +49,12 @@ namespace Magic.Hubs
                 {
                     if (roomName.Length > 0)
                     {
-                        AddMessageToChatLog(message, roomName);
+                        //AddMessageToChatLog(message, roomName);
                         Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                     }
                     else
                     {
-                        AddMessageToChatLog(message);
+                        //AddMessageToChatLog(message);
                         Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                     }
                 }
@@ -188,20 +188,35 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public static void ToggleChatSubscription(ApplicationUser user, string roomName = "")
+        public static void ToggleChatSubscription(ApplicationUserConnection connection, string roomId = "", bool activate = true)
         {
-            var foundChatUser = chatUsers.FirstOrDefault(u => u.UserName == user.UserName);
-            if (foundChatUser != null)
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+
+            if (activate)
             {
-                chatUsers.Remove(foundChatUser);
+                var chatRoom = context.ChatRooms.Find(roomId);
+                chatRoom.UserConnections.Add(connection);
+                context.Update(chatRoom);
+
+                chatHubContext.Groups.Add(connection.Id, roomId);
             }
-            else
-            {
-                chatUsers.Add(new ChatUserViewModel(user));
+            else {
+                chatHubContext.Groups.Remove(connection.Id, roomId);
             }
 
-            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
-            chatHubContext.Clients.All.updateChatRoomUsers(Json.Encode(chatUsers));
+            //var chatUsers = chatRoom.UserConnections.Select(u => new ChatUserViewModel(u.User));
+
+            //var foundChatUser = chatUsers.FirstOrDefault(u => u.UserName == user.UserName);
+            //if (foundChatUser != null)
+            //{
+            //    chatUsers.Remove(foundChatUser);
+            //}
+            //else
+            //{
+            //    chatUsers.Add(new ChatUserViewModel(user));
+            //}
+
+            chatHubContext.Clients.All.updateChatRoomUser(connection.User.UserName, connection.User.ColorCode, roomId);
         }
 
         public async void ToggleGameChatSubscription(string gameId, bool activate)
@@ -216,18 +231,20 @@ namespace Magic.Hubs
 
             if (activate)
             {
-                // Set the connection as main connection.
-                var gameConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var game = context.Games.Find(gameId);
-                if (game != null)
-                {
-                    gameConnection.Game = game;
-                }
-                else
-                {
-                    gameConnection.Game = new Game { Id = gameId };
-                }
-                context.Update(gameConnection, true);
+                // Set the current connection as game connection.
+                var currentConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+                var gameConnection = new ApplicationUserGameConnection()
+                    {
+                        Id = currentConnection.Id,
+                        User = foundUser,
+                        ChatRoom = context.ChatRooms.Find(gameId) ?? new ChatRoom { Id = gameId },
+                        Game = context.Games.Find(gameId) ?? new Game() { Id = gameId }
+                    };
+
+                foundUser.Connections.Remove(currentConnection);
+                context.Update(foundUser, true);
+                foundUser.GameConnections.Add(gameConnection);
+                context.Update(foundUser, true);
 
                 // Await to join the group on main connection so the joining user get's the info message.
                 await GameHub.JoinGame(gameConnection.Id, gameId);
@@ -261,21 +278,23 @@ namespace Magic.Hubs
 
             if (foundUser != null)
             {
-                foundUser.Status = UserStatus.Online;
-                foundUser.Connections.Add(new ApplicationUserConnection()
+                var connection = new ApplicationUserConnection()
                 {
                     Id = Context.ConnectionId,
                     User = foundUser
-                });
+                };
+                foundUser.Status = UserStatus.Online;
+                foundUser.Connections.Add(connection);
+                //context.ChatRooms.Add(connection);
                 context.Update(foundUser);
+
+                ToggleChatSubscription(connection);
 
                 if (foundUser.Connections.Count == 1)
                 {
                     // If this is the user's only connection broadcast a chat info.
                     ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
                 }
-
-                ToggleChatSubscription(foundUser);
             }
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
@@ -315,11 +334,11 @@ namespace Magic.Hubs
 
             if (connection != null)
             {
-                if (connection.Game != null)
+                if (connection.GetType() == typeof(ApplicationUserGameConnection))
                 {
-                    ToggleGameChatSubscription(connection.Game.Id, false);
-                    GameHub.DisplayUserLeft(connection);
-                    GameHub.LeaveGame(connection);
+                    ToggleGameChatSubscription(connection.ChatRoom.Id, false);
+                    GameHub.DisplayUserLeft(connection.User.UserName, connection.ChatRoom.Id);
+                    GameHub.LeaveGame((ApplicationUserGameConnection) connection);
                 }
 
                 if (connection.User.Connections.Count == 1)
@@ -328,7 +347,7 @@ namespace Magic.Hubs
                     ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
                 }
 
-                ToggleChatSubscription(connection.User);
+                //ToggleChatSubscription(connection);
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
                 context.Delete(connection);
             }
@@ -338,15 +357,17 @@ namespace Magic.Hubs
         #endregion CONNECTION STATUS UPDATE
 
         #region CHATLOG HANDLING
-        public static IList<ChatMessage> GetRecentChatLog(string logName = "GeneralChatLog")
+        public static IList<ChatMessage> GetRecentChatLog(string roomId = "")
         {
-            // TODO: Filter private/game/other messages.
-            ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
-            if (currentLog.MessageLog.Count > 10)
-            {
-                currentLog.MessageLog = currentLog.MessageLog.GetRange(currentLog.MessageLog.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
-            }
-            return currentLog.MessageLog;
+            //// TODO: Filter private/game/other messages.
+            //ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
+            //if (currentLog.Messages.Count > 10)
+            //{
+            //    currentLog.Messages = currentLog.Messages.GetRange(currentLog.Messages.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
+            //}
+            //return currentLog.Messages;
+            var chatRoom = context.ChatRooms.Find(roomId);
+            return chatRoom.Log.Messages;
         }
 
         // This function is called by schedule from Global.asax and uses the static context to save recent chat messages.
@@ -355,7 +376,7 @@ namespace Magic.Hubs
             ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);//context.Set<ChatLog>().AsNoTracking().FirstOrDefault(c => c.DateCreated == currentLog.DateCreated);
             if (todayLog != null)
             {
-                todayLog.AppendMessages(currentLog.MessageLog);
+                todayLog.AppendMessages(currentLog.Messages);
                 return context.Update(todayLog, true);
             }
             else
@@ -363,23 +384,24 @@ namespace Magic.Hubs
                 // Create new log for Today.
                 todayLog = new ChatLog()
                 {
-                    MessageLog = currentLog.MessageLog
+                    Messages = currentLog.Messages
                 };
                 return context.Create(todayLog);
             }
         }
 
-        private static void AddMessageToChatLog(ChatMessage message, string logName = "GeneralChatLog")
+        private static void AddMessageToChatLog(ChatMessage message, string roomId = "")
         {
+
             // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
             // Suggested solution: Add new temporary message log or explicitly call log saving.
 
             //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
             //{
             // Synchronize adding message to ChatLog.
-            HttpContext.Current.ApplicationInstance.Context.Application.Lock();
-            ((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).MessageLog.Add(message);
-            HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
+            //HttpContext.Current.ApplicationInstance.Context.Application.Lock();
+            //((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).Messages.Add(message);
+            //HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
             //}
         }
         #endregion CHATLOG HANDLING

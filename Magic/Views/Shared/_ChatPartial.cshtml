@@ -1,6 +1,14 @@
 ﻿@using Magic.Hubs;
 
 <style>
+    .chat-user {
+        font-weight: bold;
+    }
+
+    #chat-users {
+        list-style-type: none;
+    }
+
     .container {
         height: auto;
         width: 100%;
@@ -53,8 +61,8 @@
             </ul>
 
             <div class="form-control " id="chat-users-container" style="overflow: auto; height: 221px;">
-                <ul id="chat-users" style="list-style-type: none;">
-                    <li class="chat-user" style="font-weight:bold" />
+                <ul id="chat-users">
+                    <li class="chat-user"/>
                 </ul>
             </div>
         </div>

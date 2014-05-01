@@ -19,7 +19,6 @@ textarea {
 /* styles for validation helpers */
 .field-validation-error {
     color: #b94a48;
-    font-size: 14px;
 }
 
 .field-validation-valid {
@@ -28,7 +27,6 @@ textarea {
 
 input.input-validation-error {
     border: 1px solid #b94a48;
-    margin-right: 5px;
 }
 
 input[type="checkbox"].input-validation-error {
@@ -41,10 +39,4 @@ input[type="checkbox"].input-validation-error {
 
 .validation-summary-valid {
     display: none;
-}
-
-/* styles for removing the background from form */
-.no-color {
-  background-color: white;
-  border-style:none;
 }

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Web
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Magic", "Magic\Magic.csproj", "{A87603F7-D830-449F-89B0-2297F88C32E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Magic.Models", "Magic.Models\Magic.Models.csproj", "{B3A5155F-0792-4DAB-B60F-BE1FEED2BB41}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A87603F7-D830-449F-89B0-2297F88C32E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A87603F7-D830-449F-89B0-2297F88C32E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A87603F7-D830-449F-89B0-2297F88C32E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A87603F7-D830-449F-89B0-2297F88C32E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3A5155F-0792-4DAB-B60F-BE1FEED2BB41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3A5155F-0792-4DAB-B60F-BE1FEED2BB41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3A5155F-0792-4DAB-B60F-BE1FEED2BB41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3A5155F-0792-4DAB-B60F-BE1FEED2BB41}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

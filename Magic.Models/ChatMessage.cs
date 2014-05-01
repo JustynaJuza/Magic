@@ -8,6 +8,7 @@ namespace Magic.Models
     public class ChatMessage : AbstractExtensions
     {
         public int Id { get; set; }
+        public bool IsUnread { get; set; }
         public DateTime? TimeSend { get; set; }
         public string Message { get; set; }
         public virtual ApplicationUser Sender { get; set; }
@@ -22,8 +23,8 @@ namespace Magic.Models
         // Constructor with message.
         public ChatMessage(string messageText)
         {
-            Message = messageText;
             TimeSend = DateTime.Now;
+            Message = messageText;
         }
     }
 

@@ -18,7 +18,7 @@ namespace Magic.Controllers
 		[HttpGet]
         public ActionResult Index()
         {
-            return View(context.ChatLogs.Include(l => l.MessageLog).ToList());
+            return View(context.ChatLogs.Include(l => l.Messages).ToList());
         }
 
         public ActionResult MessageLog(ChatLog model)
@@ -29,7 +29,7 @@ namespace Magic.Controllers
                 return RedirectToAction("Index");
             }
             TempData["Error"] = null;
-            return View("MessageLog", context.ChatMessages.Where(m => m.Log.DateCreated == model.DateCreated));
+            return View("Messages", context.ChatMessages.Where(m => m.Log.DateCreated == model.DateCreated));
         }
 
 		#region DELETE
@@ -43,7 +43,7 @@ namespace Magic.Controllers
         public ActionResult Delete(ChatMessage model)
         {
             TempData["Error"] = context.Delete(model);
-            return RedirectToAction("MessageLog", context.ChatLogs.Where(m => m.DateCreated == model.Log.DateCreated));
+            return RedirectToAction("Messages", context.ChatLogs.Where(m => m.DateCreated == model.Log.DateCreated));
         }
 		#endregion DELETE
 

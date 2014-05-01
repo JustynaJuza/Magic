@@ -15,13 +15,14 @@ namespace Magic.Migrations
             ContextKey = "Magic.Models.DataContext.MagicDBContext";
         }
 
-
         protected override void Seed(Magic.Models.DataContext.MagicDBContext context)
         {
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 context.CardColors.AddOrUpdate(new CardColor { Color = color });
             }
+
+            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = "", Name="General" });
         }
     }
 }

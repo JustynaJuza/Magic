@@ -8,29 +8,35 @@
         $chatRoomSelection = $('.chat-room-selection'),
         $chatRoomSelectList = $('#chat-room-selectlist'),
         $chatRoomUsersSelectList = $('#chat-room-users-selectlist')
+        //$chatRoomUsersSelection = 
         $chatUsersContainer = $('#chat-users-container'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
         $chatGeneralCheckbox = $('#chat-messages-general-check'),
         $chatPrivateCheckbox = $('#chat-messages-private-check'),
         basicNewMessagePadding = parseInt($newChatMessage.css('padding-left'));
+        activeChatRoom = "";
 
     adjustNewMessageElementPadding();
     adjustRoomTabs();
 
-    function ChatRoomUsers(chatUsersHtml, roomName) {
+    function ChatRoomUsers(chatUsersHtml, roomId, roomName) {
         /// <summary>Creates an object storing the chat room user list related identified by room name, can also be used as clone constructor.</summary>
         /// <param name="chatUsersHtml" type="String" optional="false">The chat room related user list in HTML markup.</param>
-        /// <param name="roomName" type="String" optional="false">The chat room name.</param>
+        /// <param name="roomId" type="String">The chat room identifier.</param>
+        /// <param name="roomName" type="String" optional="false">The chat room display name.</param>
         /// <returns type="ChatRoomUsers">An object storing the chat room user list related identified by room name.</returns>
         /// <field name="chatUsersHtml" type="String">The chat room related user list in HTML markup.</field>
-        /// <field name="roomName" type="String">The chat room name.</field>
+        /// <field name="roomId" type="String">The chat room identifier.</field>
+        /// <field name="roomName" type="String">The chat room display name.</field>
         if (arguments.length > 1){
             this.chatUsersHtml = chatUsersHtml;
+            this.roomId = roomId;
             this.roomName = roomName;
         }
         else {
             this.chatUsersHtml = arguments[0].chatUsersHtml;
+            this.roomName = arguments[0].roomId;
             this.roomName = arguments[0].roomName;
         }
     }
@@ -82,6 +88,33 @@
         }
 
         filterChatUsers(roomName);
+    };
+
+    chat.client.updateChatRoomUser = function (userName, colorCode, roomId) {
+
+        if (activeChatRoom == roomId) {
+            var $foundUser = $('.chat-user:contains(' + userName + ')');
+            if ($foundUser.length > 0) {
+                $foundUser.remove();
+            }
+            else
+            {
+                $chatUsers.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
+            }
+        }
+
+        //var foundChatRoomUsers = _.find(window.chatRoomUsers, function (element, index) {
+        //    return element.roomName == roomName;
+        //});
+
+        //if (foundChatRoomUsers != null) {
+        //    foundChatRoomUsers.chatUsersHtml = updatedChatUsersHtml;
+        //}
+        //else {
+        //    window.chatRoomUsers.push(new ChatRoomUsers(updatedChatUsersHtml, roomName));
+        //}
+
+        //filterChatUsers(roomName);
     };
 
     // Hub callback to remove chat room tab when current user leaves.

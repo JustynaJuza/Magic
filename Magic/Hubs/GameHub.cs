@@ -41,8 +41,8 @@ namespace Magic.Hubs
             else
             {
                 // Reset the game connection data when the player is unready to play.
-                var gameConnection = context.Set<ApplicationUserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
+                var gameConnection = context.Set<ApplicationUserGameConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
+                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = null;
 
@@ -89,11 +89,11 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).observerJoined(userName);
         }
 
-        public static void DisplayUserLeft(ApplicationUserConnection gameConnection)
+        public static void DisplayUserLeft(string userName, string gameId)
         {
             // Update display and remove the user who left.
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            gameHubContext.Clients.Group(gameConnection.Game.Id).userLeft(gameConnection.User.UserName);
+            gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
         #endregion GAME DISPLAY UPDATES
 
@@ -104,9 +104,9 @@ namespace Magic.Hubs
             return gameHubContext.Groups.Add(connectionId, gameId);
         }
 
-        public static Task LeaveGame(ApplicationUserConnection gameConnection)
+        public static Task LeaveGame(ApplicationUserGameConnection gameConnection)
         {
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
 
             // Update game accordingly if a player left.

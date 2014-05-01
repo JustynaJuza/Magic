@@ -19,19 +19,24 @@ namespace Magic.Models.DataContext
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
 
+            modelBuilder.Entity<ChatRoom>()
+                .HasRequired(r => r.Log)
+                .WithOptional(l => l.Room);
+
             //modelBuilder.Entity<ChatLog>().HasKey(l => l.DateCreated);
             //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
         }
 
-        public DbSet<Magic.Models.ApplicationUserConnection> Connections { get; set; }
-        public DbSet<Magic.Models.Card> Cards { get; set; }
-        public DbSet<Magic.Models.CardColor> CardColors { get; set; }
-        public DbSet<Magic.Models.CardType> CardTypes { get; set; }
-        public DbSet<Magic.Models.CardDeck> CardDecks { get; set; }
-        public DbSet<Magic.Models.ChatLog> ChatLogs { get; set; }
-        public DbSet<Magic.Models.ChatMessage> ChatMessages { get; set; }
-        public DbSet<Magic.Models.Game> Games { get; set; }
-        public DbSet<Magic.Models.PlayerGameStatus> PlayerGameStatuses { get; set; }
+        public DbSet<ApplicationUserConnection> Connections { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<ChatLog> ChatLogs { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<Card> Cards { get; set; }
+        public DbSet<CardColor> CardColors { get; set; }
+        public DbSet<CardType> CardTypes { get; set; }
+        public DbSet<CardDeck> CardDecks { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<PlayerGameStatus> PlayerGameStatuses { get; set; }
 
         #region CRUD
         public string Create(Object item)

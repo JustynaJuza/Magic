@@ -89,7 +89,7 @@ namespace Magic.Controllers
             }
 
             // Join game room chat.
-            // ChatHub.ToggleGameSubscription(currentUser.Id, gameId);
+            //ChatHub.ToggleGameChatSubscription(gameId, true);
             return View(game);
         }
 
