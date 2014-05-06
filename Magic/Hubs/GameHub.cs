@@ -38,16 +38,16 @@ namespace Magic.Hubs
                     Clients.Group(gameId).activateGame();
                 }
             }
-            else
-            {
-                // Reset the game connection data when the player is unready to play.
-                var gameConnection = context.Set<ApplicationUserGameConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
-                var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
-                foundPlayer.ConnectionId = null;
+            //else
+            //{
+            //    // Reset the game connection data when the player is unready to play.
+            //    var gameConnection = context.Set<ApplicationUserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
+            //    var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
+            //    var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
+            //    foundPlayer.ConnectionId = null;
 
-                GameHub.DisplayPlayerReady(foundPlayer.User, game.Id, isReady);
-            }
+            //    GameHub.DisplayPlayerReady(foundPlayer.User, game.Id, isReady);
+            //}
         }
 
         #region GAME DISPLAY UPDATES
@@ -106,7 +106,7 @@ namespace Magic.Hubs
 
         public static Task LeaveGame(ApplicationUserGameConnection gameConnection)
         {
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
+            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);
 
             // Update game accordingly if a player left.

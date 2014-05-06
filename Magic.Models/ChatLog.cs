@@ -13,7 +13,7 @@ namespace Magic.Models
         public int Id { get; set; }
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
-        public virtual ChatRoom Room { get; set; }
+        //public virtual ChatRoom Room { get; set; }
         public virtual List<ChatMessage> Messages { get; set; }
 
         // Constructor.

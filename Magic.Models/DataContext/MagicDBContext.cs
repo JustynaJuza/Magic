@@ -21,7 +21,10 @@ namespace Magic.Models.DataContext
 
             modelBuilder.Entity<ChatRoom>()
                 .HasRequired(r => r.Log)
-                .WithOptional(l => l.Room);
+                .WithOptional();
+                //.WithOptional(l => l.Room);
+
+            //modelBuilder.Entity<ApplicationUserConnection>().HasKey(c => new { c.Id, c.ChatRoomId });
 
             //modelBuilder.Entity<ChatLog>().HasKey(l => l.DateCreated);
             //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
