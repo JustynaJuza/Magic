@@ -41,17 +41,28 @@ namespace Magic.Models.Helpers
         }
     }
 
-    public static class ObjectExtension
+    public static class ExtensionMethods
     {
-        public static string ToFullString(this object myObj)
+        public static string ToFullString(this object obj)
         {
-            string toString = myObj.GetType().FullName + ": ";
-            var classMembers = myObj.GetType().GetProperties();
+            string toString = obj.GetType().FullName + ": ";
+            var classMembers = obj.GetType().GetProperties();
 
             foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(myObj) + "; ";
+                toString += "\n" + member.Name + " : " + member.GetValue(obj) + "; ";
 
             return toString;
+        }
+
+        public static void AssignRandomColorCode(this string str)
+        {
+            Random random = new Random();
+            int red = random.Next(255); // Not 256, because black is the system message color.
+            int green = random.Next(255);
+            int blue = random.Next(255);
+            System.Drawing.Color color = System.Drawing.Color.FromArgb(red, green, blue);
+
+            str = System.Drawing.ColorTranslator.ToHtml(color);
         }
     }
 }

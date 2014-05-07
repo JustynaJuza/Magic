@@ -4,6 +4,7 @@ namespace Magic.Migrations
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
+    using Magic.Hubs;
     using Magic.Models;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Magic.Models.DataContext.MagicDBContext>
@@ -22,7 +23,7 @@ namespace Magic.Migrations
                 context.CardColors.AddOrUpdate(new CardColor { Color = color });
             }
 
-            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = "", Name="General" });
+            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = ChatHub.defaultRoomId, Name = "General" });
         }
     }
 }

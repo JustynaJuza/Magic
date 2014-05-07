@@ -48,6 +48,18 @@ namespace Magic.Models
         }
     }
 
+    public class ChatUserViewModel
+    {
+        public string UserName { get; set; }
+        public string ColorCode { get; set; }
+
+        public ChatUserViewModel(ApplicationUser user)
+        {
+            UserName = user.UserName;
+            ColorCode = user.ColorCode;
+        }
+    }
+
     public class ManagePasswordViewModel : AbstractExtensions, IViewModel
     {
         [Required]

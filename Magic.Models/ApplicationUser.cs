@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
@@ -28,22 +29,13 @@ namespace Magic.Models
         // Constructor.
         public ApplicationUser()
         {
-            AssignRandomColorCode();
+            ColorCode.AssignRandomColorCode();
             Connections = new List<ApplicationUserConnection>();
             DeckCollection = new List<CardDeck>();
         }
 
         #region HELPERS
-        public void AssignRandomColorCode()
-        {
-            Random random = new Random();
-            int red = random.Next(255); // Not 256, because black is the system message color.
-            int green = random.Next(255);
-            int blue = random.Next(255);
-            System.Drawing.Color color = System.Drawing.Color.FromArgb(red, green, blue);
-
-            this.ColorCode = System.Drawing.ColorTranslator.ToHtml(color);
-        }
+        
 
         public UserViewModel GetViewModel()
         {

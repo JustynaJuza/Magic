@@ -14,26 +14,35 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private class ChatUserViewModel
-        {
-            public string UserName { get; set; }
-            public string ColorCode { get; set; }
-
-            public ChatUserViewModel(ApplicationUser user)
-            {
-                UserName = user.UserName;
-                ColorCode = user.ColorCode;
-            }
-        };
-
+        public static const string defaultRoomId = "00000000-0000-0000-0000-000000000000";
         private static MagicDBContext context = new MagicDBContext();
-        //private static List<ChatUserViewModel> chatUsers = new List<ChatUserViewModel>();
+
+        #region CHAT INIT
+        public void listChatRooms() {
+            Json.Encode(context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == Context.User)));
+        }
+
+        public void getChatRoomUsers(string roomId = defaultRoomId) {
+            var room = context.ChatRooms.Find(roomId);
+
+            var chatUsers = new List<ChatUserViewModel>();
+            foreach (var connection in room.UserConnections){
+                chatUsers.Add(new ChatUserViewModel(connection.User));
+            }
+
+            Json.Encode(chatUsers);
+        }
+
+        public void addChatRoom() { 
+            
+        }
+        #endregion CHAT INIT
 
         #region CHAT MESSAGE HANDLING
-        public void Send(string messageText, string roomId = "")
+        public void Send(string messageText, string roomId = defaultRoomId, string recipientName = "")
         {
             ApplicationUser recipient;
-            var messageIsValid = ValidateMessage(messageText, out recipient);
+            var messageIsValid = ValidateMessage(messageText, recipientName, out recipient);
 
             if (messageIsValid)
             {
@@ -41,10 +50,20 @@ namespace Magic.Hubs
                 var message = new ChatMessage(messageText)
                 {
                     Sender = context.Users.Find(userId),
+                    Recipient = recipient,
                     Message = messageText
                 };
 
-                AddMessageToChatLog(message, roomId);
+                var chatRoom = context.ChatRooms.Find(roomId);
+                if (recipient != null && chatRoom == null)
+                {
+                    // Create new chat room if no id was given for private conversation.
+                    chatRoom = new ChatRoom() { Name = recipientName };
+                }
+
+                    // Add message to chatlog in correct room.
+                    chatRoom.Log.Messages.Add(message);
+                    context.Update(chatRoom);
 
                 // Depending on settings, use callback method to update clients.
                 if (recipient == null)
@@ -82,7 +101,7 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = "")
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = defaultRoomId)
         {
             var message = new ChatMessage()
             {
@@ -118,11 +137,12 @@ namespace Magic.Hubs
             }
         }
 
-        private bool ValidateMessage(string messageText, out ApplicationUser recipient)
+        private bool ValidateMessage(string messageText, string recipientName, out ApplicationUser recipient)
         {
             if (messageText.Length > 0)
             {
-                var recipientName = DecodeRecipient(messageText, out recipient);
+                //var recipientName = DecodeRecipient(messageText, out recipient);
+                recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
 
                 if (recipientName.Length > 0 && recipient == null)
                 {
@@ -299,7 +319,8 @@ namespace Magic.Hubs
                 foundUser.Connections.Add(connection);
                 context.Update(foundUser);
 
-                ToggleChatRoomsSubscription(connection);
+                // Causes primary key conflict on connection :(
+                //ToggleChatRoomsSubscription(connection);
 
                 if (foundUser.Connections.Count == 1)
                 {
@@ -371,7 +392,7 @@ namespace Magic.Hubs
         #endregion CONNECTION STATUS UPDATE
 
         #region CHATLOG HANDLING
-        public static IList<ChatMessage> GetRecentChatLog(string roomId = "")
+        public static IList<ChatMessage> GetRecentChatLog(string roomId = defaultRoomId)
         {
             //// TODO: Filter private/game/other messages.
             //ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
@@ -404,7 +425,7 @@ namespace Magic.Hubs
             }
         }
 
-        private static void AddMessageToChatLog(ChatMessage message, string roomId = "")
+        private static void AddMessageToChatLog(ChatMessage message, string roomId = defaultRoomId)
         {
             var chatRoom = context.ChatRooms.Find(roomId);
             chatRoom.Log.Messages.Add(message);
