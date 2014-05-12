@@ -14,7 +14,7 @@ namespace Magic.Controllers
     [System.Web.Mvc.Authorize]
     public class GameController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
         // Constructor with predefined player list.
         //public GameController(IList<string> playerIdList = null)
         //{

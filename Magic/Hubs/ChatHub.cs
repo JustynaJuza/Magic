@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using Magic.Models;
@@ -14,15 +13,15 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        public static const string defaultRoomId = "00000000-0000-0000-0000-000000000000";
-        private static MagicDBContext context = new MagicDBContext();
+        public const string DefaultRoomId = "00000000-0000-0000-0000-000000000000";
+        private static MagicDbContext context = new MagicDbContext();
 
         #region CHAT INIT
-        public void listChatRooms() {
+        public void ListChatRooms() {
             Json.Encode(context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == Context.User)));
         }
 
-        public void getChatRoomUsers(string roomId = defaultRoomId) {
+        public void GetChatRoomUsers(string roomId = DefaultRoomId) {
             var room = context.ChatRooms.Find(roomId);
 
             var chatUsers = new List<ChatUserViewModel>();
@@ -33,13 +32,13 @@ namespace Magic.Hubs
             Json.Encode(chatUsers);
         }
 
-        public void addChatRoom() { 
+        public void AddChatRoom() { 
             
         }
         #endregion CHAT INIT
 
         #region CHAT MESSAGE HANDLING
-        public void Send(string messageText, string roomId = defaultRoomId, string recipientName = "")
+        public void Send(string messageText, string roomId = DefaultRoomId, string recipientName = "")
         {
             ApplicationUser recipient;
             var messageIsValid = ValidateMessage(messageText, recipientName, out recipient);
@@ -101,9 +100,9 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = defaultRoomId)
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = DefaultRoomId)
         {
-            var message = new ChatMessage()
+            var message = new ChatMessage
             {
                 Sender = context.Users.Find(userId),
                 Message = UserStatusBroadcastMessage(status)
@@ -111,7 +110,7 @@ namespace Magic.Hubs
             message.Sender.Status = status;
             context.Update(message.Sender, true);
 
-            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             if (roomName.Length > 0)
             {
                 chatHubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
@@ -139,47 +138,32 @@ namespace Magic.Hubs
 
         private bool ValidateMessage(string messageText, string recipientName, out ApplicationUser recipient)
         {
-            if (messageText.Length > 0)
+            recipient = null;
+
+            if (messageText.Length <= 0) return false; // No message text at all.
+            if (recipientName.Length <= 0) return true; // Group chat message.
+
+            // Look for recipient.
+            recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
+            if (recipient == null)
             {
-                //var recipientName = DecodeRecipient(messageText, out recipient);
-                recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
-
-                if (recipientName.Length > 0 && recipient == null)
-                {
-                    // Recipient included but invalid, alert sender.
-                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                        "- no such user found, have you misspelled the name?", recipientName, "#696969");
-                    return false;
-                }
-                else
-                {
-                    if (recipient != null)
-                    {
-                        // Valid recipient found.
-                        if (recipient.Status == UserStatus.Offline)
-                        {
-                            // Valid recipient but is offline, alert sender.
-                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                                "is currently offline and unable to receive messages.", recipient.UserName, recipient.ColorCode);
-                            return false;
-                        }
-                        if (messageText.Length < recipient.UserName.Length + 2)
-                        {
-                            // Valid recipient but no message appended, alert sender.
-                            Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                                "is online but no message was included.", recipient.UserName, recipient.ColorCode);
-                            return false;
-                        }
-                    }
-
-                    // Everything OK.
-                    return true;
-                }
+                // Recipient included but invalid, alert sender.
+                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    "- no such user found, have you misspelled the name?", recipientName, "#696969");
+                return false;
             }
 
-            // No message text at all.
-            recipient = null;
-            return false;
+            // Valid recipient found.
+            if (recipient.Status == UserStatus.Offline)
+            {
+                // Valid recipient but is offline, alert sender.
+                Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    "is currently offline and unable to receive messages.", recipient.UserName,
+                    recipient.ColorCode);
+                return false;
+            }
+
+            return true; // Valid message for recipient.
         }
 
         private string DecodeRecipient(string messageText, out ApplicationUser recipient)
@@ -193,26 +177,12 @@ namespace Magic.Hubs
             recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
             return recipientName;
         }
-
-        //private string DecodeGroup(string messageText)
-        //{
-        //    string groupName = System.Text.RegularExpressions.Regex.Match(messageText, "^$([a-zA-Z]*").Value;
-        //    if (groupName.Length > 0)
-        //    {
-        //        switch (groupName)
-        //        {
-        //            case "$Game":
-        //                return "game";
-        //        }
-        //    }
-        //    return null;
-        //}
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
         public static void ToggleChatRoomsSubscription(ApplicationUserConnection connection, bool activate = true)
         {
-            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.ChatHub>();
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             
             if (activate)
             {
@@ -255,7 +225,7 @@ namespace Magic.Hubs
         {
             var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
-            var message = new ChatMessage()
+            var message = new ChatMessage
             {
                 Sender = foundUser,
                 Message = activate ? " entered the game." : " left the game."
@@ -265,12 +235,12 @@ namespace Magic.Hubs
             {
                 // Set the current connection as game connection.
                 var currentConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var gameConnection = new ApplicationUserGameConnection()
-                    {
+                var gameConnection = new ApplicationUserGameConnection
+                {
                         Id = currentConnection.Id,
                         User = foundUser,
                         //ChatRoom = context.ChatRooms.Find(gameId) ?? new ChatRoom { Id = gameId },
-                        Game = context.Games.Find(gameId) ?? new Game() { Id = gameId }
+                        Game = context.Games.Find(gameId) ?? new Game { Id = gameId }
                     };
 
                 foundUser.Connections.Remove(currentConnection);
@@ -310,7 +280,7 @@ namespace Magic.Hubs
 
             if (foundUser != null)
             {
-                var connection = new ApplicationUserConnection()
+                var connection = new ApplicationUserConnection
                 {
                     Id = Context.ConnectionId,
                     User = foundUser
@@ -325,7 +295,7 @@ namespace Magic.Hubs
                 if (foundUser.Connections.Count == 1)
                 {
                     // If this is the user's only connection broadcast a chat info.
-                    ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                    UserStatusBroadcast(userId, UserStatus.Online);
                 }
 
             }
@@ -342,7 +312,7 @@ namespace Magic.Hubs
             {
                 if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
                 {
-                    foundUser.Connections.Add(new ApplicationUserConnection()
+                    foundUser.Connections.Add(new ApplicationUserConnection
                     {
                         Id = Context.ConnectionId,
                         User = foundUser
@@ -353,7 +323,7 @@ namespace Magic.Hubs
                 if (foundUser.Connections.Count == 1)
                 {
                     // If this is the user's only connection broadcast a chat info.
-                    ChatHub.UserStatusBroadcast(userId, UserStatus.Online);
+                    UserStatusBroadcast(userId, UserStatus.Online);
                 }
             }
 
@@ -370,7 +340,7 @@ namespace Magic.Hubs
                 if (connection.User.Connections.Count == 1)
                 {
                     // If this is the user's last connection broadcast a chat info.
-                    ChatHub.UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
+                    UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
                 }
 
                 ToggleChatRoomsSubscription(connection, false);
@@ -392,7 +362,7 @@ namespace Magic.Hubs
         #endregion CONNECTION STATUS UPDATE
 
         #region CHATLOG HANDLING
-        public static IList<ChatMessage> GetRecentChatLog(string roomId = defaultRoomId)
+        public static IList<ChatMessage> GetRecentChatLog(string roomId = DefaultRoomId)
         {
             //// TODO: Filter private/game/other messages.
             //ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
@@ -414,18 +384,16 @@ namespace Magic.Hubs
                 todayLog.AppendMessages(currentLog.Messages);
                 return context.Update(todayLog, true);
             }
-            else
+
+            // Create new log for Today.
+            todayLog = new ChatLog
             {
-                // Create new log for Today.
-                todayLog = new ChatLog()
-                {
-                    Messages = currentLog.Messages
-                };
-                return context.Create(todayLog);
-            }
+                Messages = currentLog.Messages
+            };
+            return context.Create(todayLog);
         }
 
-        private static void AddMessageToChatLog(ChatMessage message, string roomId = defaultRoomId)
+        private static void AddMessageToChatLog(ChatMessage message, string roomId = DefaultRoomId)
         {
             var chatRoom = context.ChatRooms.Find(roomId);
             chatRoom.Log.Messages.Add(message);

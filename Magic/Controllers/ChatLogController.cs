@@ -13,7 +13,7 @@ namespace Magic.Controllers
 {
     public class ChatLogController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
 
 		[HttpGet]
         public ActionResult Index()

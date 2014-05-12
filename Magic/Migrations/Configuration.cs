@@ -7,7 +7,7 @@ namespace Magic.Migrations
     using Magic.Hubs;
     using Magic.Models;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Magic.Models.DataContext.MagicDBContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<Magic.Models.DataContext.MagicDbContext>
     {
         public Configuration()
         {
@@ -16,14 +16,14 @@ namespace Magic.Migrations
             ContextKey = "Magic.Models.DataContext.MagicDBContext";
         }
 
-        protected override void Seed(Magic.Models.DataContext.MagicDBContext context)
+        protected override void Seed(Magic.Models.DataContext.MagicDbContext context)
         {
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 context.CardColors.AddOrUpdate(new CardColor { Color = color });
             }
 
-            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = ChatHub.defaultRoomId, Name = "General" });
+            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = ChatHub.DefaultRoomId, Name = "General" });
         }
     }
 }

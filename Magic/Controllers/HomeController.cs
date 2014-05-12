@@ -11,7 +11,7 @@ namespace Magic.Controllers
 {
     public class HomeController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
 
         public ActionResult Index()
         {

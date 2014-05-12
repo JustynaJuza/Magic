@@ -14,7 +14,7 @@ namespace Magic.Hubs
     [Authorize]
     public class GameHub : Hub
     {
-        private static MagicDBContext context = new MagicDBContext();
+        private static MagicDbContext context = new MagicDbContext();
 
         public void TogglePlayerReady(string gameId = "")
         {

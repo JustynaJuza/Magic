@@ -18,7 +18,7 @@ namespace Magic
         protected void Application_Start()
         {
             // Initialise database.
-            System.Data.Entity.Database.SetInitializer<Magic.Models.DataContext.MagicDBContext>(null);
+            System.Data.Entity.Database.SetInitializer<MagicDbContext>(null);
 
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

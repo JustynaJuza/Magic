@@ -12,7 +12,7 @@ namespace Magic.Controllers
 {   
     public class PlayersController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
 
         [HttpGet]
         public ViewResult Index()

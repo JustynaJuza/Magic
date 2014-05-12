@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Data.Entity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Magic.Models.DataContext
 {
-    public class MagicDBContext : IdentityDbContext<ApplicationUser>
+    public class MagicDbContext : IdentityDbContext<ApplicationUser>
     {
-        public MagicDBContext() : base("MagicDB") { }
+        public MagicDbContext() : base("MagicDB") { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -46,8 +43,8 @@ namespace Magic.Models.DataContext
         {
             //try
             //{
-                this.Entry(item).State = EntityState.Added;
-                this.SaveChanges();
+                Entry(item).State = EntityState.Added;
+                SaveChanges();
             //}
             //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             //{
@@ -71,10 +68,9 @@ namespace Magic.Models.DataContext
         public object Read(Object item)
         {
             Type collectionType = item.GetType();
-            DbSet targetCollection = this.Set(collectionType);
+            DbSet targetCollection = Set(collectionType);
 
-            var itemKeyInfo = (collectionType.GetProperty("Id") != null ? collectionType.GetProperty("Id")
-                : collectionType.GetProperty("DateCreated") != null ? collectionType.GetProperty("DateCreated") : null);
+            var itemKeyInfo = collectionType.GetProperty("Id") ?? collectionType.GetProperty("DateCreated");
             var itemKey = itemKeyInfo.GetValue(item);
 
             var foundItem = targetCollection.Find(itemKey);
@@ -92,14 +88,14 @@ namespace Magic.Models.DataContext
             if (!updateOnly)
             {
                 foundItem = Read(item);
-                if (foundItem.GetType() == typeof(string))
+                if (foundItem is string)
                     return (string) foundItem; // Error string returned.
             }
 
             //try
             //{
-                this.Entry(foundItem).CurrentValues.SetValues(item);
-                this.SaveChanges();
+                Entry(foundItem).CurrentValues.SetValues(item);
+                SaveChanges();
             //}
             //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             //{
@@ -126,14 +122,14 @@ namespace Magic.Models.DataContext
             if (!deleteOnly)
             {
                 foundItem = Read(item);
-                if (foundItem.GetType() == typeof(string))
+                if (foundItem is string)
                     return (string) foundItem; // Error string returned.
             }
 
             //try
             //{
-                this.Entry(foundItem).State = EntityState.Deleted;
-                this.SaveChanges();
+                Entry(foundItem).State = EntityState.Deleted;
+                SaveChanges();
             //}
             //catch (Exception ex)
             //{

@@ -13,7 +13,7 @@ namespace Magic.Controllers
     [Authorize]
     public class CardsController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
 
         [HttpGet]
         public ViewResult Index()

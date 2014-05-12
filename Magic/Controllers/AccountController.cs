@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Magic.Models.Helpers;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
@@ -19,12 +20,12 @@ namespace Magic.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        private MagicDBContext context = new MagicDBContext();
+        private MagicDbContext context = new MagicDbContext();
 
         public UserManager<ApplicationUser> UserManager { get; private set; }
         public AccountController()
         {
-            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDBContext()));
+            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDbContext()));
         }
 
         #region REGISTER
@@ -292,7 +293,7 @@ namespace Magic.Controllers
         public ActionResult ManageUserColor()
         {
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
-            foundUser.AssignRandomColorCode();
+            foundUser.ColorCode.AssignRandomColorCode();
 
             TempData["Error"] = context.Update(foundUser);
             return RedirectToAction("Manage");
