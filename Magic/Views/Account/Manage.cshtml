@@ -20,15 +20,9 @@
 
         @Html.Partial("_ManageDetailsPartial", Model, (ViewDataDictionary) ViewBag.DetailsViewData)
 
-        @if (ViewBag.HasLocalPassword)
-        {
-            @Html.Partial("_ManagePasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
-        }
-        else
-        {
-            @Html.Partial("_ManageNewPasswordPartial", new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary) ViewBag.PasswordViewData)
-        }
-
+        @Html.Partial((ViewBag.HasLocalPassword ? "_ManagePasswordPartial" : "_ManageNewPasswordPartial"), 
+            new Magic.Models.ManagePasswordViewModel(), (ViewDataDictionary)ViewBag.PasswordViewData)
+            
         <section id="externalLogins">
             @Html.Action("RemoveAccountList")
             @if (ViewBag.LoginProviders != null)

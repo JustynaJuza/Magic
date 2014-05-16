@@ -277,14 +277,8 @@ namespace Magic.Controllers
                 ViewBag.ImageViewData = TempData["ImageViewData"];
 
             // Determine with which loginProviders user can still associate.
-            List<AuthenticationDescription> loginProviders = new List<AuthenticationDescription>();
-            foreach (var provider in HttpContext.ApplicationInstance.Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes().ToList())
-            {
-                if (!foundUser.Logins.Any(l => l.LoginProvider == provider.AuthenticationType))
-                {
-                    loginProviders.Add(provider);
-                }
-            }
+            var availableLoginProviders = HttpContext.ApplicationInstance.Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+            var loginProviders = availableLoginProviders.Where(provider => foundUser.Logins.All(l => l.LoginProvider != provider.AuthenticationType)).ToList();
             ViewBag.LoginProviders = loginProviders.Count > 0 ? loginProviders : null;
 
             return View(foundUser.GetViewModel());

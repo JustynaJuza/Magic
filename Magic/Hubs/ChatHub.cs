@@ -180,20 +180,19 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public static void ToggleChatRoomsSubscription(ApplicationUserConnection connection, bool activate = true)
+        public void ToggleChatRoomsSubscription(ApplicationUserConnection connection, bool activate = true)
         {
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             
             if (activate)
             {
-                var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == connection.User));
+                var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User.Id == connection.User.Id));
                 foreach(var chatRoom in chatRooms){
                     chatRoom.UserConnections.Add(connection);
                     context.Update(chatRoom);
 
                     chatHubContext.Groups.Add(connection.Id, chatRoom.Id);
                 }
-
             }
             else
             {
@@ -282,15 +281,14 @@ namespace Magic.Hubs
             {
                 var connection = new ApplicationUserConnection
                 {
-                    Id = Context.ConnectionId,
-                    User = foundUser
+                    Id = Context.ConnectionId
                 };
                 //foundUser.Status = UserStatus.Online;
                 foundUser.Connections.Add(connection);
                 context.Update(foundUser);
 
                 // Causes primary key conflict on connection :(
-                //ToggleChatRoomsSubscription(connection);
+                ToggleChatRoomsSubscription(connection);
 
                 if (foundUser.Connections.Count == 1)
                 {
