@@ -11,6 +11,7 @@ namespace Magic.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+        [DisplayFormat(NullDisplayText = "Never connected")]
         public DateTime? LastLoginDate { get; set; }
         public string Title { get; set; }
         public UserStatus Status { get; set; }
