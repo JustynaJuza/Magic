@@ -1,0 +1,42 @@
+﻿@model Magic.Models.LandingPages.VideoPanel
+@{ var i = 0; }
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.VideoImageUrl)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.VideoImageUrl, "UploadImage")
+    @Html.ValidationMessageFor(m => m.VideoImageUrl)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.VideoUrl)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.VideoUrl)
+    @Html.ValidationMessageFor(m => m.VideoUrl)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.VideoDescription)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.VideoDescription)
+    @Html.ValidationMessageFor(m => m.VideoDescription)
+</div>
+
+<div class="accordion">
+    <div class="accordion-header">
+        <h5>Picture Bar</h5><hr />
+    </div>
+    <div id="animationFrames_@ViewData["tileIndex"]">
+    @while (i < Model.PictureBar.Count)
+    {
+            @Html.EditorFor(m => m.PictureBar[i].ImageUrl, "UploadImage")
+            @Html.ValidationMessageFor(m => m.PictureBar[i].ImageUrl)
+        i++;
+    }
+    </div>
+</div>

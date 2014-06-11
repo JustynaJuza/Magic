@@ -1,0 +1,132 @@
+﻿<style>
+    #overlay {
+        position: fixed;
+        z-index: 99;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: #000000;
+        overflow: hidden;
+        /*filter: alpha(opacity=10);*/
+        opacity: 0.1;
+    }
+
+    .dialog {
+        position: absolute;
+        border: 2px solid #000000;
+        display: none;
+        left: 50%;
+        margin-left: -250px;
+        width: 500px;
+        height: 50px;
+        background-color: #ffffff;
+        z-index: 100;
+    }
+
+    #file-uploader {
+        text-align: center;
+    }
+    
+     /*input[type='file'] {
+        color: transparent;
+    }*/
+    /*<div> <input type='file'/ > <span id='val' > </span > <span id='button' > Select File</span > </div >*/
+    /*$('#button').click(function(){
+   $("input[type='file']").trigger('click');
+})
+
+$("input[type='file']").change(function(){
+   $('#val').text(this.value.replace(/C:\\fakepath\\/i, ''))
+})  */
+
+</style>
+
+<div id="overlay" style="display:none"></div>
+
+<div id="file-uploader" class="dialog">
+
+        @Html.TextBox("file", "Select a file...", new { type = "file", id = "selected-file" })
+        <input type="hidden" id="file-property-id" value="" />
+        <input type="button" id="upload-btn" value="Upload" class="btn btn-warning" />
+        <input type="button" id="cancel-upload-btn" value="Cancel" class="btn btn-inverse" />
+
+        <script>
+            $(function () {
+                $(document).on('click', '.upload-delete', deleteImage);
+                function deleteImage() {
+                    $(this).closest('.editor-field').find('img').remove();
+                    $(this).prev().prev().prop('value', '');
+                }
+
+                // TRIGGER UPLOADER -------------------------------- START
+                $(document).on('click', '.upload', showFileUploader);
+                
+                function showFileUploader() {
+                    $('#file-property-id').prop('value', $(this).prev().prop('id'));
+                    $('#overlay').show();  
+                    moveToScroll('#file-uploader');
+                    $('#file-uploader').show();
+
+                    function moveToScroll(element) {
+                        var pTop = $(window).scrollTop();
+                        $(element).css('top', pTop + 200 + 'px');
+                        //$(element).css('left', parseInt((pageWidth / 2) - (elementWidth / 2)) + 'px');
+                    }
+                };
+                // TRIGGER UPLOADER -------------------------------- START
+
+                $('#cancel-upload-btn').click(closeDialog);
+
+                $('#upload-btn').click(function () {
+                    if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+                        alert('Unfortunately, the file upload is not fully supported in this browser, please update to a newer version.');
+                        return;
+                    }
+
+                    var fileInput = document.getElementById('selected-file');
+                    if (!fileInput.files.length) {
+                        alert('You must select a file to upload.');
+                        return;
+                    }
+
+                    sendFile(fileInput.files[0]);
+                });
+
+                function closeDialog() {
+                    $('#overlay').hide();
+                    $('#dialog').hide();
+                }
+
+                function sendFile(file) {
+                    var uri = '@Url.Action("UploadFile")';
+                    var xhr = new XMLHttpRequest();
+                    var fd = new FormData();
+
+                    xhr.open("POST", uri, true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            if (xhr.responseText[0] == '~') {
+                                var targetPropertyId = $('#file-property-id').prop('value');
+                                $('#file-property-id').prop('value', '');
+                                $('#selected-file').prop('value', '');
+                                var $targetProperty = $('#' + targetPropertyId);
+                                $targetProperty.prop('value', xhr.responseText);
+                                $targetProperty.closest('.editor-field').find('img').remove();
+                                $targetProperty.closest('.editor-field').prepend('<img src="' + BasePath + xhr.responseText.substr(1) + '" alt="" />');
+                                closeDialog();
+                            } else {
+                                alert(xhr.responseText);
+                            }
+                        }
+                    };
+                    fd.append('file', file);
+                    fd.append('uploadPath', '@ViewData["uploadPath"]');
+                    // Initiate a multipart/form-data upload
+                    xhr.send(fd);
+                }
+            });
+        </script>
+</div>

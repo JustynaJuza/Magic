@@ -14,6 +14,9 @@ namespace Magic
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                        "~/Scripts/jquery-ui-{version}.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jquerycolor").Include(
                         "~/Scripts/jquery.color-{version}.js"));
 
@@ -30,6 +33,7 @@ namespace Magic
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
+                      "~/Content/jquery-ui-{version}.css",
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
         }

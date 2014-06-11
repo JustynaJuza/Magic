@@ -1,0 +1,6 @@
+﻿@model Autographer.Models.LandingPages.PictureTile.AnimationFrame
+@{
+    var namePrefix = "Panels[" + (string)ViewBag.panelIndex + "].Tiles[" + (string)ViewBag.tileIndex + "].AnimationFrames[" + (string)ViewBag.frameIndex + "]";
+}
+
+@Html.EditorFor(m => m, "AnimationFrame", namePrefix)

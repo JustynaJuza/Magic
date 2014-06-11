@@ -13,12 +13,22 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        public const string DefaultRoomId = "00000000-0000-0000-0000-000000000000";
+        public const string DefaultRoomId = "default";
         private static MagicDbContext context = new MagicDbContext();
 
         #region CHAT INIT
         public void ListChatRooms() {
             Json.Encode(context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == Context.User)));
+        }
+
+        public void SubscribeChatRoom(string roomId = DefaultRoomId)
+        {
+            var chatRoom = context.ChatRooms.Find(roomId);
+            var connection = context.Connections.Find(Context.ConnectionId);
+
+            chatRoom.UserConnections.Add(connection);
+            context.Update(chatRoom);
+            Groups.Add(connection.Id, chatRoom.Id);
         }
 
         public void GetChatRoomUsers(string roomId = DefaultRoomId) {
@@ -29,7 +39,7 @@ namespace Magic.Hubs
                 chatUsers.Add(new ChatUserViewModel(connection.User));
             }
 
-            Json.Encode(chatUsers);
+            Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
         }
 
         public void AddChatRoom() { 
@@ -180,10 +190,11 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public void ToggleChatRoomsSubscription(ApplicationUserConnection connection, bool activate = true)
+        public void ToggleChatRoomsSubscription(string connectionId, bool activate = true)
         {
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-            
+            var connection = context.Connections.Find(connectionId);
+
             if (activate)
             {
                 var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User.Id == connection.User.Id));
@@ -195,7 +206,7 @@ namespace Magic.Hubs
                 }
             }
             else
-            {
+            { 
                 var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.Id == connection.Id));
                 foreach(var chatRoom in chatRooms){
                     chatRoom.UserConnections.Remove(connection);
@@ -217,12 +228,13 @@ namespace Magic.Hubs
             //    chatUsers.Add(new ChatUserViewModel(user));
             //}
 
-            chatHubContext.Clients.All.updateChatRoomUser(connection.User.UserName, connection.User.ColorCode);
+            //TODO: Notify chatrooms to refresh user list?
+            chatHubContext.Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);;
         }
 
         public async void ToggleGameChatSubscription(string gameId, bool activate)
         {
-            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
             var message = new ChatMessage
             {
@@ -274,11 +286,9 @@ namespace Magic.Hubs
         #region CONNECTION STATUS UPDATE
         public override Task OnConnected()
         {
-            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
 
-            if (foundUser != null)
-            {
                 var connection = new ApplicationUserConnection
                 {
                     Id = Context.ConnectionId
@@ -287,8 +297,7 @@ namespace Magic.Hubs
                 foundUser.Connections.Add(connection);
                 context.Update(foundUser);
 
-                // Causes primary key conflict on connection :(
-                ToggleChatRoomsSubscription(connection);
+                ToggleChatRoomsSubscription(Context.ConnectionId);
 
                 if (foundUser.Connections.Count == 1)
                 {
@@ -296,27 +305,29 @@ namespace Magic.Hubs
                     UserStatusBroadcast(userId, UserStatus.Online);
                 }
 
-            }
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
 
         public override Task OnReconnected()
         {
-            var userId = Context.Request.GetHttpContext().User.Identity.GetUserId();
+            var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
 
             if (foundUser != null)
             {
-                if (foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId) == null)
+                if (!foundUser.Connections.Any(c => c.Id == Context.ConnectionId))
                 {
+                    System.Diagnostics.Debug.WriteLine("Reconnected: creating new connection:" + Context.ConnectionId);
                     foundUser.Connections.Add(new ApplicationUserConnection
                     {
-                        Id = Context.ConnectionId,
-                        User = foundUser
+                        Id = Context.ConnectionId
                     });
                     context.Update(foundUser);
                 }
+
+                System.Diagnostics.Debug.WriteLine("Reconnected: without creating new connection:" + Context.ConnectionId);
+                //ToggleChatRoomsSubscription(Context.ConnectionId, false);
 
                 if (foundUser.Connections.Count == 1)
                 {
@@ -325,7 +336,6 @@ namespace Magic.Hubs
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine("Reconnected: " + Context.ConnectionId);
             return base.OnReconnected();
         }
 
@@ -341,15 +351,14 @@ namespace Magic.Hubs
                     UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
                 }
 
-                ToggleChatRoomsSubscription(connection, false);
+                ToggleChatRoomsSubscription(Context.ConnectionId, false);
 
-                if (connection.GetType() == typeof(ApplicationUserGameConnection))
-                {
-                    //ToggleGameChatSubscription(connection.ChatRoomId, false);
-                    //GameHub.DisplayUserLeft(connection.User.UserName, connection.ChatRoomId);
-                    GameHub.LeaveGame((ApplicationUserGameConnection) connection);
-                }
-
+                //if (connection.GetType() == typeof(ApplicationUserGameConnection))
+                //{
+                //    //ToggleGameChatSubscription(connection.ChatRoomId, false);
+                //    //GameHub.DisplayUserLeft(connection.User.UserName, connection.ChatRoomId);
+                //    GameHub.LeaveGame((ApplicationUserGameConnection) connection);
+                //}
 
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
                 context.Delete(connection);

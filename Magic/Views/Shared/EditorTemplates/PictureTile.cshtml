@@ -1,0 +1,56 @@
+﻿@model Magic.Models.LandingPages.PictureTile
+@{ var i = 0; }
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.Colour)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.Colour)
+    @Html.ValidationMessageFor(m => m.Colour)
+</div>
+
+
+<input type="button" id="AddAnimationFrame_@ViewData["tileIndex"]" name="AddAnimationFrame_@ViewData["tileIndex"]" value="Add a frame" class="btn btn-warning"/>
+<input type="button" id="RemoveAnimationFrame_@ViewData["tileIndex"]" name="RemoveAnimationFrame_@ViewData["tileIndex"]" value="Remove last frame" class="btn btn-danger"/>
+
+<div class="accordion">
+    <div class="accordion-header">
+        <h5>Animation Frames</h5><hr />
+    </div>
+    <div id="animationFrames_@ViewData["tileIndex"]">
+    @while (i < Model.AnimationFrames.Count)
+    {
+            @Html.EditorFor(m => m.AnimationFrames[i].ImageUrl, "UploadImage")
+            @Html.ValidationMessageFor(m => m.AnimationFrames[i])
+        i++;
+    }
+    </div>
+</div>
+
+<script>
+    var i = '@i';
+    $('#AddAnimationFrame_@ViewData["tileIndex"]').click(function () {
+        $.ajax({
+            url: '@Url.Action("AddAnimationFramePartial")',
+            data: {
+                panelIndex: '@ViewData["panelIndex"]',
+                tileIndex: '@ViewData["tileIndex"]',
+                frameIndex: i
+            },
+            type: 'POST',
+            success: function (data) {
+                i++;
+                $('#animationFrames_@ViewData["tileIndex"]').append(data);
+            }
+        });
+    });
+
+    $('#RemoveAnimationFrame_@ViewData["tileIndex"]').click(function () {
+        if (i > 0) {
+            i--;
+        }
+                $('#animationFrames_@ViewData["tileIndex"] div:last').remove();
+        });
+</script>

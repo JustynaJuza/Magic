@@ -15,7 +15,7 @@
     <AssemblyName>Magic</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -178,6 +178,7 @@
     <Compile Include="Controllers\HomeController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\LandingPagesController.cs" />
     <Compile Include="Controllers\PlayersController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
@@ -202,6 +203,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\Users\Bartek.jpg" />
     <Content Include="Content\Images\Users\Justyna.jpg" />
+    <Content Include="Content\jquery-ui-1.10.4.css" />
+    <Content Include="Content\jquery-ui-1.10.4.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -211,6 +214,8 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Scripts\jquery-ui-1.10.4.js" />
+    <Content Include="Scripts\jquery-ui-1.10.4.min.js" />
     <Content Include="Scripts\jquery.color-2.1.2.js" />
     <Content Include="Scripts\jquery.color-2.1.2.min.js" />
     <Content Include="Scripts\jquery.color.svg-names-2.1.2.js" />
@@ -229,9 +234,11 @@
     <Content Include="Scripts\_bootstrap.js" />
     <Content Include="Scripts\_bootstrap.min.js" />
     <Content Include="Scripts\_chat.js" />
+    <Content Include="Scripts\_cms-landing-pages.js" />
     <Content Include="Scripts\_game.js" />
     <Content Include="Scripts\_general.js" />
     <Content Include="Scripts\_hub-start.js" />
+    <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
@@ -244,10 +251,16 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\LandingPages\CreateEdit.aspx" />
+    <Content Include="Views\LandingPages\Delete.aspx" />
+    <Content Include="Views\LandingPages\Index.aspx" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Shared\_TableControlsPartial.ascx" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -278,10 +291,21 @@
     <Content Include="Views\_Cards\Edit.cshtml" />
     <Content Include="Views\_Cards\Index.cshtml" />
     <Content Include="Views\_Cards\_CreateOrEdit.cshtml" />
+    <Content Include="Views\LandingPages\_AjaxUploadFilePartial.cshtml" />
+    <Content Include="Views\LandingPages\_AnimationFramePartial.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\AnimationFrame.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ArticlePanel.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\FormPanel.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\IntroPanel.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\PicturePanel.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\PictureTile.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\SimpleTile.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\UploadImage.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\VideoPanel.cshtml" />
+    <Content Include="Views\Shared\CMS.Master" />
+    <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Shared\EditorTemplates\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
@@ -291,7 +315,6 @@
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\underscore-min.map" />
-    <None Include="Scripts\_references.js" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Magic.Models\Magic.Models.csproj">
@@ -322,7 +345,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>53797</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/Magic</IISUrl>
+          <IISUrl>http://localhost:7313/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

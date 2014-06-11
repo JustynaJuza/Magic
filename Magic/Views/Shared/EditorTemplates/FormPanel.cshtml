@@ -1,0 +1,11 @@
+﻿@model Magic.Models.LandingPages.FormPanel
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.RegistrationCode)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.RegistrationCode)
+    @Html.ValidationMessageFor(m => m.RegistrationCode)
+</div>

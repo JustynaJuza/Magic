@@ -5,7 +5,7 @@
         $chatMessagesContainer = $('#chat-messages-container'),
         $chatMessages = $('#chat-messages'),
         $chatMessage = $('.chat-message'),
-        $chatRoomSelection = $('.chat-room-selection'),
+        $chatRoomSelection = $('#chat-room-selection'),
         $chatRoomSelectList = $('#chat-room-selectlist'),
         $chatRoomUsersSelectList = $('#chat-room-users-selectlist')
         //$chatRoomUsersSelection = 
@@ -20,24 +20,24 @@
     adjustNewMessageElementPadding();
     adjustRoomTabs();
 
-    function ChatRoomUsers(chatUsersHtml, roomId, roomId) {
+    function ChatRoomUsers(chatUsersHtml, roomId, roomName) {
         /// <summary>Creates an object storing the chat room user list related identified by room name, can also be used as clone constructor.</summary>
         /// <param name="chatUsersHtml" type="String" optional="false">The chat room related user list in HTML markup.</param>
         /// <param name="roomId" type="String">The chat room identifier.</param>
-        /// <param name="roomId" type="String" optional="false">The chat room display name.</param>
-        /// <returns type="ChatRoomUsers">An object storing the chat room user list related identified by room name.</returns>
+        /// <param name="roomName" type="String" optional="false">The chat room display name.</param>
+        /// <returns type="ChatRoomUsers">An object storing the related chat room user list identified by room name.</returns>
         /// <field name="chatUsersHtml" type="String">The chat room related user list in HTML markup.</field>
         /// <field name="roomId" type="String">The chat room identifier.</field>
-        /// <field name="roomId" type="String">The chat room display name.</field>
+        /// <field name="roomName" type="String">The chat room display name.</field>
         if (arguments.length > 1){
             this.chatUsersHtml = chatUsersHtml;
             this.roomId = roomId;
-            this.roomId = roomId;
+            this.roomName = roomName;
         }
         else {
             this.chatUsersHtml = arguments[0].chatUsersHtml;
             this.roomId = arguments[0].roomId;
-            this.roomId = arguments[0].roomId;
+            this.roomName = arguments[0].roomName;
         }
     }
 
@@ -48,15 +48,21 @@
 
     // Initialize chat handling.
     window.chat.initialize = function initializeChat() {
+        chat.server.subscribeChatRoom('default');
+        chat.server.getChatRoomUsers('default');
+
         $chatSendButton.click(function () {
-            if ($chatRoomSelection.prop('id').length) {
-            alert(true)}
-            var newChatRoom = _.find(window.chatRoomUsers, function (element, index) {
-                return element.roomId == $chatRoomSelection.prop('id');
+            var currentChatRoomId = $chatRoomSelection.attr('data-chatRoomId');
+            var recipient = $chatRoomSelection.attr('data-recipient');
+            var chatRoomSaved = _.any(window.chatRoomUsers, function (element, index) {
+                return element.roomId == currentChatRoomId;
             });
+            if (currentChatRoomId.length && !chatRoomSaved){
+                window.chatRoomUsers.push(new ChatRoomUsers('', currentChatRoomId));
+            }
 
             // Call the message sending method on server.
-            chat.server.send($newChatMessage.val(), "");
+            chat.server.send($newChatMessage.val(), currentChatRoomId, recipient);
             // Clear text box and reset focus for next comment.
             $newChatMessage.val('').focus();
         });
@@ -76,7 +82,7 @@
     // Hub callback for updating chat user list on each change.
     chat.client.updateChatRoomUsers = function (chatUsers, roomId) {
         chatUsers = $.parseJSON(chatUsers);
-        var updatedChatUsersHtml = '<ul id="chat-users" style="list-style-type: none; margin:0px">';
+        var updatedChatUsersHtml = '<ul id="chat-users">';
         for (var i = 0; i < chatUsers.length; i++) {
             updatedChatUsersHtml += '<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>';
         }
@@ -247,7 +253,12 @@
         $chatRoomSelectList.toggle();
     });
 
-    $(document).on('click', '#chat-room-selectlist li, .chat-message-sender, .chat-user', function () {
+    $chatRoomSelectList.select(function () {
+        alert('select in list changed')
+        activeChatRoom = $chatRoomSelection.prop('id');
+    });
+
+    $(document).on('dblclick', '#chat-room-selectlist li, .chat-message-sender, .chat-user', function () {
         $chatRoomSelectList.hide();
         $chatRoomSelection.val($(this).text());
         var roomId = $(this).prop('id');

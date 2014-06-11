@@ -1,0 +1,18 @@
+﻿@model Magic.Models.LandingPages.PicturePanel
+@{ var i = 0; }
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="accordion">
+    @while (i < Model.Tiles.Count)
+{
+    <div class="accordion-header">
+        <h4>Picture Tile</h4><hr />
+    </div>
+        <div>
+            @Html.EditorFor(m => m.Tiles[i], "PictureTilePanel", new { tileIndex = i })
+            @Html.ValidationMessageFor(m => m.Tiles[i])
+        </div>
+        i++;
+    }
+</div>

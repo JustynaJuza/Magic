@@ -1,0 +1,50 @@
+﻿@model Magic.Models.LandingPages.ArticlePanel
+@{ var i = 0; }
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.LeftQuote)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.LeftQuote)
+    @Html.ValidationMessageFor(m => m.LeftQuote)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.LeftQuoteAuthor)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.LeftQuoteAuthor)
+    @Html.ValidationMessageFor(m => m.LeftQuoteAuthor)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.RightQuote)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.RightQuote)
+    @Html.ValidationMessageFor(m => m.RightQuote)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.RightQuoteAuthor)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.RightQuoteAuthor)
+    @Html.ValidationMessageFor(m => m.RightQuoteAuthor)
+</div>
+
+<div class="accordion">
+    @while (i < Model.Tiles.Count)
+{
+    <div class="accordion-header">
+        <h4>Article Tile</h4><hr />
+    </div>
+        <div class="editor-field">
+            @Html.EditorFor(m => m.Tiles[i], "SimpleTile")
+            @Html.ValidationMessageFor(m => m.Tiles[i])
+        </div>
+        i++;
+    }
+</div>

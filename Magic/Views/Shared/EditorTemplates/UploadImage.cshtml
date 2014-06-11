@@ -1,0 +1,12 @@
+﻿@model string
+
+@if (Model != null)
+{
+    <img src="@Url.Content(Model)" alt="" />
+}
+
+<div id="upload-controls" style="display: block">
+    @Html.HiddenFor(m => m)
+    <input type="button" value="Upload" class="btn btn-warning upload" />
+    <input type="button" value="Delete" class="btn btn-danger upload-delete" />
+</div>

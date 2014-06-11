@@ -1,0 +1,43 @@
+﻿@model Magic.Models.LandingPages.IntroPanel
+
+@Html.Partial("_TilePanelPartial", (Magic.Models.LandingPages.LandingPagePanel)Model)
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.UpperImageUrl)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.UpperImageUrl, "UploadImage")
+    @Html.ValidationMessageFor(m => m.UpperImageUrl)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.UpperImageDescription)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.UpperImageDescription)
+    @Html.ValidationMessageFor(m => m.UpperImageDescription)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.LowerImageUrl)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.LowerImageUrl, "UploadImage")
+    @Html.ValidationMessageFor(m => m.LowerImageUrl)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.LowerImageDescription)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.LowerImageDescription)
+    @Html.ValidationMessageFor(m => m.LowerImageDescription)
+</div>
+
+<div class="editor-label">
+    @Html.LabelFor(m => m.ButtonDescription)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(m => m.ButtonDescription)
+    @Html.ValidationMessageFor(m => m.ButtonDescription)
+</div>

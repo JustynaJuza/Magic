@@ -164,6 +164,13 @@
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
     <Compile Include="Interfaces\ICard.cs" />
     <Compile Include="Interfaces\IViewModel.cs" />
+    <Compile Include="LandingPages\ArticlePanel.cs" />
+    <Compile Include="LandingPages\FormPanel.cs" />
+    <Compile Include="LandingPages\IntroPanel.cs" />
+    <Compile Include="LandingPages\LandingPage.cs" />
+    <Compile Include="LandingPages\LandingPagePanel.cs" />
+    <Compile Include="LandingPages\PicturePanel.cs" />
+    <Compile Include="LandingPages\VideoPanel.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerGameStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
