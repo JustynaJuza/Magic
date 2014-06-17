@@ -10,6 +10,7 @@ namespace Magic.Models
     {
         public string Id { get; set; }
         public virtual ApplicationUser User { get; set; }
+        //public virtual IList<ChatRoom> ChatRooms { get; set; }
     }
 
     public class ApplicationUserGameConnection : ApplicationUserConnection

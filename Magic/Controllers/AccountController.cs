@@ -233,16 +233,16 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            var userId = User.Identity.GetUserId();
-            var foundUser = context.Users.Find(userId);
+            //var userId = User.Identity.GetUserId();
+            //var foundUser = context.Users.Find(userId);
 
-            if (foundUser != null)
-            {
+            //if (foundUser != null)
+            //{
                 //ChatHub.ToggleChatSubscription(foundUser);
-                foundUser.Connections.Clear();
-                foundUser.Status = UserStatus.Offline;
-                context.Update(foundUser);
-            }
+                //foundUser.Connections.Clear();
+                //foundUser.Status = UserStatus.Offline;
+                //context.Update(foundUser);
+            //}
 
             AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");

@@ -21,25 +21,34 @@ namespace Magic.Hubs
             Json.Encode(context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == Context.User)));
         }
 
-        public void SubscribeChatRoom(string roomId = DefaultRoomId)
+        public async void SubscribeChatRoom(string roomId = DefaultRoomId)
         {
             var chatRoom = context.ChatRooms.Find(roomId);
             var connection = context.Connections.Find(Context.ConnectionId);
 
             chatRoom.UserConnections.Add(connection);
             context.Update(chatRoom);
-            Groups.Add(connection.Id, chatRoom.Id);
+            await Groups.Add(connection.Id, chatRoom.Id);
+
+            UpdateChatRoomUsers(roomId);
         }
 
-        public void GetChatRoomUsers(string roomId = DefaultRoomId) {
+        public void UpdateChatRoomUsers(string roomId = DefaultRoomId, bool callerOnly = false) {
             var room = context.ChatRooms.Find(roomId);
 
             var chatUsers = new List<ChatUserViewModel>();
-            foreach (var connection in room.UserConnections){
+            foreach (var connection in room.UserConnections.Where(c => c.User.Status != UserStatus.Offline)){
                 chatUsers.Add(new ChatUserViewModel(connection.User));
             }
 
-            Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+            if (callerOnly)
+            {
+                Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+            }
+            else
+            {
+                Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+            }
         }
 
         public void AddChatRoom() { 
@@ -190,13 +199,11 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public void ToggleChatRoomsSubscription(string connectionId, bool activate = true)
+        public void SubscribeActiveChatRooms(string connectionId)
         {
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             var connection = context.Connections.Find(connectionId);
 
-            if (activate)
-            {
                 var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User.Id == connection.User.Id));
                 foreach(var chatRoom in chatRooms){
                     chatRoom.UserConnections.Add(connection);
@@ -204,32 +211,17 @@ namespace Magic.Hubs
 
                     chatHubContext.Groups.Add(connection.Id, chatRoom.Id);
                 }
-            }
-            else
-            { 
-                var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.Id == connection.Id));
-                foreach(var chatRoom in chatRooms){
-                    chatRoom.UserConnections.Remove(connection);
-                    context.Update(chatRoom);
 
-                    chatHubContext.Groups.Remove(connection.Id, chatRoom.Id);
-                }
-            }
-
-            //var chatUsers = chatRoom.UserConnections.Select(u => new ChatUserViewModel(u.User));
-
-            //var foundChatUser = chatUsers.FirstOrDefault(u => u.UserName == user.UserName);
-            //if (foundChatUser != null)
-            //{
-            //    chatUsers.Remove(foundChatUser);
-            //}
             //else
             //{
-            //    chatUsers.Add(new ChatUserViewModel(user));
-            //}
+            //    var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.Id == connection.Id));
+            //    foreach(var chatRoom in chatRooms){
+            //        chatRoom.UserConnections.Remove(connection);
+            //        context.Update(chatRoom);
 
-            //TODO: Notify chatrooms to refresh user list?
-            chatHubContext.Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);;
+            //        chatHubContext.Groups.Remove(connection.Id, chatRoom.Id);
+            //    }
+            //}
         }
 
         public async void ToggleGameChatSubscription(string gameId, bool activate)
@@ -293,11 +285,12 @@ namespace Magic.Hubs
                 {
                     Id = Context.ConnectionId
                 };
-                //foundUser.Status = UserStatus.Online;
+                foundUser.Status = UserStatus.Online;
                 foundUser.Connections.Add(connection);
                 context.Update(foundUser);
 
-                ToggleChatRoomsSubscription(Context.ConnectionId);
+                SubscribeActiveChatRooms(Context.ConnectionId);
+                SubscribeChatRoom(DefaultRoomId);
 
                 if (foundUser.Connections.Count == 1)
                 {
@@ -351,8 +344,6 @@ namespace Magic.Hubs
                     UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
                 }
 
-                ToggleChatRoomsSubscription(Context.ConnectionId, false);
-
                 //if (connection.GetType() == typeof(ApplicationUserGameConnection))
                 //{
                 //    //ToggleGameChatSubscription(connection.ChatRoomId, false);
@@ -361,6 +352,7 @@ namespace Magic.Hubs
                 //}
 
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+                var r = context.ChatRooms;
                 context.Delete(connection);
             }
 
@@ -418,5 +410,15 @@ namespace Magic.Hubs
             //}
         }
         #endregion CHATLOG HANDLING
+
+        #region REMOVE INACTIVE USERS
+        public static void RemoveInactiveConnections()
+        {
+            foreach (var connection in context.Connections) {
+                context.Delete(connection);
+            }
+            //context.Database.ExecuteSqlCommand("TRUNCATE TABLE [AspNetUserConnections]");
+        }
+        #endregion REMOVE INACTIVE USERS
     }
 }

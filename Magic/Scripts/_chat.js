@@ -48,8 +48,8 @@
 
     // Initialize chat handling.
     window.chat.initialize = function initializeChat() {
-        chat.server.subscribeChatRoom('default');
-        chat.server.getChatRoomUsers('default');
+        //chat.server.subscribeChatRoom('default');
+        //chat.server.getChatRoomUsers('default');
 
         $chatSendButton.click(function () {
             var currentChatRoomId = $chatRoomSelection.attr('data-chatRoomId');
