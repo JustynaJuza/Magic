@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Collections;
 
 namespace Magic.Models
 {
@@ -16,5 +17,18 @@ namespace Magic.Models
     public class ApplicationUserGameConnection : ApplicationUserConnection
     {
         public virtual Game Game { get; set; }
+    }
+
+    public class ApplicationUserConnection_UserComparer : IEqualityComparer<ApplicationUserConnection>
+    {
+        public bool Equals(ApplicationUserConnection x, ApplicationUserConnection y)
+        {
+            return x.User == y.User;
+        }
+
+        public int GetHashCode(ApplicationUserConnection obj)
+        {
+            return obj.User.GetHashCode();
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace Magic.Hubs
             var room = context.ChatRooms.Find(roomId);
 
             var chatUsers = new List<ChatUserViewModel>();
-            foreach (var connection in room.UserConnections.Where(c => c.User.Status != UserStatus.Offline)){
+            foreach (var connection in room.UserConnections.Distinct(new ApplicationUserConnection_UserComparer())){
                 chatUsers.Add(new ChatUserViewModel(connection.User));
             }
 
@@ -289,7 +289,7 @@ namespace Magic.Hubs
                 foundUser.Connections.Add(connection);
                 context.Update(foundUser);
 
-                SubscribeActiveChatRooms(Context.ConnectionId);
+                //SubscribeActiveChatRooms(Context.ConnectionId);
                 SubscribeChatRoom(DefaultRoomId);
 
                 if (foundUser.Connections.Count == 1)
@@ -352,8 +352,7 @@ namespace Magic.Hubs
                 //}
 
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
-                var r = context.ChatRooms;
-                context.Delete(connection);
+                context.Delete(connection, true);
             }
 
             return base.OnDisconnected();

@@ -15,7 +15,7 @@
     <AssemblyName>Magic</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -237,6 +237,7 @@
     <Content Include="Scripts\_cms-landing-pages.js" />
     <Content Include="Scripts\_game.js" />
     <Content Include="Scripts\_general.js" />
+    <Content Include="Scripts\_helpers.js" />
     <Content Include="Scripts\_hub-start.js" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
@@ -345,7 +346,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>53797</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:7313/</IISUrl>
+          <IISUrl>http://localhost/Magic</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

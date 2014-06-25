@@ -233,18 +233,19 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            //var userId = User.Identity.GetUserId();
-            //var foundUser = context.Users.Find(userId);
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.Identity.GetUserId();
+                var foundUser = context.Users.Find(userId);
 
-            //if (foundUser != null)
-            //{
                 //ChatHub.ToggleChatSubscription(foundUser);
-                //foundUser.Connections.Clear();
-                //foundUser.Status = UserStatus.Offline;
-                //context.Update(foundUser);
-            //}
+                foundUser.Connections.Clear();
+                foundUser.Status = UserStatus.Offline;
+                context.Update(foundUser);
 
-            AuthenticationManager.SignOut();
+                AuthenticationManager.SignOut();
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -414,7 +415,7 @@ namespace Magic.Controllers
         {
             var linkedAccounts = UserManager.GetLogins(User.Identity.GetUserId());
             ViewBag.ShowRemoveButton = HasPassword() || linkedAccounts.Count > 1;
-            return (ActionResult) PartialView("_RemoveAccountPartial", linkedAccounts);
+            return (ActionResult)PartialView("_RemoveAccountPartial", linkedAccounts);
         }
         #endregion MANAGE
 
