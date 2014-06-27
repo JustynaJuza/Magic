@@ -13,7 +13,7 @@ namespace Magic.Models
         public string Id { get; set; }
         public DateTime? DateStarted { get; set; }
         public DateTime? DateEnded { get; set; }
-        public virtual IList<PlayerGameStatus> Players { get; set; }
+        public virtual IList<Player_GameStatus> Players { get; set; }
     }
 
     public class GameViewModel : AbstractExtensions, IViewModel

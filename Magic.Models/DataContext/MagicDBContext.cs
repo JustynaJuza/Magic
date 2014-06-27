@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -21,6 +22,17 @@ namespace Magic.Models.DataContext
                 .WithOptional();
                 //.WithOptional(l => l.Room);
 
+            modelBuilder.Entity<ApplicationUserConnection>().HasKey(k => new { k.Id, k.UserId });
+            modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
+            
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(cruc => cruc.ChatRoomId);
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId } );
+
+            modelBuilder.Entity<Player_GameStatus>().HasKey(k => new { k.GameId, k.UserId });
+            modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);
+            modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.User).WithMany(u => u.Games).HasForeignKey(pgs => pgs.UserId);
+
             //modelBuilder.Entity<ApplicationUserConnection>().HasKey(c => new { c.Id, c.ChatRoomId });
 
             //modelBuilder.Entity<ChatLog>().HasKey(l => l.DateCreated);
@@ -28,6 +40,7 @@ namespace Magic.Models.DataContext
         }
 
         public DbSet<ApplicationUserConnection> Connections { get; set; }
+        public DbSet<ChatRoom_ApplicationUserConnection> ChatRoom_Connections { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatLog> ChatLogs { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -36,7 +49,7 @@ namespace Magic.Models.DataContext
         public DbSet<CardType> CardTypes { get; set; }
         public DbSet<CardDeck> CardDecks { get; set; }
         public DbSet<Game> Games { get; set; }
-        public DbSet<PlayerGameStatus> PlayerGameStatuses { get; set; }
+        public DbSet<Player_GameStatus> Player_GameStatuses { get; set; }
 
         #region CRUD
         public string Create(Object item)

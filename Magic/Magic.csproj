@@ -190,6 +190,14 @@
     <Compile Include="Migrations\201405010936347_Init.Designer.cs">
       <DependentUpon>201405010936347_Init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.cs" />
+    <Compile Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.Designer.cs">
+      <DependentUpon>201406261641188_CHatRoom_ApplicationUserConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201406271155066_ForeignKeyMixup.cs" />
+    <Compile Include="Migrations\201406271155066_ForeignKeyMixup.Designer.cs">
+      <DependentUpon>201406271155066_ForeignKeyMixup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -326,6 +334,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201405010936347_Init.resx">
       <DependentUpon>201405010936347_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.resx">
+      <DependentUpon>201406261641188_CHatRoom_ApplicationUserConnection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406271155066_ForeignKeyMixup.resx">
+      <DependentUpon>201406271155066_ForeignKeyMixup.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -24,13 +24,12 @@ namespace Magic.Models
         public string ColorCode { get; set; }
         public virtual IList<CardDeck> DeckCollection { get; set; }
         public virtual IList<ApplicationUserConnection> Connections { get; set; }
-        public virtual IList<ApplicationUserGameConnection> GameConnections { get; set; }
-        public virtual IList<PlayerGameStatus> Games { get; set; }
+        public virtual IList<Player_GameStatus> Games { get; set; }
 
         // Constructor.
         public ApplicationUser()
         {
-            ColorCode.AssignRandomColorCode();
+            ColorCode = String.Empty.AssignRandomColorCode();
             Connections = new List<ApplicationUserConnection>();
             DeckCollection = new List<CardDeck>();
         }

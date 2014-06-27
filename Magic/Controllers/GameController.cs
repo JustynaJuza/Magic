@@ -139,7 +139,7 @@ namespace Magic.Controllers
             if (game.Observers != null) { 
             foreach (var user in game.Observers)
             {
-                user.Games.Add(new PlayerGameStatus()
+                user.Games.Add(new Player_GameStatus()
                 {
                     GameId = game.Id,
                     UserId = user.Id,
@@ -152,7 +152,7 @@ namespace Magic.Controllers
             foreach (var user in game.Players)
             {
                 user.User.Status = UserStatus.Playing;
-                user.User.Games.Add(new PlayerGameStatus()
+                user.User.Games.Add(new Player_GameStatus()
                 {
                     GameId = game.Id,
                     UserId = user.User.Id,

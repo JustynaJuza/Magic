@@ -288,7 +288,7 @@ namespace Magic.Controllers
         public ActionResult ManageUserColor()
         {
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
-            foundUser.ColorCode.AssignRandomColorCode();
+            foundUser.ColorCode = String.Empty.AssignRandomColorCode();
 
             TempData["Error"] = context.Update(foundUser);
             return RedirectToAction("Manage");

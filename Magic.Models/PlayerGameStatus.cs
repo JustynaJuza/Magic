@@ -8,11 +8,9 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class PlayerGameStatus : AbstractExtensions
+    public class Player_GameStatus : AbstractExtensions
     {
-        [Key, Column(Order = 0)]
         public string GameId { get; set; }
-        [Key, Column(Order = 1)]
         public string UserId { get; set; }
         public virtual Game Game { get; set; }
         //public virtual Player Player { get; set; }

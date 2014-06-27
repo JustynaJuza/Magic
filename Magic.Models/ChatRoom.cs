@@ -13,13 +13,17 @@ namespace Magic.Models
         public string Name { get; set; }
         public string TabColorCode { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<ApplicationUserConnection> UserConnections { get; set; }
+        public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
 
         public ChatRoom() {
             Id = Guid.NewGuid().ToString();
-            TabColorCode.AssignRandomColorCode();
+            TabColorCode = String.Empty.AssignRandomColorCode();
             Log = new ChatLog();
-            UserConnections = new List<ApplicationUserConnection>();
+            Connections = new List<ChatRoom_ApplicationUserConnection>();
+        }
+
+        public bool UserIsInRoom(string userId) {
+            return Connections.Any(c => c.Connection.UserId == userId);
         }
     }
 

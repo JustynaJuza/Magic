@@ -54,7 +54,7 @@ namespace Magic.Models.Helpers
             return toString;
         }
 
-        public static void AssignRandomColorCode(this string str)
+        public static string AssignRandomColorCode(this string str)
         {
             Random random = new Random();
             int red = random.Next(255); // Not 256, because black is the system message color.
@@ -62,7 +62,7 @@ namespace Magic.Models.Helpers
             int blue = random.Next(255);
             System.Drawing.Color color = System.Drawing.Color.FromArgb(red, green, blue);
 
-            str = System.Drawing.ColorTranslator.ToHtml(color);
+            return System.Drawing.ColorTranslator.ToHtml(color);
         }
     }
 }

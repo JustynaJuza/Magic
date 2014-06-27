@@ -17,29 +17,44 @@ namespace Magic.Hubs
         private static MagicDbContext context = new MagicDbContext();
 
         #region CHAT INIT
-        public void ListChatRooms() {
-            Json.Encode(context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User == Context.User)));
+        public void ListChatRooms(string userId) {
+            var chatRooms = context.ChatRoom_Connections.Where(rc => rc.ChatRoom.UserIsInRoom(userId)).Select(rc => rc.ChatRoom);
+            Json.Encode(chatRooms);
         }
 
         public async void SubscribeChatRoom(string roomId = DefaultRoomId)
         {
-            var chatRoom = context.ChatRooms.Find(roomId);
-            var connection = context.Connections.Find(Context.ConnectionId);
+            context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
+            {
+                ChatRoomId = roomId,
+                ConnectionId = Context.ConnectionId,
+                UserId = Context.User.Identity.GetUserId()
+            });
+            context.SaveChanges();
 
-            chatRoom.UserConnections.Add(connection);
-            context.Update(chatRoom);
-            await Groups.Add(connection.Id, chatRoom.Id);
+            await Groups.Add(Context.ConnectionId, roomId);
 
             UpdateChatRoomUsers(roomId);
         }
 
         public void UpdateChatRoomUsers(string roomId = DefaultRoomId, bool callerOnly = false) {
-            var room = context.ChatRooms.Find(roomId);
+            //var room = context.ChatRooms.Find(roomId);
 
-            var chatUsers = new List<ChatUserViewModel>();
-            foreach (var connection in room.UserConnections.Distinct(new ApplicationUserConnection_UserComparer())){
-                chatUsers.Add(new ChatUserViewModel(connection.User));
-            }
+            //var chatUsers = new List<ChatUserViewModel>();
+            //foreach (var connection in room.Connections.Distinct(new ApplicationUserConnection_UserComparer())){
+            //    chatUsers.Add(new ChatUserViewModel(connection.User));
+            //}
+
+            try
+            {
+                var chatRoomConnections = context.ChatRoom_Connections.Where(rc => rc.ChatRoomId == roomId).Select(rc => rc.Connection).ToList();
+                var chatRoomUsers = chatRoomConnections.Distinct(new ApplicationUserConnection_UserComparer()).Select(c => c.User);
+
+                var chatUsers = new List<ChatUserViewModel>();
+                foreach (var user in chatRoomUsers)
+                {
+                    chatUsers.Add(new ChatUserViewModel(user));
+                }
 
             if (callerOnly)
             {
@@ -48,6 +63,10 @@ namespace Magic.Hubs
             else
             {
                 Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+            }
+            }
+            catch (Exception ex) {
+                var x = ex.ToString();
             }
         }
 
@@ -199,18 +218,35 @@ namespace Magic.Hubs
         #endregion CHAT MESSAGE HANDLING
 
         #region MANAGE CHAT & GAME GROUPS
-        public void SubscribeActiveChatRooms(string connectionId)
+        public void SubscribeActiveChatRooms(string connectionId, string userId)
         {
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-            var connection = context.Connections.Find(connectionId);
 
-                var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.User.Id == connection.User.Id));
-                foreach(var chatRoom in chatRooms){
-                    chatRoom.UserConnections.Add(connection);
-                    context.Update(chatRoom);
+            var activeChatRoomIds = context.ChatRoom_Connections.ToList()
+                .Distinct(new ChatRoom_ApplicationUserConnection_ChatRoomComparer()).Where(rc => rc.ChatRoom.UserIsInRoom(userId) && rc.ChatRoomId != DefaultRoomId).Select(rc => rc.ChatRoomId);
 
-                    chatHubContext.Groups.Add(connection.Id, chatRoom.Id);
-                }
+            foreach(var roomId in activeChatRoomIds){
+                context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
+                {
+                    ChatRoomId = roomId,
+                    ConnectionId = connectionId,
+                    UserId = userId
+                });
+
+                chatHubContext.Groups.Add(connectionId, roomId);
+            }
+            context.SaveChanges();
+
+
+            //var connection = context.Connections.Find(connectionId);
+
+            //    var chatRooms = context.ChatRooms.Where(r => r.Connections.Any(c => c.User.Id == connection.User.Id));
+            //    foreach(var chatRoom in chatRooms){
+            //        chatRoom.Connections.Add(connection);
+            //        context.Update(chatRoom);
+
+            //        chatHubContext.Groups.Add(connection.Id, chatRoom.Id);
+            //    }
 
             //else
             //{
@@ -224,55 +260,55 @@ namespace Magic.Hubs
             //}
         }
 
-        public async void ToggleGameChatSubscription(string gameId, bool activate)
-        {
-            var userId = Context.User.Identity.GetUserId();
-            var foundUser = context.Users.Find(userId);
-            var message = new ChatMessage
-            {
-                Sender = foundUser,
-                Message = activate ? " entered the game." : " left the game."
-            };
+        //public async void ToggleGameChatSubscription(string gameId, bool activate)
+        //{
+        //    var userId = Context.User.Identity.GetUserId();
+        //    var foundUser = context.Users.Find(userId);
+        //    var message = new ChatMessage
+        //    {
+        //        Sender = foundUser,
+        //        Message = activate ? " entered the game." : " left the game."
+        //    };
 
-            if (activate)
-            {
-                // Set the current connection as game connection.
-                var currentConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
-                var gameConnection = new ApplicationUserGameConnection
-                {
-                        Id = currentConnection.Id,
-                        User = foundUser,
-                        //ChatRoom = context.ChatRooms.Find(gameId) ?? new ChatRoom { Id = gameId },
-                        Game = context.Games.Find(gameId) ?? new Game { Id = gameId }
-                    };
+        //    if (activate)
+        //    {
+        //        // Set the current connection as game connection.
+        //        var currentConnection = foundUser.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+        //        var gameConnection = new ApplicationUserGameConnection
+        //        {
+        //                Id = currentConnection.Id,
+        //                User = foundUser,
+        //                //ChatRoom = context.ChatRooms.Find(gameId) ?? new ChatRoom { Id = gameId },
+        //                Game = context.Games.Find(gameId) ?? new Game { Id = gameId }
+        //            };
 
-                foundUser.Connections.Remove(currentConnection);
-                context.Update(foundUser, true);
-                foundUser.GameConnections.Add(gameConnection);
-                context.Update(foundUser, true);
+        //        foundUser.Connections.Remove(currentConnection);
+        //        context.Update(foundUser, true);
+        //        foundUser.GameConnections.Add(gameConnection);
+        //        context.Update(foundUser, true);
 
-                // Await to join the group on main connection so the joining user get's the info message.
-                await GameHub.JoinGame(gameConnection.Id, gameId);
+        //        // Await to join the group on main connection so the joining user get's the info message.
+        //        await GameHub.JoinGame(gameConnection.Id, gameId);
 
-                // Subscribe all other chat connections.
-                foreach (var connection in foundUser.Connections)
-                {
-                    Groups.Add(connection.Id, gameId);
-                }
-            }
-            else
-            {
-                // Closing main connection to a game, remove chat subscribtion from all other connections.
-                foreach (var connection in message.Sender.Connections)
-                {
-                    Groups.Remove(connection.Id, gameId);
-                }
-            }
+        //        // Subscribe all other chat connections.
+        //        foreach (var connection in foundUser.Connections)
+        //        {
+        //            Groups.Add(connection.Id, gameId);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // Closing main connection to a game, remove chat subscribtion from all other connections.
+        //        foreach (var connection in message.Sender.Connections)
+        //        {
+        //            Groups.Remove(connection.Id, gameId);
+        //        }
+        //    }
 
-            System.Diagnostics.Debug.WriteLine("Joining " + gameId);
-            // Sent info message on joining and leaving group.
-            await Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-        }
+        //    System.Diagnostics.Debug.WriteLine("Joining " + gameId);
+        //    // Sent info message on joining and leaving group.
+        //    await Clients.Group(gameId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        //}
         #endregion MANAGE CHAT & GAME GROUPS
 
         #region CONNECTION STATUS UPDATE
@@ -283,13 +319,13 @@ namespace Magic.Hubs
 
                 var connection = new ApplicationUserConnection
                 {
-                    Id = Context.ConnectionId
+                    Id = Context.ConnectionId,
+                    UserId = userId
                 };
-                foundUser.Status = UserStatus.Online;
-                foundUser.Connections.Add(connection);
-                context.Update(foundUser);
+                context.Connections.Add(connection);
+                context.SaveChanges();
 
-                //SubscribeActiveChatRooms(Context.ConnectionId);
+                SubscribeActiveChatRooms(Context.ConnectionId, userId);
                 SubscribeChatRoom(DefaultRoomId);
 
                 if (foundUser.Connections.Count == 1)
@@ -306,35 +342,37 @@ namespace Magic.Hubs
         {
             var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
+            foundUser.Status = UserStatus.Online;
+            context.Update(foundUser);
 
-            if (foundUser != null)
+            //if (foundUser != null)
+            //{
+            //    if (!foundUser.Connections.Any(c => c.Id == Context.ConnectionId))
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("Reconnected: creating new connection:" + Context.ConnectionId);
+            //        foundUser.Connections.Add(new ApplicationUserConnection
+            //        {
+            //            Id = Context.ConnectionId
+            //        });
+            //        context.Update(foundUser);
+            //    }
+
+            //    System.Diagnostics.Debug.WriteLine("Reconnected: without creating new connection:" + Context.ConnectionId);
+            //    //ToggleChatRoomsSubscription(Context.ConnectionId, false);
+
+            if (foundUser.Connections.Count == 1)
             {
-                if (!foundUser.Connections.Any(c => c.Id == Context.ConnectionId))
-                {
-                    System.Diagnostics.Debug.WriteLine("Reconnected: creating new connection:" + Context.ConnectionId);
-                    foundUser.Connections.Add(new ApplicationUserConnection
-                    {
-                        Id = Context.ConnectionId
-                    });
-                    context.Update(foundUser);
-                }
-
-                System.Diagnostics.Debug.WriteLine("Reconnected: without creating new connection:" + Context.ConnectionId);
-                //ToggleChatRoomsSubscription(Context.ConnectionId, false);
-
-                if (foundUser.Connections.Count == 1)
-                {
-                    // If this is the user's only connection broadcast a chat info.
-                    UserStatusBroadcast(userId, UserStatus.Online);
-                }
+                // If this is the user's only connection broadcast a chat info.
+                UserStatusBroadcast(userId, UserStatus.Online);
             }
+            //}
 
             return base.OnReconnected();
         }
 
         public override Task OnDisconnected()
         {
-            var connection = context.Connections.Find(Context.ConnectionId);
+            var connection = context.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
 
             if (connection != null)
             {
@@ -352,7 +390,11 @@ namespace Magic.Hubs
                 //}
 
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
-                context.Delete(connection, true);
+                context.Connections.Remove(connection);
+                context.SaveChanges();
+                UpdateChatRoomUsers();
+                
+                //context.Delete(connection, true);
             }
 
             return base.OnDisconnected();
