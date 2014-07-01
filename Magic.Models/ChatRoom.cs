@@ -11,19 +11,33 @@ namespace Magic.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public bool IsPrivate { get; set; }
         public string TabColorCode { get; set; }
+        public virtual IList<string> TabColorCodes { get; set; }
         public virtual ChatLog Log { get; set; }
+        public virtual IList<string> AllowedUserIds{ get; set; }
         public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
 
-        public ChatRoom() {
+        public ChatRoom(bool isPrivate = false) {
             Id = Guid.NewGuid().ToString();
+            IsPrivate = isPrivate;
             TabColorCode = String.Empty.AssignRandomColorCode();
             Log = new ChatLog();
+            //AllowedUserIds = new List<string>();
             Connections = new List<ChatRoom_ApplicationUserConnection>();
         }
 
         public bool UserIsInRoom(string userId) {
             return Connections.Any(c => c.Connection.UserId == userId);
+        }
+
+        public int ActiveUserCount() {
+            return Connections.Distinct(new ChatRoom_ApplicationUserConnection_UserComparer()).Count();
+        }
+
+        public bool OnlySpecifiedUsersInRoom(string[] userId) {
+            return AllowedUserIds.All(i => userId.Any(id => id == i));
+            //return Connections.TakeWhile((c, index) => userId.Any(u => u == c.UserId)).Count() == Connections.Count();
         }
     }
 

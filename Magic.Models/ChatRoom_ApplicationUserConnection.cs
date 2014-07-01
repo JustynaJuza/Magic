@@ -27,4 +27,17 @@ namespace Magic.Models
             return obj.ChatRoomId.GetHashCode();
         }
     }
+
+    public class ChatRoom_ApplicationUserConnection_UserComparer : IEqualityComparer<ChatRoom_ApplicationUserConnection>
+    {
+        public bool Equals(ChatRoom_ApplicationUserConnection x, ChatRoom_ApplicationUserConnection y)
+        {
+            return x.UserId == y.UserId;
+        }
+
+        public int GetHashCode(ChatRoom_ApplicationUserConnection obj)
+        {
+            return obj.UserId.GetHashCode();
+        }
+    }
 }

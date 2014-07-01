@@ -182,6 +182,11 @@
             $chatSendButton.trigger('click');
             $chatSendButton.prop('disabled', true);
         }
+        else if (e.keyCode == 32 && $newChatMessage.val().length > 0) {
+            $chatSendButton.toggleClass('clicked');
+            $chatSendButton.trigger('click');
+            $chatSendButton.prop('disabled', true);
+        }
     });
 
     // Provide checkboxes for hiding general/private messages.
@@ -261,6 +266,7 @@
     $(document).on('dblclick', '#chat-room-selectlist li, .chat-message-sender, .chat-user', function () {
         $chatRoomSelectList.hide();
         $chatRoomSelection.val($(this).text());
+        $chatRoomSelection.attr('data-recipient', $(this).text());
         var roomId = $(this).prop('id');
         if (roomId.length) {
             $chatRoomSelection.prop('id', roomId);

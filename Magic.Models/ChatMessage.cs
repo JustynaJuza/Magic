@@ -11,6 +11,7 @@ namespace Magic.Models
         public bool IsUnread { get; set; }
         public DateTime? TimeSend { get; set; }
         public string Message { get; set; }
+        public virtual string SenderId { get; set; }
         public virtual ApplicationUser Sender { get; set; }
         public virtual ApplicationUser Recipient { get; set; }
         public virtual ChatLog Log { get; set; }

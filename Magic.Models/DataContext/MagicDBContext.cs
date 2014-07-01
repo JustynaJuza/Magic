@@ -52,12 +52,12 @@ namespace Magic.Models.DataContext
         public DbSet<Player_GameStatus> Player_GameStatuses { get; set; }
 
         #region CRUD
-        public string Create(Object item)
+        public bool Create(Object item)
         {
             //try
             //{
                 Entry(item).State = EntityState.Added;
-                SaveChanges();
+                return SaveChanges() > 0;
             //}
             //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             //{
@@ -74,41 +74,50 @@ namespace Magic.Models.DataContext
             //    System.Diagnostics.Debug.WriteLine(ex.ToString());
             //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
             //}
-
-            return null;
         }
 
         public object Read(Object item)
         {
-            Type collectionType = item.GetType();
-            DbSet targetCollection = Set(collectionType);
+            var collectionType = item.GetType();
+            var targetCollection = Set(collectionType);
 
             var itemKeyInfo = collectionType.GetProperty("Id") ?? collectionType.GetProperty("DateCreated");
             var itemKey = itemKeyInfo.GetValue(item);
 
             var foundItem = targetCollection.Find(itemKey);
-            if (foundItem == null)
-            {
-                return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
-            }
+            //if (foundItem == null)
+            //{
+            //    return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
+            //}
 
             return foundItem;
         }
 
-        public string Update(Object item, bool updateOnly = false)
+        public bool AddOrUpdate(Object item, bool updateOnly = false)
         {
-            var foundItem = item;
-            if (!updateOnly)
+            Object foundItem;
+            if (updateOnly)
+            {
+                Entry(item).CurrentValues.SetValues(item);
+            }
+            else
             {
                 foundItem = Read(item);
-                if (foundItem is string)
-                    return (string) foundItem; // Error string returned.
+                if (foundItem == null){
+                    Entry(item).State = EntityState.Added;
+                }
+                else {
+                    Entry(foundItem).CurrentValues.SetValues(item);
+                }
+                //if (foundItem is string)
+                //    return (string) foundItem; // Error string returned.
             }
+
+            return SaveChanges() > 0;
 
             //try
             //{
-                Entry(foundItem).CurrentValues.SetValues(item);
-                SaveChanges();
+                
             //}
             //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             //{
@@ -126,7 +135,7 @@ namespace Magic.Models.DataContext
             //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
             //}
 
-            return null;
+            //return null;
         }
 
         public string Delete(Object item, bool deleteOnly = false)

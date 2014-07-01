@@ -84,23 +84,34 @@ namespace Magic.Hubs
             if (messageIsValid)
             {
                 var userId = Context.User.Identity.GetUserId();
+                var sender = context.Users.Find(userId);
                 var message = new ChatMessage(messageText)
                 {
-                    Sender = context.Users.Find(userId),
+                    SenderId = userId,
                     Recipient = recipient,
                     Message = messageText
                 };
 
-                var chatRoom = context.ChatRooms.Find(roomId);
-                if (recipient != null && chatRoom == null)
+                ChatRoom chatRoom;
+                if (recipient != null && roomId == null)
                 {
-                    // Create new chat room if no id was given for private conversation.
-                    chatRoom = new ChatRoom() { Name = recipientName };
+                    chatRoom = //context.ChatRooms.First(r => r.IsPrivate && r.OnlySpecifiedUsersInRoom(new string[] { recipient.Id, userId })) ??
+                        // Create new chat room if no private conversation found.
+                        new ChatRoom()
+                        {
+                            IsPrivate = true,
+                            AllowedUserIds = { recipient.Id, userId },
+                            TabColorCodes = { sender.ColorCode, recipient.ColorCode }
+                        };
+                }
+                else
+                {
+                    chatRoom = context.ChatRooms.Find(roomId);
                 }
 
                     // Add message to chatlog in correct room.
                     chatRoom.Log.Messages.Add(message);
-                    context.Update(chatRoom);
+                    context.AddOrUpdate(chatRoom);
 
                 // Depending on settings, use callback method to update clients.
                 if (recipient == null)
@@ -146,7 +157,7 @@ namespace Magic.Hubs
                 Message = UserStatusBroadcastMessage(status)
             };
             message.Sender.Status = status;
-            context.Update(message.Sender, true);
+            context.AddOrUpdate(message.Sender, true);
 
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             if (roomName.Length > 0)
@@ -342,30 +353,12 @@ namespace Magic.Hubs
         {
             var userId = Context.User.Identity.GetUserId();
             var foundUser = context.Users.Find(userId);
-            foundUser.Status = UserStatus.Online;
-            context.Update(foundUser);
-
-            //if (foundUser != null)
-            //{
-            //    if (!foundUser.Connections.Any(c => c.Id == Context.ConnectionId))
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("Reconnected: creating new connection:" + Context.ConnectionId);
-            //        foundUser.Connections.Add(new ApplicationUserConnection
-            //        {
-            //            Id = Context.ConnectionId
-            //        });
-            //        context.Update(foundUser);
-            //    }
-
-            //    System.Diagnostics.Debug.WriteLine("Reconnected: without creating new connection:" + Context.ConnectionId);
-            //    //ToggleChatRoomsSubscription(Context.ConnectionId, false);
 
             if (foundUser.Connections.Count == 1)
             {
                 // If this is the user's only connection broadcast a chat info.
                 UserStatusBroadcast(userId, UserStatus.Online);
             }
-            //}
 
             return base.OnReconnected();
         }
@@ -390,11 +383,11 @@ namespace Magic.Hubs
                 //}
 
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+
                 context.Connections.Remove(connection);
                 context.SaveChanges();
+
                 UpdateChatRoomUsers();
-                
-                //context.Delete(connection, true);
             }
 
             return base.OnDisconnected();
@@ -416,13 +409,13 @@ namespace Magic.Hubs
         }
 
         // This function is called by schedule from Global.asax and uses the static context to save recent chat messages.
-        public static string SaveChatLogToDatabase(ChatLog currentLog)
+        public static bool SaveChatLogToDatabase(ChatLog currentLog)
         {
             ChatLog todayLog = context.ChatLogs.Find(currentLog.DateCreated);//context.Set<ChatLog>().AsNoTracking().FirstOrDefault(c => c.DateCreated == currentLog.DateCreated);
             if (todayLog != null)
             {
                 todayLog.AppendMessages(currentLog.Messages);
-                return context.Update(todayLog, true);
+                return context.AddOrUpdate(todayLog, true);
             }
 
             // Create new log for Today.
@@ -437,7 +430,7 @@ namespace Magic.Hubs
         {
             var chatRoom = context.ChatRooms.Find(roomId);
             chatRoom.Log.Messages.Add(message);
-            context.Update(chatRoom);
+            context.AddOrUpdate(chatRoom);
             
             // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
             // Suggested solution: Add new temporary message log or explicitly call log saving.
