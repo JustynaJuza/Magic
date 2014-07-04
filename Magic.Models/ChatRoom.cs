@@ -18,13 +18,18 @@ namespace Magic.Models
         public virtual IList<string> AllowedUserIds{ get; set; }
         public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
 
-        public ChatRoom(bool isPrivate = false) {
+        public ChatRoom() {
             Id = Guid.NewGuid().ToString();
-            IsPrivate = isPrivate;
+            IsPrivate = false;
             TabColorCode = String.Empty.AssignRandomColorCode();
             Log = new ChatLog();
             //AllowedUserIds = new List<string>();
             Connections = new List<ChatRoom_ApplicationUserConnection>();
+        }
+
+        public ChatRoom(bool isPrivate) : base()
+        {
+            IsPrivate = isPrivate;
         }
 
         public bool UserIsInRoom(string userId) {

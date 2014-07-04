@@ -1,3 +1,17 @@
-﻿@model Magic.Models.LandingPages.PictureTile.AnimationFrame
+﻿@model Autographer.Models.LandingPages.PictureTile.AnimationFrame
 
-<div class="editor-field">@Html.EditorFor(m => m.ImageUrl, "UploadImage")@Html.ValidationMessageFor(m => m.ImageUrl)</div>
+@*<div class="editor-field">@Html.EditorFor(m => m.ImageUrl, "UploadImage")@Html.ValidationMessageFor(m => m.ImageUrl)</div>*@
+
+<div class="property-editor" style="min-height: 185px">
+    <div class="display-default">
+        <div class="placeholder-img" style="min-height: 185px">Click to add image.</div>
+        @*@Html.LabelFor(m => m.ImageUrl)*@
+    </div>
+    <div class="display-field img" style="display: none">
+        @Html.DisplayFor(m => m.ImageUrl, "Image")
+    </div>
+    <div class="editor-field" style="display: none">
+        @Html.EditorFor(m => m.ImageUrl, "UploadImage")
+    </div>
+    @Html.ValidationMessageFor(m => m.ImageUrl)
+</div>

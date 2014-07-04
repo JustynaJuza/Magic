@@ -106,7 +106,7 @@ namespace Magic.Controllers
             {
                 selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
                 currentUser.DeckCollection.Insert(0, selectedDeck);
-                context.Update(currentUser);
+                context.AddOrUpdate(currentUser);
             }
             else
             {
@@ -147,7 +147,7 @@ namespace Magic.Controllers
                     Status = GameStatus.Observed
                 });
                 user.Status = UserStatus.Observing; ;
-                context.Update(user);
+                context.AddOrUpdate(user);
             }}
             foreach (var user in game.Players)
             {
@@ -159,7 +159,7 @@ namespace Magic.Controllers
                     User = user.User,
                     Status = GameStatus.Unfinished
                 });
-                context.Update(user.User);
+                context.AddOrUpdate(user.User);
             }
         }
         #endregion HELPERS

@@ -13,6 +13,8 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        [DataType(DataType.ImageUrl)]
+        public string Image { get; set; }
         public virtual CardType Type { get; set; }
         public IList<int> CostPerColor { get; set; }
         public virtual IList<CardColor> Colors { get; set; }

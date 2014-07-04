@@ -66,7 +66,7 @@ namespace Magic.Controllers
         {
             if (ModelState.IsValid)
             {
-                TempData["Error"] = context.Update(model);
+                TempData["Error"] = context.AddOrUpdate(model);
                 return RedirectToAction("Index");
             }
             // Process model errors.

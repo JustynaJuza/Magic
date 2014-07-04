@@ -103,6 +103,9 @@ namespace Magic.Hubs
                             AllowedUserIds = { recipient.Id, userId },
                             TabColorCodes = { sender.ColorCode, recipient.ColorCode }
                         };
+
+                    SubscribeActiveConnections(chatRoom.Id, userId);
+                    SubscribeActiveConnections(chatRoom.Id, recipient.Id);
                 }
                 else
                 {
@@ -130,7 +133,7 @@ namespace Magic.Hubs
                 else
                 {
                     // Get message text after username and following space.
-                    message.Message = messageText.Substring(recipient.UserName.Length + 2);
+                    //message.Message = messageText.Substring(recipient.UserName.Length + 2);
                     // Set message recipient.
                     message.Recipient = recipient;
 
@@ -231,10 +234,9 @@ namespace Magic.Hubs
         #region MANAGE CHAT & GAME GROUPS
         public void SubscribeActiveChatRooms(string connectionId, string userId)
         {
-            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            //var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
 
-            var activeChatRoomIds = context.ChatRoom_Connections.ToList()
-                .Distinct(new ChatRoom_ApplicationUserConnection_ChatRoomComparer()).Where(rc => rc.ChatRoom.UserIsInRoom(userId) && rc.ChatRoomId != DefaultRoomId).Select(rc => rc.ChatRoomId);
+            var activeChatRoomIds = context.ChatRoom_Connections.Where(rc => rc.UserId == userId && rc.ChatRoomId != DefaultRoomId).Select(rc => rc.ChatRoomId).Distinct();
 
             foreach(var roomId in activeChatRoomIds){
                 context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
@@ -244,7 +246,7 @@ namespace Magic.Hubs
                     UserId = userId
                 });
 
-                chatHubContext.Groups.Add(connectionId, roomId);
+                Groups.Add(connectionId, roomId);
             }
             context.SaveChanges();
 
@@ -269,6 +271,24 @@ namespace Magic.Hubs
             //        chatHubContext.Groups.Remove(connection.Id, chatRoom.Id);
             //    }
             //}
+        }
+
+        public async void SubscribeActiveConnections(string roomId, string userId) {
+
+            var activeConnectionIds = context.Connections.Where(c => c.UserId == userId).Select(c => c.Id);
+
+            foreach (var connectionId in activeConnectionIds)
+            {
+                context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
+                {
+                    ChatRoomId = roomId,
+                    ConnectionId = connectionId,
+                    UserId = userId
+                });
+
+                Groups.Add(connectionId, roomId);
+            }
+            context.SaveChanges();        
         }
 
         //public async void ToggleGameChatSubscription(string gameId, bool activate)

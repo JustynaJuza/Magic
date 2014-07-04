@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
+using System.Web.Mvc.Html;
 
 namespace Magic.Helpers
 {
     public static class HtmlHelperExtensions
     {
+        public static string PlaceholderImage = HostingEnvironment.ApplicationVirtualPath + "/Content/Images/placeholder.png";
+
         private const string _jSViewDataName = "RenderJavaScript";
         private const string _styleViewDataName = "RenderStyle";
 
@@ -100,6 +105,22 @@ namespace Magic.Helpers
             builder.MergeAttribute("alt", altText);
             builder.MergeAttribute("height", height);
             return MvcHtmlString.Create(builder.ToString(TagRenderMode.SelfClosing));
+        }
+
+        public static MvcHtmlString DisplayWithIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression, string wrapperTag = "div")
+        {
+            var id = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
+            return MvcHtmlString.Create(string.Format("<{0} id=\"{1}\">{2}</{0}>", wrapperTag, id, helper.DisplayFor(expression)));
+        }
+
+        public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
+        {
+            return helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
+        }
+
+        public static string GetPlaceholder(this HtmlHelper helper)
+        {
+            return PlaceholderImage;
         }
     }
 }

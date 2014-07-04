@@ -178,6 +178,7 @@
     <Compile Include="Controllers\HomeController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\FilesController.cs" />
     <Compile Include="Controllers\LandingPagesController.cs" />
     <Compile Include="Controllers\PlayersController.cs" />
     <Compile Include="Controllers\TestController.cs" />
@@ -243,6 +244,7 @@
     <Content Include="Scripts\_bootstrap.min.js" />
     <Content Include="Scripts\_chat.js" />
     <Content Include="Scripts\_cms-landing-pages.js" />
+    <Content Include="Scripts\_file-uploader.js" />
     <Content Include="Scripts\_game.js" />
     <Content Include="Scripts\_general.js" />
     <Content Include="Scripts\_helpers.js" />
@@ -309,10 +311,11 @@
     <Content Include="Views\Shared\EditorTemplates\PicturePanel.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\PictureTile.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\SimpleTile.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\UploadImage.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\VideoPanel.cshtml" />
     <Content Include="Views\Shared\CMS.Master" />
     <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
+    <Content Include="Views\Shared\_UploaderPartial.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
