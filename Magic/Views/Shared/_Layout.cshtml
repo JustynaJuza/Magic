@@ -13,8 +13,8 @@
     @RenderSection("AdditionalScripts", required: false)
 
     <script>
-        var basePath = '@Url.Content("~")';
-        var placeholderImage = '@Url.Content("~/Content/Images/placeholder.png")';
+        var basePath = '@VirtualPathUtility.ToAbsolute("~/")';
+        var placeholderImage = basePath + '/Content/Images/placeholder.png';
     </script>
 
 </head>

@@ -2,8 +2,8 @@
 
     $(document).on('click', '.btn-upload', showFileUploader);
     $(document).on('click', '.btn-upload-delete', deleteImage);
-    $(document).on('click', '.btn-ok', hideControls);
-    $(document).on('click', '.upload img', showControls);
+    $(document).on('click', '.upload img', toggleControls)
+    //$(document).on('click', '.btn-ok', hideControls);;
 
     $('#file-uploader-cancel-btn').click(closeFileUploader);
 
@@ -46,18 +46,17 @@
         $('#file-uploader').hide();
     }
 
-    function hideControls() {
-        $(this).parent().hide();
-    }
+    //function hideControls() {
+    //    $(this).parent().hide();
+    //}
 
-    function showControls() {
-        alert($(this).next())
-        $(this).next('.upload-controls').show();
+    function toggleControls() {
+        $(this).siblings('.upload-controls').toggle();
     }
 
     function readyToUpload(file) {
         var xhr = new XMLHttpRequest();
-        xhr.open('HEAD', basePath + '/Content/Images' + uploadPath + '/' + file.name, false);
+        xhr.open('HEAD', basePath + 'Content/Images' + uploadPath + '/' + file.name, false);
         xhr.onreadystatechange = function () {
             if (xhr.status == 200) {
                 var overwrite = confirm('Do you want to overwrite the existing file?');

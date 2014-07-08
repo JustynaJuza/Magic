@@ -12,7 +12,7 @@ namespace Magic.Helpers
 {
     public static class HtmlHelperExtensions
     {
-        public static string PlaceholderImage = HostingEnvironment.ApplicationVirtualPath + "/Content/Images/placeholder.png";
+        public static string PlaceholderImage = VirtualPathUtility.ToAbsolute("~/Content/Images/placeholder.png");
 
         private const string _jSViewDataName = "RenderJavaScript";
         private const string _styleViewDataName = "RenderStyle";

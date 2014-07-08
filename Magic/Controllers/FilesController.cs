@@ -13,7 +13,7 @@ namespace Magic.CMS.Controllers
     {
         public string UploadFile(HttpPostedFileBase file, string uploadPath = "", bool allowImageOnly = true)
         {
-            var path = HostingEnvironment.ApplicationVirtualPath + "/Content/Images" + uploadPath + "/";
+            var path = VirtualPathUtility.ToAbsolute("~/Content/Images" + uploadPath + "/");
             var serverPath = Server.MapPath(path);
             if (!Directory.Exists(serverPath)) {
                 Directory.CreateDirectory(serverPath);
