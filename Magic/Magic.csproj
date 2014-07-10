@@ -185,6 +185,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\HtmlHelperExtensions.cs" />
+    <Compile Include="Helpers\UploaderHelpers.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Migrations\201405010936347_Init.cs" />
@@ -316,6 +318,7 @@
     <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
     <Content Include="Views\Shared\_UploaderPartial.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />
+    <Content Include="Views\Files\Example.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

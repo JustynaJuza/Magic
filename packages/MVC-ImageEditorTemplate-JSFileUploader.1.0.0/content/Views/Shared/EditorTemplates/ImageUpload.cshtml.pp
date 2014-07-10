@@ -1,5 +1,5 @@
-@model string
-@using Magic.Helpers
+﻿@model string
+@using $rootnamespace$.Helpers
 
 <style>
     .upload {

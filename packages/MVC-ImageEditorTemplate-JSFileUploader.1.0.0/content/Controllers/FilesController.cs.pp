@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
 
-namespace Magic.Controllers
+namespace $rootnamespace$.Controllers
 {
     public class FilesController : Controller
     {
@@ -27,6 +27,10 @@ namespace Magic.Controllers
 
             file.SaveAs(serverPath + file.FileName);
             return path + file.FileName;
+        }
+
+        public ActionResult Example() {
+            return View();
         }
     }
 }

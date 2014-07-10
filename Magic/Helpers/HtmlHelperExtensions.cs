@@ -12,7 +12,7 @@ namespace Magic.Helpers
 {
     public static class HtmlHelperExtensions
     {
-        public static string PlaceholderImage = VirtualPathUtility.ToAbsolute("~/Content/Images/placeholder.png");
+        private static string placeholderImage = VirtualPathUtility.ToAbsolute("~/Content/Images/placeholder.png");
 
         private const string _jSViewDataName = "RenderJavaScript";
         private const string _styleViewDataName = "RenderStyle";
@@ -113,14 +113,14 @@ namespace Magic.Helpers
             return MvcHtmlString.Create(string.Format("<{0} id=\"{1}\">{2}</{0}>", wrapperTag, id, helper.DisplayFor(expression)));
         }
 
-        public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
-        {
-            return helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
-        }
+        //public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
+        //{
+        //    return helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
+        //}
 
-        public static string GetPlaceholder(this HtmlHelper helper)
-        {
-            return PlaceholderImage;
-        }
+        //public static string GetPlaceholder(this HtmlHelper helper)
+        //{
+        //    return placeholderImage;
+        //}
     }
 }

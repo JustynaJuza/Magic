@@ -1,4 +1,4 @@
-@using Magic.Helpers
+﻿@using $rootnamespace$.Helpers
 
 <style>
     #file-uploader {
