@@ -241,7 +241,7 @@ namespace Magic.Controllers
                 //ChatHub.ToggleChatSubscription(foundUser);
                 foundUser.Connections.Clear();
                 foundUser.Status = UserStatus.Offline;
-                context.AddOrUpdate(foundUser);
+                context.InsertOrUpdate(foundUser);
 
                 AuthenticationManager.SignOut();
             }
@@ -290,7 +290,7 @@ namespace Magic.Controllers
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
             foundUser.ColorCode = String.Empty.AssignRandomColorCode();
 
-            TempData["Error"] = context.AddOrUpdate(foundUser);
+            TempData["Error"] = context.InsertOrUpdate(foundUser);
             return RedirectToAction("Manage");
         }
 
@@ -317,7 +317,7 @@ namespace Magic.Controllers
 
                     foundUser.Image = imagePath;
 
-                    TempData["Error"] = context.AddOrUpdate(foundUser);
+                    TempData["Error"] = context.InsertOrUpdate(foundUser);
                 }
             }
 
@@ -338,7 +338,7 @@ namespace Magic.Controllers
                 foundUser.BirthDate = model.BirthDate;
                 foundUser.Email = model.Email;
 
-                TempData["Error"] = context.AddOrUpdate(foundUser);
+                TempData["Error"] = context.InsertOrUpdate(foundUser);
                 if (TempData["Error"] == null)
                 {
                     TempData["Message"] = "Your details have been updated.";
@@ -480,7 +480,7 @@ namespace Magic.Controllers
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
 
             user.LastLoginDate = DateTime.Now;
-            context.AddOrUpdate(user);
+            context.InsertOrUpdate(user);
         }
 
         private void AddErrors(IdentityResult result)

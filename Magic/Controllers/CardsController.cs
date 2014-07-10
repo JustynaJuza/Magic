@@ -21,63 +21,61 @@ namespace Magic.Controllers
             return View(context.Cards.ToList());
         }
 
-        #region CREATE
+        #region CREATE/INSERT
         [HttpGet]
         public ActionResult Create()
         {
-            return View();
+            return View("CreateOrEdit");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Card model)
+        public ActionResult Insert(Card model)
         {
             if (ModelState.IsValid)
             {
-                //Card item = new Card()
-                //{
-                //    Name = model.Name
-                //};
-
-                TempData["Error"] = context.Create(model);
+                string errorText;
+                TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
                 return RedirectToAction("Index");
             }
+
             // Process model errors.
-            return View(model);
+            return View("Create", model);
         }
-        #endregion CREATE
+        #endregion CREATE/INSERT
 
         #region EDIT/UPDATE
         [HttpGet]
         public ActionResult Edit(Card model)
         {
-            TempData["Error"] = context.Read(model);
-            if (TempData["Error"].GetType() == typeof(string))
-            {
-                return RedirectToAction("Index");
-            }
-            TempData["Error"] = null;
-            return View(model);
+            string errorText;
+            model = (Card) context.Read(model, out errorText);
+            TempData["Error"] = errorText;
+
+            return View("CreateOrEdit", model);
         }
 
-        [HttpPost, ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult PostEdit([Bind(Include = "Id, Name")] Card model)
+        public ActionResult CreateOrEdit(Card model) //[Bind(Include = "Id, Name")] 
         {
             if (ModelState.IsValid)
             {
-                TempData["Error"] = context.AddOrUpdate(model);
+                string errorText;
+                TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
                 return RedirectToAction("Index");
             }
+
             // Process model errors.
-            return View("Edit", model);
+            return View("CreateOrEdit", model);
         }
         #endregion EDIT/UPDATE
 
         #region DELETE
         public ActionResult Delete(Card model)
         {
-            TempData["Error"] = context.Delete(model);
+            string errorText;
+            TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
             return RedirectToAction("Index");
         }
         #endregion DELETE

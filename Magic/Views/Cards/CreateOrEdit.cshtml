@@ -1,14 +1,14 @@
 ﻿@model Magic.Models.Card
 
 @{
-    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_LayoutCms.cshtml";
+    ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.Name.ToLower();
+    ViewBag.Title = "Create " + ViewBag.ModelTypeName;
 }
-
-<h2>Create</h2>
 
 @{ Html.RenderPartial("_UploaderPartial", new ViewDataDictionary { { "uploadPath", "/Cards" } }); }
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("Insert", (string)ViewBag.ModelTypeName + "s")) 
 {
     @Html.AntiForgeryToken()
     

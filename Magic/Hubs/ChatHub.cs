@@ -114,7 +114,7 @@ namespace Magic.Hubs
 
                     // Add message to chatlog in correct room.
                     chatRoom.Log.Messages.Add(message);
-                    context.AddOrUpdate(chatRoom);
+                    context.InsertOrUpdate(chatRoom);
 
                 // Depending on settings, use callback method to update clients.
                 if (recipient == null)
@@ -160,7 +160,7 @@ namespace Magic.Hubs
                 Message = UserStatusBroadcastMessage(status)
             };
             message.Sender.Status = status;
-            context.AddOrUpdate(message.Sender, true);
+            context.InsertOrUpdate(message.Sender, true);
 
             var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             if (roomName.Length > 0)
@@ -435,7 +435,7 @@ namespace Magic.Hubs
             if (todayLog != null)
             {
                 todayLog.AppendMessages(currentLog.Messages);
-                return context.AddOrUpdate(todayLog, true);
+                return context.InsertOrUpdate(todayLog, true);
             }
 
             // Create new log for Today.
@@ -443,14 +443,14 @@ namespace Magic.Hubs
             {
                 Messages = currentLog.Messages
             };
-            return context.Create(todayLog);
+            return context.Insert(todayLog);
         }
 
         private static void AddMessageToChatLog(ChatMessage message, string roomId = DefaultRoomId)
         {
             var chatRoom = context.ChatRooms.Find(roomId);
             chatRoom.Log.Messages.Add(message);
-            context.AddOrUpdate(chatRoom);
+            context.InsertOrUpdate(chatRoom);
             
             // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
             // Suggested solution: Add new temporary message log or explicitly call log saving.

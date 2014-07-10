@@ -1,15 +1,15 @@
 ﻿@model IEnumerable<Magic.Models.Card>
 
 @{
-    ViewBag.Title = "All your cards.";
+    Layout = "~/Views/Shared/_LayoutCms.cshtml";
+    ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.GenericTypeArguments[0].Name.ToLower();
+    ViewBag.Title = "All your " + ViewBag.ModelTypeName + "s";
 }
 
-<h2>All your cards.</h2>
-@Html.Partial("_MessagePartial")
-
 <p>
-    @Html.ActionLink("Add new Card", "Create")
+    @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
 </p>
+
 <table class="table">
     <thead>
         <tr>

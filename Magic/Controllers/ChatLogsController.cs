@@ -11,7 +11,7 @@ using Magic.Models.DataContext;
 
 namespace Magic.Controllers
 {
-    public class ChatLogController : Controller
+    public class ChatLogsController : Controller
     {
         private MagicDbContext context = new MagicDbContext();
 

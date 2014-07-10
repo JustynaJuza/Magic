@@ -159,7 +159,7 @@
     <Compile Include="CardDeck.cs" />
     <Compile Include="CardType.cs" />
     <Compile Include="ChatMessage.cs" />
-    <Compile Include="DataContext\MagicDBContext.cs" />
+    <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="ApplicationUser.cs" />
     <Compile Include="Helpers\CardFactory.cs" />
     <Compile Include="Interfaces\ICard.cs" />

@@ -52,50 +52,66 @@ namespace Magic.Models.DataContext
         public DbSet<Player_GameStatus> Player_GameStatuses { get; set; }
 
         #region CRUD
-        public bool Create(Object item)
-        {
-            //try
-            //{
-                Entry(item).State = EntityState.Added;
-                return SaveChanges() > 0;
-            //}
-            //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
-            //{
-            //    foreach (var validationErrors in ex.EntityValidationErrors)
-            //    {
-            //        foreach (var validationError in validationErrors.ValidationErrors)
-            //        {
-            //            System.Diagnostics.Trace.TraceInformation("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
-            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            //}
-        }
-
         public object Read(Object item)
         {
+            string errorText;
+            return Read(item, out errorText);
+        }
+
+        public object Read(Object item, out string errorText)
+        {
+            errorText = null;
+
             var collectionType = item.GetType();
             var targetCollection = Set(collectionType);
 
-            var itemKeyInfo = collectionType.GetProperty("Id") ?? collectionType.GetProperty("DateCreated");
+            var itemKeyInfo = collectionType.GetProperty("Id"); // ?? collectionType.GetProperty("DateCreated");
             var itemKey = itemKeyInfo.GetValue(item);
 
             var foundItem = targetCollection.Find(itemKey);
-            //if (foundItem == null)
-            //{
-            //    return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
-            //}
+
+            if (foundItem == null)
+            {
+                errorText = ShowErrorMessage(new ArgumentNullException());
+            }
 
             return foundItem;
         }
 
-        public bool AddOrUpdate(Object item, bool updateOnly = false)
+        public bool Insert(Object item)
+        {
+            string errorText;
+            return Insert(item, out errorText);
+        }
+
+        public bool Insert(Object item, out string errorText)
+        {
+            errorText = null;
+
+            Entry(item).State = EntityState.Added;
+
+            try
+            {
+                return SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                errorText = ShowErrorMessage(ex);
+                return false;
+            }
+        }
+
+        public bool InsertOrUpdate(Object item, bool updateOnly = false)
+        {
+            string errorText;
+            return InsertOrUpdate(item, out errorText, updateOnly);
+        }
+
+        public bool InsertOrUpdate(Object item, out string errorText, bool updateOnly = false)
         {
             Object foundItem;
+            errorText = null;
+
             if (updateOnly)
             {
                 Entry(item).CurrentValues.SetValues(item);
@@ -109,57 +125,69 @@ namespace Magic.Models.DataContext
                 else {
                     Entry(foundItem).CurrentValues.SetValues(item);
                 }
-                //if (foundItem is string)
-                //    return (string) foundItem; // Error string returned.
             }
 
-            return SaveChanges() > 0;
-
-            //try
-            //{
-                
-            //}
-            //catch (System.Data.Entity.Validation.DbEntityValidationException ex)
-            //{
-            //    foreach (var validationErrors in ex.EntityValidationErrors)
-            //    {
-            //        foreach (var validationError in validationErrors.ValidationErrors)
-            //        {
-            //            System.Diagnostics.Trace.TraceInformation("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
-            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            //}
-
-            //return null;
+            try {
+                return SaveChanges() > 0;
+            }
+            catch (Exception ex){
+                errorText = ShowErrorMessage(ex);
+                return false;
+            }
         }
 
-        public string Delete(Object item, bool deleteOnly = false)
+        public bool Delete(Object item, bool deleteOnly = false)
+        {
+            string errorText;
+            return Delete(item, out errorText, deleteOnly);
+        }
+
+        public bool Delete(Object item, out string errorText, bool deleteOnly = false)
         {
             var foundItem = item;
+            errorText = null;
+
             if (!deleteOnly)
-            {
-                foundItem = Read(item);
-                if (foundItem is string)
-                    return (string) foundItem; // Error string returned.
+            { 
+                foundItem = Read(item, out errorText);
+                if (foundItem == null)
+                {
+                    return false;
+                }
             }
 
-            //try
-            //{
-                Entry(foundItem).State = EntityState.Deleted;
-                SaveChanges();
-            //}
-            //catch (Exception ex)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
-            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again.";
-            //}
+            Entry(foundItem).State = EntityState.Deleted;
 
-            return null;
+            try
+            {
+                return SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                errorText = ShowErrorMessage(ex);
+                return false;
+            }
+        }
+
+        public string ShowErrorMessage(Exception ex)
+        {
+            var type = ex.GetType();
+            if (type == typeof(ArgumentNullException)) return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
+            else if (type == typeof(System.Data.Entity.Validation.DbEntityValidationException))
+            {
+                var errors = string.Empty;
+                foreach (var validationErrors in ((System.Data.Entity.Validation.DbEntityValidationException)ex).EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        errors += "Property: " + validationError.PropertyName + "Error:" + validationError.ErrorMessage + "<br />";
+                    }
+                }
+
+                return errors + ex.ToString();
+            }
+            else return "There was a problem with saving to the database..." + ex.ToString();
+            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again."
         }
         #endregion CRUD
     }

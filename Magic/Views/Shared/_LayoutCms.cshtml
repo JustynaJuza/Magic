@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title</title>
+    <title>@ViewBag.Title | Justyna</title>
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/jquery")
@@ -36,10 +36,12 @@
         </div>
     </div>
     <div class="container body-content">
+        <h1>@ViewBag.Title</h1>
+        @{Html.RenderPartial("_MessagePartial");}
         @RenderBody()
         <hr />
         <div class="row">
-            <div class="col-md-10">                
+            <div class="col-md-10">
                 @{Html.RenderPartial("_ChatPartial");}
             </div>
         </div>
@@ -48,7 +50,7 @@
         </footer>
     </div>
 
-        @RenderSection("scripts", required: false)
+    @RenderSection("scripts", required: false)
 
     @Scripts.Render("~/Scripts/_hub-start.js")
 </body>
