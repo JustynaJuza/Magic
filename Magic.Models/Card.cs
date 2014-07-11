@@ -12,6 +12,7 @@ namespace Magic.Models
     public class Card : AbstractExtensions
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }

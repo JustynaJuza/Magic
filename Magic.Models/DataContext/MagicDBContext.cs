@@ -20,14 +20,14 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ChatRoom>()
                 .HasRequired(r => r.Log)
                 .WithOptional();
-                //.WithOptional(l => l.Room);
+            //.WithOptional(l => l.Room);
 
             modelBuilder.Entity<ApplicationUserConnection>().HasKey(k => new { k.Id, k.UserId });
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
-            
+
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(cruc => cruc.ChatRoomId);
-            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId } );
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId });
 
             modelBuilder.Entity<Player_GameStatus>().HasKey(k => new { k.GameId, k.UserId });
             modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);
@@ -52,16 +52,35 @@ namespace Magic.Models.DataContext
         public DbSet<Player_GameStatus> Player_GameStatuses { get; set; }
 
         #region CRUD
-        public object Read(Object item)
+        public T Read<T, U>(U id)
+            where T : class
+            where U : struct
         {
             string errorText;
-            return Read(item, out errorText);
+            return Read<T, U>(id, out errorText);
         }
 
-        public object Read(Object item, out string errorText)
+        public T Read<T, U>(U id, out string errorText)
+            where T : class
+            where U : struct
         {
             errorText = null;
 
+            var collectionType = typeof(T);
+            var targetCollection = Set(collectionType);
+
+            var foundItem = targetCollection.Find(id);
+
+            if (foundItem == null)
+            {
+                errorText = ShowErrorMessage(new ArgumentNullException());
+            }
+
+            return (T)foundItem;
+        }
+
+        public object ReadObject(object item)
+        {
             var collectionType = item.GetType();
             var targetCollection = Set(collectionType);
 
@@ -69,11 +88,6 @@ namespace Magic.Models.DataContext
             var itemKey = itemKeyInfo.GetValue(item);
 
             var foundItem = targetCollection.Find(itemKey);
-
-            if (foundItem == null)
-            {
-                errorText = ShowErrorMessage(new ArgumentNullException());
-            }
 
             return foundItem;
         }
@@ -118,19 +132,23 @@ namespace Magic.Models.DataContext
             }
             else
             {
-                foundItem = Read(item);
-                if (foundItem == null){
+                foundItem = ReadObject(item);
+                if (foundItem == null)
+                {
                     Entry(item).State = EntityState.Added;
                 }
-                else {
+                else
+                {
                     Entry(foundItem).CurrentValues.SetValues(item);
                 }
             }
 
-            try {
+            try
+            {
                 return SaveChanges() > 0;
             }
-            catch (Exception ex){
+            catch (Exception ex)
+            {
                 errorText = ShowErrorMessage(ex);
                 return false;
             }
@@ -148,8 +166,8 @@ namespace Magic.Models.DataContext
             errorText = null;
 
             if (!deleteOnly)
-            { 
-                foundItem = Read(item, out errorText);
+            {
+                foundItem = ReadObject(item);
                 if (foundItem == null)
                 {
                     return false;
@@ -171,9 +189,8 @@ namespace Magic.Models.DataContext
 
         public string ShowErrorMessage(Exception ex)
         {
-            var type = ex.GetType();
-            if (type == typeof(ArgumentNullException)) return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
-            else if (type == typeof(System.Data.Entity.Validation.DbEntityValidationException))
+            if (ex is ArgumentNullException) return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
+            else if (ex is System.Data.Entity.Validation.DbEntityValidationException)
             {
                 var errors = string.Empty;
                 foreach (var validationErrors in ((System.Data.Entity.Validation.DbEntityValidationException)ex).EntityValidationErrors)

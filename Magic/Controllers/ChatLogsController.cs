@@ -21,16 +21,16 @@ namespace Magic.Controllers
             return View(context.ChatLogs.Include(l => l.Messages).ToList());
         }
 
-        public ActionResult MessageLog(ChatLog model)
-        {
-            TempData["Error"] = context.Read(model);
-            if (TempData["Error"].GetType() == typeof(string))
-            {
-                return RedirectToAction("Index");
-            }
-            TempData["Error"] = null;
-            return View("Messages", context.ChatMessages.Where(m => m.Log.DateCreated == model.DateCreated));
-        }
+        //public ActionResult MessageLog(int id)
+        //{
+        //    TempData["Error"] = context.Read<ChatLog, int>(id);
+        //    if (TempData["Error"].GetType() == typeof(string))
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+        //    TempData["Error"] = null;
+        //    return View("Messages", context.ChatMessages.Where(m => m.Log.DateCreated == model.DateCreated));
+        //}
 
 		#region DELETE
         [ActionName("ChatLogDelete")]

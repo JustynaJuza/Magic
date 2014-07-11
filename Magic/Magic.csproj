@@ -288,7 +288,7 @@
     <Content Include="Views\Account\_ManagePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
     <Content Include="Views\Account\_Register.cshtml" />
-    <Content Include="Views\Cards\Create.cshtml" />
+    <Content Include="Views\Cards\CreateOrEdit.cshtml" />
     <Content Include="Views\Cards\Edit.cshtml" />
     <Content Include="Views\Cards\Index.cshtml" />
     <Content Include="Views\ChatLog\Index.cshtml" />
@@ -315,7 +315,6 @@
     <Content Include="Views\Shared\EditorTemplates\PictureTile.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\SimpleTile.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\VideoPanel.cshtml" />
-    <Content Include="Views\Shared\CMS.Master" />
     <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
     <Content Include="Views\Shared\_UploaderPartial.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />

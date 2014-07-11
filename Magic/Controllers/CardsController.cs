@@ -21,43 +21,28 @@ namespace Magic.Controllers
             return View(context.Cards.ToList());
         }
 
-        #region CREATE/INSERT
+        #region CREATE/EDIT
         [HttpGet]
         public ActionResult Create()
         {
+            ViewBag.IsUpdate = false;
             return View("CreateOrEdit");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Insert(Card model)
-        {
-            if (ModelState.IsValid)
-            {
-                string errorText;
-                TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
-                return RedirectToAction("Index");
-            }
-
-            // Process model errors.
-            return View("Create", model);
-        }
-        #endregion CREATE/INSERT
-
-        #region EDIT/UPDATE
         [HttpGet]
-        public ActionResult Edit(Card model)
+        public ActionResult Edit(int id)
         {
             string errorText;
-            model = (Card) context.Read(model, out errorText);
+            var model =  context.Read<Card, int>(id, out errorText);
             TempData["Error"] = errorText;
 
+            ViewBag.IsUpdate = true;
             return View("CreateOrEdit", model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateOrEdit(Card model) //[Bind(Include = "Id, Name")] 
+        public ActionResult CreateOrEdit(Card model, bool isUpdate = false) //[Bind(Include = "Id, Name")] 
         {
             if (ModelState.IsValid)
             {
@@ -67,9 +52,10 @@ namespace Magic.Controllers
             }
 
             // Process model errors.
+            ViewBag.IsUpdate = isUpdate;
             return View("CreateOrEdit", model);
         }
-        #endregion EDIT/UPDATE
+        #endregion CREATE/EDIT
 
         #region DELETE
         public ActionResult Delete(Card model)
