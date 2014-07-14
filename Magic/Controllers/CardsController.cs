@@ -22,10 +22,8 @@ namespace Magic.Controllers
         }
 
         [HttpPost]
-        public ViewResult Index()
+        public ViewResult Index(IList<int> ids)
         {
-
-
             return View(context.Cards.ToList());
         }
 

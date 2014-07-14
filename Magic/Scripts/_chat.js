@@ -47,18 +47,36 @@
         }
     }
 
-    function $chat() {
-        this = $chatRoomSelectList;
+    function Chat () {
+        this.roomSelectList = $chatRoomSelectList;
+        this.newMessage = $newChatMessage;
 
-        addTab = function(){
-            $chatRoomSelectList.append(<);
+        this.addRoomTab = function (roomName, tabColor) {
+            this.roomSelectList.append('<li style="background-color: ' + tabColor + '">' + roomName + '<span class="btn-close">X</span></li>');
+            this.adjustRoomTabs();
         };
+        this.removeRoomTab = function (roomId) {
+            this.roomSelectList.find('#' + roomId).remove();
+            this.adjustRoomTabs();
+        };
+
+        this.adjustRoomTabs = function () {
+            var tabCount = this.roomSelectList.children().length
+            if (tabCount <= 1) {
+                this.roomSelectList.slideUp();
+            }
+
+            var avgWidth = Math.floor(parseInt(this.roomSelectList.css('width')) / tabCount)
+            this.roomSelectList.children('li').css('width', avgWidth);
+            this.roomSelectList.slideDown();
+        }
     }
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
     window.chat = $.connection.chatHub;
     var chat = window.chat;
+    var $chat = new Chat();
 
     // Initialize chat handling.
     window.chat.initialize = function initializeChat() {
@@ -152,7 +170,7 @@
     // Hub callback to add  chat room tab when current user joins.
     window.chat.client.joinChatRoom = function (roomId, roomName, tabColor, tabBorderColor) {
         $chatRoomUsersSelectList.append('<li id=' + roomId + 'style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
-        $chatRoomSelectList.append('<li id=' + roomId + 'style="color: ' + tabColor + '">' + roomName + '</li>');
+        $chatRoomSelectList.append('<li id=' + roomId + 'style="color: ' + tabColor + '">' + roomName + '<span class="btn-close">X</span></li>');
         adjustRoomTabs();
     }
 
@@ -278,16 +296,23 @@
     });
 
     $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
-        $chatRoomSelectList.hide();
-        $chatRoomSelection.val($(this).text());
-        $chatRoomSelection.attr('data-recipient', $(this).text());
-        var roomId = $(this).prop('id');
-        if (roomId.length) {
-            $chatRoomSelection.prop('id', roomId);
-        }
-        $chatRoomSelection.css('color', $(this).css('color'));
-        adjustNewMessageElementPadding();
-        $newChatMessage.focus();
+        $chat.addRoomTab($(this).text(), $(this).css('color'));
+        $chat.newMessage.focus();
+        //$chatRoomSelectList.hide();
+        //$chatRoomSelection.val($(this).text());
+        //$chatRoomSelection.attr('data-recipient', $(this).text());
+        //var roomId = $(this).prop('id');
+        //if (roomId.length) {
+        //    $chatRoomSelection.prop('id', roomId);
+        //}
+        //$chatRoomSelection.css('color', $(this).css('color'));
+        //adjustNewMessageElementPadding();
+        //$newChatMessage.focus();
+    });
+
+    $(document).on('click', '.btn-close', function() {
+        $(this).parent().remove();
+        $chat.adjustRoomTabs();
     });
 
     function filterChatUsers(roomId) {
