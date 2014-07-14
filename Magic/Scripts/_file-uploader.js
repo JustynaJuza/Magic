@@ -1,29 +1,39 @@
 ﻿$(function () {
+    if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+        alert('The file upload is not fully supported in your browser version, please update to a newer version.');
+        return;
+    }
+
+    var uploader = document.getElementById('file-uploader');
+    uploader.ondragover = function () { return false; };
+    uploader.ondragend = function () { return false; };
+    uploader.ondragenter = function () {
+        $('#file-uploader-selected-file-overlay').addClass('hover');
+        this.classList.add('hover');
+    };
+    uploader.ondragleave = function () {
+        $('#file-uploader-selected-file-overlay').removeClass('hover');
+        this.classList.remove('hover');
+    };
+    uploader.ondrop = function (e) {
+        e.preventDefault();
+        var file = e.dataTransfer.files[0];
+        readyToUpload(file);
+    }
 
     $(document).on('click', '.btn-upload', showFileUploader);
     $(document).on('click', '.btn-upload-delete', deleteImage);
     $(document).on('click', '.upload img', toggleControls)
-    //$(document).on('click', '.btn-ok', hideControls);;
 
     $('#file-uploader-cancel-btn').click(closeFileUploader);
 
     $('#file-uploader-upload-btn').click(function () {
-        if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
-            alert('The file upload is not fully supported in your browser version, please update to a newer version.');
-            return;
-        }
-
-        var fileInput = document.getElementById('file-uploader-selected-file');
-        if (!fileInput.files.length) {
-            alert('You must select a file to upload.');
-            return;
-        }
-
-        readyToUpload(fileInput.files[0]);
+        
     });
 
     $('#file-uploader-selected-file').change(function () {
-        $('#file-uploader-selected-file-overlay').val(this.files[0].name);
+        var file = document.getElementById('file-uploader-selected-file').files[0];
+        readyToUpload(file);
     });
 
     $('#file-uploader-selected-file-overlay').click(function () {
@@ -40,7 +50,7 @@
 
     function closeFileUploader() {
         $('#file-property-id').val('');
-        $('#file-uploader-selected-file-overlay').val('Select file');
+        $('#file-uploader-selected-file-overlay').val('Select or drag and drop file');
         $('#file-uploader-selected-file').val('');
         $('#file-uploader-overlay').hide();
         $('#file-uploader').hide();

@@ -23,7 +23,7 @@ namespace Magic.Migrations
                 context.CardColors.AddOrUpdate(new CardColor { Color = color });
             }
 
-            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = ChatHub.DefaultRoomId, Name = "General" });
+            context.ChatRooms.AddOrUpdate(new ChatRoom { Id = ChatHub.DefaultRoomId, Name = "All" });
         }
     }
 }
