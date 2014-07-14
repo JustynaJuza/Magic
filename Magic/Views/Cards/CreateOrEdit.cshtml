@@ -8,17 +8,15 @@
 
 @{ Html.RenderPartial("_UploaderPartial", new ViewDataDictionary { { "uploadPath", "/" + ViewBag.ModelTypeName + "s" } }); }
 
-@using (Html.BeginForm("CreateOrEdit", (string)ViewBag.ModelTypeName + "s", FormMethod.Post, new { isUpdate = ViewBag.IsUpdate }))
+@using (Html.BeginForm((ViewBag.IsUpdate ? "Edit" : "Create"), (string)ViewBag.ModelTypeName + "s", FormMethod.Post, new { isUpdate = ViewBag.IsUpdate }))
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Card</h4>
         <hr />
-        @Html.ValidationSummary(true)
+        @Html.ValidationSummary()
         
-        @Html.HiddenFor(m => m.Id)
-
         <div class="form-group">
             @Html.LabelFor(m => m.Name, new { @class = "control-label col-md-2" })
             <div class="col-md-10">

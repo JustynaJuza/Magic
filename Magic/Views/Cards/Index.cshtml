@@ -28,7 +28,7 @@
                 </td>
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", item)
+                    @Html.ActionLink("Delete", "Delete", item, new { id = "delete-" + item.Id })
                 </td>
             </tr>
         }
@@ -55,11 +55,35 @@
                     $('#cms_listing_paginate').show();
                 }
             },
+            dom: 'T<"clear">lfrtip',
             tableTools: {
-                dom: 'T<"clear">lfrtip',
-                sSwfPath: "/swf/copy_csv_xls_pdf.swf",
-                sRowSelect: "single"
-        }
+                sSwfPath: '/swf/copy_csv_xls_pdf.swf',
+                aButtons: [
+                    {
+                        sExtends: 'copy',
+                        sButtonText: 'Edit',
+                    },
+                    {
+                        sExtends: 'text',
+                        sButtonText: 'Delete',
+                        fnClick: function (nButton, oConfig, oFlash) {
+                            console.log(nButton, oConfig, oFlash);
+
+                        }
+                    },
+                    {
+                        sExtends: 'xls',
+                        sButtonText: 'Delete',
+                    },
+                    {
+                        sExtends: 'collection',
+                        sButtonText: 'Export',
+                        aButtons: [ 'xls', 'csv', 'pdf' ]
+                    },
+                    'print',
+                    'select_all'],
+                sRowSelect: 'multi'
+            }
         });
     });
 </script>
