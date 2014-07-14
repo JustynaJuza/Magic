@@ -1,5 +1,10 @@
 ﻿$(function () {
     window.chatRoomUsers = [];
+    window.chatCommands = ['/msg', '/game', '/all'];
+    window.chatCommand_all = function () {
+        $newChatMessage.val('');
+    };
+
     var $chatSendButton = $('#new-chat-message-send'),
         $newChatMessage = $('#new-chat-message'),
         $chatMessagesContainer = $('#chat-messages-container'),
@@ -7,8 +12,8 @@
         $chatMessage = $('.chat-message'),
         $chatRoomSelection = $('#chat-room-selection'),
         $chatRoomSelectList = $('#chat-room-selectlist'),
-        $chatRoomUsersSelectList = $('#chat-room-users-selectlist')
-        //$chatRoomUsersSelection = 
+        $chatRoomUsersSelectList = $('#chat-room-users-selectlist'),
+    //$chatRoomUsersSelection = 
         $chatUsersContainer = $('#chat-users-container'),
         $chatUsers = $('#chat-users'),
         $chatUser = $('.chat-user'),
@@ -16,6 +21,7 @@
         $chatPrivateCheckbox = $('#chat-messages-private-check'),
         basicNewMessagePadding = parseInt($newChatMessage.css('padding-left'));
         activeChatRoom = $chatRoomSelection.prop('id');
+
 
     adjustNewMessageElementPadding();
     adjustRoomTabs();
@@ -29,7 +35,7 @@
         /// <field name="chatUsersHtml" type="String">The chat room related user list in HTML markup.</field>
         /// <field name="roomId" type="String">The chat room identifier.</field>
         /// <field name="roomName" type="String">The chat room display name.</field>
-        if (arguments.length > 1){
+        if (arguments.length > 1) {
             this.chatUsersHtml = chatUsersHtml;
             this.roomId = roomId;
             this.roomName = roomName;
@@ -57,7 +63,7 @@
             var chatRoomSaved = _.any(window.chatRoomUsers, function (element, index) {
                 return element.roomId == currentChatRoomId;
             });
-            if (currentChatRoomId.length && !chatRoomSaved){
+            if (currentChatRoomId.length && !chatRoomSaved) {
                 window.chatRoomUsers.push(new ChatRoomUsers('', currentChatRoomId));
             }
 
@@ -91,7 +97,7 @@
         var foundChatRoomUsers = _.find(window.chatRoomUsers, function (element, index) {
             return element.roomId == roomId;
         });
-        
+
         if (foundChatRoomUsers != null) {
             foundChatRoomUsers.chatUsersHtml = updatedChatUsersHtml;
         }
@@ -109,8 +115,7 @@
             if ($foundUser.length > 0) {
                 $foundUser.remove();
             }
-            else
-            {
+            else {
                 $chatUsers.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
             }
         }
@@ -182,10 +187,11 @@
             $chatSendButton.trigger('click');
             $chatSendButton.prop('disabled', true);
         }
-        else if (e.keyCode == 32 && $newChatMessage.val().length > 0) {
-            $chatSendButton.toggleClass('clicked');
-            $chatSendButton.trigger('click');
-            $chatSendButton.prop('disabled', true);
+        else if (e.keyCode == 32 && $newChatMessage.val().split(' ').length == 2) {
+            if (_.any(chatCommands, matchNewChatMessage)) {
+                console.log(window['chatCommand_' + $newChatMessage.val().split(' ')[0].toLowerCase()])
+                window['chatCommand_' + $newChatMessage.val().split(' ')[0].toLowerCase()].apply();
+            };
         }
     });
 
@@ -286,7 +292,7 @@
         // Refresh the variable content.
         $chatUsers = $($chatUsers.selector);
     }
-    
+
     //$('#add-tab').click(alert(window.chatRoomUsers)); //chat.client.joinChatRoom);
 
     $('#remove-tab').click(window.chat.client.leaveChatRoom);
@@ -294,8 +300,10 @@
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
 
     // --------------------- HELPER FUNCTIONS ---------------------- START
+    function matchNewChatMessage(value) {
+        return $newChatMessage.val().split(' ')[0].toLowerCase() == value;
+    }
 
 
-    
-    // --------------------- HELPER FUNCTIONS ---------------------- START
+    // --------------------- HELPER FUNCTIONS ---------------------- END
 });

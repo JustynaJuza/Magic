@@ -21,6 +21,14 @@ namespace Magic.Controllers
             return View(context.Cards.ToList());
         }
 
+        [HttpPost]
+        public ViewResult Index()
+        {
+
+
+            return View(context.Cards.ToList());
+        }
+
         #region CREATE/EDIT
         [HttpGet]
         public ActionResult Create()
