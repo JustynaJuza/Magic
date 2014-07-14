@@ -47,6 +47,14 @@
         }
     }
 
+    function $chat() {
+        this = $chatRoomSelectList;
+
+        addTab = function(){
+            $chatRoomSelectList.append(<);
+        };
+    }
+
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
     window.chat = $.connection.chatHub;
@@ -269,7 +277,7 @@
         activeChatRoom = $chatRoomSelection.prop('id');
     });
 
-    $(document).on('dblclick', '#chat-room-selectlist li, .chat-message-sender, .chat-user', function () {
+    $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
         $chatRoomSelectList.hide();
         $chatRoomSelection.val($(this).text());
         $chatRoomSelection.attr('data-recipient', $(this).text());
