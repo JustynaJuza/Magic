@@ -12,6 +12,7 @@
         $chatMessage = $('.chat-message'),
         $chatRoomSelection = $('#chat-room-selection'),
         $chatRoomSelectList = $('#chat-room-selectlist'),
+        $chatRoomSelectListTab = $('#chat-room-selectlist li'),
         $chatRoomUsersSelectList = $('#chat-room-users-selectlist'),
     //$chatRoomUsersSelection = 
         $chatUsersContainer = $('#chat-users-container'),
@@ -52,7 +53,10 @@
         this.newMessage = $newChatMessage;
 
         this.addRoomTab = function (roomName, tabColor) {
-            this.roomSelectList.append('<li style="background-color: ' + tabColor + '">' + roomName + '<span class="btn-close">X</span></li>');
+            var li = $.par
+                this.roomSelectList.append();
+            console.log(li);
+            li.click();
             this.adjustRoomTabs();
         };
         this.removeRoomTab = function (roomId) {
@@ -62,12 +66,13 @@
 
         this.adjustRoomTabs = function () {
             var tabCount = this.roomSelectList.children().length
+            var avgWidth = 100 / tabCount;
+            this.roomSelectList.children('li').css('width', avgWidth + '%');
+
             if (tabCount <= 1) {
-                this.roomSelectList.slideUp();
+                return this.roomSelectList.slideUp();
             }
 
-            var avgWidth = Math.floor(parseInt(this.roomSelectList.css('width')) / tabCount)
-            this.roomSelectList.children('li').css('width', avgWidth);
             this.roomSelectList.slideDown();
         }
     }
@@ -313,6 +318,25 @@
     $(document).on('click', '.btn-close', function() {
         $(this).parent().remove();
         $chat.adjustRoomTabs();
+    });
+
+    $(document).on('mouseover', '#chat-room-selectlist li', function () {
+        $(this).fadeTo(0, 0.8);
+    });
+
+    $(document).on('mouseout', '#chat-room-selectlist li', function () {
+        $(this).fadeTo(0, 1);
+    });
+
+    $(document).on('click', '#chat-room-selectlist li', function () {
+        $('#chat-room-selectlist li').css('border-width', '1px');
+        $('#chat-room-selectlist li').css({'box-shadow' : '', '-webkit-box-shadow' : ''});
+        $('#chat-room-selectlist li').fadeTo(0, 1);
+        $(this).css('border-width', '2px');
+        $(this).css({ 'box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)', '-webkit-box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)' });
+        $(this).fadeTo(0, 0.8);
+        $chatRoomSelection.attr('data-chatRoomId', $(this).prop('id'));
+        $chatRoomSelection.attr('data-recipient', $(this).val());
     });
 
     function filterChatUsers(roomId) {
