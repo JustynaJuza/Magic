@@ -51,13 +51,19 @@
     function Chat () {
         this.roomSelectList = $chatRoomSelectList;
         this.newMessage = $newChatMessage;
+        this.chatUsers = $chatUsers;
 
-        this.addRoomTab = function (roomName, tabColor) {
-            var li = $.par
-                this.roomSelectList.append();
-            console.log(li);
-            li.click();
+        this.setChatUsers = function (chatUsers) {
+            this.chatUsers;
+        }
+
+        this.addRoomTab = function (userName, tabColor) {
+            var roomTab = $($.parseHTML('<li data-recipients="' + userName + '" style="background-color: ' + tabColor + '"><span class="chat-tab-btn-add-member">+</span>' + userName + '<span class="chat-tab-btn-close">X</span></li>'));
+            this.roomSelectList.append(roomTab)
+            console.log(roomTab);
             this.adjustRoomTabs();
+            //roomTab.data('recipients', roomName);
+            roomTab.click();
         };
         this.removeRoomTab = function (roomId) {
             this.roomSelectList.find('#' + roomId).remove();
@@ -89,8 +95,8 @@
         //chat.server.getChatRoomUsers('default');
 
         $chatSendButton.click(function () {
-            var currentChatRoomId = $chatRoomSelection.attr('data-chatRoomId');
-            var recipient = $chatRoomSelection.attr('data-recipient');
+            var currentChatRoomId = $chatRoomSelection.data('chatRoomId');
+            var recipient = $chatRoomSelection.data('recipient');
             var chatRoomSaved = _.any(window.chatRoomUsers, function (element, index) {
                 return element.roomId == currentChatRoomId;
             });
@@ -175,7 +181,7 @@
     // Hub callback to add  chat room tab when current user joins.
     window.chat.client.joinChatRoom = function (roomId, roomName, tabColor, tabBorderColor) {
         $chatRoomUsersSelectList.append('<li id=' + roomId + 'style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
-        $chatRoomSelectList.append('<li id=' + roomId + 'style="color: ' + tabColor + '">' + roomName + '<span class="btn-close">X</span></li>');
+        $chatRoomSelectList.append('<li data-recipients id=' + roomId + 'style="color: ' + tabColor + '">' + roomName + '<span class="chat-tab-btn-close">X</span></li>');
         adjustRoomTabs();
     }
 
@@ -315,10 +321,33 @@
         //$newChatMessage.focus();
     });
 
-    $(document).on('click', '.btn-close', function() {
+    $(document).on('click', '.chat-tab-btn-close', function () {
         $(this).parent().remove();
         $chat.adjustRoomTabs();
     });
+
+    $(document).on('click', '.chat-tab-btn-add-member', function () {
+        var roomTab = $(this).parent();
+        roomTab.data('recipients', roomTab.data('recipients') + '|' + member)
+        $('#user-list-add-member');
+    });    
+
+    function showUserList() {
+        $('#file-property-id').val($(this).prop('id').substr(3));
+
+        moveToScroll('#file-uploader');
+        $('#file-uploader-overlay').show();
+        $('#file-uploader').show();
+    }
+
+    function closeFileUploader() {
+        $('#file-property-id').val('');
+        $('#file-uploader-selected-file-overlay').val('Select or drag and drop file');
+        $('#file-uploader-selected-file').val('');
+        $('#file-uploader-overlay').hide();
+        $('#file-uploader').hide();
+    }
+
 
     $(document).on('mouseover', '#chat-room-selectlist li', function () {
         $(this).fadeTo(0, 0.8);
@@ -335,9 +364,12 @@
         $(this).css('border-width', '2px');
         $(this).css({ 'box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)', '-webkit-box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)' });
         $(this).fadeTo(0, 0.8);
-        $chatRoomSelection.attr('data-chatRoomId', $(this).prop('id'));
-        $chatRoomSelection.attr('data-recipient', $(this).val());
+        $chatRoomSelection.data('chatRoomId', $(this).prop('id'));
+        $chatRoomSelection.data('recipients', $(this).data('recipients'));
+        $chat.setChatUsers($(this).data('recipients'));
     });
+
+
 
     function filterChatUsers(roomId) {
         var chatRoomUsers = _.find(window.chatRoomUsers, function (element) {

@@ -1,6 +1,42 @@
 ﻿@using Magic.Hubs;
 
 <style>
+    #user-list-overlay {
+        position: fixed;
+        z-index: 99;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: #000000;
+        overflow: hidden;
+        -moz-filter: alpha(opacity=10) -ms-opacity: 0.1;
+        -o-filter: alpha(opacity=10) -ms-opacity: 0.1;
+        filter: alpha(opacity=10);
+        -ms-opacity: 0.1;
+        opacity: 0.1;
+        display: none;
+    }
+
+    #user-list-add-member {
+        list-style-type: none;
+        position: absolute;
+        border: 10px solid #000000;
+        display: none;
+        left: 50%;
+        margin-left: -25%;
+        width: 50%;
+        min-width: 100px;
+        max-width: 500px;
+        height: auto;
+        background-color: #ffffff;
+        z-index: 100;
+        text-align: center;
+        padding: 10px;
+    }
+
     .chat-user {
         font-weight: bold;
     }
@@ -42,11 +78,25 @@
         margin: 0;
     }
 
-    .btn-close {
+    .chat-tab-btn-close {
     float:right;
     margin-right: 5px;
     }
+
+    .chat-tab-btn-add-member {
+    float:left;
+    margin-left: 5px;
+    }
+
 </style>
+
+<div id="user-list-overlay"></div>
+<div id="user-list-add-member-container" style="overflow: auto; height: 220px;">
+    <ul id="user-list-add-member">
+        <li class="chat-user" />
+    </ul>
+</div>
+
 
 <input type="button" id="add-tab" class="btn btn-primary" value="Add" style="display: inline; margin: 0px 0px 3px 0px;" />
 <input type="button" id="remove-tab" class="btn btn-primary" value="Remove" style="display: inline; margin: 0px 0px 3px 0px;" />
@@ -55,7 +105,7 @@
 
     <h3>Discuss</h3>
     @*Want to ask a question or join in the talk about Magic events? <br />*@
-    <input type="hidden" id="chat-room-selection" class="btn btn-primary" value="Community" data-chatroomid="default" data-recipient="" style="position:absolute; width: auto; background:white;" />
+    <input type="hidden" id="chat-room-selection" class="btn btn-primary" value="Community" data-chatroomid="default" data-recipients="" style="position:absolute; width: auto; background:white;" />
     <ul id="chat-room-selectlist" style="display:none; width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding: 0px">
         <li id="default" style="width:100%">
             All

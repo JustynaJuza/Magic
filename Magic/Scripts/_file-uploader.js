@@ -56,10 +56,6 @@
         $('#file-uploader').hide();
     }
 
-    //function hideControls() {
-    //    $(this).parent().hide();
-    //}
-
     function toggleControls() {
         $(this).siblings('.upload-controls').toggle();
     }
