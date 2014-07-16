@@ -42,8 +42,7 @@ namespace Magic.Models
         }
 
         public bool OnlySpecifiedUsersInRoom(string[] userId) {
-            return AllowedUserIds.All(i => userId.Any(id => id == i));
-            //return Connections.TakeWhile((c, index) => userId.Any(u => u == c.UserId)).Count() == Connections.Count();
+            return AllowedUserIds.All(allowedId => userId.Any(id => id == allowedId));
         }
     }
 

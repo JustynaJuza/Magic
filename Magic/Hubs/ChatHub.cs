@@ -14,7 +14,6 @@ namespace Magic.Hubs
     public class ChatHub : Hub
     {
         public const string DefaultRoomId = "default";
-        //private static MagicDbContext context = new MagicDbContext();
 
         #region CHAT INIT
         public void ListChatRooms(string userId)
