@@ -10,7 +10,7 @@ namespace Magic.Models
 {
     public class ChatLog : AbstractExtensions
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
         public virtual List<ChatMessage> Messages { get; set; }
@@ -20,6 +20,11 @@ namespace Magic.Models
         {
             DateCreated = DateTime.Today;
             Messages = new List<ChatMessage>();
+        }
+
+        public ChatLog(string id) : this()
+        {
+            Id = id;
         }
 
         public void AppendMessages(List<ChatMessage> tempLog)

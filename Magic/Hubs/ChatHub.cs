@@ -26,7 +26,7 @@ namespace Magic.Hubs
             }
         }
 
-        public async void SubscribeChatRoom(string roomId = DefaultRoomId)
+        public async void SubscribeChatRoom(string roomId)
         {
             using (var context = new MagicDbContext())
             {
@@ -88,82 +88,112 @@ namespace Magic.Hubs
         #endregion CHAT INIT
 
         #region CHAT MESSAGE HANDLING
-        public void Send(string messageText, string roomId = DefaultRoomId, string recipientName = "")
+        public void Send(string messageText, string roomId, string[] recipientNames)
         {
-            //ApplicationUser recipient;
-            //var messageIsValid = ValidateMessage(messageText, recipientName, out recipient);
+            if (string.IsNullOrWhiteSpace(roomId))
+            {
+                SendToUsers(messageText, recipientNames);
+            }
+            else
+            {
+                SendToRoom(messageText, roomId);
+            }
+        }
 
+        public void SendToRoom(string messageText, string roomId)
+        {
             using (var context = new MagicDbContext())
             {
-                var recipient = context.Users.FirstOrDefault(u => u.UserName == recipientName);
-                //if (messageIsValid)
-                //{
-                    var userId = Context.User.Identity.GetUserId();
-                    var sender = context.Users.Find(userId);
-                    var message = new ChatMessage(messageText)
+                var userId = Context.User.Identity.GetUserId();
+                var sender = context.Users.Find(userId);
+                var message = new ChatMessage(messageText)
+                {
+                    Sender = sender,
+                    Message = messageText
+                };
+
+                var chatRoom = context.ChatRooms.Find(roomId);
+
+                foreach (var recipientId in chatRoom.AllowedUserIds.Except(new string[] { userId }))
+                {
+                    message.Recipients.Add(new Recipient_ChatMessageStatus()
                     {
-                        SenderId = userId,
-                        Recipient = recipient,
-                        Message = messageText
+                        RecipientId = recipientId
+                    });
+                }
+
+                chatRoom.AddMessageToLog(message);
+                context.InsertOrUpdate(chatRoom, true);
+
+                Clients.Group(roomId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+            }
+        }
+
+        public void SendToUsers(string messageText, string[] recipientNames)
+        {
+            //Validate all recipients: take whole user object get id instead of name;
+            using (var context = new MagicDbContext())
+            {
+                var recipients = new List<ApplicationUser>();
+
+                foreach (var userName in recipientNames)
+                {
+                    recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
+                }
+                var recipientIds = recipients.Select(r => r.Id);
+
+                var userId = Context.User.Identity.GetUserId();
+                var sender = context.Users.Find(userId);
+                var message = new ChatMessage(messageText)
+                {
+                    Sender = sender,
+                    Message = messageText
+                };
+
+                foreach (var recipientId in recipientIds)
+                {
+                    message.Recipients.Add(new Recipient_ChatMessageStatus()
+                    {
+                        RecipientId = recipientId
+                    });
+                }
+
+                var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds)) ??
+                    // Create new chat room if no private conversation found.
+                    new ChatRoom()
+                    {
+                        IsPrivate = true,
+                        AllowedUserIds = recipientIds,
                     };
 
-                    ChatRoom chatRoom;
-                    if (!string.IsNullOrWhiteSpace(roomId))
-                    {
-                        chatRoom = context.ChatRooms.Find(roomId);
-                    }
-                    else{
-                        chatRoom = //context.ChatRooms.First(r => r.IsPrivate && r.OnlySpecifiedUsersInRoom(new string[] { recipient.Id, userId })) ??
-                            // Create new chat room if no private conversation found.
-                            new ChatRoom()
-                            {
-                                IsPrivate = true,
-                                AllowedUserIds = { recipient.Id, userId },
-                                TabColorCodes = { sender.ColorCode, recipient.ColorCode }
-                            };
-                        context.InsertOrUpdate(chatRoom);
+                chatRoom.AddMessageToLog(message);
+                context.InsertOrUpdate(chatRoom, true);
 
-                        SubscribeActiveConnections(chatRoom.Id, userId);
-                        SubscribeActiveConnections(chatRoom.Id, recipient.Id);
-                    }
+                SubscribeActiveConnections(chatRoom.Id, userId);
+                foreach (var recipientId in recipientIds)
+                {
+                    SubscribeActiveConnections(chatRoom.Id, recipientId);
+                }
 
-                    // Add message to chatlog in correct room.
-                    chatRoom.Log.Messages.Add(message);
-                    context.InsertOrUpdate(chatRoom);
 
-                    // Depending on settings, use callback method to update clients.
-                    if (recipient == null)
-                    {
-                        if (roomId.Length > 0)
-                        {
-                            //AddMessageToChatLog(message, roomName);
-                            Clients.Group(roomId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                        }
-                        else
-                        {
-                            //AddMessageToChatLog(message);
-                            Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                        }
-                    }
-                    else
-                    {
-                        // Get message text after username and following space.
-                        //message.Message = messageText.Substring(recipient.UserName.Length + 2);
-                        // Set message recipient.
-                        message.Recipient = recipient;
+                Clients.Group(chatRoom.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                Clients.Group(chatRoom.Id).updateChatTab(Json.Encode(chatRoom.AllowedUserIds), chatRoom.Id);
 
-                        // Send message to all recipient and all sender connections.
-                        foreach (var connection in message.Recipient.Connections)
-                        {
-                            Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                                message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                        }
-                        foreach (var connection in message.Sender.Connections)
-                        {
-                            Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                                message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                        }
-                    }
+                // Get message text after username and following space.
+                //message.Message = messageText.Substring(recipient.UserName.Length + 2);
+                // Set message recipient.
+                //message.Recipient = recipient;
+
+                // Send message to all recipient and all sender connections.
+                //foreach (var connection in message.Recipient.Connections)
+                //{
+                //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+                //}
+                //foreach (var connection in message.Sender.Connections)
+                //{
+                //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+                //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
                 //}
             }
         }
@@ -305,9 +335,11 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                var activeConnectionIds = context.Connections.Where(c => c.UserId == userId && c.Id != Context.ConnectionId).Select(c => c.Id);
+                var activeConnectionIds = context.Connections.Where(c => c.UserId == userId).Select(c => c.Id);
+                var subscribedConnectionIds = context.ChatRoom_Connections.Where(crc => crc.UserId == userId && crc.ChatRoomId == roomId).Select(crc => crc.ConnectionId);
+                var unsubscribedConnectionIds = activeConnectionIds.Except(subscribedConnectionIds);
 
-                foreach (var connectionId in activeConnectionIds)
+                foreach (var connectionId in unsubscribedConnectionIds)
                 {
                     context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
                     {
@@ -389,8 +421,8 @@ namespace Magic.Hubs
                 context.Connections.Add(connection);
                 context.SaveChanges();
 
-                SubscribeActiveChatRooms(Context.ConnectionId, userId);
                 SubscribeChatRoom(DefaultRoomId);
+                SubscribeActiveChatRooms(Context.ConnectionId, userId);
 
                 if (foundUser.Connections.Count == 1)
                 {

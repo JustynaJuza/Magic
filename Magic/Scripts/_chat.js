@@ -5,7 +5,8 @@
         $newChatMessage.val('');
     };
 
-    var $chatSendButton = $('#new-chat-message-send'),
+    var $userName = $('#user_name');
+        $chatSendButton = $('#new-chat-message-send'),
         $newChatMessage = $('#new-chat-message'),
         $chatMessagesContainer = $('#chat-messages-container'),
         $chatMessages = $('#chat-messages'),
@@ -27,7 +28,7 @@
     //adjustNewMessageElementPadding();
         adjustRoomTabs();
         $chatRoomSelection.data('chatRoomId', 'default');
-        $chatRoomSelection.data('recipients', 'default');
+        $chatRoomSelection.data('recipients', '');
 
 
     function ChatRoomUsers(chatUsersHtml, roomId, roomName) {
@@ -63,12 +64,11 @@
             this.chatUsers;
         }
 
-        this.addRoomTab = function (userName, tabColor) {
-            var roomTab = $($.parseHTML('<li data-recipients="' + userName + '" style="background-color: ' + tabColor + '"><span class="chat-tab-btn-add-member">+</span>' + userName + '<span class="chat-tab-btn-close">X</span></li>'));
-            this.roomSelectList.append(roomTab)
-            console.log(roomTab);
+        this.addRoomTab = function (recipientName, tabColor) {
+            var roomTab = $($.parseHTML('<li style="background-color: ' + tabColor + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
+            roomTab.data('recipients', [recipientName, $userName.text()]);
+            this.roomSelectList.append(roomTab);
             this.adjustRoomTabs();
-            //roomTab.data('recipients', roomName);
             roomTab.click();
         };
         this.removeRoomTab = function (roomId) {
@@ -81,9 +81,10 @@
             var avgWidth = 100 / tabCount;
             this.roomSelectList.children('li').css('width', avgWidth + '%');
 
+            // Tabs closed - only default chat room left, hide tab bar.
             if (tabCount <= 1) {
                 $chatRoomSelection.data('chatRoomId', 'default');
-                $chatRoomSelection.data('recipients', 'default');
+                $chatRoomSelection.data('recipients', '');
                 return this.roomSelectList.slideUp();
             }
 
@@ -180,6 +181,10 @@
 
         //filterChatUsers(roomId);
     };
+
+    window.chat.client.updateChatTab = function (recipients, roomId) {
+        console.log(recipients, roomId);
+    }
 
     // Hub callback to remove chat room tab when current user leaves.
     window.chat.client.leaveChatRoom = function (roomId) {
@@ -338,7 +343,7 @@
 
     $(document).on('click', '.chat-tab-btn-add-member', function () {
         var roomTab = $(this).parent();
-        roomTab.data('recipients', roomTab.data('recipients') + '|' + member)
+        roomTab.data('recipients', Array(roomTab.data('recipients')).push(member))
         $('#user-list-add-member');
     });    
 

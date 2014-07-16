@@ -1,4 +1,5 @@
 ﻿@using Magic.Hubs;
+@using Microsoft.AspNet.Identity
 
 <style>
     #user-list-overlay {
@@ -103,7 +104,7 @@
 
 <div class="chat container">
 
-    <h3>Discuss</h3>
+    <h3>Hello <span id="user_name">@User.Identity.GetUserName()</span>!</h3>
     @*Want to ask a question or join in the talk about Magic events? <br />*@
     <input type="hidden" id="chat-room-selection" class="btn btn-primary" value="Community" style="position:absolute; width: auto; background:white;" />
     <ul id="chat-room-selectlist" style="display:none; width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding: 0px">
@@ -112,7 +113,6 @@
         </li>
     </ul>
     <div class="container" style="border: solid 1px #357ebd; border-radius:4px;">
-
 
         <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
             <ul id="chat-room-users-selectlist" style="width: auto; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
@@ -152,7 +152,7 @@
 
             <div class="form-control" id="chat-messages-container" style="height: 215px; overflow: auto;">
                 <ul id="chat-messages" style="list-style-type: none;">
-                    @{ var recentLog = ChatHub.GetRecentChatLog();
+                    @*@{ var recentLog = ChatHub.GetRecentChatLog();
                      if (recentLog != null)
                      {
                          foreach (var message in recentLog)
@@ -167,7 +167,7 @@
                             </li>
                          }
                      }
-                    }
+                    }*@
                 </ul>
             </div>
 

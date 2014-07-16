@@ -25,6 +25,7 @@ namespace Magic.Models
         public virtual IList<CardDeck> DeckCollection { get; set; }
         public virtual IList<ApplicationUserConnection> Connections { get; set; }
         public virtual IList<Player_GameStatus> Games { get; set; }
+        public virtual IList<Recipient_ChatMessageStatus> ChatMessages { get; set; }
 
         // Constructor.
         public ApplicationUser()

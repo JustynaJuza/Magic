@@ -190,17 +190,9 @@
     <Compile Include="Helpers\UploaderHelpers.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Migrations\201405010936347_Init.cs" />
-    <Compile Include="Migrations\201405010936347_Init.Designer.cs">
-      <DependentUpon>201405010936347_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.cs" />
-    <Compile Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.Designer.cs">
-      <DependentUpon>201406261641188_CHatRoom_ApplicationUserConnection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201406271155066_ForeignKeyMixup.cs" />
-    <Compile Include="Migrations\201406271155066_ForeignKeyMixup.Designer.cs">
-      <DependentUpon>201406271155066_ForeignKeyMixup.cs</DependentUpon>
+    <Compile Include="Migrations\201407161408171_Init.cs" />
+    <Compile Include="Migrations\201407161408171_Init.Designer.cs">
+      <DependentUpon>201407161408171_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -341,14 +333,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201405010936347_Init.resx">
-      <DependentUpon>201405010936347_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201406261641188_CHatRoom_ApplicationUserConnection.resx">
-      <DependentUpon>201406261641188_CHatRoom_ApplicationUserConnection.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201406271155066_ForeignKeyMixup.resx">
-      <DependentUpon>201406271155066_ForeignKeyMixup.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201407161408171_Init.resx">
+      <DependentUpon>201407161408171_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

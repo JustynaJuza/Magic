@@ -239,9 +239,9 @@ namespace Magic.Controllers
                 var foundUser = context.Users.Find(userId);
 
                 //ChatHub.ToggleChatSubscription(foundUser);
-                foundUser.Connections.Clear();
-                foundUser.Status = UserStatus.Offline;
-                context.InsertOrUpdate(foundUser);
+                //foundUser.Connections.Clear();
+                //foundUser.Status = UserStatus.Offline;
+                //context.InsertOrUpdate(foundUser);
 
                 AuthenticationManager.SignOut();
             }

@@ -17,11 +17,6 @@ namespace Magic.Models.DataContext
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ApplicationUserConnection>().ToTable("AspNetUserConnections");
 
-            modelBuilder.Entity<ChatRoom>()
-                .HasRequired(r => r.Log)
-                .WithOptional();
-            //.WithOptional(l => l.Room);
-
             modelBuilder.Entity<ApplicationUserConnection>().HasKey(k => new { k.Id, k.UserId });
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
@@ -33,10 +28,12 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);
             modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.User).WithMany(u => u.Games).HasForeignKey(pgs => pgs.UserId);
 
-            //modelBuilder.Entity<ApplicationUserConnection>().HasKey(c => new { c.Id, c.ChatRoomId });
+            modelBuilder.Entity<Recipient_ChatMessageStatus>().HasKey(rms => new { rms.MessageId, rms.RecipientId });
+            modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Message).WithMany(m => m.Recipients).HasForeignKey(rms => rms.MessageId);
+            modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(rms => rms.RecipientId);
 
-            //modelBuilder.Entity<ChatLog>().HasKey(l => l.DateCreated);
-            //modelBuilder.Entity<PlayerGameStatus>().HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
+            //modelBuilder.Entity<ChatRoom>().HasRequired(r => r.Log).WithOptional();
+
         }
 
         public DbSet<ApplicationUserConnection> Connections { get; set; }
