@@ -23,7 +23,8 @@ namespace Magic.Models
             IsPrivate = false;
             TabColorCode = String.Empty.AssignRandomColorCode();
             Log = new ChatLog();
-            //AllowedUserIds = new List<string>();
+            AllowedUserIds = new List<string>();
+            TabColorCodes = new List<string>();
             Connections = new List<ChatRoom_ApplicationUserConnection>();
         }
 

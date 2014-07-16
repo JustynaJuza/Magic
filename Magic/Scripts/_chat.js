@@ -24,8 +24,11 @@
         activeChatRoom = $chatRoomSelection.prop('id');
 
 
-    adjustNewMessageElementPadding();
-    adjustRoomTabs();
+    //adjustNewMessageElementPadding();
+        adjustRoomTabs();
+        $chatRoomSelection.data('chatRoomId', 'default');
+        $chatRoomSelection.data('recipients', 'default');
+
 
     function ChatRoomUsers(chatUsersHtml, roomId, roomName) {
         /// <summary>Creates an object storing the chat room user list related identified by room name, can also be used as clone constructor.</summary>
@@ -48,7 +51,10 @@
         }
     }
 
-    function Chat () {
+    function Chat() {
+        this.defaultRecipients = '';
+        this.defaultRoomName = 'default';
+
         this.roomSelectList = $chatRoomSelectList;
         this.newMessage = $newChatMessage;
         this.chatUsers = $chatUsers;
@@ -76,11 +82,15 @@
             this.roomSelectList.children('li').css('width', avgWidth + '%');
 
             if (tabCount <= 1) {
+                $chatRoomSelection.data('chatRoomId', 'default');
+                $chatRoomSelection.data('recipients', 'default');
                 return this.roomSelectList.slideUp();
             }
 
             this.roomSelectList.slideDown();
         }
+
+        this.joinChatRoom = function () { };
     }
 
     // ---------------------------- HUB ---------------------------- BEGIN
@@ -96,16 +106,16 @@
 
         $chatSendButton.click(function () {
             var currentChatRoomId = $chatRoomSelection.data('chatRoomId');
-            var recipient = $chatRoomSelection.data('recipient');
+            var recipients = $chatRoomSelection.data('recipients');
             var chatRoomSaved = _.any(window.chatRoomUsers, function (element, index) {
                 return element.roomId == currentChatRoomId;
             });
-            if (currentChatRoomId.length && !chatRoomSaved) {
-                window.chatRoomUsers.push(new ChatRoomUsers('', currentChatRoomId));
-            }
+            //if (currentChatRoomId  && !chatRoomSaved) {
+            //    window.chatRoomUsers.push(new ChatRoomUsers('', currentChatRoomId));
+            //}
 
             // Call the message sending method on server.
-            window.chat.server.send($newChatMessage.val(), currentChatRoomId, recipient);
+            window.chat.server.send($newChatMessage.val(), currentChatRoomId, recipients);
             // Clear text box and reset focus for next comment.
             $newChatMessage.val('').focus();
         });

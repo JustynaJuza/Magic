@@ -152,7 +152,7 @@ namespace Magic
                 if (save)
                 {
                     // Proceed with saving captured ChatLog to database.
-                    ChatHub.SaveChatLogToDatabase(currentLog);
+                    //ChatHub.SaveChatLogToDatabase(currentLog);
                 }
             }
             return true;
