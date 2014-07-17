@@ -10,9 +10,13 @@ namespace Magic.Models
     {
         public int MessageId { get; set; }
         public string RecipientId { get; set; }
-        public bool IsUnread { get; set; }
+        public bool IsRead { get; set; }
         public virtual ChatMessage Message{ get; set; }
         public virtual ApplicationUser Recipient { get; set; }
+
+        public Recipient_ChatMessageStatus() {
+            IsRead = false;
+        }
     }
 
     public class ChatMessage : AbstractExtensions

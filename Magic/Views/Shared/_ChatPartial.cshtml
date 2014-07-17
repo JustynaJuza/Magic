@@ -67,21 +67,34 @@
 
     #chat-room-users-selectlist li,
     #chat-room-selectlist li {
-        float:left;
+        float: left;
         display: block;
-        line-height: 34px;
+        line-height: 36px;
+        height: 36px;
         overflow: hidden;
         text-align: center;
         border: 1px solid black;
-        border-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
         color: #ffffff;
         background-color: #428bca;
         margin: 0;
+        /*-webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;*/
     }
 
-    .chat-tab-btn-close {
-    float:right;
-    margin-right: 5px;
+    #chat_tab_content {
+        border: 2px solid black;
+        border-radius: 4px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+        
+     .chat-tab-btn-close {
+        float: right;
+        margin-right: 5px;
     }
 
     .chat-tab-btn-add-member {
@@ -112,7 +125,7 @@
             All
         </li>
     </ul>
-    <div class="container" style="border: solid 1px #357ebd; border-radius:4px;">
+    <div id="chat_tab_content" class="container">
 
         <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
             <ul id="chat-room-users-selectlist" style="width: auto; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">

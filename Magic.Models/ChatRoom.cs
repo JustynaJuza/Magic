@@ -14,9 +14,9 @@ namespace Magic.Models
         public string Name { get; set; }
         public bool IsPrivate { get; set; }
         public string TabColorCode { get; set; }
-        public virtual IList<string> TabColorCodes { get; set; }
+        public IList<string> AllowedUserIds { get; set; }
+        public IList<string> TabColorCodes { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<string> AllowedUserIds { get; set; }
         public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
 
         public ChatRoom()
@@ -54,9 +54,9 @@ namespace Magic.Models
             return Connections.Distinct(new ChatRoom_ApplicationUserConnection_UserComparer()).Count();
         }
 
-        public bool OnlySpecifiedUsersInRoom(IList<string> userId)
+        public bool OnlySpecifiedUsersInRoom(IEnumerable<string> userIds)
         {
-            return AllowedUserIds.All(allowedId => userId.Any(id => id == allowedId));
+            return AllowedUserIds.All(allowedId => userIds.Any(id => id == allowedId));
         }
     }
 

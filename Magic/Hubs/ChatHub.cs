@@ -136,7 +136,7 @@ namespace Magic.Hubs
             {
                 var recipients = new List<ApplicationUser>();
 
-                foreach (var userName in recipientNames)
+                foreach (var userName in recipientNames.Distinct())
                 {
                     recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
                 }
@@ -163,21 +163,19 @@ namespace Magic.Hubs
                     new ChatRoom()
                     {
                         IsPrivate = true,
-                        AllowedUserIds = recipientIds,
+                        AllowedUserIds = recipientIds.ToList(),
                     };
 
                 chatRoom.AddMessageToLog(message);
-                context.InsertOrUpdate(chatRoom, true);
-
+                context.InsertOrUpdate(chatRoom);
                 SubscribeActiveConnections(chatRoom.Id, userId);
                 foreach (var recipientId in recipientIds)
                 {
                     SubscribeActiveConnections(chatRoom.Id, recipientId);
                 }
 
-
                 Clients.Group(chatRoom.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                Clients.Group(chatRoom.Id).updateChatTab(Json.Encode(chatRoom.AllowedUserIds), chatRoom.Id);
+                Clients.Group(chatRoom.Id).updateChatTab(recipientNames, chatRoom.Id);
 
                 // Get message text after username and following space.
                 //message.Message = messageText.Substring(recipient.UserName.Length + 2);

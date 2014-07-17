@@ -69,7 +69,7 @@
             roomTab.data('recipients', [recipientName, $userName.text()]);
             this.roomSelectList.append(roomTab);
             this.adjustRoomTabs();
-            roomTab.click();
+            roomTab.trigger('click');
         };
         this.removeRoomTab = function (roomId) {
             this.roomSelectList.find('#' + roomId).remove();
@@ -85,7 +85,12 @@
             if (tabCount <= 1) {
                 $chatRoomSelection.data('chatRoomId', 'default');
                 $chatRoomSelection.data('recipients', '');
+
+                $('#chat_tab_content').animate({ 'border-top-left-radius': '4px', 'border-top-right-radius': '4px' }, 350);
                 return this.roomSelectList.slideUp();
+            }
+            else {
+                $('#chat_tab_content').css({ 'border-top-left-radius': 0, 'border-top-right-radius': 0 });
             }
 
             this.roomSelectList.slideDown();
@@ -339,6 +344,7 @@
     $(document).on('click', '.chat-tab-btn-close', function () {
         $(this).parent().remove();
         $chat.adjustRoomTabs();
+        $chat.roomSelectList.find('#default').trigger('click');
     });
 
     $(document).on('click', '.chat-tab-btn-add-member', function () {
@@ -374,11 +380,10 @@
 
     $(document).on('click', '#chat-room-selectlist li', function () {
         $('#chat-room-selectlist li').css('border-width', '1px');
-        $('#chat-room-selectlist li').css({'box-shadow' : '', '-webkit-box-shadow' : ''});
-        $('#chat-room-selectlist li').fadeTo(0, 1);
+        $('#chat-room-selectlist li').css({ 'box-shadow': '', '-webkit-box-shadow': '' });
+        $('#chat_tab_content').css('background-color', $(this).css('background-color'))
         $(this).css('border-width', '2px');
         $(this).css({ 'box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)', '-webkit-box-shadow': 'inset 0 3px 5px rgba(0, 0, 0, 0.125)' });
-        $(this).fadeTo(0, 0.8);
         $chatRoomSelection.data('chatRoomId', $(this).prop('id'));
         $chatRoomSelection.data('recipients', $(this).data('recipients'));
         $chat.setChatUsers($(this).data('recipients'));
