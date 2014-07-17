@@ -7,6 +7,7 @@ using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
 using System.Web.Helpers;
+using Magic.Helpers;
 
 namespace Magic.Hubs
 {
@@ -26,7 +27,7 @@ namespace Magic.Hubs
             }
         }
 
-        public bool GetExistingChatRoom(string[] recipientNames)
+        public string GetExistingChatRoom(string[] recipientNames)
         {
             using (var context = new MagicDbContext())
             {
@@ -45,10 +46,10 @@ namespace Magic.Hubs
                 {
                     var userId = Context.User.Identity.GetUserId();
                     Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
-                    return true;
+                    return ViewRenderer.RenderPartialView("_ChatRoomPartial");
                 }
 
-                return false;
+                return String.Empty;
             }
         }
 

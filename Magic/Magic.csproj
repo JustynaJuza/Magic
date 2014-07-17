@@ -188,6 +188,7 @@
     </Compile>
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
+    <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Migrations\201407161408171_Init.cs" />
@@ -312,6 +313,7 @@
     <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />
     <Content Include="Views\Files\Example.cshtml" />
     <Content Include="Views\Shared\_LayoutCms.cshtml" />
+    <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Error\" />
