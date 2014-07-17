@@ -5,7 +5,7 @@
         $newChatMessage.val('');
     };
 
-    var $userName = $('#user_name');
+    var userName = $('#user_name').text();
         $chatSendButton = $('#new-chat-message-send'),
         $newChatMessage = $('#new-chat-message'),
         $chatMessagesContainer = $('#chat-messages-container'),
@@ -65,12 +65,18 @@
         }
 
         this.addRoomTab = function (recipientName, tabColor) {
-            var roomTab = $($.parseHTML('<li style="background-color: ' + tabColor + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
-            roomTab.data('recipients', [recipientName, $userName.text()]);
-            this.roomSelectList.append(roomTab);
-            this.adjustRoomTabs();
-            roomTab.click();
+            var recipients = [recipientName, userName];
+            var chatRoomExists = window.chat.server.getExistingChatRoom(recipients);
+            
+            if (!chatRoomExists) {
+                var roomTab = $($.parseHTML('<li style="background-color: ' + tabColor + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
+                roomTab.data('recipients', recipients);
+                this.roomSelectList.append(roomTab);
+                this.adjustRoomTabs();
+                roomTab.click();
+            }
         };
+
         this.removeRoomTab = function (roomId) {
             this.roomSelectList.find('#' + roomId).remove();
             this.adjustRoomTabs();
@@ -133,6 +139,27 @@
         //$chatMessagesContainer.animate($chatMessagesContainer.scrollTop(200), 1000); //removes scrollbars for some reason
     };
 
+    window.chat.client.loadChatRoom = function (roomId, roomName, tabColors, recipients, chatLog) {
+        var roomTabHtml = '<li id="' + roomId + '" style="background-color: ' + tabColors[0] + '"><span class="chat-tab-btn-add-member">+</span>';
+        if(roomName != null){
+            roomTabHtml += roomName;
+        }
+        else {
+            recipients.splice(recipients.indexOf(userName), 1);
+            recipients.forEach(function (recipient) {
+                roomTabHtml += recipient + ' | ';
+            });
+            roomTabHtml = roomTabHtml.substring(0, roomTabHtml.length - 3)
+        }
+        roomTabHtml +='<span class="chat-tab-btn-close">X</span></li>';
+
+        var roomTab = $($.parseHTML(roomTabHtml));
+        roomTab.data('recipients', recipients);
+            $chat.roomSelectList.append(roomTab);
+            $chat.adjustRoomTabs();
+            roomTab.click();
+        }
+
     // Hub callback for updating chat user list on each change.
     window.chat.client.updateChatRoomUsers = function (chatUsers, roomId) {
         chatUsers = $.parseJSON(chatUsers);
@@ -167,22 +194,17 @@
                 $chatUsers.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
             }
         }
-
-        //var foundChatRoomUsers = _.find(window.chatRoomUsers, function (element, index) {
-        //    return element.roomId == roomId;
-        //});
-
-        //if (foundChatRoomUsers != null) {
-        //    foundChatRoomUsers.chatUsersHtml = updatedChatUsersHtml;
-        //}
-        //else {
-        //    window.chatRoomUsers.push(new ChatRoomUsers(updatedChatUsersHtml, roomId));
-        //}
-
-        //filterChatUsers(roomId);
     };
 
-    window.chat.client.updateChatTab = function (recipients, roomId) {
+    window.chat.client.updateChatTab = function (recipients, recipientColors, roomId) {
+        var targetRoom = _.find($chat.roomSelectList.find('li'), function (roomTab) {
+            var savedRecipients = $(roomTab).data('recipients');
+            return $(savedRecipients).not(recipients).length == 0 && $(recipients).not(savedRecipients).length == 0;
+        });
+        $(targetRoom).prop('id', roomId);
+    }
+
+    window.chat.client.loadActiveChatRooms = function (chatRooms) {
         console.log(recipients, roomId);
     }
 
@@ -407,7 +429,5 @@
     function matchNewChatMessage(value) {
         return $newChatMessage.val().split(' ')[0].toLowerCase() == value;
     }
-
-
     // --------------------- HELPER FUNCTIONS ---------------------- END
 });

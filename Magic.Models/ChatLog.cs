@@ -31,5 +31,10 @@ namespace Magic.Models
         {
             Messages.AddRange(tempLog);
         }
+
+        public IList<ChatMessageViewModel> GetUserMessages(string userId)
+        {
+            return Messages.Select(m => new ChatMessageViewModel(m) { IsUnread = m.Recipients.Any(r => r.RecipientId == userId) }).ToList();
+        }
     }
 }
