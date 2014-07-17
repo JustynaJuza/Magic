@@ -44,25 +44,19 @@ namespace Magic.Models
         }
     }
 
-    //public class ChatMessageViewModel : AbstractExtensions
-    //{
-    //    public int Id { get; set; }
-    //    public DateTime? TimeSend { get; set; }
-    //    public string Message { get; set; }
-    //    public string SenderName { get; set; }
-    //    public string RecipientName { get; set; }
+    public class ChatMessageViewModel : AbstractExtensions
+    {
+        public DateTime? TimeSend { get; set; }
+        public string Message { get; set; }
+        public string SenderName { get; set; }
+        public bool IsUnread { get; set; }
 
-    //    // Constructor.
-    //    public ChatMessageViewModel(ChatMessage message)
-    //    {
-    //        Id = message.Id;
-    //        TimeSend = message.TimeSend;
-    //        Message = message.Message;
-    //        SenderName = message.Sender.UserName;
-    //        if (message.Recipient != null)
-    //        {
-    //            RecipientName = message.Recipient.UserName;
-    //        }
-    //    }
-    //}
+        // Constructor.
+        public ChatMessageViewModel(ChatMessage message)
+        {
+            TimeSend = message.TimeSend;
+            Message = message.Message;
+            SenderName = message.Sender.UserName;
+        }
+    }
 }

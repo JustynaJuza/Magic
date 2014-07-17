@@ -16,13 +16,50 @@ namespace Magic.Hubs
         public const string DefaultRoomId = "default";
 
         #region CHAT INIT
-        public void ListChatRooms(string userId)
+        public void GetUserChatRooms(string userId)
         {
             using (var context = new MagicDbContext())
             {
                 var chatRooms = context.ChatRoom_Connections.Where(rc => rc.ChatRoom.UserIsInRoom(userId)).Select(rc => rc.ChatRoom);
 
-                Json.Encode(chatRooms);
+                Clients.Caller.loadActiveChatRooms(Json.Encode(chatRooms));
+            }
+        }
+
+        public bool GetExistingChatRoom(string[] recipientNames)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var recipients = new List<ApplicationUser>();
+                foreach (var userName in recipientNames.Distinct())
+                {
+                    recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
+                }
+
+                var recipientIds = recipients.Select(r => r.Id).ToList();
+                var recipientColors = recipients.Select(r => r.ColorCode).ToList();
+
+                var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
+
+                if (chatRoom != null)
+                {
+                    var userId = Context.User.Identity.GetUserId();
+                    Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+
+        public void GetChatRoomLog(string roomId)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var chatLog = context.ChatLogs.Find(roomId);
+
+                Clients.Caller.loadChatLog(Json.Encode(chatLog));
             }
         }
 
@@ -80,11 +117,6 @@ namespace Magic.Hubs
                 }
             }
         }
-
-        public void AddChatRoom()
-        {
-
-        }
         #endregion CHAT INIT
 
         #region CHAT MESSAGE HANDLING
@@ -100,7 +132,7 @@ namespace Magic.Hubs
             }
         }
 
-        public void SendToRoom(string messageText, string roomId)
+        private void SendToRoom(string messageText, string roomId)
         {
             using (var context = new MagicDbContext())
             {
@@ -129,18 +161,18 @@ namespace Magic.Hubs
             }
         }
 
-        public void SendToUsers(string messageText, string[] recipientNames)
+        private void SendToUsers(string messageText, string[] recipientNames)
         {
-            //Validate all recipients: take whole user object get id instead of name;
             using (var context = new MagicDbContext())
             {
                 var recipients = new List<ApplicationUser>();
-
                 foreach (var userName in recipientNames.Distinct())
                 {
                     recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
                 }
-                var recipientIds = recipients.Select(r => r.Id);
+
+                var recipientIds = recipients.Select(r => r.Id).ToList();
+                var recipientColors = recipients.Select(r => r.ColorCode).ToList();
 
                 var userId = Context.User.Identity.GetUserId();
                 var sender = context.Users.Find(userId);
@@ -164,6 +196,7 @@ namespace Magic.Hubs
                     {
                         IsPrivate = true,
                         AllowedUserIds = recipientIds.ToList(),
+                        TabColorCodes = recipientColors
                     };
 
                 chatRoom.AddMessageToLog(message);
@@ -175,7 +208,7 @@ namespace Magic.Hubs
                 }
 
                 Clients.Group(chatRoom.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                Clients.Group(chatRoom.Id).updateChatTab(recipientNames, chatRoom.Id);
+                Clients.Group(chatRoom.Id).updateChatTab(recipientNames, chatRoom.TabColorCodes, chatRoom.Id, chatRoom.AllowedUserIds);
 
                 // Get message text after username and following space.
                 //message.Message = messageText.Substring(recipient.UserName.Length + 2);
@@ -306,27 +339,6 @@ namespace Magic.Hubs
                 }
                 context.SaveChanges();
             }
-
-            //var connection = context.Connections.Find(connectionId);
-
-            //    var chatRooms = context.ChatRooms.Where(r => r.Connections.Any(c => c.User.Id == connection.User.Id));
-            //    foreach(var chatRoom in chatRooms){
-            //        chatRoom.Connections.Add(connection);
-            //        context.Update(chatRoom);
-
-            //        chatHubContext.Groups.Add(connection.Id, chatRoom.Id);
-            //    }
-
-            //else
-            //{
-            //    var chatRooms = context.ChatRooms.Where(r => r.UserConnections.Any(c => c.Id == connection.Id));
-            //    foreach(var chatRoom in chatRooms){
-            //        chatRoom.UserConnections.Remove(connection);
-            //        context.Update(chatRoom);
-
-            //        chatHubContext.Groups.Remove(connection.Id, chatRoom.Id);
-            //    }
-            //}
         }
 
         public void SubscribeActiveConnections(string roomId, string userId)
