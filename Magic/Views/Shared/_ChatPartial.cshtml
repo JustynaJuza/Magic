@@ -42,7 +42,8 @@
         font-weight: bold;
     }
 
-    #chat-users {
+    .chat-users,
+    .chat-messages {
         list-style-type: none;
     }
 
@@ -104,7 +105,7 @@
 
 <div class="chat container">
 
-    <h3>Hello <span id="user_name">@User.Identity.GetUserName()</span>!</h3>
+    <h3>Hello@{if(Request.IsAuthenticated){ <span id=user_name>@User.Identity.GetUserName()</span>}}!</h3>
     @*Want to ask a question or join in the talk about Magic events? <br />*@
     <input type="hidden" id="chat-room-selection" class="btn btn-primary" value="Community" style="position:absolute; width: auto; background:white;" />
     <ul id="chat-room-selectlist" style="display:none; width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding: 0px">
@@ -112,17 +113,17 @@
             All
         </li>
     </ul>
-    <div class="container" style="border: solid 1px #357ebd; border-radius:4px;">
+    <div id="chat_room_container-default" class="container chat-room" style="border: solid 1px #357ebd; border-radius:4px;">
 
         <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
-            <ul id="chat-room-users-selectlist" style="width: auto; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
+            <ul id="chat-room-users-selectlist" style="width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
                 <li class="chat-room-users-selection">
                     Online
                 </li>
             </ul>
 
-            <div class="form-control " id="chat-users-container" style="overflow: auto; height: 221px; border-top-left-radius: 0; border-top-right-radius: 0;">
-                <ul id="chat-users">
+            <div class="form-control " id="chat_users_container" style="overflow: auto; height: 221px; border-top-left-radius: 0; border-top-right-radius: 0;">
+                <ul id="chat_users-default" class="chat-users">
                     <li class="chat-user" />
                 </ul>
             </div>
@@ -150,24 +151,24 @@
                 //@: Log in to take part in the chat conversation with other users!
             }
 
-            <div class="form-control" id="chat-messages-container" style="height: 215px; overflow: auto;">
-                <ul id="chat-messages" style="list-style-type: none;">
+            <div id="chat_messages_container" class="form-control" style="height: 215px; overflow: auto;">
+                <ul id="chat_messages-default" class="chat-messages">
                     @*@{ var recentLog = ChatHub.GetRecentChatLog();
-                     if (recentLog != null)
+                 if (recentLog != null)
+                 {
+                     foreach (var message in recentLog)
                      {
-                         foreach (var message in recentLog)
-                         {
-                            <li class="chat-message">
-                                @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
-                                @if (message.Recipient != null)
-                                {
-                                    <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
-                                }
-                                @message.Message
-                            </li>
-                         }
+                        <li class="chat-message">
+                            @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
+                            @if (message.Recipient != null)
+                            {
+                                <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
+                            }
+                            @message.Message
+                        </li>
                      }
-                    }*@
+                 }
+                }*@
                 </ul>
             </div>
 
@@ -175,8 +176,8 @@
 
     </div>
 
-    <input type="checkbox" id="chat-messages-general-check" checked="checked"> General chat.
-    <input type="checkbox" id="chat-messages-private-check" checked="checked"> Private chat.
+    @*<input type="checkbox" id="chat-messages-general-check" checked="checked"> General chat.
+    <input type="checkbox" id="chat-messages-private-check" checked="checked"> Private chat.*@
 
 </div>
 
