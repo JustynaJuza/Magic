@@ -8,6 +8,8 @@ using Magic.Models.DataContext;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using Magic.Helpers;
+using Magic.Controllers;
+using System.Data.Entity;
 
 namespace Magic.Hubs
 {
@@ -44,15 +46,23 @@ namespace Magic.Hubs
 
                 if (chatRoom != null)
                 {
-                    var userId = Context.User.Identity.GetUserId();
-                    Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
-                    return ViewRenderer.RenderPartialView("_ChatRoomPartial");
+                    return chatRoom.Id;
+                    //Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
+                    //var userId = Context.User.Identity.GetUserId();
+                    //return ViewRenderer.RenderPartialView("~/Views/Shared/_ChatRoomPartial.cshtml", (ChatRoomViewModel)chatRoom.GetViewModel(userId));
                 }
 
                 return String.Empty;
             }
         }
 
+        //public static ChatRoomViewModel GetChatRoomViewModel(string roomId = DefaultRoomId, string userId = null) {
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
+        //        return (ChatRoomViewModel) chatRoom.GetViewModel(userId);
+        //    }
+        //}
 
         public void GetChatRoomLog(string roomId)
         {
@@ -84,37 +94,18 @@ namespace Magic.Hubs
 
         public void UpdateChatRoomUsers(string roomId = DefaultRoomId, bool callerOnly = false)
         {
-            //var room = context.ChatRooms.Find(roomId);
-
-            //var chatUsers = new List<ChatUserViewModel>();
-            //foreach (var connection in room.Connections.Distinct(new ApplicationUserConnection_UserComparer())){
-            //    chatUsers.Add(new ChatUserViewModel(connection.User));
-            //}
             using (var context = new MagicDbContext())
             {
-                try
+                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
+                var chatUsers = chatRoom.GetUserList();
+
+                if (callerOnly)
                 {
-                    var chatRoomConnections = context.ChatRoom_Connections.Where(rc => rc.ChatRoomId == roomId).Select(rc => rc.Connection).ToList();
-                    var chatRoomUsers = chatRoomConnections.Distinct(new ApplicationUserConnection_UserComparer()).Select(c => c.User);
-
-                    var chatUsers = new List<ChatUserViewModel>();
-                    foreach (var user in chatRoomUsers)
-                    {
-                        chatUsers.Add(new ChatUserViewModel(user));
-                    }
-
-                    if (callerOnly)
-                    {
-                        Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
-                    }
-                    else
-                    {
-                        Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
-                    }
+                    Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
                 }
-                catch (Exception ex)
+                else
                 {
-                    var x = ex.ToString();
+                    Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
                 }
             }
         }
@@ -196,7 +187,7 @@ namespace Magic.Hubs
                     new ChatRoom()
                     {
                         IsPrivate = true,
-                        AllowedUserIds = recipientIds.ToList(),
+                        AllowedUserIds = recipientIds,
                         TabColorCodes = recipientColors
                     };
 

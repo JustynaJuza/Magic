@@ -7,11 +7,12 @@
     <title>@ViewBag.Title</title>
 
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/chat.css");
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/Scripts/underscore.js")
-    @RenderSection("AdditionalScripts", required: false)
+    @RenderSection("additionalHeaderScriptsAndStyles", required: false)
 
 </head>
 <body>

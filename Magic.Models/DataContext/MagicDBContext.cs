@@ -22,7 +22,8 @@ namespace Magic.Models.DataContext
 
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(cruc => cruc.ChatRoomId);
-            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId }).WillCascadeOnDelete();
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.User).WithMany().HasForeignKey(cruc => cruc.UserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId });
 
             modelBuilder.Entity<Player_GameStatus>().HasKey(k => new { k.GameId, k.UserId });
             modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);

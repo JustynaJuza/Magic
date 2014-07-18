@@ -171,6 +171,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\CardsController.cs" />
+    <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ChatLogsController.cs" />
     <Compile Include="Controllers\CMSController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -206,6 +207,7 @@
     </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\chat.css" />
     <Content Include="Content\Images\Users\Bartek.jpg" />
     <Content Include="Content\Images\Users\Justyna.jpg" />
     <Content Include="Content\jquery-ui-1.10.4.css" />
@@ -245,6 +247,7 @@
     <Content Include="Scripts\_general.js" />
     <Content Include="Scripts\_helpers.js" />
     <Content Include="Scripts\_hub-start.js" />
+    <Content Include="Content\_chat.less" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
@@ -316,6 +319,7 @@
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Views\Chat\" />
     <Folder Include="Views\Error\" />
   </ItemGroup>
   <ItemGroup>

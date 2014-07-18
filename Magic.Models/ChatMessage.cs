@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Collections.Generic;
+using Magic.Models.Interfaces;
 
 namespace Magic.Models
 {
@@ -44,14 +45,15 @@ namespace Magic.Models
         }
     }
 
-    public class ChatMessageViewModel : AbstractExtensions
+    public class ChatMessageViewModel : AbstractExtensions, IViewModel
     {
         public DateTime? TimeSend { get; set; }
         public string Message { get; set; }
         public string SenderName { get; set; }
-        public bool IsUnread { get; set; }
+        public bool IsRead { get; set; }
 
         // Constructor.
+        public ChatMessageViewModel() { }
         public ChatMessageViewModel(ChatMessage message)
         {
             TimeSend = message.TimeSend;

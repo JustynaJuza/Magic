@@ -8,10 +8,11 @@ namespace Magic.Models
     public class ChatRoom_ApplicationUserConnection
     {
         public string ChatRoomId { get; set; }
-        public string ConnectionId { get; set; }
         public string UserId { get; set; }
+        public string ConnectionId { get; set; }
 
         public ChatRoom ChatRoom { get; set; }
+        public ApplicationUser User { get; set; }
         public ApplicationUserConnection Connection { get; set; }
     }
 

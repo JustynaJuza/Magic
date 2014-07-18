@@ -1,110 +1,6 @@
 ﻿@using Magic.Hubs;
 @using Microsoft.AspNet.Identity
 
-<style>
-    #user-list-overlay {
-        position: fixed;
-        z-index: 99;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        background-color: #000000;
-        overflow: hidden;
-        -moz-filter: alpha(opacity=10) -ms-opacity: 0.1;
-        -o-filter: alpha(opacity=10) -ms-opacity: 0.1;
-        filter: alpha(opacity=10);
-        -ms-opacity: 0.1;
-        opacity: 0.1;
-        display: none;
-    }
-
-    #user-list-add-member {
-        list-style-type: none;
-        position: absolute;
-        border: 10px solid #000000;
-        display: none;
-        left: 50%;
-        margin-left: -25%;
-        width: 50%;
-        min-width: 100px;
-        max-width: 500px;
-        height: auto;
-        background-color: #ffffff;
-        z-index: 100;
-        text-align: center;
-        padding: 10px;
-    }
-
-    .chat-user {
-        font-weight: bold;
-    }
-
-    .chat-users,
-    .chat-messages {
-        list-style-type: none;
-    }
-
-    .container {
-        height: auto;
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .left {
-        width: auto;
-    }
-
-    .right {
-        float: right;
-    }
-
-    ul {
-        padding: 0px 0px 0px 3px;
-        margin: 0px;
-    }
-
-    #chat-room-users-selectlist li,
-    #chat-room-selectlist li {
-        float: left;
-        display: block;
-        line-height: 36px;
-        height: 36px;
-        overflow: hidden;
-        text-align: center;
-        border: 1px solid black;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        color: #ffffff;
-        background-color: #428bca;
-        margin: 0;
-        /*-webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;*/
-    }
-
-    .chat-room {
-        border: 2px solid black;
-        border-radius: 4px;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-    }
-        
-     .chat-tab-btn-close {
-        float: right;
-        margin-right: 5px;
-    }
-
-    .chat-tab-btn-add-member {
-    float:left;
-    margin-left: 5px;
-    }
-
-</style>
-
 <div id="user-list-overlay"></div>
 <div id="user-list-add-member-container" style="overflow: auto; height: 220px;">
     <ul id="user-list-add-member">
@@ -112,87 +8,91 @@
     </ul>
 </div>
 
-
-<input type="button" id="add-tab" class="btn btn-primary" value="Add" style="display: inline; margin: 0px 0px 3px 0px;" />
-<input type="button" id="remove-tab" class="btn btn-primary" value="Remove" style="display: inline; margin: 0px 0px 3px 0px;" />
-
 <div class="chat container">
 
-    <h3>Hello@{if(Request.IsAuthenticated){ <span id=user_name>@User.Identity.GetUserName()</span>}}!</h3>
-    @*Want to ask a question or join in the talk about Magic events? <br />*@
-    <input type="hidden" id="chat-room-selection" class="btn btn-primary" value="Community" style="position:absolute; width: auto; background:white;" />
-    <ul id="chat-room-selectlist" style="display:none; width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding: 0px">
-        <li id="default" style="width:100%">
+    <h3>
+        Hello@{ if (Request.IsAuthenticated)
+         { <span id=user_name>@User.Identity.GetUserName()</span>} }!
+    </h3>
+
+    <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />
+
+    <ul id="chat-room-selectlist">
+        <li id="default">
             All
         </li>
     </ul>
+
     <div id="chat_room_container">
-        <div id="chat_room-default" class="container chat-room">
+        @{Html.RenderAction("GetChatRoomPartial", "Chat");}
 
-            <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
-                <ul id="chat-room-users-selectlist" style="width: 100%; list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
-                    <li class="chat-room-users-selection">
-                        Online
-                    </li>
-                </ul>
+        @*<div id="chat_room_container">
+                <div id="chat_room-default" class="container chat-room">
 
-                <div class="form-control " id="chat_users_container" style="overflow: auto; height: 221px; border-top-left-radius: 0; border-top-right-radius: 0;">
-                    <ul id="chat_users-default" class="chat-users">
-                        <li class="chat-user" />
-                    </ul>
-                </div>
-            </div>
+                    <div class="container right" style="margin: 0px 0px 0px 6px; width: 100px; height: 255px">
+                        <ul id="chat-room-users-selectlist" style="list-style-type: none; height: 34px; overflow: hidden; white-space: nowrap; padding:0px">
+                            <li class="chat-room-users-selection" style="width: 100%;">
+                                Online
+                            </li>
+                        </ul>
 
-            <div class="container left">
-
-                @if (Request.IsAuthenticated)
-                {
-                    //@: Please show class and be polite and respectful towards other people.
-
-                    <div class="container" style="margin: 0px 0px 3px 0px; white-space: nowrap;">
-
-                        @*<input type="button" id="chat-room-selection" class="btn btn-primary" value="Community" data-chatroomid="default" data-recipient="" style="position:absolute; width: auto; background:white;" />*@
-                        @Html.TextBox("new-chat-message", null, new { id = "new-chat-message", @class = "form-control", style = "width:100%; max-width: 100%; display:inline; margin: 0px -63px 3px 0px; padding-right: 67px" })
-                        <input type="button" id="new-chat-message-send" class="btn btn-primary" value="Send" style="width: 60px; display: inline; margin: 0px 0px 3px 0px;" />
-
-                        @*<ul id="chat-room-selectlist" style="position: absolute; width: auto; display: none; list-style-type: none; background: #ffd800; margin:-3px 0px 0px 0px">
-                                <li id="default">All</li>
-                            </ul>*@
+                        <div class="form-control " id="chat_users_container" style="overflow: auto; height: 221px; border-top-left-radius: 0; border-top-right-radius: 0;">
+                            <ul id="chat_users-default" class="chat-users">
+                                <li class="chat-user" />
+                            </ul>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    //@: Log in to take part in the chat conversation with other users!
-                }
 
-                <div id="chat_messages_container" class="form-control" style="height: 215px; overflow: auto;">
-                    <ul id="chat_messages-default" class="chat-messages">
-                        @*@{ var recentLog = ChatHub.GetRecentChatLog();
-                             if (recentLog != null)
-                             {
-                                 foreach (var message in recentLog)
-                                 {
-                                    <li class="chat-message">
-                                        @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
-                                        @if (message.Recipient != null)
-                                        {
-                                            <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
-                                        }
-                                        @message.Message
-                                    </li>
-                                 }
-                             }
-                            }*@
-                    </ul>
+                    <div class="container left">
+
+                        @if (Request.IsAuthenticated)
+                        {
+                            //@: Please show class and be polite and respectful towards other people.
+
+                            <div class="container" style="margin: 0px 0px 3px 0px; white-space: nowrap;">
+
+                                @Html.TextBox("new-chat-message", null, new { id = "new-chat-message", @class = "form-control", style = "width:100%; max-width: 100%; display:inline; margin: 0px -63px 3px 0px; padding-right: 67px" })
+                                <input type="button" id="new-chat-message-send" class="btn btn-primary" value="Send" style="width: 60px; display: inline; margin: 0px 0px 3px 0px;" />
+
+                                <ul id="chat-room-selectlist" style="position: absolute; width: auto; display: none; list-style-type: none; background: #ffd800; margin:-3px 0px 0px 0px">
+                                        <li id="default">All</li>
+                                    </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            //@: Log in to take part in the chat conversation with other users!
+                        }
+
+                        <div id="chat_messages_container" class="form-control" style="height: 215px; overflow: auto;">
+                            <ul id="chat_messages-default" class="chat-messages">
+                                @{ var recentLog = ChatHub.GetRecentChatLog();
+                                     if (recentLog != null)
+                                     {
+                                         foreach (var message in recentLog)
+                                         {
+                                            <li class="chat-message">
+                                                @message.TimeSend.Value.ToString("HH:mm:ss") <span class="chat-message-sender" style="font-weight:bold">@message.Sender.UserName</span>
+                                                @if (message.Recipient != null)
+                                                {
+                                                    <span class="chat-message-recipient" style="font-weight:bold">@@@message.Recipient.UserName</span>
+                                                }
+                                                @message.Message
+                                            </li>
+                                         }
+                                     }
+                                    }
+                            </ul>
+                        </div>
+
+                    </div>
                 </div>
+            </div>*@
 
-            </div>
-        </div>
+        @*<input type="checkbox" id="chat-messages-general-check" checked="checked"> General chat.
+            <input type="checkbox" id="chat-messages-private-check" checked="checked"> Private chat.*@
+
     </div>
-
-    @*<input type="checkbox" id="chat-messages-general-check" checked="checked"> General chat.
-    <input type="checkbox" id="chat-messages-private-check" checked="checked"> Private chat.*@
-
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@

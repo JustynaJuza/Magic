@@ -9,6 +9,8 @@ namespace Magic.Models.Helpers
 {
     public abstract class AbstractExtensions
     {
+        private static string viewModelNamespace = "Magic.Models"; // used only if entity framework proxies are passed to get ViewModels;
+
         public override string ToString()
         {
             string toString = this.GetType().FullName + ": ";
@@ -22,7 +24,7 @@ namespace Magic.Models.Helpers
 
         public string ToHtmlString()
         {
-            string toString = this.GetType().FullName + ": ";
+            var toString = this.GetType().FullName + ": ";
             var classMembers = this.GetType().GetProperties();
 
             foreach (System.Reflection.PropertyInfo member in classMembers)
@@ -32,12 +34,18 @@ namespace Magic.Models.Helpers
         }
 
         // Returns a new instance of the related viewModel.
-        public IViewModel GetViewModel()
+        public IViewModel GetViewModel(params object[] args)
         {
-            string viewModelName = this.GetType().FullName + "ViewModel ";
-            var viewModel = Type.GetType(viewModelName);
+            string viewModelName = this.GetType().FullName;
+
+            if(viewModelName.Contains("System.Data.Entity.DynamicProxies"))
+            {
+                viewModelName = viewModelName.Remove(viewModelName.LastIndexOf('_')).Replace("System.Data.Entity.DynamicProxies", viewModelNamespace);
+            }
+
+            var viewModel = Type.GetType(viewModelName + "ViewModel");
             //Convert.ChangeType(Activator.CreateInstance(viewModel, this), viewModel);
-            return (IViewModel) Activator.CreateInstance(viewModel, this);
+            return (IViewModel)Activator.CreateInstance(viewModel, this);
         }
     }
 
@@ -45,7 +53,7 @@ namespace Magic.Models.Helpers
     {
         public static string ToFullString(this object obj)
         {
-            string toString = obj.GetType().FullName + ": ";
+            var toString = obj.GetType().FullName + ": ";
             var classMembers = obj.GetType().GetProperties();
 
             foreach (System.Reflection.PropertyInfo member in classMembers)
@@ -56,11 +64,11 @@ namespace Magic.Models.Helpers
 
         public static string AssignRandomColorCode(this string str)
         {
-            Random random = new Random();
-            int red = random.Next(255); // Not 256, because black is the system message color.
-            int green = random.Next(255);
-            int blue = random.Next(255);
-            System.Drawing.Color color = System.Drawing.Color.FromArgb(red, green, blue);
+            var random = new Random();
+            var red = random.Next(256);
+            var green = random.Next(256);
+            var blue = random.Next(256);
+            var color = System.Drawing.Color.FromArgb(red, green, blue);
 
             return System.Drawing.ColorTranslator.ToHtml(color);
         }
