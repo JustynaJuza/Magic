@@ -52,11 +52,13 @@ namespace Magic.Models
     {
         public string UserName { get; set; }
         public string ColorCode { get; set; }
+        public UserStatus Status { get; set; }
 
         public ChatUserViewModel(ApplicationUser user)
         {
             UserName = user.UserName;
             ColorCode = user.ColorCode;
+            Status = user.Status;
         }
     }
 

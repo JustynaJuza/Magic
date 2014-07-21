@@ -46,12 +46,13 @@ namespace Magic.Models
         public virtual IList<ChatMessageViewModel> Messages { get; set; }
 
         // Constructor.
-        public ChatLogViewModel() { }
-        public ChatLogViewModel(ChatLog log)
+        public ChatLogViewModel() {
+            Messages = new List<ChatMessageViewModel>();
+        }
+        public ChatLogViewModel(ChatLog log) : this()
         {
             Id = log.Id;
             DateCreated = log.DateCreated;
-            Messages = new List<ChatMessageViewModel>();
         }
         public ChatLogViewModel(ChatLog log, string userId) : this()
         {

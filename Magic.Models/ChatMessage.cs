@@ -18,6 +18,10 @@ namespace Magic.Models
         public Recipient_ChatMessageStatus() {
             IsRead = false;
         }
+        public Recipient_ChatMessageStatus(bool isRead)
+        {
+            IsRead = isRead;
+        }
     }
 
     public class ChatMessage : AbstractExtensions

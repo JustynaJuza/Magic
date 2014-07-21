@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using Magic.Models.DataContext;
 using Microsoft.AspNet.Identity;
 using System.Data.Entity;
-using Magic.Hubs;
+using Magic.Models;
 
 namespace Magic.Controllers
 {
@@ -14,12 +14,16 @@ namespace Magic.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        public ActionResult GetChatRoomPartial(string roomId = ChatHub.DefaultRoomId)
+        public ActionResult GetChatRoomPartial(string roomId)
         {
-                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
-                var userId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(roomId))
+            {
+                return PartialView("_ChatRoomPartial", new ChatRoomViewModel() { Id = Guid.NewGuid().ToString() });
+            }
 
+            var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
+            var userId = User.Identity.GetUserId();
             return PartialView("_ChatRoomPartial", chatRoom.GetViewModel(userId));
         }
-	}
+    }
 }

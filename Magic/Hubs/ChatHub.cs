@@ -29,7 +29,7 @@ namespace Magic.Hubs
             }
         }
 
-        public string GetExistingChatRoom(string[] recipientNames)
+        public string GetChatRoom(string[] recipientNames)
         {
             using (var context = new MagicDbContext())
             {
@@ -39,13 +39,17 @@ namespace Magic.Hubs
                     recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
                 }
 
-                var recipientIds = recipients.Select(r => r.Id).ToList();
-                var recipientColors = recipients.Select(r => r.ColorCode).ToList();
+                var recipientIds = recipients.Select(r => r.Id);
+                //var recipientColors = recipients.Select(r => r.ColorCode).ToList();
 
                 var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
 
                 if (chatRoom != null)
                 {
+                    foreach (var user in recipients)
+                    {
+                        SubscribeActiveConnections(chatRoom.Id, user.Id);
+                    }
                     return chatRoom.Id;
                     //Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
                     //var userId = Context.User.Identity.GetUserId();
@@ -56,13 +60,32 @@ namespace Magic.Hubs
             }
         }
 
-        //public static ChatRoomViewModel GetChatRoomViewModel(string roomId = DefaultRoomId, string userId = null) {
-        //    using (var context = new MagicDbContext())
-        //    {
-        //        var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
-        //        return (ChatRoomViewModel) chatRoom.GetViewModel(userId);
-        //    }
-        //}
+        public void CreateChatRoom(string[] recipientNames, string roomId = null)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var recipients = new List<ApplicationUser>();
+                foreach (var userName in recipientNames.Distinct())
+                {
+                    recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
+                }
+
+                var chatRoom = new ChatRoom()
+                {
+                    IsPrivate = true,
+                    Users = recipients
+                };
+                if (roomId != null) {
+                    chatRoom.Id = roomId;
+                }
+                context.Insert(chatRoom);
+
+                foreach (var user in recipients)
+                {
+                    SubscribeActiveConnections(chatRoom.Id, user.Id);
+                }
+            }
+        }
 
         public void GetChatRoomLog(string roomId)
         {
@@ -78,13 +101,13 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                context.ChatRoom_Connections.Add(new ChatRoom_ApplicationUserConnection
+                var chatRoomConnection = new ChatRoom_ApplicationUserConnection
                 {
                     ChatRoomId = roomId,
                     ConnectionId = Context.ConnectionId,
                     UserId = Context.User.Identity.GetUserId()
-                });
-                context.SaveChanges();
+                };
+                context.Insert(chatRoomConnection);
             }
 
             await Groups.Add(Context.ConnectionId, roomId);
@@ -96,8 +119,17 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
-                var chatUsers = chatRoom.GetUserList();
+                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId); //Include(r => r.Users).First(r => r.Id == roomId)
+
+                //var userId = Context.User.Identity.GetUserId();
+                //var user = context.Users.Find(userId);
+                //if (!chatRoom.Users.Any(u => u == user))
+                //{
+                //    chatRoom.Users.Add(user);
+                //}
+                //context.InsertOrUpdate(chatRoom, true);
+
+                var chatUsers = chatRoom.GetActiveUserList();
 
                 if (callerOnly)
                 {
@@ -112,19 +144,7 @@ namespace Magic.Hubs
         #endregion CHAT INIT
 
         #region CHAT MESSAGE HANDLING
-        public void Send(string messageText, string roomId, string[] recipientNames)
-        {
-            if (string.IsNullOrWhiteSpace(roomId))
-            {
-                SendToUsers(messageText, recipientNames);
-            }
-            else
-            {
-                SendToRoom(messageText, roomId);
-            }
-        }
-
-        private void SendToRoom(string messageText, string roomId)
+        public void Send(string messageText, string roomId)
         {
             using (var context = new MagicDbContext())
             {
@@ -136,90 +156,91 @@ namespace Magic.Hubs
                     Message = messageText
                 };
 
-                var chatRoom = context.ChatRooms.Find(roomId);
-
-                foreach (var recipientId in chatRoom.AllowedUserIds.Except(new string[] { userId }))
+                var chatRoom = context.ChatRooms.Find(roomId); // ?? CreateChatRoom(recipientNames, roomId);
+                
+                foreach (var recipient in chatRoom.Users.Except(new ApplicationUser[] { sender }))
                 {
                     message.Recipients.Add(new Recipient_ChatMessageStatus()
                     {
-                        RecipientId = recipientId
+                        Recipient = recipient
                     });
                 }
 
                 chatRoom.AddMessageToLog(message);
                 context.InsertOrUpdate(chatRoom, true);
 
-                Clients.Group(roomId).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                Clients.Group(roomId).addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
             }
         }
 
-        private void SendToUsers(string messageText, string[] recipientNames)
-        {
-            using (var context = new MagicDbContext())
-            {
-                var recipients = new List<ApplicationUser>();
-                foreach (var userName in recipientNames.Distinct())
-                {
-                    recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
-                }
+        //private void SendToUsers(string messageText, string[] recipientNames)
+        //{
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        var recipients = new List<ApplicationUser>();
+        //        foreach (var userName in recipientNames.Distinct())
+        //        {
+        //            recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
+        //        }
 
-                var recipientIds = recipients.Select(r => r.Id).ToList();
-                var recipientColors = recipients.Select(r => r.ColorCode).ToList();
+        //        //var recipientIds = recipients.Select(r => r.Id).ToList();
+        //        //var recipientColors = recipients.Select(r => r.ColorCode).ToList();
 
-                var userId = Context.User.Identity.GetUserId();
-                var sender = context.Users.Find(userId);
-                var message = new ChatMessage(messageText)
-                {
-                    Sender = sender,
-                    Message = messageText
-                };
+        //        var userId = Context.User.Identity.GetUserId();
+        //        var sender = context.Users.Find(userId);
+        //        var message = new ChatMessage(messageText)
+        //        {
+        //            Sender = sender,
+        //            Message = messageText
+        //        };
 
-                foreach (var recipientId in recipientIds)
-                {
-                    message.Recipients.Add(new Recipient_ChatMessageStatus()
-                    {
-                        RecipientId = recipientId
-                    });
-                }
+        //        foreach (var recipient in recipients)
+        //        {
+        //            message.Recipients.Add(new Recipient_ChatMessageStatus()
+        //            {
+        //                Recipient = recipient
+        //            });
+        //        }
 
-                var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds)) ??
-                    // Create new chat room if no private conversation found.
-                    new ChatRoom()
-                    {
-                        IsPrivate = true,
-                        AllowedUserIds = recipientIds,
-                        TabColorCodes = recipientColors
-                    };
+        //        var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds)) ??
+        //            // Create new chat room if no private conversation found.
+        //            new ChatRoom()
+        //            {
+        //                IsPrivate = true,
+        //                Users = recipients
+        //                //AllowedUserIds = recipientIds,
+        //                //TabColorCodes = recipientColors
+        //            };
 
-                chatRoom.AddMessageToLog(message);
-                context.InsertOrUpdate(chatRoom);
-                SubscribeActiveConnections(chatRoom.Id, userId);
-                foreach (var recipientId in recipientIds)
-                {
-                    SubscribeActiveConnections(chatRoom.Id, recipientId);
-                }
+        //        chatRoom.AddMessageToLog(message);
+        //        context.InsertOrUpdate(chatRoom);
+        //        SubscribeActiveConnections(chatRoom.Id, userId);
+        //        foreach (var recipient in recipients)
+        //        {
+        //            SubscribeActiveConnections(chatRoom.Id, recipient.Id);
+        //        }
 
-                Clients.Group(chatRoom.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
-                Clients.Group(chatRoom.Id).updateChatTab(recipientNames, chatRoom.TabColorCodes, chatRoom.Id, chatRoom.AllowedUserIds);
+        //        Clients.Group(chatRoom.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+        //        Clients.Group(chatRoom.Id).updateChatTab(recipientNames, chatRoom.TabColorCodes, chatRoom.Id, chatRoom.AllowedUserIds);
 
-                // Get message text after username and following space.
-                //message.Message = messageText.Substring(recipient.UserName.Length + 2);
-                // Set message recipient.
-                //message.Recipient = recipient;
+        //        // Get message text after username and following space.
+        //        //message.Message = messageText.Substring(recipient.UserName.Length + 2);
+        //        // Set message recipient.
+        //        //message.Recipient = recipient;
 
-                // Send message to all recipient and all sender connections.
-                //foreach (var connection in message.Recipient.Connections)
-                //{
-                //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                //}
-                //foreach (var connection in message.Sender.Connections)
-                //{
-                //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
-                //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
-                //}
-            }
-        }
+        //        // Send message to all recipient and all sender connections.
+        //        //foreach (var connection in message.Recipient.Connections)
+        //        //{
+        //        //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+        //        //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+        //        //}
+        //        //foreach (var connection in message.Sender.Connections)
+        //        //{
+        //        //    Clients.Client(connection.Id).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"),
+        //        //        message.Sender.UserName, message.Sender.ColorCode, message.Message, message.Recipient.UserName, message.Recipient.ColorCode);
+        //        //}
+        //    }
+        //}
 
         public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = DefaultRoomId)
         {

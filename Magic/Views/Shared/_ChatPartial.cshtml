@@ -24,7 +24,7 @@
     </ul>
 
     <div id="chat_room_container">
-        @{Html.RenderAction("GetChatRoomPartial", "Chat");}
+        @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatHub.DefaultRoomId });}
 
         @*<div id="chat_room_container">
                 <div id="chat_room-default" class="container chat-room">
