@@ -24,6 +24,11 @@
     </ul>
 
     <div id="chat_room_container">
+        <div class="chat-new-message-container container">
+            <input class="new-chat-message form-control" type="text" />
+            <input class="new-chat-message-send btn btn-primary" type="button" value="Send" />
+        </div>
+
         @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatHub.DefaultRoomId });}
 
         @*<div id="chat_room_container">

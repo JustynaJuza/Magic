@@ -3,29 +3,24 @@
 <div id="chat_room-@Model.Id" class="container chat-room">
 
     <div id="right_chat_panel" class="container right">
-        <ul id="chat-room-users-selectlist">
+        <ul class="chat-room-users-selectlist">
             <li class="chat-room-users-selection">
                 Online
             </li>
         </ul>
 
-        <div id="chat_users_container" class="form-control">
+        <div class="form-control chat-users-container">
             <ul id="chat_users-@Model.Id" class="chat-users">
                 @foreach (var user in Model.Users)
                 {
-                    <li class="chat-user" style="color:@user.ColorCode">@user.UserName</li>
+                    <li class="chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
                 }
             </ul>
         </div>
     </div>
 
     <div class="container left">
-        <div class="chat-new-message-container container">
-            <input class="new-chat-message form-control" type="text" />
-            <input class="new-chat-message-send btn btn-primary" type="button" value="Send" />
-        </div>
-
-        <div id="chat_messages_container" class="form-control">
+        <div class="form-control chat-messages-container">
             <ul id="chat_messages-@Model.Id" class="chat-messages">
                 @foreach (var message in Model.Log.Messages)
                 {

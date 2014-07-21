@@ -38,13 +38,17 @@ namespace Magic.Models.Helpers
         {
             string viewModelName = this.GetType().FullName;
 
-            if(viewModelName.Contains("System.Data.Entity.DynamicProxies"))
+            if (viewModelName.Contains("System.Data.Entity.DynamicProxies"))
             {
                 viewModelName = viewModelName.Remove(viewModelName.LastIndexOf('_')).Replace("System.Data.Entity.DynamicProxies", viewModelNamespace);
             }
 
             var viewModel = Type.GetType(viewModelName + "ViewModel");
             //Convert.ChangeType(Activator.CreateInstance(viewModel, this), viewModel);
+            if (args.Length > 0)
+            {
+                return (IViewModel)Activator.CreateInstance(viewModel, this, args[0]);
+            }
             return (IViewModel)Activator.CreateInstance(viewModel, this);
         }
     }

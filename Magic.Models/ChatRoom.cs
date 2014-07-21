@@ -108,7 +108,7 @@ namespace Magic.Models
             Users = room.GetUserList();
             Log = (room.Log != null ? (ChatLogViewModel) room.Log.GetViewModel() : new ChatLogViewModel());
         }
-        public ChatRoomViewModel(ChatRoom room, string userId) : this()
+        public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
         {
             Log = (ChatLogViewModel)room.Log.GetViewModel(userId);
         }

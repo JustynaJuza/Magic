@@ -71,7 +71,7 @@ ul {
 #right_chat_panel {
     margin: 0px 0px 0px 6px;
     width: 100px;
-    height: 255px;
+    height: 215px;
 }
 
 #chat-room-selectlist {
@@ -84,21 +84,21 @@ ul {
     padding: 0px;
 }
 
-#chat-room-users-selectlist {
+.chat-room-users-selectlist {
     width: 100%;
     list-style-type: none;
-    height: 34px;
+    height: 30px;
     overflow: hidden;
     white-space: nowrap;
     padding: 0px;
 }
 
-    #chat-room-users-selectlist li,
+    .chat-room-users-selectlist li,
     #chat-room-selectlist li {
         float: left;
         display: block;
-        line-height: 36px;
-        height: 36px;
+        line-height: 30px;
+        height: 30px;
         overflow: hidden;
         text-align: center;
         border: 1px solid black;
@@ -112,6 +112,12 @@ ul {
         -moz-box-sizing: border-box;
         box-sizing: border-box;*/
     }
+
+
+#chat-room-selectlist li {
+        line-height: 36px;
+        height: 36px;
+}
 
 .chat-new-message-container {
     margin: 0px 0px 3px 0px;
@@ -132,14 +138,14 @@ ul {
     margin: 0px 0px 3px 0px;
 }
 
-#chat_messages_container {
+.chat-messages-container {
     height: 215px;
     overflow: auto;
 }
 
-#chat_users_container {
+.chat-users-container {
     overflow: auto;
-    height: 221px;
+    height: 185px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }

@@ -8,10 +8,10 @@
     var userName = $('#user_name').text();
     $chatSendButton = $('.new-chat-message-send'),
     $newChatMessage = $('.new-chat-message'),
-    $chatMessagesContainer = $('#chat_messages_container'),
+    $chatMessagesContainer = $('.chat-messages-container'),
     $chatMessages = $('.chat-messages'),
     $chatMessage = $('.chat-message'),
-    $chatUsersContainer = $('#chat_users_container'),
+    $chatUsersContainer = $('.chat-users-container'),
     $chatUsers = $('.chat-users'),
     $chatUser = $('.chat-user'),
     $chatRoomSelection = $('#chat-room-selection'),
@@ -24,7 +24,7 @@
 
     //$chatGeneralCheckbox = $('#chat-messages-general-check'),
     //$chatPrivateCheckbox = $('#chat-messages-private-check'),
-    //$chatRoomUsersSelectList = $('#chat-room-users-selectlist'),
+    //$chatRoomUsersSelectList = $('.chat-room-users-selectlist'),
     //$chatRoomUsersSelection = 
 
     //adjustNewMessageElementPadding();
@@ -60,6 +60,7 @@
 
         this.roomSelectList = $chatRoomSelectList;
         this.usersContainer = $chatUsersContainer;
+        this.users = $chatUsers;
         this.messageLogContainer = $chatMessagesContainer;
 
         this.rooms = $chatRooms;
@@ -82,7 +83,7 @@
                         console.log($($.parseHTML(htmlContent)), $($.parseHTML(htmlContent)).prop('id'))
                         roomTab.prop('id', $($.parseHTML(htmlContent)).prop('id').substr(10));
                     });
-                    
+
                     roomTab.data('recipients', recipients);
                     roomTab.data('isNew', true);
                     $chat.roomSelectList.append(roomTab);
@@ -90,8 +91,12 @@
                     roomTab.trigger('click');
                 }
                 else {
+                    if ($('#' + chatRoomId).length) {
+                        return $('#' + chatRoomId).trigger('click');
+                    }
+
                     var url = '/Chat/GetChatRoomPartial/';
-                    $.get(url, { roomId : chatRoomId }, function (htmlContent) {
+                    $.get(url, { roomId: chatRoomId }, function (htmlContent) {
                         $chat.roomsContainer.append(htmlContent);
                     });
                     var roomTab = $($.parseHTML('<li id="' + chatRoomId + '" style="background-color: ' + tabColor
@@ -181,14 +186,13 @@
     // Hub callback for updating chat user list on each change.
     window.chat.client.updateChatRoomUsers = function (chatUsers, roomId) {
         chatUsers = $.parseJSON(chatUsers);
-        var userList = $('#chat_users-' + roomId);
         var updatedChatUsersHtml = ''; //'<ul id="chat_users-' + roomId + '" class="chat-users">';
         for (var i = 0; i < chatUsers.length; i++) {
             updatedChatUsersHtml += '<li class="chat-user" style="color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>';
         }
 
-        userList.children().remove();
-        userList.append(updatedChatUsersHtml);
+        $chat.users.children().remove();
+        $chat.users.append(updatedChatUsersHtml);
 
         //updatedChatUsersHtml += '</ul>';
 
@@ -214,7 +218,7 @@
                 $foundUser.remove();
             }
             else {
-                $chatUsers.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
+                $chat.users.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
             }
         }
     };
@@ -233,7 +237,7 @@
 
     // Hub callback to remove chat room tab when current user leaves.
     window.chat.client.leaveChatRoom = function (roomId) {
-        $('#chat-room-users-selectlist #' + roomId).remove();
+        $('.chat-room-users-selectlist #' + roomId).remove();
         $('#chat-room-selectlist #' + roomId).remove();
         adjustRoomTabs();
     }
@@ -312,8 +316,8 @@
     //});
 
     // Enable smooth scrolling chat messages and user list.
-    $chatMessagesContainer.scroll(smoothScroll($chatMessagesContainer, $chatMessage));
-    $chatUsersContainer.scroll(smoothScroll($chatUsersContainer, $chatUser));
+    //$chatMessagesContainer.scroll(smoothScroll($chatMessagesContainer, $chatMessage));
+    //$chatUsersContainer.scroll(smoothScroll($chatUsersContainer, $chatUser));
 
     // Make chat sender/recipient names clickable for reply (works with dynamically added elements).
     $(document).on('click', '.chat-message-sender, .chat-user', function () {
@@ -326,6 +330,7 @@
     });
 
     function smoothScroll($container, $scrollingEntry) {
+        alert('scroll')
         var lineHeightInPixels = 20;
         var marginSize = 10;
         var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
@@ -333,7 +338,7 @@
 
         // Get number of oldest message lines to fade out based on line height and scroll position.
         var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
-
+        console.log(linesToFadeUpper)
         // Fade upper lines out.
         $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01, null);
         // Fade visible lines in.
@@ -380,7 +385,7 @@
     $(document).on('click', '.chat-tab-btn-close', function () {
         $(this).parent().remove();
         $chat.adjustRoomTabs();
-        $('#default').trigger('click');
+        return $('#default').trigger('click');
     });
 
     $(document).on('click', '.chat-tab-btn-add-member', function () {
@@ -404,7 +409,6 @@
         $('#file-uploader-overlay').hide();
         $('#file-uploader').hide();
     }
-
 
     $(document).on('mouseover', '#chat-room-selectlist li', function () {
         $(this).fadeTo(0, 0.8);

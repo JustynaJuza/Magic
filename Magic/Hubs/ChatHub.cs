@@ -129,7 +129,7 @@ namespace Magic.Hubs
                 //}
                 //context.InsertOrUpdate(chatRoom, true);
 
-                var chatUsers = chatRoom.GetActiveUserList();
+                var chatUsers = (roomId == DefaultRoomId ? chatRoom.GetActiveUserList() : chatRoom.GetUserList());
 
                 if (callerOnly)
                 {
