@@ -82,8 +82,8 @@ namespace Magic.Models
 
         public bool OnlySpecifiedUsersInRoom(IEnumerable<string> userIds)
         {
-            //return AllowedUserIds.All(allowedId => userIds.Any(id => id == allowedId));
-            return Users.All(u => userIds.Any(id => id == u.Id));
+            var allowedUserIds = Users.Select(u => u.Id);
+            return !allowedUserIds.Except(userIds).Union(userIds.Except(allowedUserIds)).Any(); ;
         }
     }
 

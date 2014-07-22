@@ -77,46 +77,45 @@
         this.addRoomTab = function (recipientName, tabColor) {
             var recipients = [recipientName, userName];
 
-            window.chat.server.getChatRoom(recipients).done(function (roomId) {
-                if (roomId.length == 0) {
+            // Request information for existing room.
+            window.chat.server.getChatRoom(recipients)
+                .done(function (roomId) {
+                    var isExistingRoom = roomId.length != 0;
+
+                    // Setup chat room tab.
                     var roomTab = $($.parseHTML('<li style="background-color: ' + tabColor
                         + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
-                    var url = '/Chat/GetChatRoomPartial/';
-                    jQuery.ajaxSettings.traditional = true;
-                    $.get(url, { recipientNames: recipients }, function (htmlContent) {
-                        $chat.roomsContainer.append(htmlContent);
-                        roomId = $($.parseHTML(htmlContent)).prop('id').substr(10);
-                    }).done(function () {
-                        roomTab.prop('id', roomId);
-                        scrollContainerToBottom('#chat_messages_container-' + roomId);
-                        roomTab.trigger('click');
-                    });
                     roomTab.data('recipients', recipients);
-                    roomTab.data('isNew', true);
-                    $chat.roomSelectList.append(roomTab);
-                    $chat.adjustRoomTabs();
-                }
-                else {
-                    if ($('#' + roomId).length) {
-                        return $('#' + roomId).trigger('click');
+                    roomTab.data('isNew', !isExistingRoom);
+
+                    // Extension used to append new room markup to chat.
+                    function appendRoomToChat(htmlContent) {
+                        roomTab.prop('id', roomId);
+                        $chat.roomsContainer.append(htmlContent);
+                        $chat.roomSelectList.append(roomTab);
+                        $chat.adjustRoomTabs();
+                        roomTab.trigger('click');
+                        scrollContainerToBottom('#chat_messages_container-' + roomId);
                     }
 
+                    // Request chat room html markup for existing or new room.
                     var url = '/Chat/GetChatRoomPartial/';
-                    $.get(url, { roomId: roomId }, function (htmlContent) {
-                        $chat.roomsContainer.append(htmlContent);
-                    }).done(function () {
-                        roomTab.trigger('click');
-                        scrollContainerToBottom('#chat_messages_container-' + roomId);
-                    });
-                    var roomTab = $($.parseHTML('<li id="' + roomId + '" style="background-color: ' + tabColor
-                        + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
+                    if (isExistingRoom) {
+                        // Skip request if markup already in page.
+                        if ($('#' + roomId).length) {
+                            return $('#' + roomId).trigger('click');
+                        }
 
-                    roomTab.data('recipients', recipients);
-                    roomTab.data('isNew', false);
-                    $chat.roomSelectList.append(roomTab);
-                    $chat.adjustRoomTabs();
-                }
-            });
+                        $.get(url, { roomId: roomId }, appendRoomToChat);
+                    }
+                    else {
+                        jQuery.ajaxSettings.traditional = true;
+                        $.get(url, { recipientNames: recipients }, function (htmlContent) {
+                            roomId = $($.parseHTML(htmlContent)).prop('id').substr(10);
+                            appendRoomToChat(htmlContent);
+                        });
+                    }
+                });
         };
 
         this.removeRoomTab = function (roomId) {
@@ -161,6 +160,10 @@
 
     // Hub callback delivering new messages.
     window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
+        if (!$('#chat_messages_container-' + roomId)) {
+            //$chat.addRoomTab()
+        }
+
         $('#chat_messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
             + ' </span>' + htmlEncode(message) + '</li>');
 
@@ -175,7 +178,7 @@
 
     window.chat.client.loadChatRoom = function (roomId, roomName, tabColors, recipients, chatLog) {
         var roomTabHtml = '<li id="' + roomId + '" style="background-color: ' + tabColors[0] + '"><span class="chat-tab-btn-add-member">+</span>';
-        if (roomName != null) {
+        if (roomName) {
             roomTabHtml += roomName;
         }
         else {
@@ -352,11 +355,11 @@
         var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
         console.log(linesToFadeUpper)
         // Fade upper lines out.
-        $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01, null);
+        $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01);
         // Fade visible lines in.
-        $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1, null);
+        $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1);
         // Fade lower lines out.
-        $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01, null);
+        $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01);
     }
 
     // Html-encode messages for display in the page.
@@ -491,7 +494,7 @@
             return element.textContent.substr(1, element.textContent.length - 2) == userName;
         });
 
-        if (exisitingRoom != null) {
+        if (exisitingRoom) {
             return $('#' + exisitingRoom.id).trigger('click');
         }
     }
