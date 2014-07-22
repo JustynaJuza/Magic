@@ -317,6 +317,7 @@
     <Content Include="Views\Files\Example.cshtml" />
     <Content Include="Views\Shared\_LayoutCms.cshtml" />
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
+    <Content Include="Views\Shared\_ChatRoomTabPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Chat\" />

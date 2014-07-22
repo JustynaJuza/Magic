@@ -113,4 +113,25 @@ namespace Magic.Models
             Log = (ChatLogViewModel)room.Log.GetViewModel(userId);
         }
     }
+
+    public class ChatTabViewModel : AbstractExtensions, IViewModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public bool IsPrivate { get; set; }
+        //public IList<string> TabColorCodes { get; set; }
+        public IList<ChatUserViewModel> Users { get; set; }
+
+        public ChatTabViewModel()
+        {
+            Users = new List<ChatUserViewModel>();
+        }
+        public ChatTabViewModel(ChatRoom room)
+        {
+            Id = room.Id;
+            Name = room.Name;
+            IsPrivate = room.IsPrivate;
+            Users = room.GetUserList();
+        }
+    }
 }
