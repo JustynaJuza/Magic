@@ -33,7 +33,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Message).WithMany(m => m.Recipients).HasForeignKey(rms => rms.MessageId);
             modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(rms => rms.RecipientId);
 
-            //modelBuilder.Entity<ChatRoom>().HasRequired(r => r.Log).WithOptional();
+            //modelBuilder.Entity<ChatRoom>().HasMany(r => r.Users).WithMany(); //HasRequired(r => r.Log).WithOptional();
 
         }
 

@@ -20,7 +20,7 @@
     </div>
 
     <div class="container left">
-        <div class="form-control chat-messages-container">
+        <div id="chat_messages_container-@Model.Id" class="form-control chat-messages-container">
             <ul id="chat_messages-@Model.Id" class="chat-messages">
                 @foreach (var message in Model.Log.Messages)
                 {

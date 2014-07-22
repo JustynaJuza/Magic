@@ -36,7 +36,14 @@ namespace Magic.Hubs
                 var recipients = new List<ApplicationUser>();
                 foreach (var userName in recipientNames.Distinct())
                 {
-                    recipients.Add(context.Users.FirstOrDefault(u => u.UserName == userName));
+                    var user = context.Users.FirstOrDefault(u => u.UserName == userName);
+                    if (user == null) {
+                        Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " was not found!");
+                    }
+                    else
+                    {
+                        recipients.Add(user);
+                    }
                 }
 
                 var recipientIds = recipients.Select(r => r.Id);
@@ -242,7 +249,7 @@ namespace Magic.Hubs
         //    }
         //}
 
-        public static void UserStatusBroadcast(string userId, UserStatus status, string roomName = DefaultRoomId)
+        public static void UserStatusBroadcast(string userId, UserStatus status, string roomId = DefaultRoomId)
         {
             using (var context = new MagicDbContext())
             {
@@ -256,13 +263,13 @@ namespace Magic.Hubs
 
 
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                if (roomName.Length > 0)
+                if (roomId.Length > 0)
                 {
-                    chatHubContext.Clients.Group(roomName).addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.Group(roomId).addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                 }
                 else
                 {
-                    chatHubContext.Clients.All.addMessage(message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.All.addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                 }
             }
         }
