@@ -19,13 +19,14 @@ namespace Magic.Hubs
         public const string DefaultRoomId = "default";
 
         #region CHAT INIT
-        public void GetUserChatRooms(string userId)
+        public static IList<ChatRoom> GetUserChatRooms(string userId)
         {
             using (var context = new MagicDbContext())
             {
-                var chatRooms = context.ChatRoom_Connections.Where(rc => rc.ChatRoom.UserIsInRoom(userId)).Select(rc => rc.ChatRoom);
-
-                Clients.Caller.loadActiveChatRooms(Json.Encode(chatRooms));
+                //var userId = Context.User.Identity.GetUserId();
+                var chatRooms = context.ChatRoom_Connections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.Connections.Any(c => c.UserId == userId)).OrderByDescending(r => r.Name == DefaultRoomId);
+                return chatRooms.ToList();
+                //Clients.Caller.loadActiveChatRooms(Json.Encode(chatRooms));
             }
         }
 

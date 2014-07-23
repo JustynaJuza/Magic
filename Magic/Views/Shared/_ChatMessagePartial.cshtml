@@ -1,0 +1,14 @@
+﻿@model IEnumerable<ChatUserViewModel>
+
+<div class="chat-tab" style="background-color:@Model.ElementAt(0).ColorCode">
+    <span class="chat-tab-btn-add-member">+</span>
+    <span class="chat-tab-name">
+        @Model.ElementAt(0).UserName
+
+        @for (var i = 1; i < Model.Count(); i++)
+        {
+            @: | @Model.ElementAt(i).UserName
+        }
+    </span>
+    <span class="chat-tab-btn-close">X</span>
+</div>

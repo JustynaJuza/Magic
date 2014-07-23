@@ -12,25 +12,20 @@
 
     <h3>
         Hello@{ if (Request.IsAuthenticated)
-         { <span id=user_name>@User.Identity.GetUserName()</span>} }!
+         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
     </h3>
 
     <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />
 
-    <ul id="chat-room-selectlist">
-        <li id="default">
-            All
-        </li>
-    </ul>
+    <div id="chat-room-container">
+        @foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId())) {
+            Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id });
+        }
+    </div>
 
-    <div id="chat_room_container">
-        <div class="chat-new-message-container container">
-            <input class="new-chat-message form-control" type="text" />
-            <input class="new-chat-message-send btn btn-primary" type="button" value="Send" />
-        </div>
-
-        @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatHub.DefaultRoomId });}
-
+    <div class="chat-message-new-container container">
+        <input class="chat-message-new form-control" type="text" />
+        <input class="chat-message-new-btn-send btn btn-primary" type="button" value="Send" />
     </div>
 </div>
 
