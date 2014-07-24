@@ -152,6 +152,7 @@
         this.addRoomTab = function (recipientName, tabColor, roomId) {
             var recipients = [recipientName, userName];
             var isExistingRoom = roomId != null;
+            var activateTabAfterwards = roomId == null;
             var url = '/Chat/GetChatRoomPartial/';
 
             // Extension used to append new room markup to chat.
@@ -169,7 +170,12 @@
 
                 $('#room-tab-' + roomId).data('recipients', recipients);
                 $('#room-tab-' + roomId).data('isNew', !isExistingRoom);
-                $('#room-tab-' + roomId).trigger('click');
+                if (activateTabAfterwards) {
+                    $('#room-tab-' + roomId).trigger('click');
+                }
+                else {
+                    $('#room-content-' + roomId).hide();
+                }
                 scrollContainerToBottom('#room-messages-container-' + roomId);
 
             }
@@ -257,8 +263,7 @@
 
     // Hub callback delivering new messages.
     window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
-        if (!$('#room-' + roomId)) {
-            alert(false)
+        if (!$('#room-' + roomId).length) {
             $chat.addRoomTab(sender, senderColor, roomId)
         }
 
