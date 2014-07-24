@@ -24,7 +24,7 @@ namespace Magic.Hubs
             using (var context = new MagicDbContext())
             {
                 //var userId = Context.User.Identity.GetUserId();
-                var chatRooms = context.ChatRoom_Connections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.Connections.Any(c => c.UserId == userId)).OrderByDescending(r => r.Name == DefaultRoomId);
+                var chatRooms = context.ChatRoom_Connections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.Connections.Any(c => c.UserId == userId) && r.Id != DefaultRoomId); //.OrderByDescending(r => r.Name == DefaultRoomId);
                 return chatRooms.ToList();
                 //Clients.Caller.loadActiveChatRooms(Json.Encode(chatRooms));
             }

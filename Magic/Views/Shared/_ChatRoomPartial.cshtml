@@ -1,61 +1,88 @@
 ﻿@model ChatRoomViewModel
 @using Magic.Hubs
 
-    @*<div id="room-@Model.Id" class="chat-room">*@
-        <div id="room-tab-@Model.Id" class="chat-room-tab" style="background-color: @(Model.Users.Count > 0 ? Model.Users.ElementAt(0).ColorCode : "#34567")">
-            <span class="chat-room-tab-add-member">+</span>
-            <span class="chat-room-tab-name">
-                @if (string.IsNullOrEmpty(Model.Name))
-                {
-                    @Model.Users.ElementAt(0).UserName
-                    for (var i = 1; i < Model.Users.Count(); i++)
-                    {
-                        @: | @Model.Users.ElementAt(i).UserName
-                }
-                }
-                else
-                {
-                    @Model.Name
-                }
-            </span>
-            @if (Model.Id != ChatHub.DefaultRoomId) {
-                <span class="chat-room-tab-close">X</span>
+<div id="room-@Model.Id" class="chat-room">
+
+    @{
+        var colorIsUndefined = string.IsNullOrEmpty(Model.TabColorCode);
+        string colorStyling;
+
+        if (colorIsUndefined)
+        {
+            var gradientChangeSpacing = 100 / Model.Users.Count;
+            var colorCodes = Model.Users.ElementAt(0).ColorCode + " " + (gradientChangeSpacing / 2) + "%";
+            for (var i = 1; i < Model.Users.Count(); i++)
+            {
+                colorCodes += ", " + Model.Users.ElementAt(i).ColorCode + " " + (gradientChangeSpacing + gradientChangeSpacing / 2) + "%";
             }
-            </div>
+            colorStyling = "background: linear-gradient(90deg, " + colorCodes +")";
+        }
+        else
+        {
+            colorStyling = "background-color:" + Model.TabColorCode;
+        }
+    }
 
-            <div id="room-content-@Model.Id" class="chat-room-content">
+    <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
+        @if (Model.Id != ChatHub.DefaultRoomId)
+        {
+            <span class=" chat-room-tab-add-member">+</span>
+        }
+        
+        <span class="chat-room-tab-name">
+            @if (string.IsNullOrEmpty(Model.Name))
+            {
+                @Model.Users.ElementAt(0).UserName
+                for (var i = 1; i < Model.Users.Count(); i++)
+                {
+                    @: | @Model.Users.ElementAt(i).UserName
+                }
+            }
+            else
+            {
+                @Model.Name
+            }
+        </span>
 
-                @*<div id="right_chat_panel" class="container right">*@
-                @*<ul class="chat-room-users-selectlist">
-                        <li class="chat-room-users-selection">
-                            Online
-                        </li>
-                    </ul>*@
+        @if (Model.Id != ChatHub.DefaultRoomId)
+        {
+            <span class="chat-room-tab-close">X</span>
+        }
+    </div>
 
-                <div class="form-control chat-users-container container right">
-                    <ul id="room-users-@Model.Id" class="chat-users">
-                        @foreach (var user in Model.Users)
-                        {
-                            <li class="chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
-                        }
-                    </ul>
-                </div>
-                @*</div>*@
+    <div id="room-content-@Model.Id" class="chat-room-content">
 
-                @*<div class="container left">*@
-                <div id="room-messages-container-@Model.Id" class="form-control chat-messages-container container left">
-                    <ul id="room-messages-@Model.Id" class="chat-messages">
-                        @foreach (var message in Model.Log.Messages)
-                        {
-                            <li class="chat-message">
-                                @message.TimeSend.Value.ToString("HH:mm:ss")
-                                <span class="chat-message-sender">@message.SenderName</span>
-                                @message.Message
-                            </li>
-                        }
-                    </ul>
-                </div>
+        @*<div id="right_chat_panel" class="container right">*@
+        @*<ul class="chat-room-users-selectlist">
+                <li class="chat-room-users-selection">
+                    Online
+                </li>
+            </ul>*@
 
-                @*</div>*@
-            </div>
+        <div class="chat-users-container container right">
+            <ul id="room-users-@Model.Id" class="chat-users">
+                @foreach (var user in Model.Users)
+                {
+                    <li class="chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
+                }
+            </ul>
+        </div>
         @*</div>*@
+
+        @*<div class="container left">*@
+        <div id="room-messages-container-@Model.Id" class="chat-messages-container container left">
+            <ul id="room-messages-@Model.Id" class="chat-messages">
+                @foreach (var message in Model.Log.Messages)
+                {
+                    <li class="chat-message">
+                        @message.TimeSend.Value.ToString("HH:mm:ss")
+                        <span class="chat-message-sender">@message.SenderName</span>
+                        @message.Message
+                    </li>
+                }
+            </ul>
+        </div>
+        @*</div>*@
+
+    </div>
+</div>

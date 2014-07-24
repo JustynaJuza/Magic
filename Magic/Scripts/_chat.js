@@ -6,9 +6,9 @@
     };
 
     var userName = $('#user-name').text();
-    $chatRoomContainer = $('#chat_room_container');
+    $chatRoomContainer = $('#chat-room-container');
     $chatRooms = $('.chat-room'),
-    $chatSendButton = $('.chat-message-new-send'),
+    $chatSendButton = $('.chat-message-new-btn-send'),
     $newChatMessage = $('.chat-message-new'),
     $chatMessagesContainer = $('.chat-messages-container'),
     $chatMessages = $('.chat-messages'),
@@ -42,8 +42,8 @@
     $(document).on('click', '.chat-room-tab-close', function (event) {
         $(this).closest('.chat-room').remove();
         $chat.adjustRoomTabs();
-        event.stopPropagation();
         $chat.roomTabs.first().trigger('click');
+        event.stopPropagation();
     });
 
     $(document).on('click', '.chat-room-tab-add-member', function () {
@@ -76,7 +76,7 @@
 
         $('#room-content-' + roomId).show();
         $chat.roomContents.not('#room-content-' + roomId).hide();
-
+        $chat.newMessage.focus();
 
         if (tabBlinkingTracker[roomId]) {
             clearInterval(tabBlinkingTracker[roomId]);
@@ -88,7 +88,7 @@
         $chatRoomSelection.data('isNew', $(this).data('isNew') || false);
     });
 
-    $(document).on('click', '.chat-message-new-send', function () {
+    $(document).on('click', '.chat-message-new-btn-send', function () {
         if (typeof window.chat.initialized != 'undefined') {
             var roomId = $chatRoomSelection.data('chatRoomId');
             var recipients = $chatRoomSelection.data('recipients');
@@ -105,6 +105,13 @@
             // Clear text box and reset focus for next comment.
             $newChatMessage.val('').focus();
         }
+    });
+
+    $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
+        checkIfRoomExists($(this).text());
+
+        $chat.addRoomTab($(this).text(), $(this).css('color'));
+        $chat.newMessage.focus();
     });
 
     function ChatRoomUsers(chatUsersHtml, roomId, roomName) {
@@ -156,13 +163,15 @@
                 //roomTab.data('recipients', recipients);
                 //roomTab.data('isNew', !isExistingRoom);
 
-                //roomTab.prop('id', roomId);
                 //$chat.roomSelectList.append(roomTab);
-
                 $chat.roomsContainer.append(htmlContent);
                 $chat.adjustRoomTabs();
-                $('#chat-tab-' + roomId).trigger('click');
+
+                $('#room-tab-' + roomId).data('recipients', recipients);
+                $('#room-tab-' + roomId).data('isNew', !isExistingRoom);
+                $('#room-tab-' + roomId).trigger('click');
                 scrollContainerToBottom('#room-messages-container-' + roomId);
+
             }
 
             if (roomId) {
@@ -175,12 +184,12 @@
                     .done(function (existingRoomId) {
                         isExistingRoom = existingRoomId.length != 0;
                         roomId = existingRoomId;
-                        alert(roomId)
+
                         // Request chat room html markup for existing or new room.
                         if (isExistingRoom) {
                             // Skip request if markup already in page.
-                            if ($('#' + roomId).length) {
-                                return $('#' + roomId).trigger('click');
+                            if ($('#room-' + roomId).length) {
+                                return $('#room-tab-' + roomId).trigger('click');
                             }
 
                             $.get(url, { roomId: roomId }, appendRoomToChat);
@@ -188,7 +197,7 @@
                         else {
                             jQuery.ajaxSettings.traditional = true;
                             $.get(url, { recipientNames: recipients }, function (htmlContent) {
-                                roomId = $($.parseHTML(htmlContent)).prop('id').substr(10);
+                                roomId = $($.parseHTML(htmlContent)).find('.chat-room-tab').prop('id').substr(9);
                                 appendRoomToChat(htmlContent);
                             });
                         }
@@ -202,6 +211,9 @@
         };
 
         this.adjustRoomTabs = function () {
+            this.roomTabs = $(this.roomTabs.selector);
+            this.roomContents = $(this.roomContents.selector);
+
             var tabCount = this.roomTabs.length;
             var avgWidth = 100 / tabCount;
             this.roomTabs.css({
@@ -216,14 +228,13 @@
                 $chatRoomSelection.data('chatRoomId', 'default');
                 $chatRoomSelection.data('recipients', '');
 
-                $('#chat_room_container').animate({ 'border-top-left-radius': '4px', 'border-top-right-radius': '4px' }, 350);
-                return this.roomTabs.slideUp();
+                //$('.chat-room-content').animate({ 'border-top-left-radius': '4px', 'border-top-right-radius': '4px' }, 350);
+                //$('.chat-room-tab').slideUp();
             }
-            else {
-                $('#chat_room_container').css({ 'border-top-left-radius': 0, 'border-top-right-radius': 0 });
-            }
-
-            this.roomTabs.slideDown();
+            //else {
+            //    $('.chat-room-content').css({ 'border-top-left-radius': 0, 'border-top-right-radius': 0 });
+            //    $('.chat-room-tab').slideDown();
+            //}
         }
 
         this.joinChatRoom = function () { };
@@ -246,15 +257,16 @@
 
     // Hub callback delivering new messages.
     window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
-        if (!$('#chat-messages-container-' + roomId)) {
+        if (!$('#room-' + roomId)) {
+            alert(false)
             $chat.addRoomTab(sender, senderColor, roomId)
         }
 
-        $('#chat-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
+        $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
             + ' </span>' + htmlEncode(message) + '</li>');
 
         if ($chatRoomSelection.data('chatRoomId') != roomId) {
-            var tabBlinkerProcess = setInterval(blink, 1000, '#' + roomId);
+            var tabBlinkerProcess = setInterval(blink, 1000, '#room-tab-' + roomId);
             tabBlinkingTracker[roomId] = tabBlinkerProcess;
         }
         else {
@@ -291,8 +303,8 @@
             updatedChatUsersHtml += '<li class="chat-user" style="color:' + htmlEncode(chatUsers[i].ColorCode) + '">' + chatUsers[i].UserName + '</li>';
         }
 
-        $chat.users.children().remove();
-        $chat.users.append(updatedChatUsersHtml);
+        $('#room-users-' + roomId).children().remove();
+        $('#room-users-' + roomId).append(updatedChatUsersHtml);
     };
 
     //window.chat.client.updateChatRoomUser = function (userName, colorCode, roomId) {
@@ -418,25 +430,6 @@
     //    alert('select in list changed')
     //    activeChatRoom = $chatRoomSelection.prop('id');
     //});
-
-    $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
-        checkIfRoomExists($(this).text());
-
-        $chat.addRoomTab($(this).text(), $(this).css('color'));
-        $chat.newMessage.focus();
-        //$chatRoomSelectList.hide();
-        //$chatRoomSelection.val($(this).text());
-        //$chatRoomSelection.attr('data-recipient', $(this).text());
-        //var roomId = $(this).prop('id');
-        //if (roomId.length) {
-        //    $chatRoomSelection.prop('id', roomId);
-        //}
-        //$chatRoomSelection.css('color', $(this).css('color'));
-        //adjustNewMessageElementPadding();
-        //$newChatMessage.focus();
-    });
-
-
 
     function showUserList() {
         $('#file-property-id').val($(this).prop('id').substr(3));

@@ -14,8 +14,8 @@ namespace Magic.Models
         public string Id { get; set; }
         //public string ChatLogId { get; set; }
         public string Name { get; set; }
-        public bool IsPrivate { get; set; }
         public string TabColorCode { get; set; }
+        public bool IsPrivate { get; set; }
         //public IList<string> AllowedUserIds { get; set; }
         //public IList<string> TabColorCodes { get; set; }
         //public IList<string> UserNames { get; set; }
@@ -27,7 +27,7 @@ namespace Magic.Models
         {
             Id = Guid.NewGuid().ToString();
             IsPrivate = false;
-            TabColorCode = String.Empty.AssignRandomColorCode();
+            //TabColorCode = String.Empty.AssignRandomColorCode();
             //AllowedUserIds = new List<string>();
             //TabColorCodes = new List<string>();
             //UserNames = new List<string>();
@@ -91,8 +91,8 @@ namespace Magic.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public string TabColorCode { get; set; }
         public bool IsPrivate { get; set; }
-        //public IList<string> TabColorCodes { get; set; }
         public IList<ChatUserViewModel> Users { get; set; }
         public ChatLogViewModel Log { get; set; }
 
@@ -104,34 +104,13 @@ namespace Magic.Models
             Id = room.Id;
             Name = room.Name;
             IsPrivate = room.IsPrivate;
-            //TabColorCodes = room.TabColorCodes;
+            TabColorCode = room.TabColorCode;
             Users = room.GetUserList();
             Log = (room.Log != null ? (ChatLogViewModel) room.Log.GetViewModel() : new ChatLogViewModel());
         }
         public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
         {
             Log = (ChatLogViewModel)room.Log.GetViewModel(userId);
-        }
-    }
-
-    public class ChatTabViewModel : AbstractExtensions, IViewModel
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public bool IsPrivate { get; set; }
-        //public IList<string> TabColorCodes { get; set; }
-        public IList<ChatUserViewModel> Users { get; set; }
-
-        public ChatTabViewModel()
-        {
-            Users = new List<ChatUserViewModel>();
-        }
-        public ChatTabViewModel(ChatRoom room)
-        {
-            Id = room.Id;
-            Name = room.Name;
-            IsPrivate = room.IsPrivate;
-            Users = room.GetUserList();
         }
     }
 }
