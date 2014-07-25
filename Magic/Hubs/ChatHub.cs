@@ -143,9 +143,13 @@ namespace Magic.Hubs
             using (var context = new MagicDbContext())
             {
                 var userId = Context.User.Identity.GetUserId();
+                var user = context.Users.Find(userId);
+
                 var connections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
                 context.ChatRoom_Connections.RemoveRange(connections);
                 context.SaveChanges();
+
+                Clients.OthersInGroup(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, "has closed the chat tab.");
             }
         }
 
@@ -217,7 +221,7 @@ namespace Magic.Hubs
                     Message = UserStatusBroadcastMessage(status)
                 };
                 message.Sender.Status = status;
-                context.InsertOrUpdate(message.Sender, true);
+                //context.InsertOrUpdate(message.Sender, true);
 
 
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
@@ -319,7 +323,7 @@ namespace Magic.Hubs
             }
         }
 
-        public void SubscribeActiveConnections(string roomId, string userId)
+        public static void SubscribeActiveConnections(string roomId, string userId)
         {
             using (var context = new MagicDbContext())
             {
@@ -336,7 +340,8 @@ namespace Magic.Hubs
                         UserId = userId
                     });
 
-                    Groups.Add(connectionId, roomId);
+                    var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                    chatHubContext.Groups.Add(connectionId, roomId);
                 }
                 context.SaveChanges();
             }

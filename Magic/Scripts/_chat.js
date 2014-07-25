@@ -40,7 +40,9 @@
     });
 
     $(document).on('click', '.chat-room-tab-close', function (event) {
-        $(this).closest('.chat-room').remove();
+        var room = $(this).closest('.chat-room');
+        window.chat.server.unsubscribeChatRoom(room.prop('id').substr(5))
+        room.remove();
         $chat.adjustRoomTabs();
         $chat.roomTabs.first().trigger('click');
         event.stopPropagation();

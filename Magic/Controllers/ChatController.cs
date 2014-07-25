@@ -34,9 +34,14 @@ namespace Magic.Controllers
             }
             else
             {
-                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
+                var chatRoom = context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
                 var userId = User.Identity.GetUserId();
                 roomViewModel = (ChatRoomViewModel)chatRoom.GetViewModel(userId);
+
+                foreach (var user in chatRoom.Users)
+                {
+                    ChatHub.SubscribeActiveConnections(chatRoom.Id, user.UserId);
+                }
             }
 
             var currentUserName = User.Identity.GetUserName();
