@@ -9,7 +9,7 @@
 </div>
 
 <h3>
-    Hello@{ if (Request.IsAuthenticated)
+    Hello@{ if (User.Identity.IsAuthenticated)
      { <span id=user-name>@User.Identity.GetUserName()</span>} }!
 </h3>
 
@@ -25,7 +25,7 @@
         }
     </div>
 
-    @if (Request.IsAuthenticated)
+    @if (User.Identity.IsAuthenticated)
     {
         <div class="chat-message-new-container container">
             <input class="chat-message-new form-control" type="text" />

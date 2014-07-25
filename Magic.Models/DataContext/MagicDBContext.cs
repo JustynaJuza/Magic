@@ -21,9 +21,13 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
-            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(cruc => cruc.ChatRoomId);
-            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.User).WithMany().HasForeignKey(cruc => cruc.UserId).WillCascadeOnDelete(false);
-            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(cruc => cruc.Connection).WithMany().HasForeignKey(cruc => new { cruc.ConnectionId, cruc.UserId });
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.Connection).WithMany().HasForeignKey(ruc => new { ruc.ConnectionId, ruc.UserId });
+
+            modelBuilder.Entity<ChatRoom_ApplicationUser>().HasKey(k => new { k.UserId, k.ChatRoomId });
+            modelBuilder.Entity<ChatRoom_ApplicationUser>().HasRequired(ru => ru.ChatRoom).WithMany(r => r.Users).HasForeignKey(ru => ru.ChatRoomId);
+            modelBuilder.Entity<ChatRoom_ApplicationUser>().HasRequired(ru => ru.User).WithMany().HasForeignKey(ru => ru.UserId);
 
             modelBuilder.Entity<Player_GameStatus>().HasKey(k => new { k.GameId, k.UserId });
             modelBuilder.Entity<Player_GameStatus>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);
@@ -32,12 +36,10 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<Recipient_ChatMessageStatus>().HasKey(rms => new { rms.MessageId, rms.RecipientId });
             modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Message).WithMany(m => m.Recipients).HasForeignKey(rms => rms.MessageId);
             modelBuilder.Entity<Recipient_ChatMessageStatus>().HasRequired(rms => rms.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(rms => rms.RecipientId);
-
-            //modelBuilder.Entity<ChatRoom>().HasMany(r => r.Users).WithMany(); //HasRequired(r => r.Log).WithOptional();
-
         }
 
         public DbSet<ApplicationUserConnection> Connections { get; set; }
+        public DbSet<ChatRoom_ApplicationUser> ChatRoom_Users { get; set; }
         public DbSet<ChatRoom_ApplicationUserConnection> ChatRoom_Connections { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatLog> ChatLogs { get; set; }

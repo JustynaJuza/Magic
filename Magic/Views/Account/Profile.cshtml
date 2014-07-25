@@ -1,0 +1,30 @@
+﻿@model ProfileViewModel
+@{
+    ViewBag.Title = Model.UserName + "'s Player Profile";
+}
+
+
+    
+<h1>@Html.DisplayFor(m => m.UserName), @Html.DisplayFor(m => m.Title)</h1>
+@if (Model.IsCurrentUser)
+{
+    <p class="text-success">This is you!</p>
+}    
+    
+@Html.DisplayFor(m => m.Image, "Image");
+
+@Html.DisplayFor(m => m.LastLoginDate);
+
+@Html.DisplayFor(m => m.Status);
+
+@if (User.Identity.IsAuthenticated && !Model.IsCurrentUser)
+{
+    if (Model.IsFriend)
+    {
+        @Html.ActionLink("Remove from friends", "RemoveFriend", new { userName = Model.UserName })
+    }
+    else
+    {
+        @Html.ActionLink("Add to friends", "AddFriend", new { userName = Model.UserName })
+    }
+}

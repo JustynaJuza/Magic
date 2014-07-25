@@ -39,13 +39,14 @@ namespace Magic.Controllers
                 roomViewModel = (ChatRoomViewModel)chatRoom.GetViewModel(userId);
             }
 
+            var currentUserName = User.Identity.GetUserName();
+            roomViewModel.Users = roomViewModel.Users.OrderBy(u => u.UserName == currentUserName).ToList();
             if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count == 1 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
                 //if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count <= 2 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
             {
-                //var currentUserName = User.Identity.GetUserName();
-                //roomViewModel.Users = roomViewModel.Users.OrderBy(u => u.UserName == currentUserName).ToList();
                 roomViewModel.TabColorCode = roomViewModel.Users.First().ColorCode;
             }
+
 
             return PartialView("_ChatRoomPartial", roomViewModel);
         }

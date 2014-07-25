@@ -30,6 +30,19 @@ namespace Magic.Hubs
             }
         }
 
+        public void AddUserToRoom(string roomId, string userId)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var chatRoomAllowedUser = new ChatRoom_ApplicationUser
+                {
+                    ChatRoomId = roomId,
+                    UserId = userId
+                };
+                context.Insert(chatRoomAllowedUser);
+            }
+        }
+
         public string GetChatRoom(string[] recipientNames)
         {
             using (var context = new MagicDbContext())
@@ -38,7 +51,8 @@ namespace Magic.Hubs
                 foreach (var userName in recipientNames.Distinct())
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserName == userName);
-                    if (user == null) {
+                    if (user == null)
+                    {
                         Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " was not found!");
                     }
                     else
@@ -80,16 +94,17 @@ namespace Magic.Hubs
 
                 var chatRoom = new ChatRoom()
                 {
-                    IsPrivate = true,
-                    Users = recipients
+                    IsPrivate = true
                 };
-                if (roomId != null) {
+                if (roomId != null)
+                {
                     chatRoom.Id = roomId;
                 }
                 context.Insert(chatRoom);
 
                 foreach (var user in recipients)
                 {
+                    AddUserToRoom(chatRoom.Id, user.Id);
                     SubscribeActiveConnections(chatRoom.Id, user.Id);
                 }
             }
@@ -123,13 +138,32 @@ namespace Magic.Hubs
             UpdateChatRoomUsers(roomId);
         }
 
+        public void UnsubscribeChatRoom(string roomId)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var userId = Context.User.Identity.GetUserId();
+                var connections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
+                context.ChatRoom_Connections.RemoveRange(connections);
+                context.SaveChanges();
+            }
+        }
+
         public void UpdateChatRoomUsers(string roomId = DefaultRoomId, bool callerOnly = false)
         {
             using (var context = new MagicDbContext())
             {
-                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
-                
-                var chatUsers = (roomId == DefaultRoomId ? chatRoom.GetActiveUserList() : chatRoom.GetUserList());
+                var chatUsers = new List<ChatUserViewModel>();
+                if (roomId == DefaultRoomId)
+                {
+                    var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == roomId);
+                    chatUsers = chatRoom.GetActiveUserList().ToList();
+                }
+                else
+                {
+                    var chatRoom = context.ChatRooms.Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId);
+                    chatUsers = chatRoom.GetUserList().ToList();
+                }
 
                 if (callerOnly)
                 {
@@ -156,13 +190,13 @@ namespace Magic.Hubs
                     Message = messageText
                 };
 
-                var chatRoom = context.ChatRooms.Find(roomId); // ?? CreateChatRoom(recipientNames, roomId);
-                
-                foreach (var recipient in chatRoom.Users.Except(new ApplicationUser[] { sender }))
+                var chatRoom = context.ChatRooms.Find(roomId);
+
+                foreach (var recipientId in chatRoom.Users.Select(u => u.UserId).Except(new string[] { userId }))
                 {
                     message.Recipients.Add(new Recipient_ChatMessageStatus()
                     {
-                        Recipient = recipient
+                        RecipientId = recipientId
                     });
                 }
 

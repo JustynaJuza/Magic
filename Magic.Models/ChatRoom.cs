@@ -12,26 +12,18 @@ namespace Magic.Models
     public class ChatRoom : AbstractExtensions
     {
         public string Id { get; set; }
-        //public string ChatLogId { get; set; }
         public string Name { get; set; }
         public string TabColorCode { get; set; }
         public bool IsPrivate { get; set; }
-        //public IList<string> AllowedUserIds { get; set; }
-        //public IList<string> TabColorCodes { get; set; }
-        //public IList<string> UserNames { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<ApplicationUser> Users { get; set; }
+        public virtual IList<ChatRoom_ApplicationUser> Users { get; set; }
         public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
 
         public ChatRoom()
         {
             Id = Guid.NewGuid().ToString();
             IsPrivate = false;
-            //TabColorCode = String.Empty.AssignRandomColorCode();
-            //AllowedUserIds = new List<string>();
-            //TabColorCodes = new List<string>();
-            //UserNames = new List<string>();
-            Users = new List<ApplicationUser>();
+            Users = new List<ChatRoom_ApplicationUser>();
             Connections = new List<ChatRoom_ApplicationUserConnection>();
         }
 
@@ -63,7 +55,7 @@ namespace Magic.Models
         public IList<ChatUserViewModel> GetUserList()
         {
                 var chatUsers = new List<ChatUserViewModel>();
-                foreach (var user in Users)
+                foreach (var user in Users.Select(u => u.User))
                 {
                     chatUsers.Add(new ChatUserViewModel(user));
                 }
@@ -77,12 +69,13 @@ namespace Magic.Models
             {
                 chatUsers.Add(new ChatUserViewModel(user));
             }
+
             return chatUsers;
         }
 
         public bool OnlySpecifiedUsersInRoom(IEnumerable<string> userIds)
         {
-            var allowedUserIds = Users.Select(u => u.Id);
+            var allowedUserIds = Users.Select(u => u.UserId);
             return !allowedUserIds.Except(userIds).Union(userIds.Except(allowedUserIds)).Any(); ;
         }
     }
@@ -110,7 +103,7 @@ namespace Magic.Models
         }
         public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
         {
-            Log = (ChatLogViewModel)room.Log.GetViewModel(userId);
+            Log = (room.Log != null ? (ChatLogViewModel)room.Log.GetViewModel(userId) : new ChatLogViewModel());
         }
     }
 }

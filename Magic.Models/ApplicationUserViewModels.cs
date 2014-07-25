@@ -5,6 +5,41 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Magic.Models
 {
+    public class ProfileViewModel : AbstractExtensions, IViewModel
+    {
+        public string UserName { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime? LastLoginDate { get; set; }
+        public UserStatus Status { get; set; }
+        public string Title { get; set; }
+        public string Email { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string Image { get; set; }
+        public string ColorCode { get; set; }
+        //public virtual IList<CardDeck> DeckCollection { get; set; }
+        //public virtual IList<Player_GameStatus> Games { get; set; }
+
+        public bool IsFriend { get; set; }
+        public bool IsCurrentUser { get; set; }
+
+        public ProfileViewModel() {
+            IsCurrentUser = false;
+            IsFriend = false;
+        }
+
+        public ProfileViewModel(ApplicationUser user) : this()
+        {
+            UserName = user.UserName;
+            Title = user.Title;
+            Email = user.Email;
+            BirthDate = user.BirthDate;
+            Image = user.Image;
+            ColorCode = user.ColorCode;
+            Status = user.Status;
+            LastLoginDate = user.LastLoginDate;
+        }
+    }
+
     public class UserViewModel : AbstractExtensions, IViewModel
     {
         public string Id { get; private set; }
@@ -158,12 +193,12 @@ namespace Magic.Models
     }
 
     // Specifies an attribute that checks the BirthDate range.
-    public class BirthDateRange : RangeAttribute
+    public class BirthDateRangeAttribute : RangeAttribute
     {
         private static string startDate = DateTime.Now.AddYears(-100).ToString();
         private static string endDate = DateTime.Today.ToString();
 
-        public BirthDateRange()
+        public BirthDateRangeAttribute()
             : base(typeof(DateTime), startDate, endDate) { }
     }
 }

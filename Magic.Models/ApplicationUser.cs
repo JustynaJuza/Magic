@@ -19,6 +19,8 @@ namespace Magic.Models
         public string Email { get; set; }
         [DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
+        public bool IsFemale { get; set; }
+        public string Country { get; set; }
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
         public string ColorCode { get; set; }
@@ -26,6 +28,8 @@ namespace Magic.Models
         public virtual IList<ApplicationUserConnection> Connections { get; set; }
         public virtual IList<Player_GameStatus> Games { get; set; }
         public virtual IList<Recipient_ChatMessageStatus> ChatMessages { get; set; }
+        public virtual IList<ApplicationUser> Friends { get; set; }
+        public virtual IList<ApplicationUser> Ignored { get; set; }
 
         // Constructor.
         public ApplicationUser()
@@ -33,14 +37,18 @@ namespace Magic.Models
             ColorCode = String.Empty.AssignRandomColorCode();
             Connections = new List<ApplicationUserConnection>();
             DeckCollection = new List<CardDeck>();
+            IsFemale = false;
         }
 
         #region HELPERS
-        
-
         public UserViewModel GetViewModel()
         {
             return new UserViewModel(this);
+        }
+
+        public ProfileViewModel GetProfileViewModel()
+        {
+            return new ProfileViewModel(this);
         }
         
         public override string ToString()

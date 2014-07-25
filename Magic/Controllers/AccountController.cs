@@ -28,6 +28,28 @@ namespace Magic.Controllers
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDbContext()));
         }
 
+        public ActionResult Profile(string id) {
+            var user = UserManager.FindByName(id);
+            var viewModel = user.GetProfileViewModel();
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var currentUserName = User.Identity.GetUserName();
+                if (currentUserName == id)
+                {
+                    viewModel.IsCurrentUser = true;
+                }
+                else
+                {
+                    var currentUser = UserManager.FindByName(currentUserName);
+                    var isFriend = currentUser.Friends.Any(u => u.Id == user.Id);
+                    viewModel.IsFriend = isFriend;
+                }
+            }
+
+            return View(viewModel);
+        }
+
         #region REGISTER
         [HttpGet]
         [AllowAnonymous]
@@ -290,7 +312,7 @@ namespace Magic.Controllers
             var foundUser = UserManager.FindById(User.Identity.GetUserId());
             foundUser.ColorCode = String.Empty.AssignRandomColorCode();
 
-            TempData["Error"] = context.InsertOrUpdate(foundUser);
+            context.InsertOrUpdate(foundUser);
             return RedirectToAction("Manage");
         }
 
