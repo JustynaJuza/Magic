@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationUserConnection.cs" />
+    <Compile Include="ApplicationUser_RelatedApplicationUser.cs" />
     <Compile Include="ChatLog.cs" />
     <Compile Include="ChatRoom.cs" />
     <Compile Include="ChatRoom_ApplicationUser.cs" />
