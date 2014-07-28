@@ -208,6 +208,10 @@
     <Compile Include="Migrations\201407271541491_MappingFriendIgnored.Designer.cs">
       <DependentUpon>201407271541491_MappingFriendIgnored.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201407281646589_RenamingTable.cs" />
+    <Compile Include="Migrations\201407281646589_RenamingTable.Designer.cs">
+      <DependentUpon>201407281646589_RenamingTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -332,6 +336,7 @@
     <Content Include="Views\Shared\_ChatMessagePartial.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Chat\" />
@@ -365,6 +370,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201407271541491_MappingFriendIgnored.resx">
       <DependentUpon>201407271541491_MappingFriendIgnored.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201407281646589_RenamingTable.resx">
+      <DependentUpon>201407281646589_RenamingTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

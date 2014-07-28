@@ -77,5 +77,31 @@ namespace Magic.Controllers
         //    var userId = User.Identity.GetUserId();
         //    return PartialView("_ChatRoomPartial", chatRoom.GetViewModel(userId));
         //}
+        
+        public ActionResult AddFriend(string userId)
+        {
+            var currentUserId = User.Identity.GetUserId();
+            var userRelationship = new ApplicationUserRelation_Friend()
+            {
+                UserId = currentUserId,
+                RelatedUserId = userId
+            };
+                context.Insert(userRelationship);
+
+            return View();
+        }
+
+        public ActionResult RemoveFriend(string userId)
+        {
+            var currentUserId = User.Identity.GetUserId();
+            var userRelationship = new ApplicationUserRelation_Friend()
+            {
+                UserId = currentUserId,
+                RelatedUserId = userId
+            };
+            context.Insert(userRelationship);
+
+            return View();
+        }
     }
 }

@@ -4,13 +4,13 @@
 }
 
 
-    
+
 <h1>@Html.DisplayFor(m => m.UserName), @Html.DisplayFor(m => m.Title)</h1>
 @if (Model.IsCurrentUser)
 {
     <p class="text-success">This is you!</p>
-}    
-    
+}
+
 @Html.DisplayFor(m => m.Image, "Image");
 
 @Html.DisplayFor(m => m.LastLoginDate);
@@ -19,12 +19,16 @@
 
 @if (User.Identity.IsAuthenticated && !Model.IsCurrentUser)
 {
-    if (Model.IsFriend)
-    {
-        @Html.ActionLink("Remove from friends", "RemoveFriend", new { userName = Model.UserName })
-    }
-    else
-    {
-        @Html.ActionLink("Add to friends", "AddFriend", new { userName = Model.UserName })
-    }
+    <div id="friendship-status">
+        @if (Model.IsFriend)
+        {
+        @Ajax.ActionLink("Remove from friends", "RemoveFriend", "Chat", new { userId = Model.Id },
+        new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-status", InsertionMode = InsertionMode.Replace})
+        }
+        else
+        {
+        @Ajax.ActionLink("Add to friends", "AddFriend", "Chat", new { userId = Model.Id },
+        new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-status", InsertionMode = InsertionMode.Replace })
+        }
+    </div>
 }

@@ -28,8 +28,8 @@ namespace Magic.Models
         public virtual IList<ApplicationUserConnection> Connections { get; set; }
         public virtual IList<Player_GameStatus> Games { get; set; }
         public virtual IList<Recipient_ChatMessageStatus> ChatMessages { get; set; }
-        public virtual IList<ApplicationUser_RelatedApplicationUser_Friend> Friends { get; set; }
-        public virtual IList<ApplicationUser_RelatedApplicationUser_Ignored> Ignored { get; set; }
+        public virtual IList<ApplicationUserRelation_Friend> Friends { get; set; }
+        public virtual IList<ApplicationUserRelation_Ignored> Ignored { get; set; }
 
         // Constructor.
         public ApplicationUser()

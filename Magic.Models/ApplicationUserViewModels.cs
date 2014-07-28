@@ -7,6 +7,7 @@ namespace Magic.Models
 {
     public class ProfileViewModel : AbstractExtensions, IViewModel
     {
+        public string Id { get; set; }
         public string UserName { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? LastLoginDate { get; set; }
@@ -29,6 +30,7 @@ namespace Magic.Models
 
         public ProfileViewModel(ApplicationUser user) : this()
         {
+            Id = user.Id;
             UserName = user.UserName;
             Title = user.Title;
             Email = user.Email;

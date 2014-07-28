@@ -20,9 +20,9 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ApplicationUserConnection >().HasKey(k => new { k.Id, k.UserId });
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
-            modelBuilder.Entity<ApplicationUser_RelatedApplicationUser>().HasKey(k => new { k.UserId, k.RelatedUserId });
-            modelBuilder.Entity<ApplicationUser_RelatedApplicationUser_Friend>().HasRequired(uu => uu.User).WithMany(u => u.Friends).HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<ApplicationUser_RelatedApplicationUser_Ignored>().HasRequired(uu => uu.User).WithMany(u => u.Ignored).HasForeignKey(uu => uu.UserId); 
+            modelBuilder.Entity<ApplicationUserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
+            modelBuilder.Entity<ApplicationUserRelation_Friend>().HasRequired(uu => uu.User).WithMany(u => u.Friends).HasForeignKey(uu => uu.UserId);
+            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.User).WithMany(u => u.Ignored).HasForeignKey(uu => uu.UserId); 
 
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
@@ -43,7 +43,7 @@ namespace Magic.Models.DataContext
         }
 
         public DbSet<ApplicationUserConnection> Connections { get; set; }
-        public DbSet<ApplicationUser_RelatedApplicationUser> User_RelatedUsers { get; set; }
+        public DbSet<ApplicationUserRelation> User_RelatedUsers { get; set; }
         public DbSet<ChatRoom_ApplicationUser> ChatRoom_Users { get; set; }
         public DbSet<ChatRoom_ApplicationUserConnection> ChatRoom_Connections { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
