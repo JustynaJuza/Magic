@@ -42,7 +42,7 @@ namespace Magic.Controllers
                 else
                 {
                     var currentUser = UserManager.FindByName(currentUserName);
-                    var isFriend = currentUser.Friends.Any(u => u.RelatedUserId == user.Id);
+                    var isFriend = currentUser.GetFriends().Any(u => u.RelatedUserId == user.Id);
                     viewModel.IsFriend = isFriend;
                 }
             }

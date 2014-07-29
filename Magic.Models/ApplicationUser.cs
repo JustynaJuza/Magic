@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using System.Linq;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,8 +29,9 @@ namespace Magic.Models
         public virtual IList<ApplicationUserConnection> Connections { get; set; }
         public virtual IList<Player_GameStatus> Games { get; set; }
         public virtual IList<Recipient_ChatMessageStatus> ChatMessages { get; set; }
-        public virtual IList<ApplicationUserRelation_Friend> Friends { get; set; }
-        public virtual IList<ApplicationUserRelation_Ignored> Ignored { get; set; }
+        public virtual IList<ApplicationUserRelation> Relations { get; set; }
+        //public virtual IList<ApplicationUserRelation_Friend> Friends { get; set; }
+        //public virtual IList<ApplicationUserRelation_Ignored> Ignored { get; set; }
 
         // Constructor.
         public ApplicationUser()
@@ -41,6 +43,16 @@ namespace Magic.Models
         }
 
         #region HELPERS
+        public IList<ApplicationUserRelation_Friend> GetFriends()
+        {
+            return Relations.OfType<ApplicationUserRelation_Friend>().ToList();
+        }
+
+        public IList<ApplicationUserRelation_Ignored> GetIgnored()
+        {
+            return Relations.OfType<ApplicationUserRelation_Ignored>().ToList();
+        }
+
         public UserViewModel GetViewModel()
         {
             return new UserViewModel(this);

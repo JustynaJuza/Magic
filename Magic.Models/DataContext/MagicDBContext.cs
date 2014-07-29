@@ -21,12 +21,10 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
             modelBuilder.Entity<ApplicationUserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
-            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.User).WithMany().HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
-            modelBuilder.Entity<ApplicationUserRelation_Friend>().HasRequired(uu => uu.User).WithMany(u => u.Friends).HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<ApplicationUserRelation_Friend>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
-            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.User).WithMany(u => u.Ignored).HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
+            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.User).WithMany(u => u.Relations).HasForeignKey(uu => uu.UserId);
+            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ApplicationUserRelation>().Map<ApplicationUserRelation_Friend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
+            modelBuilder.Entity<ApplicationUserRelation>().Map<ApplicationUserRelation_Ignored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
 
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
