@@ -47,7 +47,7 @@ namespace Magic.Controllers
             var currentUserName = User.Identity.GetUserName();
             roomViewModel.Users = roomViewModel.Users.OrderBy(u => u.UserName == currentUserName).ToList();
             if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count == 1 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
-                //if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count <= 2 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
+            //if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count <= 2 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
             {
                 roomViewModel.TabColorCode = roomViewModel.Users.First().ColorCode;
             }
@@ -77,31 +77,25 @@ namespace Magic.Controllers
         //    var userId = User.Identity.GetUserId();
         //    return PartialView("_ChatRoomPartial", chatRoom.GetViewModel(userId));
         //}
-        
-        public ActionResult AddFriend(string userId)
+
+        public string AddOrRemoveFriend(string userId)
         {
             var currentUserId = User.Identity.GetUserId();
-            var userRelationship = new ApplicationUserRelation_Friend()
+            var relation = context.UserRelations.Find(userId, currentUserId);
+
+            if (relation != null)
             {
-                UserId = currentUserId,
-                RelatedUserId = userId
-            };
-                context.Insert(userRelationship);
+                context.Delete(relation, true);
+                return "Add to friends";
+            }
 
-            return View();
-        }
-
-        public ActionResult RemoveFriend(string userId)
-        {
-            var currentUserId = User.Identity.GetUserId();
-            var userRelationship = new ApplicationUserRelation_Friend()
-            {
-                UserId = currentUserId,
-                RelatedUserId = userId
-            };
-            context.Insert(userRelationship);
-
-            return View();
+            relation = new ApplicationUserRelation_Friend()
+                {
+                    UserId = currentUserId,
+                    RelatedUserId = userId
+                };
+            context.Insert(relation);
+            return "Remove friend";
         }
     }
 }

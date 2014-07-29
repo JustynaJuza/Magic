@@ -3,46 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using System.Web.Mvc.Ajax;
 using System.Web.Mvc.Html;
 
 namespace Magic.Helpers
 {
     public static class HtmlHelperExtensions
     {
-        private static string placeholderImage = VirtualPathUtility.ToAbsolute("~/Content/Images/placeholder.png");
-
         private const string _jSViewDataName = "RenderJavaScript";
         private const string _styleViewDataName = "RenderStyle";
 
-        public static void AddJavaScript(this HtmlHelper htmlHelper,
-                                         string scriptURL)
+        public static void AddJavaScript(this HtmlHelper htmlHelper, string scriptUrl)
         {
-            List<string> scriptList = htmlHelper.ViewContext.HttpContext
+            var scriptList = htmlHelper.ViewContext.HttpContext
               .Items[HtmlHelperExtensions._jSViewDataName] as List<string>;
             if (scriptList != null)
             {
-                if (!scriptList.Contains(scriptURL))
+                if (!scriptList.Contains(scriptUrl))
                 {
-                    scriptList.Add(scriptURL);
+                    scriptList.Add(scriptUrl);
                 }
             }
             else
             {
-                scriptList = new List<string>();
-                scriptList.Add(scriptURL);
+                scriptList = new List<string> { scriptUrl };
                 htmlHelper.ViewContext.HttpContext
                   .Items.Add(HtmlHelperExtensions._jSViewDataName, scriptList);
             }
         }
 
-        public static MvcHtmlString RenderJavaScripts(this HtmlHelper HtmlHelper)
+        public static MvcHtmlString RenderJavaScripts(this HtmlHelper htmlHelper)
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
-            List<string> scriptList = HtmlHelper.ViewContext.HttpContext
+            var scriptList = htmlHelper.ViewContext.HttpContext
               .Items[HtmlHelperExtensions._jSViewDataName] as List<string>;
             if (scriptList != null)
             {
@@ -57,22 +53,22 @@ namespace Magic.Helpers
             return MvcHtmlString.Create(result.ToString());
         }
 
-        public static void AddStyle(this HtmlHelper htmlHelper, string styleURL)
+        public static void AddStyle(this HtmlHelper htmlHelper, string styleUrl)
         {
-            List<string> styleList = htmlHelper.ViewContext.HttpContext
+            var styleList = htmlHelper.ViewContext.HttpContext
               .Items[HtmlHelperExtensions._styleViewDataName] as List<string>;
 
             if (styleList != null)
             {
-                if (!styleList.Contains(styleURL))
+                if (!styleList.Contains(styleUrl))
                 {
-                    styleList.Add(styleURL);
+                    styleList.Add(styleUrl);
                 }
             }
             else
             {
                 styleList = new List<string>();
-                styleList.Add(styleURL);
+                styleList.Add(styleUrl);
                 htmlHelper.ViewContext.HttpContext
                   .Items.Add(HtmlHelperExtensions._styleViewDataName, styleList);
             }
@@ -80,9 +76,9 @@ namespace Magic.Helpers
 
         public static MvcHtmlString RenderStyles(this HtmlHelper htmlHelper)
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
-            List<string> styleList = htmlHelper.ViewContext.HttpContext
+            var styleList = htmlHelper.ViewContext.HttpContext
               .Items[HtmlHelperExtensions._styleViewDataName] as List<string>;
 
             if (styleList != null)
@@ -111,6 +107,16 @@ namespace Magic.Helpers
         {
             var id = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
             return MvcHtmlString.Create(string.Format("<{0} id=\"{1}\">{2}</{0}>", wrapperTag, id, helper.DisplayFor(expression)));
+        }
+
+        public static MvcHtmlString ActionLinkElement(this HtmlHelper helper, MvcHtmlString helperString, string innerElement)
+        {
+            var rawHelperString = helperString.ToString();
+
+            string leftTag = rawHelperString.Substring(0, rawHelperString.IndexOf(">") + 1);
+            string rightTag = rawHelperString.Substring(rawHelperString.LastIndexOf("<"));
+
+            return MvcHtmlString.Create(leftTag + innerElement + rightTag);
         }
 
         //public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)

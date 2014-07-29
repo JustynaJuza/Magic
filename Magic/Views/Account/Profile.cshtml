@@ -1,9 +1,8 @@
 ﻿@model ProfileViewModel
+@using Magic.Helpers
 @{
     ViewBag.Title = Model.UserName + "'s Player Profile";
 }
-
-
 
 <h1>@Html.DisplayFor(m => m.UserName), @Html.DisplayFor(m => m.Title)</h1>
 @if (Model.IsCurrentUser)
@@ -20,15 +19,11 @@
 @if (User.Identity.IsAuthenticated && !Model.IsCurrentUser)
 {
     <div id="friendship-status">
-        @if (Model.IsFriend)
-        {
-        @Ajax.ActionLink("Remove from friends", "RemoveFriend", "Chat", new { userId = Model.Id },
-        new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-status", InsertionMode = InsertionMode.Replace})
-        }
-        else
-        {
-        @Ajax.ActionLink("Add to friends", "AddFriend", "Chat", new { userId = Model.Id },
-        new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-status", InsertionMode = InsertionMode.Replace })
-        }
+        @Html.ActionLinkElement(
+            Ajax.ActionLink((Model.IsFriend ? "Remove from friends" : "Add to friends"), "AddOrRemoveFriend", "Chat", new { userId = Model.Id },
+                new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-action", InsertionMode = InsertionMode.Replace }),
+                  "<span id=\"friendship-action\">" + (Model.IsFriend ? "Remove from friends" : "Add to friends") + "</span>")
     </div>
 }
+
+@Scripts.Render("~/bundles/jqueryajax")

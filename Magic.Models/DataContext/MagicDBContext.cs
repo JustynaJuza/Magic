@@ -21,8 +21,12 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
             modelBuilder.Entity<ApplicationUserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
+            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.User).WithMany().HasForeignKey(uu => uu.UserId);
+            modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
             modelBuilder.Entity<ApplicationUserRelation_Friend>().HasRequired(uu => uu.User).WithMany(u => u.Friends).HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.User).WithMany(u => u.Ignored).HasForeignKey(uu => uu.UserId); 
+            modelBuilder.Entity<ApplicationUserRelation_Friend>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
+            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.User).WithMany(u => u.Ignored).HasForeignKey(uu => uu.UserId);
+            modelBuilder.Entity<ApplicationUserRelation_Ignored>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId);
 
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
@@ -43,7 +47,7 @@ namespace Magic.Models.DataContext
         }
 
         public DbSet<ApplicationUserConnection> Connections { get; set; }
-        public DbSet<ApplicationUserRelation> User_RelatedUsers { get; set; }
+        public DbSet<ApplicationUserRelation> UserRelations { get; set; }
         public DbSet<ChatRoom_ApplicationUser> ChatRoom_Users { get; set; }
         public DbSet<ChatRoom_ApplicationUserConnection> ChatRoom_Connections { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
