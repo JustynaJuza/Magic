@@ -339,6 +339,7 @@
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
+    <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Chat\" />

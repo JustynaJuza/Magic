@@ -20,7 +20,7 @@
 {
     <div id="friendship-status">
         @Html.ActionLinkElement(
-            Ajax.ActionLink((Model.IsFriend ? "Remove from friends" : "Add to friends"), "AddOrRemoveFriend", "Chat", new { userId = Model.Id },
+            Ajax.ActionLink((Model.IsFriend ? "Remove from friends" : "Add to friends"), "AddOrRemoveFriend", "Chat", new { id = Model.Id },
                 new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "friendship-action", InsertionMode = InsertionMode.Replace }),
                   "<span id=\"friendship-action\">" + (Model.IsFriend ? "Remove from friends" : "Add to friends") + "</span>")
     </div>

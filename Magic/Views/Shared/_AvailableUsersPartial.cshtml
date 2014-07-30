@@ -1,0 +1,72 @@
+﻿@*@model List<ChatUserViewModel>*@
+@using Magic.Hubs
+@using Microsoft.AspNet.Identity
+
+<style>
+    .dialog {
+        position: absolute;
+        border: 2px solid #000000;
+        display: none;
+        left: 50%;
+        margin-left: -25%;
+        width: 50%;
+        min-width: 100px;
+        max-width: 500px;
+        height: auto;
+        background-color: #ffffff;
+        z-index: 100;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .overlay {
+        position: fixed;
+        z-index: 99;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: #000000;
+        overflow: hidden;
+        -moz-filter: alpha(opacity=10);
+        -o-filter: alpha(opacity=10);
+        -webkit-filter: alpha(opacity=10);
+        -ms-opacity: 0.1;
+        filter: alpha(opacity=10);
+        opacity: 0.1;
+        display: none;
+    }
+
+    #available-users-close-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin: 2px 5px 0 0; 
+    }
+
+    .hover {
+        background-color: #fbfbfb !important;
+    }
+</style>
+
+<div id="available-users-overlay" class="overlay"></div>
+
+<div id="available-users" class="dialog">
+    <span id="available-users-close-btn">X</span>
+    @*<ul class="chat-users">
+        @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
+        {
+            <li class="available-chat-user chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
+        }
+    </ul>*@
+    @{ var users = ChatHub.GetAvailableUsers(User.Identity.GetUserId()); }
+    <select class="chat-users" size="@users.Count" multiple>
+        @foreach (var user in users)
+        {
+            <option class="available-chat-user chat-user" value="@user.UserName"
+                    style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</option>
+        }
+    </select>
+</div>

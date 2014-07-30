@@ -130,5 +130,4 @@
         var top = $(window).scrollTop();
         $(element).css('top', top + 200 + 'px');
     }
-
 });

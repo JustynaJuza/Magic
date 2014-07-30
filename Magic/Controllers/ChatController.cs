@@ -46,6 +46,7 @@ namespace Magic.Controllers
 
             var currentUserName = User.Identity.GetUserName();
             roomViewModel.Users = roomViewModel.Users.OrderBy(u => u.UserName == currentUserName).ToList();
+
             if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count == 1 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
             //if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count <= 2 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
             {
@@ -78,10 +79,15 @@ namespace Magic.Controllers
         //    return PartialView("_ChatRoomPartial", chatRoom.GetViewModel(userId));
         //}
 
-        public string AddOrRemoveFriend(string userId)
+        public ActionResult GetAvailableUsersPartial()
         {
-            var currentUserId = User.Identity.GetUserId();
-            var relation = context.UserRelations.Find(userId, currentUserId);
+            return PartialView("_AvailableUsersPartial");
+        }
+
+        public string AddOrRemoveFriend(string id)
+        {
+            var userId = User.Identity.GetUserId();
+            var relation = context.UserRelations.Find(userId, id);
 
             if (relation != null)
             {
@@ -91,11 +97,11 @@ namespace Magic.Controllers
 
             relation = new ApplicationUserRelation_Friend()
                 {
-                    UserId = currentUserId,
-                    RelatedUserId = userId
+                    UserId = userId,
+                    RelatedUserId = id
                 };
             context.Insert(relation);
-            return "Remove friend";
+            return "Remove from friends";
         }
     }
 }

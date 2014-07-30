@@ -87,12 +87,14 @@ namespace Magic.Models
 
     public class ChatUserViewModel
     {
+        public string Id { get; set; }
         public string UserName { get; set; }
         public string ColorCode { get; set; }
         public UserStatus Status { get; set; }
 
         public ChatUserViewModel(ApplicationUser user)
         {
+            Id = user.Id;
             UserName = user.UserName;
             ColorCode = user.ColorCode;
             Status = user.Status;

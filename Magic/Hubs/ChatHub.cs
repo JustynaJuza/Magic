@@ -19,6 +19,21 @@ namespace Magic.Hubs
         public const string DefaultRoomId = "default";
 
         #region CHAT INIT
+        public static IList<ChatUserViewModel> GetAvailableUsers(string userId)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var user = context.Users.Include(u => u.Relations.Select(r => r.RelatedUser)).First(u => u.Id == userId);
+                var usersFriends = user.GetFriendsList().OrderBy(u => u.UserName);
+
+                var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == DefaultRoomId);
+                var activeUsers = chatRoom.GetActiveUserList().OrderBy(u => u.UserName);
+
+                activeUsers.ToList().Remove(activeUsers.First(u => u.Id == userId));
+                return usersFriends.Union(activeUsers).ToList();
+            }
+        }
+
         public static IList<ChatRoom> GetUserChatRooms(string userId)
         {
             using (var context = new MagicDbContext())
@@ -62,23 +77,23 @@ namespace Magic.Hubs
                 }
 
                 var recipientIds = recipients.Select(r => r.Id);
-                //var recipientColors = recipients.Select(r => r.ColorCode).ToList();
 
                 var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
 
-                if (chatRoom != null)
+                if (chatRoom == null)
                 {
-                    foreach (var user in recipients)
-                    {
-                        SubscribeActiveConnections(chatRoom.Id, user.Id);
-                    }
-                    return chatRoom.Id;
-                    //Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
-                    //var userId = Context.User.Identity.GetUserId();
-                    //return ViewRenderer.RenderPartialView("~/Views/Shared/_ChatRoomPartial.cshtml", (ChatRoomViewModel)chatRoom.GetViewModel(userId));
+                    return String.Empty;
                 }
 
-                return String.Empty;
+                foreach (var user in recipients)
+                {
+                    SubscribeActiveConnections(chatRoom.Id, user.Id);
+                }
+                return chatRoom.Id;
+
+                //Clients.Caller.loadChatRoom(chatRoom.Id, chatRoom.Name, recipientColors, recipientNames, Json.Encode(chatRoom.Log.GetUserMessages(userId)));
+                //var userId = Context.User.Identity.GetUserId();
+                //return ViewRenderer.RenderPartialView("~/Views/Shared/_ChatRoomPartial.cshtml", (ChatRoomViewModel)chatRoom.GetViewModel(userId));
             }
         }
 
@@ -138,26 +153,34 @@ namespace Magic.Hubs
             UpdateChatRoomUsers(roomId);
         }
 
-        public void UnsubscribeChatRoom(string roomId)
+        public void UnsubscribeChatRoom(string roomId, string connectionId = null)
         {
             using (var context = new MagicDbContext())
             {
                 var userId = Context.User.Identity.GetUserId();
                 var user = context.Users.Find(userId);
 
-                var connections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
-                context.ChatRoom_Connections.RemoveRange(connections);
-                context.SaveChanges();
+                if (string.IsNullOrWhiteSpace(connectionId))
+                {
+                    var connections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
+                    context.ChatRoom_Connections.RemoveRange(connections);
+                    context.SaveChanges();
 
-                Clients.OthersInGroup(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, "has closed the chat tab.");
+                    Clients.OthersInGroup(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, "has closed the chat tab.");
+                }
+                else
+                {
+                    var connection = context.ChatRoom_Connections.Find(connectionId, userId, roomId);
+                    context.Delete(connection, true);
+                }
             }
         }
 
-        public void UpdateChatRoomUsers(string roomId = DefaultRoomId, bool callerOnly = false)
+        public void UpdateChatRoomUsers(string roomId, bool callerOnly = false)
         {
             using (var context = new MagicDbContext())
             {
-                var chatUsers = new List<ChatUserViewModel>();
+                List<ChatUserViewModel> chatUsers;
                 if (roomId == DefaultRoomId)
                 {
                     var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == roomId);
@@ -221,7 +244,7 @@ namespace Magic.Hubs
                     Message = UserStatusBroadcastMessage(status)
                 };
                 message.Sender.Status = status;
-                //context.InsertOrUpdate(message.Sender, true);
+                context.InsertOrUpdate(message.Sender, true);
 
 
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
@@ -453,10 +476,12 @@ namespace Magic.Hubs
 
                 if (connection != null)
                 {
+                    UnsubscribeChatRoom(DefaultRoomId, connection.Id);
                     if (connection.User.Connections.Count == 1)
                     {
                         // If this is the user's last connection broadcast a chat info.
                         UserStatusBroadcast(connection.User.Id, UserStatus.Offline);
+                        UpdateChatRoomUsers(DefaultRoomId);
                     }
 
                     //if (connection.GetType() == typeof(ApplicationUserGameConnection))
@@ -468,10 +493,8 @@ namespace Magic.Hubs
 
                     System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
 
-                    context.Connections.Remove(connection);
-                    context.SaveChanges();
+                    context.Delete(connection, true);
 
-                    UpdateChatRoomUsers();
                 }
             }
 
@@ -480,22 +503,6 @@ namespace Magic.Hubs
         #endregion CONNECTION STATUS UPDATE
 
         #region CHATLOG HANDLING
-        public static IList<ChatMessage> GetRecentChatLog(string roomId = DefaultRoomId)
-        {
-            //// TODO: Filter private/game/other messages.
-            //ChatLog currentLog = (ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName];
-            //if (currentLog.Messages.Count > 10)
-            //{
-            //    currentLog.Messages = currentLog.Messages.GetRange(currentLog.Messages.Count - 10, 10); //Where(m => (m.TimeSend - DateTime.Now) < new TimeSpan(0, 1, 0)).ToList();
-            //}
-            //return currentLog.Messages;
-            using (var context = new MagicDbContext())
-            {
-                var chatRoom = context.ChatRooms.Find(roomId);
-                return chatRoom.Log.Messages;
-            }
-        }
-
         // This function is called by schedule from Global.asax and uses the static context to save recent chat messages.
         //public static bool SaveChatLogToDatabase(ChatLog currentLog)
         //{

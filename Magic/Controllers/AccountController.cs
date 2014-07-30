@@ -32,19 +32,21 @@ namespace Magic.Controllers
             var user = UserManager.FindByName(id);
             var viewModel = user.GetProfileViewModel();
 
-            if (User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
-                var currentUserName = User.Identity.GetUserName();
-                if (currentUserName == id)
-                {
-                    viewModel.IsCurrentUser = true;
-                }
-                else
-                {
-                    var currentUser = UserManager.FindByName(currentUserName);
-                    var isFriend = currentUser.GetFriends().Any(u => u.RelatedUserId == user.Id);
-                    viewModel.IsFriend = isFriend;
-                }
+                return View(viewModel);
+            }
+
+            var currentUserName = User.Identity.GetUserName();
+            if (currentUserName == id)
+            {
+                viewModel.IsCurrentUser = true;
+            }
+            else
+            {
+                var currentUser = UserManager.FindByName(currentUserName);
+                var isFriend = currentUser.GetFriends().Any(u => u.RelatedUserId == user.Id);
+                viewModel.IsFriend = isFriend;
             }
 
             return View(viewModel);
@@ -65,7 +67,7 @@ namespace Magic.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = new ApplicationUser()
+                var user = new ApplicationUser()
                 {
                     UserName = model.UserName,
                     Email = model.Email,
@@ -262,8 +264,8 @@ namespace Magic.Controllers
 
                 //ChatHub.ToggleChatSubscription(foundUser);
                 //foundUser.Connections.Clear();
-                //foundUser.Status = UserStatus.Offline;
-                //context.InsertOrUpdate(foundUser);
+                foundUser.Status = UserStatus.Offline;
+                context.InsertOrUpdate(foundUser);
 
                 AuthenticationManager.SignOut();
             }

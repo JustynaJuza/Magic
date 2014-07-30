@@ -32,10 +32,11 @@
         right: 0;
         background-color: #000000;
         overflow: hidden;
-        -moz-filter: alpha(opacity=10) -ms-opacity: 0.1;
-        -o-filter: alpha(opacity=10) -ms-opacity: 0.1;
-        filter: alpha(opacity=10);
+        -moz-filter: alpha(opacity=10);
+        -o-filter: alpha(opacity=10);
+        -webkit-filter: alpha(opacity=10);
         -ms-opacity: 0.1;
+        filter: alpha(opacity=10);
         opacity: 0.1;
         display: none;
     }
@@ -51,7 +52,7 @@
     }
 </style>
 
-<div id="file-uploader-overlay"></div>
+<div id="file-uploader-overlay" class="overlay"></div>
 
 <div id="file-uploader" class="upload dialog">
 

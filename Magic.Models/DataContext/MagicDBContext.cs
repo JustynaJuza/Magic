@@ -20,17 +20,20 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ApplicationUserConnection >().HasKey(k => new { k.Id, k.UserId });
             modelBuilder.Entity<ApplicationUserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
 
+            modelBuilder.Entity<ApplicationUserRelation>().ToTable("AspNetUserRelations");
             modelBuilder.Entity<ApplicationUserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
             modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.User).WithMany(u => u.Relations).HasForeignKey(uu => uu.UserId);
             modelBuilder.Entity<ApplicationUserRelation>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<ApplicationUserRelation>().Map<ApplicationUserRelation_Friend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
             modelBuilder.Entity<ApplicationUserRelation>().Map<ApplicationUserRelation_Ignored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
 
+            modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().ToTable("ChatRoom_AspNetUserConnection");
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<ChatRoom_ApplicationUserConnection>().HasRequired(ruc => ruc.Connection).WithMany().HasForeignKey(ruc => new { ruc.ConnectionId, ruc.UserId });
 
+            modelBuilder.Entity<ChatRoom_ApplicationUser>().ToTable("ChatRoom_AspNetUser");
             modelBuilder.Entity<ChatRoom_ApplicationUser>().HasKey(k => new { k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoom_ApplicationUser>().HasRequired(ru => ru.ChatRoom).WithMany(r => r.Users).HasForeignKey(ru => ru.ChatRoomId);
             modelBuilder.Entity<ChatRoom_ApplicationUser>().HasRequired(ru => ru.User).WithMany().HasForeignKey(ru => ru.UserId);
@@ -130,7 +133,6 @@ namespace Magic.Models.DataContext
 
         public bool InsertOrUpdate(Object item, out string errorText, bool updateOnly = false)
         {
-            Object foundItem;
             errorText = null;
 
             if (updateOnly)
@@ -139,7 +141,7 @@ namespace Magic.Models.DataContext
             }
             else
             {
-                foundItem = ReadObject(item);
+                var foundItem = ReadObject(item);
                 if (foundItem == null)
                 {
                     Entry(item).State = EntityState.Added;
@@ -196,8 +198,12 @@ namespace Magic.Models.DataContext
 
         public string ShowErrorMessage(Exception ex)
         {
-            if (ex is ArgumentNullException) return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
-            else if (ex is System.Data.Entity.Validation.DbEntityValidationException)
+            if (ex is ArgumentNullException)
+            {
+                return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
+            }
+            
+            if (ex is System.Data.Entity.Validation.DbEntityValidationException)
             {
                 var errors = string.Empty;
                 foreach (var validationErrors in ((System.Data.Entity.Validation.DbEntityValidationException)ex).EntityValidationErrors)
@@ -210,7 +216,8 @@ namespace Magic.Models.DataContext
 
                 return errors + ex.ToString();
             }
-            else return "There was a problem with saving to the database..." + ex.ToString();
+
+            return "There was a problem with saving to the database..." + ex.ToString();
             //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again."
         }
         #endregion CRUD

@@ -54,23 +54,19 @@ namespace Magic.Models
 
         public IList<ChatUserViewModel> GetUserList()
         {
-                var chatUsers = new List<ChatUserViewModel>();
-                foreach (var user in Users.Select(u => u.User))
-                {
-                    chatUsers.Add(new ChatUserViewModel(user));
-                }
-                return chatUsers;
+            return Users.Select(u => u.User).Select(user => new ChatUserViewModel(user)).ToList();
         }
 
         public IList<ChatUserViewModel> GetActiveUserList()
         {
-            var chatUsers = new List<ChatUserViewModel>();
-            foreach (var user in Connections.Select(c => c.User).Distinct())
-            {
-                chatUsers.Add(new ChatUserViewModel(user));
-            }
+            var users = Connections.Select(c => c.User).Distinct().ToList();
 
-            return chatUsers;
+            //if (!string.IsNullOrWhiteSpace(exceptUserId))
+            //{
+            //    users.Remove(users.First(u => u.Id == exceptUserId));
+            //}
+
+            return users.Select(user => new ChatUserViewModel(user)).ToList();
         }
 
         public bool OnlySpecifiedUsersInRoom(IEnumerable<string> userIds)

@@ -5,8 +5,9 @@
         $newChatMessage.val('');
     };
 
-    var userName = $('#user-name').text();
-    $chatRoomContainer = $('#chat-room-container');
+    var userName = $('#user-name').text(),
+        $chatContainer = $('.chat'),
+    $chatRoomContainer = $('#chat-room-container'),
     $chatRooms = $('.chat-room'),
     $chatSendButton = $('.chat-message-new-btn-send'),
     $newChatMessage = $('.chat-message-new'),
@@ -18,8 +19,8 @@
     $chatUser = $('.chat-user'),
     $chatRoomSelection = $('#chat-room-selection'),
     $chatRoomTabs = $('.chat-room-tab'),
-    $chatRoomContents = $('.chat-room-content');
-    basicNewMessagePadding = parseInt($newChatMessage.css('padding-left'));
+    $chatRoomContents = $('.chat-room-content'),
+    basicNewMessagePadding = parseInt($newChatMessage.css('padding-left')),
     //activeChatRoom = $chatRoomSelection.data('chatRoomId'),
     tabBlinkingTracker = [];
 
@@ -48,11 +49,35 @@
         event.stopPropagation();
     });
 
-    $(document).on('click', '.chat-room-tab-add-member', function () {
-        var roomTab = $(this).parent();
-        roomTab.data('recipients', Array(roomTab.data('recipients')).push(member))
-        $('#user-list-add-member');
+    $(document).on('click', '.chat-room-tab-add-user', function () {
+        var requestIsMade = null;
+        if (!$('#available-users').length) {
+            var url = '/Chat/GetAvailableUsersPartial/';
+            requestIsMade = $.get(url, function (htmlContent) {
+                $chat.container.append(htmlContent);
+            });
+        }
+
+        $.when(requestIsMade).then(function () {
+            moveToScroll('#available-users');
+            $('#available-users-overlay').show();
+            $('#available-users').show();
+        });
     });
+    $(document).on('click', '#available-users-close-btn', function () {
+        $('#available-users-overlay').fadeOut();
+        $('#available-users').fadeOut();
+    });
+
+    //$(document).on('click', '.available-chat-user', function () {
+        //var roomId = $chatRoomSelection.data('chatRoomId');
+        //var recipients = $chatRoomSelection.data('recipients');
+
+        //$('#available-users-overlay').fadeOut();
+        //$('#available-users').fadeOut();
+        //window.chat.server.addChatUser($chatRoomSelection);
+        ////roomTab.data('recipients', Array(roomTab.data('recipients')).push(member));
+    //});
 
     $(document).on('mouseover', '.chat-room-tab', function () {
         $(this).fadeTo(0, 0.8);
@@ -98,7 +123,7 @@
 
             if (isNew == true) {
                 window.chat.server.createChatRoom(recipients, roomId).done(function () {
-                    $('#room-tab' + roomId).data('isNew', false)
+                    $('#room-tab' + roomId).data('isNew', false);
                 });
             }
 
@@ -141,6 +166,7 @@
         this.defaultRecipients = '';
         this.defaultRoomName = 'default';
 
+        this.container = $chatContainer;
         this.roomTabs = $chatRoomTabs;
         this.roomContents = $chatRoomContents;
         this.usersContainer = $chatUsersContainer;
@@ -200,7 +226,7 @@
                                 return $('#room-tab-' + roomId).trigger('click');
                             }
 
-                            $.get(url, { roomId: roomId }, appendRoomToChat);
+                            $.get(url + $.now(), { roomId: roomId }, appendRoomToChat);
                         }
                         else {
                             jQuery.ajaxSettings.traditional = true;
@@ -251,7 +277,6 @@
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
     window.chat = $.connection.chatHub;
-    var chat = window.chat;
     var $chat = new Chat();
     $chat.adjustRoomTabs();
     $chat.roomTabs.first().trigger('click');
@@ -375,11 +400,10 @@
     $newChatMessage.on('input', function () {
         if ($newChatMessage.val() == '') {
             $chatSendButton.prop('disabled', true);
-        }
-        else {
+        } else {
             $chatSendButton.prop('disabled', false);
         }
-    })
+    });
 
     // Send messages on enter.
     $newChatMessage.keyup(function (e) {
@@ -390,7 +414,7 @@
         }
         else if (e.keyCode == 32 && $newChatMessage.val().split(' ').length == 2) {
             if (_.any(chatCommands, matchNewChatMessage)) {
-                console.log(window['chatCommand_' + $newChatMessage.val().split(' ')[0].toLowerCase()])
+                console.log(window['chatCommand_' + $newChatMessage.val().split(' ')[0].toLowerCase()]);
                 window['chatCommand_' + $newChatMessage.val().split(' ')[0].toLowerCase()].apply();
             };
         }
@@ -424,10 +448,10 @@
         return encodedValue;
     }
 
-    function adjustNewMessageElementPadding() {
-        var newPadding = basicNewMessagePadding + parseInt($chatRoomSelection.css('width'))
-        $newChatMessage.css('padding-left', newPadding);
-    }
+    //function adjustNewMessageElementPadding() {
+    //    var newPadding = basicNewMessagePadding + parseInt($chatRoomSelection.css('width'));
+    //    $newChatMessage.css('padding-left', newPadding);
+    //}
 
     //$chatRoomSelection.click(function () {
     //    $chatRoomSelectList.toggle();
@@ -468,7 +492,7 @@
 
     // --------------------- HELPER FUNCTIONS ---------------------- START
     function smoothScroll($container, $scrollingEntry) {
-        alert('scroll')
+        alert('scroll');
         var lineHeightInPixels = 20;
         var marginSize = 10;
         var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
@@ -476,7 +500,7 @@
 
         // Get number of oldest message lines to fade out based on line height and scroll position.
         var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
-        console.log(linesToFadeUpper)
+        console.log(linesToFadeUpper);
         // Fade upper lines out.
         $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01);
         // Fade visible lines in.
@@ -489,14 +513,13 @@
         return $newChatMessage.val().split(' ')[0].toLowerCase() == value;
     }
 
-    function checkIfRoomExists(userName) {
-        var userName = $(this).text();
+    function checkIfRoomExists(selectedUser) {
         var exisitingRoom = _.find($chat.roomTabs, function (element) {
-            return element.textContent.substr(1, element.textContent.length - 2) == userName;
+            return element.textContent.substr(1, element.textContent.length - 2) == selectedUser;
         });
 
         if (exisitingRoom) {
-            return $('#room-' + exisitingRoom.id).trigger('click');
+            $('#room-' + exisitingRoom.id).trigger('click');
         }
     }
 
@@ -507,6 +530,11 @@
 
     function scrollContainerToBottom(element) {
         $(element).animate({ scrollTop: $(element)[0].scrollHeight }, 1000);
+    }
+
+    function moveToScroll(element) {
+        var top = $(window).scrollTop();
+        $(element).css('top', top + 200 + 'px');
     }
     // --------------------- HELPER FUNCTIONS ---------------------- END
 });

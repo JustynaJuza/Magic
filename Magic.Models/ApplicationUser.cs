@@ -48,6 +48,11 @@ namespace Magic.Models
             return Relations.OfType<ApplicationUserRelation_Friend>().ToList();
         }
 
+        public IList<ChatUserViewModel> GetFriendsList()
+        {
+            return GetFriends().Select(f => f.RelatedUser).Select(user => new ChatUserViewModel(user)).ToList();
+        }
+
         public IList<ApplicationUserRelation_Ignored> GetIgnored()
         {
             return Relations.OfType<ApplicationUserRelation_Ignored>().ToList();
@@ -65,13 +70,10 @@ namespace Magic.Models
         
         public override string ToString()
         {
-            string toString = this.GetType().FullName + ": ";
-            var classMembers = this.GetType().GetProperties();
+            string toString = GetType().FullName + ": ";
+            var classMembers = GetType().GetProperties();
 
-            foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
-
-            return toString;
+            return classMembers.Aggregate(toString, (current, member) => current + ("\n" + member.Name + " : " + member.GetValue(this) + "; "));
         }
         #endregion HELPERS
     }
