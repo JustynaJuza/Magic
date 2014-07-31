@@ -40,53 +40,6 @@
         $newChatMessage.focus();
     });
 
-    $(document).on('click', '.chat-room-tab-close', function (event) {
-        var room = $(this).closest('.chat-room');
-        window.chat.server.unsubscribeChatRoom(room.prop('id').substr(5))
-        room.remove();
-        $chat.adjustRoomTabs();
-        $chat.roomTabs.first().trigger('click');
-        event.stopPropagation();
-    });
-
-    $(document).on('click', '.chat-room-tab-add-user', function () {
-        var requestIsMade = null;
-        if (!$('#available-users').length) {
-            var url = '/Chat/GetAvailableUsersPartial/';
-            requestIsMade = $.get(url, function (htmlContent) {
-                $chat.container.append(htmlContent);
-            });
-        }
-
-        $.when(requestIsMade).then(function () {
-            moveToScroll('#available-users');
-            $('#available-users-overlay').show();
-            $('#available-users').show();
-        });
-    });
-    $(document).on('click', '#available-users-close-btn', function () {
-        $('#available-users-overlay').fadeOut();
-        $('#available-users').fadeOut();
-    });
-
-    //$(document).on('click', '.available-chat-user', function () {
-        //var roomId = $chatRoomSelection.data('chatRoomId');
-        //var recipients = $chatRoomSelection.data('recipients');
-
-        //$('#available-users-overlay').fadeOut();
-        //$('#available-users').fadeOut();
-        //window.chat.server.addChatUser($chatRoomSelection);
-        ////roomTab.data('recipients', Array(roomTab.data('recipients')).push(member));
-    //});
-
-    $(document).on('mouseover', '.chat-room-tab', function () {
-        $(this).fadeTo(0, 0.8);
-    });
-
-    $(document).on('mouseout', '.chat-room-tab', function () {
-        $(this).fadeTo(0, 1);
-    });
-
     $(document).on('click', '.chat-room-tab', function () {
         var roomId = $(this).prop('id').substr(9);
         $chat.roomTabs.css({
@@ -115,6 +68,80 @@
         $chatRoomSelection.data('isNew', $(this).data('isNew') || false);
     });
 
+    $(document).on('click', '.chat-room-tab-close', function (event) {
+        var roomTab = $(this).closest('.chat-room-tab');
+        var roomId = roomTab.prop('id').substr(9);
+        if (roomTab.data('isNew') == true) {
+            if ($chatRoomSelection.data('chatRoomId') == roomId) {
+                $chat.roomTabs.first().trigger('click');
+            }
+            $('#room-' + roomId).remove();
+            $chat.adjustRoomTabs();
+        } else {
+            window.chat.server.unsubscribeChatRoom(roomId, null);
+        }
+        event.stopPropagation();
+    });
+
+    $(document).on('click', '.chat-room-tab-add-user', function () {
+        var requestIsMade = null;
+        if (!$('#available-users').length) {
+            var url = basePath + '/Chat/GetAvailableUsersPartial/';
+            requestIsMade = $.get(url, function (htmlContent) {
+                $chat.container.append(htmlContent);
+            });
+        }
+
+        $.when(requestIsMade).then(function () {
+            moveToScroll('#available-users');
+            $('#available-users-overlay').show();
+            $('#available-users').show();
+        });
+    });
+
+    $(document).on('click', '.available-chat-user', function () {
+        $(this).toggleClass('toggle');
+    });
+
+    $(document).on('click', '#available-users-confirm-btn', function () {
+        var selectedUsers = $('.toggle').map(function () {
+            return $(this)[0].textContent;
+        });
+
+        $chat.addRoomTab(selectedUsers.toArray());
+        $('#available-users-overlay').fadeOut();
+        $('#available-users').fadeOut();
+    });
+
+    $(document).on('click', '#available-users-close-btn', function () {
+        $('#available-users-overlay').fadeOut();
+        $('#available-users').fadeOut();
+    });
+    
+    //$(document).on('click', '.available-chat-user', function () {
+    //var roomId = $chatRoomSelection.data('chatRoomId');
+    //var recipients = $chatRoomSelection.data('recipients');
+
+    //$('#available-users-overlay').fadeOut();
+    //$('#available-users').fadeOut();
+    //window.chat.server.addChatUser($chatRoomSelection);
+    ////roomTab.data('recipients', Array(roomTab.data('recipients')).push(member));
+    //});
+
+    //$(document).on('mouseover', '.chat-room-tab, .chat-user, .chat-message-sender', function () {
+    //    $(this).fadeTo(0, 0.8);
+    //});
+
+    //$(document).on('mouseout', '.chat-room-tab, .chat-user, .chat-message-sender', function () {
+    //    $(this).fadeTo(0, 1);
+    //});
+
+    //$('.chat-room-tab, .chat-user, .chat-message-sender').hover(function () {
+    //    $(this).fadeTo(0, 0.8);
+    //}, function () {
+    //    $(this).fadeTo(0, 1);
+    //});
+
     $(document).on('click', '.chat-message-new-btn-send', function () {
         if (typeof window.chat.initialized != 'undefined') {
             var roomId = $chatRoomSelection.data('chatRoomId');
@@ -137,7 +164,7 @@
     $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
         checkIfRoomExists($(this).text());
 
-        $chat.addRoomTab($(this).text(), $(this).css('color'));
+        $chat.addRoomTab($(this).text());
         $chat.newMessage.focus();
     });
 
@@ -177,22 +204,19 @@
         this.rooms = $chatRooms;
         this.newMessage = $newChatMessage;
 
-        this.addRoomTab = function (recipientName, tabColor, roomId) {
-            var recipients = [recipientName, userName];
+        this.addRoomTab = function (recipientNames, roomId) {
+            var recipients = [];
+            if (recipientNames instanceof Array) {
+                recipients = [userName].concat(recipientNames);
+            } else {
+                recipients = [recipientNames, userName];
+            }
             var isExistingRoom = roomId != null;
             var activateTabAfterwards = roomId == null;
-            var url = '/Chat/GetChatRoomPartial/';
+            var url = basePath + '/Chat/GetChatRoomPartial/';
 
             // Extension used to append new room markup to chat.
             function appendRoomToChat(htmlContent) {
-                // Setup chat room tab.
-                //alert(roomId)
-                //var roomTab = $($.parseHTML('<li style="background-color: ' + tabColor
-                //    + '"><span class="chat-tab-btn-add-member">+</span>' + recipientName + '<span class="chat-tab-btn-close">X</span></li>'));
-                //roomTab.data('recipients', recipients);
-                //roomTab.data('isNew', !isExistingRoom);
-
-                //$chat.roomSelectList.append(roomTab);
                 $chat.roomsContainer.append(htmlContent);
                 $chat.adjustRoomTabs();
 
@@ -286,12 +310,12 @@
     window.chat.initialize = function initializeChat() {
         //chat.server.subscribeChatRoom('default');
         //chat.server.getChatRoomUsers('default');
-    }
+    };
 
     // Hub callback delivering new messages.
-    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
+    window.chat.client.addMessage = function(roomId, time, sender, senderColor, message) {
         if (!$('#room-' + roomId).length) {
-            $chat.addRoomTab(sender, senderColor, roomId)
+            $chat.addRoomTab(sender, roomId);
         }
 
         $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
@@ -300,32 +324,22 @@
         if ($chatRoomSelection.data('chatRoomId') != roomId) {
             var tabBlinkerProcess = setInterval(blink, 1000, '#room-tab-' + roomId);
             tabBlinkingTracker[roomId] = tabBlinkerProcess;
-        }
-        else {
+        } else {
             scrollContainerToBottom('#room-messages-container-' + roomId);
         }
     };
 
-    //window.chat.client.loadChatRoom = function (roomId, roomName, tabColors, recipients, chatLog) {
-    //    var roomTabHtml = '<li id="' + roomId + '" style="background-color: ' + tabColors[0] + '"><span class="chat-tab-btn-add-member">+</span>';
-    //    if (roomName) {
-    //        roomTabHtml += roomName;
-    //    }
-    //    else {
-    //        recipients.splice(recipients.indexOf(userName), 1);
-    //        recipients.forEach(function (recipient) {
-    //            roomTabHtml += recipient + ' | ';
-    //        });
-    //        roomTabHtml = roomTabHtml.substring(0, roomTabHtml.length - 3)
-    //    }
-    //    roomTabHtml += '<span class="chat-tab-btn-close">X</span></li>';
+    window.chat.client.closeChatRoom = function (roomId) {
+        if ($chatRoomSelection.data('chatRoomId') == roomId) {
+            $chat.roomTabs.first().trigger('click');
+        }
+        $('#room-' + roomId).remove();
+        $chat.adjustRoomTabs();
+    }
 
-    //    var roomTab = $($.parseHTML(roomTabHtml));
-    //    roomTab.data('recipients', recipients);
-    //    $chat.roomSelectList.append(roomTab);
-    //    $chat.adjustRoomTabs();
-    //    roomTab.trigger('click');
-    //}
+    window.chat.client.loadChatRoom = function (roomId) {
+    
+    }
 
     // Hub callback for updating chat user list on each change.
     window.chat.client.updateChatRoomUsers = function (chatUsers, roomId) {
@@ -534,7 +548,7 @@
 
     function moveToScroll(element) {
         var top = $(window).scrollTop();
-        $(element).css('top', top + 200 + 'px');
+        $(element).css('top', top + 'px');
     }
     // --------------------- HELPER FUNCTIONS ---------------------- END
 });

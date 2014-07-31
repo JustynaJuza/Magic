@@ -13,7 +13,7 @@
             var colorCodes = Model.Users.ElementAt(0).ColorCode + " " + (gradientChangeSpacing / 2) + "%";
             for (var i = 1; i < Model.Users.Count(); i++)
             {
-                colorCodes += ", " + Model.Users.ElementAt(i).ColorCode + " " + (gradientChangeSpacing + gradientChangeSpacing / 2) + "%";
+                colorCodes += ", " + Model.Users.ElementAt(i).ColorCode + " " + (gradientChangeSpacing * i + gradientChangeSpacing / 2) + "%";
             }
             colorStyling = "background: linear-gradient(90deg, " + colorCodes +")";
         }

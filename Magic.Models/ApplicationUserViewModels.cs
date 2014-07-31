@@ -1,7 +1,9 @@
-﻿using Magic.Models.Helpers;
+﻿using System.Collections;
+using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Magic.Models
 {
@@ -85,7 +87,7 @@ namespace Magic.Models
         }
     }
 
-    public class ChatUserViewModel
+    public class ChatUserViewModel : IViewModel
     {
         public string Id { get; set; }
         public string UserName { get; set; }
@@ -98,6 +100,19 @@ namespace Magic.Models
             UserName = user.UserName;
             ColorCode = user.ColorCode;
             Status = user.Status;
+        }
+    }
+
+    public class ChatUserViewModel_UserComparer : IEqualityComparer<ChatUserViewModel>
+    {
+        public bool Equals(ChatUserViewModel x, ChatUserViewModel y)
+        {
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(ChatUserViewModel obj)
+        {
+            return obj.Id.GetHashCode();
         }
     }
 

@@ -34,6 +34,9 @@
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
+<script>
+    var basePath = '@VirtualPathUtility.ToAbsolute("~/")';
+</script>
 @Scripts.Render("~/bundles/jquerysignalR")
 @Scripts.Render("~/signalr/hubs")
 @Scripts.Render("~/Scripts/_chat.js")

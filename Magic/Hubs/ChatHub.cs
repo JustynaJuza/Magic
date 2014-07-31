@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using Magic.Models;
@@ -27,10 +28,10 @@ namespace Magic.Hubs
                 var usersFriends = user.GetFriendsList().OrderBy(u => u.UserName);
 
                 var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == DefaultRoomId);
-                var activeUsers = chatRoom.GetActiveUserList().OrderBy(u => u.UserName);
+                var activeUsers = chatRoom.GetActiveUserList().OrderBy(u => u.UserName).ToList();
 
-                activeUsers.ToList().Remove(activeUsers.First(u => u.Id == userId));
-                return usersFriends.Union(activeUsers).ToList();
+                activeUsers.Remove(activeUsers.First(u => u.Id == userId));
+                return usersFriends.Union(activeUsers, new ChatUserViewModel_UserComparer()).ToList();
             }
         }
 
@@ -162,11 +163,11 @@ namespace Magic.Hubs
 
                 if (string.IsNullOrWhiteSpace(connectionId))
                 {
-                    var connections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
-                    context.ChatRoom_Connections.RemoveRange(connections);
-                    context.SaveChanges();
+                    var userConnections = context.ChatRoom_Connections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
+                    Clients.Clients(userConnections.Select(c => c.ConnectionId).ToList()).closeChatRoom(roomId);
 
-                    Clients.OthersInGroup(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, "has closed the chat tab.");
+                    context.ChatRoom_Connections.RemoveRange(userConnections);
+                    context.SaveChanges();
                 }
                 else
                 {
@@ -470,6 +471,15 @@ namespace Magic.Hubs
 
         public override Task OnDisconnected()
         {
+            //var timer = new Timer(obj => DeleteConnection(), null, 1000, Timeout.Infinite);
+            DeleteConnection();
+
+            return base.OnDisconnected();
+        }
+
+        private async void DeleteConnection()
+        {
+            await Task.Delay(1000);
             using (var context = new MagicDbContext())
             {
                 var connection = context.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
@@ -494,11 +504,8 @@ namespace Magic.Hubs
                     System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
 
                     context.Delete(connection, true);
-
                 }
             }
-
-            return base.OnDisconnected();
         }
         #endregion CONNECTION STATUS UPDATE
 
