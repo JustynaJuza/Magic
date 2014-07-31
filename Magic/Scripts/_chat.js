@@ -31,7 +31,7 @@
     $chatRoomSelection.data('isNew', 'false');
 
     // Make chat sender names clickable for reply.
-    $(document).on('click', '.chat-message-sender, .chat-user', function () {
+    $(document).on('click', '.chat-message-sender, .chat-room .chat-user', function () {
         $newChatMessage.val('@' + $(this).text() + ' ');
         $newChatMessage.focus();
     });
@@ -161,7 +161,7 @@
         }
     });
 
-    $(document).on('dblclick', '.chat-message-sender, .chat-user', function () {
+    $(document).on('dblclick', '.chat-message-sender, .chat-room .chat-user', function () {
         checkIfRoomExists($(this).text());
 
         $chat.addRoomTab($(this).text());
@@ -352,41 +352,13 @@
         $('#room-users-' + roomId).children().remove();
         $('#room-users-' + roomId).append(updatedChatUsersHtml);
     };
-
-    //window.chat.client.updateChatRoomUser = function (userName, colorCode, roomId) {
-
-    //    if (activeChatRoom == roomId) {
-    //        var $foundUser = $('.chat-user:contains(' + userName + ')');
-    //        if ($foundUser.length > 0) {
-    //            $foundUser.remove();
-    //        }
-    //        else {
-    //            $chat.users.append('<li class="chat-user" style="font-weight:bold;color:' + htmlEncode(colorCode) + '">' + userName + '</li>');
-    //        }
-    //    }
-    //};
-
-    //window.chat.client.updateChatTab = function (recipients, recipientColors, roomId) {
-    //    var targetRoom = _.find($chat.roomSelectList.find('li'), function (roomTab) {
-    //        var savedRecipients = $(roomTab).data('recipients');
-    //        return $(savedRecipients).not(recipients).length == 0 && $(recipients).not(savedRecipients).length == 0;
-    //    });
-    //    $(targetRoom).prop('id', roomId);
-    //}
-
+    
     // Hub callback to remove chat room tab when current user leaves.
     window.chat.client.leaveChatRoom = function (roomId) {
         $('.chat-room-users-selectlist #' + roomId).remove();
         $('#chat-room-selectlist #' + roomId).remove();
         adjustRoomTabs();
     }
-
-    // Hub callback to add  chat room tab when current user joins.
-    //window.chat.client.joinChatRoom = function (roomId, roomName, tabColor, tabBorderColor) {
-    //    $chatRoomUsersSelectList.append('<li id=' + roomId + 'style="background-color: ' + tabColor + '; border-color: ' + tabBorderColor + '">' + roomName + '</li>');
-    //    $chatRoomSelectList.append('<li data-recipients id=' + roomId + 'style="color: ' + tabColor + '">' + roomName + '<span class="chat-tab-btn-close">X</span></li>');
-    //    adjustRoomTabs();
-    //}
 
     //// Hub callback disconnecting client. 
     //chat.client.stopClient = function () {

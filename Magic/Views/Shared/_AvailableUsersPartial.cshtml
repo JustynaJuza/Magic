@@ -43,12 +43,21 @@
         top: 0;
         margin: 2px 5px 0 0; 
     }
+    
+    .available-chat-user {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        height: 25px;
+        padding: 0 0 0 5px;
+}
 
     .toggle {
-        background-color: #d3d3d3 !important;
+        background-color: #fbfbfb !important;
+        border: 1px solid #cccccc;
     }
 
-    #available-users-list{
+    #available-chat-users{
         text-overflow: ellipsis;
         margin: 10px 10px;
         text-align: left;
@@ -61,7 +70,7 @@
 
 <div id="available-users" class="dialog">
     <span id="available-users-close-btn">X</span>
-    <ul id="available-users-list" class="chat-users">
+    <ul id="available-chat-users" class="chat-users">
         @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
         {
             <li class="available-chat-user chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
