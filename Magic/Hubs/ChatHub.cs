@@ -371,6 +371,15 @@ namespace Magic.Hubs
             }
         }
 
+        public static void AddConnectionsToRoomGroup(IList<string> connectionIds, string roomId)
+        {
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            foreach (var connectionId in connectionIds)
+            {
+                chatHubContext.Groups.Add(connectionId, roomId);
+            }
+        }
+
         //public async void ToggleGameChatSubscription(string gameId, bool activate)
         //{
         //    var userId = Context.User.Identity.GetUserId();
@@ -450,23 +459,6 @@ namespace Magic.Hubs
 
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
-        }
-
-        public override Task OnReconnected()
-        {
-            using (var context = new MagicDbContext())
-            {
-                var userId = Context.User.Identity.GetUserId();
-                var foundUser = context.Users.Find(userId);
-
-                if (foundUser.Connections.Count == 1)
-                {
-                    // If this is the user's only connection broadcast a chat info.
-                    UserStatusBroadcast(userId, UserStatus.Online);
-                }
-            }
-
-            return base.OnReconnected();
         }
 
         public override Task OnDisconnected()

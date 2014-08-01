@@ -19,10 +19,12 @@
     $chatUser = $('.chat-user'),
     $chatRoomSelection = $('#chat-room-selection'),
     $chatRoomTabs = $('.chat-room-tab'),
+    $chatRoomTabNames = $('.chat-room-tab'),
     $chatRoomContents = $('.chat-room-content'),
     basicNewMessagePadding = parseInt($newChatMessage.css('padding-left')),
     //activeChatRoom = $chatRoomSelection.data('chatRoomId'),
-    tabBlinkingTracker = [];
+    tabBlinkingTracker = [],
+    horizontalMouseOverScroll;
 
     //adjustNewMessageElementPadding();
     //adjustRoomTabs();
@@ -86,7 +88,7 @@
     $(document).on('click', '.chat-room-tab-add-user', function () {
         var requestIsMade = null;
         if (!$('#available-users').length) {
-            var url = basePath + '/Chat/GetAvailableUsersPartial/';
+            var url = basePath + 'Chat/GetAvailableUsersPartial/';
             requestIsMade = $.get(url, function (htmlContent) {
                 $chat.container.append(htmlContent);
             });
@@ -117,7 +119,7 @@
         $('#available-users-overlay').fadeOut();
         $('#available-users').fadeOut();
     });
-    
+
     //$(document).on('click', '.available-chat-user', function () {
     //var roomId = $chatRoomSelection.data('chatRoomId');
     //var recipients = $chatRoomSelection.data('recipients');
@@ -128,13 +130,25 @@
     ////roomTab.data('recipients', Array(roomTab.data('recipients')).push(member));
     //});
 
-    //$(document).on('mouseover', '.chat-room-tab, .chat-user, .chat-message-sender', function () {
-    //    $(this).fadeTo(0, 0.8);
-    //});
+    $(document).on('mouseover', '.chat-room-tab-name, .chat-user, .available-chat-user', function () {
+        if (this.offsetWidth < this.scrollWidth) {
+            var overflow = this.scrollWidth - this.offsetWidth + 2;
+            horizontalMouseOverScroll = setInterval(function scrolling(element) {
+                if ($(element).is(':animated')) {
+                    return null;
+                }
+                scrollLeft(element, overflow);
+                setTimeout(function() {
+                    scrollRight(element);
+                }, 250);
+                return scrolling;
+            }(this), 3500, this);
+        }
+    });
 
-    //$(document).on('mouseout', '.chat-room-tab, .chat-user, .chat-message-sender', function () {
-    //    $(this).fadeTo(0, 1);
-    //});
+    $(document).on('mouseout', '.chat-room-tab-name, .chat-user, .available-chat-user', function () {
+        clearInterval(horizontalMouseOverScroll);
+    });
 
     //$('.chat-room-tab, .chat-user, .chat-message-sender').hover(function () {
     //    $(this).fadeTo(0, 0.8);
@@ -195,6 +209,7 @@
 
         this.container = $chatContainer;
         this.roomTabs = $chatRoomTabs;
+        this.roomTabNames = $chatRoomTabNames;
         this.roomContents = $chatRoomContents;
         this.usersContainer = $chatUsersContainer;
         this.users = $chatUsers;
@@ -213,7 +228,7 @@
             }
             var isExistingRoom = roomId != null;
             var activateTabAfterwards = roomId == null;
-            var url = basePath + '/Chat/GetChatRoomPartial/';
+            var url = basePath + 'Chat/GetChatRoomPartial/';
 
             // Extension used to append new room markup to chat.
             function appendRoomToChat(htmlContent) {
@@ -281,6 +296,7 @@
                 }
             });
 
+
             // Tabs closed - only default chat room left, hide tab bar.
             if (tabCount <= 1) {
                 $chatRoomSelection.data('chatRoomId', 'default');
@@ -313,7 +329,7 @@
     };
 
     // Hub callback delivering new messages.
-    window.chat.client.addMessage = function(roomId, time, sender, senderColor, message) {
+    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
         if (!$('#room-' + roomId).length) {
             $chat.addRoomTab(sender, roomId);
         }
@@ -338,7 +354,7 @@
     }
 
     window.chat.client.loadChatRoom = function (roomId) {
-    
+
     }
 
     // Hub callback for updating chat user list on each change.
@@ -352,7 +368,7 @@
         $('#room-users-' + roomId).children().remove();
         $('#room-users-' + roomId).append(updatedChatUsersHtml);
     };
-    
+
     // Hub callback to remove chat room tab when current user leaves.
     window.chat.client.leaveChatRoom = function (roomId) {
         $('.chat-room-users-selectlist #' + roomId).remove();
@@ -448,32 +464,6 @@
     //    activeChatRoom = $chatRoomSelection.prop('id');
     //});
 
-    function showUserList() {
-        $('#file-property-id').val($(this).prop('id').substr(3));
-
-        moveToScroll('#file-uploader');
-        $('#file-uploader-overlay').show();
-        $('#file-uploader').show();
-    }
-
-    function closeFileUploader() {
-        $('#file-property-id').val('');
-        $('#file-uploader-selected-file-overlay').val('Select or drag and drop file');
-        $('#file-uploader-selected-file').val('');
-        $('#file-uploader-overlay').hide();
-        $('#file-uploader').hide();
-    }
-
-    //function filterChatUsers(roomId) {
-    //    var chatRoomUsers = _.find(window.chatRoomUsers, function (element) {
-    //        return element.roomId == roomId;
-    //    });
-
-    //    console.log(chatRoomUsers)
-    //    $chatUsers.replaceWith(chatRoomUsers.chatUsersHtml);
-    //    // Refresh the variable content.
-    //    $chatUsers = $($chatUsers.selector);
-    //}
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
 
     // --------------------- HELPER FUNCTIONS ---------------------- START
@@ -500,13 +490,21 @@
     }
 
     function checkIfRoomExists(selectedUser) {
-        var exisitingRoom = _.find($chat.roomTabs, function (element) {
+        var exisitingRoom = _.find($chat.roomTabNames, function (element) {
             return element.textContent.substr(1, element.textContent.length - 2) == selectedUser;
         });
 
         if (exisitingRoom) {
             $('#room-' + exisitingRoom.id).trigger('click');
         }
+    }
+
+    function scrollLeft(element, overflow) {
+        $(element).animate({ scrollLeft: overflow }, 1625);
+    }
+
+    function scrollRight(element) {
+        $(element).animate({ scrollLeft: 0 }, 1625);
     }
 
     function blink(element) {

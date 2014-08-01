@@ -15,7 +15,7 @@
             {
                 colorCodes += ", " + Model.Users.ElementAt(i).ColorCode + " " + (gradientChangeSpacing * i + gradientChangeSpacing / 2) + "%";
             }
-            colorStyling = "background: linear-gradient(90deg, " + colorCodes +")";
+            colorStyling = "background: linear-gradient(90deg, " + colorCodes + ")";
         }
         else
         {
@@ -24,28 +24,26 @@
     }
 
     <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
-        @if (Model.Id != ChatHub.DefaultRoomId)
-        {
-            <span class="chat-room-tab-add-user">+</span>
-        }
-        
-        <span class="chat-room-tab-name">
-            @if (string.IsNullOrEmpty(Model.Name))
-            {
-                @Model.Users.ElementAt(0).UserName
-                for (var i = 1; i < Model.Users.Count(); i++)
+        @*<div style="margin: 0 20px">*@
+            <span class="chat-room-tab-name">
+                @if (string.IsNullOrEmpty(Model.Name))
                 {
-                    @: | @Model.Users.ElementAt(i).UserName
+                    @Model.Users.ElementAt(0).UserName
+                    for (var i = 1; i < Model.Users.Count(); i++)
+                    {
+                        @: | @Model.Users.ElementAt(i).UserName
+                    }
                 }
-            }
-            else
-            {
-                @Model.Name
-            }
-        </span>
+                else
+                {
+                    @Model.Name
+                }
+            </span>
+        @*</div>*@
 
         @if (Model.Id != ChatHub.DefaultRoomId)
         {
+            <span class="chat-room-tab-add-user">+</span>
             <span class="chat-room-tab-close">X</span>
         }
     </div>

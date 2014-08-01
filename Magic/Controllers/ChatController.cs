@@ -40,7 +40,7 @@ namespace Magic.Controllers
 
                 foreach (var user in chatRoom.Users)
                 {
-                    ChatHub.SubscribeActiveConnections(chatRoom.Id, user.UserId);
+                    ChatHub.AddConnectionsToRoomGroup(user.User.Connections.Select(c => c.Id).ToList(), chatRoom.Id);
                 }
             }
 
