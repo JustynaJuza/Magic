@@ -463,9 +463,7 @@ namespace Magic.Hubs
 
         public override Task OnDisconnected()
         {
-            //var timer = new Timer(obj => DeleteConnection(), null, 1000, Timeout.Infinite);
             DeleteConnection();
-
             return base.OnDisconnected();
         }
 
@@ -519,27 +517,6 @@ namespace Magic.Hubs
         //    };
         //    return context.Insert(todayLog);
         //}
-
-        private void AddMessageToChatLog(ChatMessage message, string roomId = DefaultRoomId)
-        {
-            using (var context = new MagicDbContext())
-            {
-                var chatRoom = context.ChatRooms.Find(roomId);
-                chatRoom.Log.Messages.Add(message);
-                context.InsertOrUpdate(chatRoom);
-            }
-
-            // TODO: Possible issue occuring over period of 3 mins between message log saving. If message sent near midnight, the log of the day before may contain messages from the current day.
-            // Suggested solution: Add new temporary message log or explicitly call log saving.
-
-            //if (((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).DateCreated == message.TimeSend.Value.Date)
-            //{
-            // Synchronize adding message to ChatLog.
-            //HttpContext.Current.ApplicationInstance.Context.Application.Lock();
-            //((ChatLog) HttpContext.Current.ApplicationInstance.Context.Application[logName]).Messages.Add(message);
-            //HttpContext.Current.ApplicationInstance.Context.Application.UnLock();
-            //}
-        }
         #endregion CHATLOG HANDLING
 
         #region REMOVE INACTIVE USERS

@@ -24,22 +24,20 @@
     }
 
     <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
-        @*<div style="margin: 0 20px">*@
-            <span class="chat-room-tab-name">
-                @if (string.IsNullOrEmpty(Model.Name))
+        <span class="chat-room-tab-name">
+            @if (string.IsNullOrEmpty(Model.Name))
+            {
+                @Model.Users.ElementAt(0).UserName
+                for (var i = 1; i < Model.Users.Count(); i++)
                 {
-                    @Model.Users.ElementAt(0).UserName
-                    for (var i = 1; i < Model.Users.Count(); i++)
-                    {
-                        @: | @Model.Users.ElementAt(i).UserName
+                    @: | @Model.Users.ElementAt(i).UserName
                     }
-                }
-                else
-                {
-                    @Model.Name
-                }
-            </span>
-        @*</div>*@
+            }
+            else
+            {
+                @Model.Name
+            }
+        </span>
 
         @if (Model.Id != ChatHub.DefaultRoomId)
         {
@@ -50,26 +48,22 @@
 
     <div id="room-content-@Model.Id" class="chat-room-content">
 
-        @*<div id="right_chat_panel" class="container right">*@
         @*<ul class="chat-room-users-selectlist">
                 <li class="chat-room-users-selection">
                     Online
                 </li>
             </ul>*@
 
-        <div class="chat-users-container container right">
-            <ul id="room-users-@Model.Id" class="chat-users">
+        <div class="chat-room-users-container container right">
+            <ul id="room-users-@Model.Id" class="chat-room-users">
                 @foreach (var user in Model.Users)
                 {
                     <li class="chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
                 }
             </ul>
         </div>
-        @*</div>*@
-
-        @*<div class="container left">*@
-        <div id="room-messages-container-@Model.Id" class="chat-messages-container container left">
-            <ul id="room-messages-@Model.Id" class="chat-messages">
+        <div id="room-messages-container-@Model.Id" class="chat-room-messages-container container left">
+            <ul id="room-messages-@Model.Id" class="chat-room-messages">
                 @foreach (var message in Model.Log.Messages)
                 {
                     <li class="chat-message">
@@ -80,7 +74,6 @@
                 }
             </ul>
         </div>
-        @*</div>*@
 
     </div>
 </div>
