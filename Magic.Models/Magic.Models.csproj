@@ -142,18 +142,18 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationUserConnection.cs" />
-    <Compile Include="ApplicationUserRelation.cs" />
+    <Compile Include="UserConnection.cs" />
     <Compile Include="ChatLog.cs" />
     <Compile Include="ChatRoom.cs" />
-    <Compile Include="ChatRoom_ApplicationUser.cs" />
-    <Compile Include="ChatRoom_ApplicationUserConnection.cs" />
+    <Compile Include="ChatRoomUser.cs" />
+    <Compile Include="ChatRoomUserConnection.cs" />
     <Compile Include="Enums\CardMainType.cs" />
     <Compile Include="Enums\GameStatus.cs" />
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Helpers\AbstractExtensions.cs" />
-    <Compile Include="ApplicationUserViewModels.cs" />
+    <Compile Include="UserRelation.cs" />
+    <Compile Include="UserViewModels.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CardAbility.cs" />
     <Compile Include="CardColor.cs" />
@@ -162,7 +162,7 @@
     <Compile Include="CardType.cs" />
     <Compile Include="ChatMessage.cs" />
     <Compile Include="DataContext\MagicDbContext.cs" />
-    <Compile Include="ApplicationUser.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="Helpers\CardFactory.cs" />
     <Compile Include="Interfaces\ICard.cs" />
     <Compile Include="Interfaces\IViewModel.cs" />
@@ -174,7 +174,6 @@
     <Compile Include="LandingPages\PicturePanel.cs" />
     <Compile Include="LandingPages\VideoPanel.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PlayerGameStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
   </ItemGroup>

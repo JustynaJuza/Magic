@@ -124,7 +124,7 @@
             var isNew = $chat.roomSelection.data('isNew');
 
             if (isNew == true) {
-                window.chat.server.createChatRoom(recipients, roomId).done(function () {
+                window.chat.server.createChatRoom(roomId, false, true, recipients).done(function () {
                     $('#room-tab' + roomId).data('isNew', false);
                 });
             }

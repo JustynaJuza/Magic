@@ -22,10 +22,10 @@ namespace Magic.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        public UserManager<ApplicationUser> UserManager { get; private set; }
+        public UserManager<User> UserManager { get; private set; }
         public AccountController()
         {
-            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MagicDbContext()));
+            UserManager = new UserManager<User>(new UserStore<User>(new MagicDbContext()));
         }
 
         public ActionResult Profile(string id) {
@@ -67,7 +67,7 @@ namespace Magic.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser()
+                var user = new User()
                 {
                     UserName = model.UserName,
                     Email = model.Email,
@@ -181,7 +181,7 @@ namespace Magic.Controllers
                     return View("ExternalLoginFailure");
                 }
 
-                var user = new ApplicationUser()
+                var user = new User()
                 {
                     UserName = model.UserName,
                     Email = model.Email,
@@ -497,7 +497,7 @@ namespace Magic.Controllers
             }
         }
 
-        private async Task SignInAsync(ApplicationUser user, bool isPersistent)
+        private async Task SignInAsync(User user, bool isPersistent)
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);

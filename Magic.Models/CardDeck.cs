@@ -17,7 +17,7 @@ namespace Magic.Models
         public IList<int> CardsPerTypeNumber { get; set; }
         public virtual IList<CardColor> CardColors { get; set; }
         public virtual IList<Card> Cards { get; set; }
-        public virtual ApplicationUser Creator { get; set; }
+        public virtual User Creator { get; set; }
     }
 
     public class CardDeckViewModel : AbstractExtensions, IViewModel

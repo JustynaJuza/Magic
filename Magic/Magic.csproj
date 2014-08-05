@@ -192,27 +192,12 @@
     <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Migrations\201407161408171_Init.cs" />
-    <Compile Include="Migrations\201407161408171_Init.Designer.cs">
-      <DependentUpon>201407161408171_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201407250930084_User-ChatRoomIdRemoval.cs" />
-    <Compile Include="Migrations\201407250930084_User-ChatRoomIdRemoval.Designer.cs">
-      <DependentUpon>201407250930084_User-ChatRoomIdRemoval.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201407251031304_ChatRoomAllowedUsers.cs" />
-    <Compile Include="Migrations\201407251031304_ChatRoomAllowedUsers.Designer.cs">
-      <DependentUpon>201407251031304_ChatRoomAllowedUsers.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201407271541491_MappingFriendIgnored.cs" />
-    <Compile Include="Migrations\201407271541491_MappingFriendIgnored.Designer.cs">
-      <DependentUpon>201407271541491_MappingFriendIgnored.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201407281646589_RenamingTable.cs" />
-    <Compile Include="Migrations\201407281646589_RenamingTable.Designer.cs">
-      <DependentUpon>201407281646589_RenamingTable.cs</DependentUpon>
+    <Compile Include="Migrations\201408051056017_Initialization.cs" />
+    <Compile Include="Migrations\201408051056017_Initialization.Designer.cs">
+      <DependentUpon>201408051056017_Initialization.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -362,20 +347,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201407161408171_Init.resx">
-      <DependentUpon>201407161408171_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201407250930084_User-ChatRoomIdRemoval.resx">
-      <DependentUpon>201407250930084_User-ChatRoomIdRemoval.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201407251031304_ChatRoomAllowedUsers.resx">
-      <DependentUpon>201407251031304_ChatRoomAllowedUsers.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201407271541491_MappingFriendIgnored.resx">
-      <DependentUpon>201407271541491_MappingFriendIgnored.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201407281646589_RenamingTable.resx">
-      <DependentUpon>201407281646589_RenamingTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201408051056017_Initialization.resx">
+      <DependentUpon>201408051056017_Initialization.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

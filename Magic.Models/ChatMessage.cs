@@ -7,18 +7,19 @@ using Magic.Models.Interfaces;
 
 namespace Magic.Models
 {
-    public class Recipient_ChatMessageStatus : AbstractExtensions
+    public class MessageRecipient : AbstractExtensions
     {
         public int MessageId { get; set; }
+        public string LogId { get; set; }
         public string RecipientId { get; set; }
         public bool IsRead { get; set; }
-        public virtual ChatMessage Message{ get; set; }
-        public virtual ApplicationUser Recipient { get; set; }
+        public virtual ChatMessage Message { get; set; }
+        public virtual User Recipient { get; set; }
 
-        public Recipient_ChatMessageStatus() {
+        public MessageRecipient() {
             IsRead = false;
         }
-        public Recipient_ChatMessageStatus(bool isRead)
+        public MessageRecipient(bool isRead)
         {
             IsRead = isRead;
         }
@@ -31,15 +32,15 @@ namespace Magic.Models
         public string SenderId { get; set; }
         public DateTime? TimeSend { get; set; }
         public string Message { get; set; }
-        public virtual ApplicationUser Sender { get; set; }
+        public virtual User Sender { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<Recipient_ChatMessageStatus> Recipients { get; set; }
+        public virtual IList<MessageRecipient> Recipients { get; set; }
 
         // Constructor.
         public ChatMessage()
         {
             TimeSend = DateTime.Now;
-            Recipients = new List<Recipient_ChatMessageStatus>();
+            Recipients = new List<MessageRecipient>();
         }
 
         // Constructor with message.

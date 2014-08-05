@@ -14,23 +14,21 @@ namespace Magic.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string TabColorCode { get; set; }
+        public bool IsGameRoom { get; set; }
         public bool IsPrivate { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<ChatRoom_ApplicationUser> Users { get; set; }
-        public virtual IList<ChatRoom_ApplicationUserConnection> Connections { get; set; }
+        public virtual IList<ChatRoomUser> Users { get; set; }
+        public virtual IList<ChatRoomUserConnection> Connections { get; set; }
 
-        public ChatRoom()
-        {
-            Id = Guid.NewGuid().ToString();
-            IsPrivate = false;
-            Users = new List<ChatRoom_ApplicationUser>();
-            Connections = new List<ChatRoom_ApplicationUserConnection>();
-        }
+        public ChatRoom() { }
 
-        public ChatRoom(bool isPrivate)
-            : this()
+        public ChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false)
         {
+            Id = roomId ?? Guid.NewGuid().ToString();
+            IsGameRoom = isGameRoom;
             IsPrivate = isPrivate;
+            Users = new List<ChatRoomUser>();
+            Connections = new List<ChatRoomUserConnection>();
         }
 
         public void AddMessageToLog(ChatMessage message)

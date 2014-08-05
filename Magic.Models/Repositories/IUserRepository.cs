@@ -7,39 +7,39 @@ namespace Magic.Models.Repositories
 {
     public interface IUserRepository
     {
-        IEnumerable<ApplicationUser> GetAll();
-        ApplicationUser GetByUserName(ApplicationUser user);
+        IEnumerable<User> GetAll();
+        User GetByUserName(User user);
 
-        void CreateUser(ApplicationUser user);
-        void UpdateUser(ApplicationUser user);
-        void DeleteUser(ApplicationUser user);
+        void CreateUser(User user);
+        void UpdateUser(User user);
+        void DeleteUser(User user);
     }
 
     public class UserRepository : IUserRepository
     {
-        private List<ApplicationUser> repository = new List<ApplicationUser>();
+        private List<User> repository = new List<User>();
 
         public Exception ExceptionToThrow { get; set; }
 
-        public ApplicationUser GetByUserName(ApplicationUser user)
+        public User GetByUserName(User user)
         {
             return repository.FirstOrDefault(d => d.UserName == user.UserName);
         }
 
-        public void CreateUser(ApplicationUser user) {
+        public void CreateUser(User user) {
             if (ExceptionToThrow != null)
                 throw ExceptionToThrow;
 
             repository.Add(user);
         }
 
-        public IEnumerable<ApplicationUser> GetAll() {
+        public IEnumerable<User> GetAll() {
             return repository;
         }
 
-        public void UpdateUser(ApplicationUser user)
+        public void UpdateUser(User user)
         {
-            foreach (ApplicationUser appUser in repository)
+            foreach (User appUser in repository)
             {
                 if (appUser.Id == user.Id)
                 {
@@ -50,7 +50,7 @@ namespace Magic.Models.Repositories
             }
         }
 
-        public void DeleteUser(ApplicationUser user)
+        public void DeleteUser(User user)
         {
             repository.Remove(GetByUserName(user));
         }

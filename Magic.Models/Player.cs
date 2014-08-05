@@ -9,15 +9,27 @@ using System.Web;
 
 namespace Magic.Models
 {
+    public class GameUser : AbstractExtensions
+    {
+        public string GameId { get; set; }
+        public string UserId { get; set; }
+        public virtual Game Game { get; set; }
+        public virtual User User { get; set; }
+        public GameStatus? Status { get; set; }
+    }
+
     public class Player : AbstractExtensions, IViewModel
     {
-        private int defaultHP = 20;
+        private int defaultHealth = 20;
 
-        public virtual ApplicationUser User { get; set; }
+        public virtual string GameId { get; set; }
+        public virtual Game Game { get; set; }
+        public virtual string UserId { get; set; }
+        public virtual User User { get; set; }
         public virtual CardDeckViewModel Deck { get; set; }
         public string ConnectionId { get; set; }
-        public int HPTotal { get; set; }
-        public int HPCurrent { get; set; }
+        public int HealthTotal { get; set; }
+        public int HealthCurrent { get; set; }
         public int CardsInLibraryTotal { get; set; }
         public int CardsPlayed { get; set; }
         public List<CardViewModel> Library { get; set; }
@@ -27,27 +39,21 @@ namespace Magic.Models
         public List<CardViewModel> Battlefield { get; set; }
 
         // Constructor.
-        public Player(ApplicationUser user)
+        public Player(User user)
         {
             User = user;
-            HPTotal = defaultHP;
-            HPCurrent = defaultHP;
+            HealthTotal = defaultHealth;
+            HealthCurrent = defaultHealth;
             Library = new List<CardViewModel>();
             Graveyard = new List<CardViewModel>();
             Exiled = new List<CardViewModel>();
             Battlefield = new List<CardViewModel>();
         }
         // Constructor with deck.
-        public Player(ApplicationUser user, CardDeck deck)
+        public Player(User user, CardDeck deck)
+            : this(user)
         {
-            User = user;
             Deck = (CardDeckViewModel) deck.GetViewModel();
-            HPTotal = defaultHP;
-            HPCurrent = defaultHP;
-            Library = new List<CardViewModel>();
-            Graveyard = new List<CardViewModel>();
-            Exiled = new List<CardViewModel>();
-            Battlefield = new List<CardViewModel>();
 
             SelectDeck((CardDeckViewModel) deck.GetViewModel());
             DrawHand();

@@ -41,7 +41,7 @@ namespace Magic.Hubs
             //else
             //{
             //    // Reset the game connection data when the player is unready to play.
-            //    var gameConnection = context.Set<ApplicationUserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
+            //    var gameConnection = context.Set<UserConnection>().AsNoTracking().FirstOrDefault(c => c.Id == Context.ConnectionId);
             //    var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.ChatRoom.Id);
             //    var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
             //    foundPlayer.ConnectionId = null;
@@ -51,7 +51,7 @@ namespace Magic.Hubs
         }
 
         #region GAME DISPLAY UPDATES
-        public static void DisplayPlayerReady(ApplicationUser user, string gameId, bool isReady, bool broadcastMessage = true)
+        public static void DisplayPlayerReady(User user, string gameId, bool isReady, bool broadcastMessage = true)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
 
@@ -104,7 +104,7 @@ namespace Magic.Hubs
             return gameHubContext.Groups.Add(connectionId, gameId);
         }
 
-        public static Task LeaveGame(ApplicationUserGameConnection gameConnection)
+        public static Task LeaveGame(UserConnection gameConnection)
         {
             var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameConnection.Game.Id);
             var foundPlayer = game.Players.RemoveAll(p => p.User.Id == gameConnection.User.Id);

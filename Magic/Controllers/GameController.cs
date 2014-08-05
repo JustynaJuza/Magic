@@ -22,7 +22,7 @@ namespace Magic.Controllers
         //    {
         //        foreach (var playerId in playerIdList)
         //        {
-        //            var foundPlayer = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == playerId);
+        //            var foundPlayer = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == playerId);
         //            players.Add(new Player(foundPlayer));
         //        }
         //    }
@@ -32,15 +32,20 @@ namespace Magic.Controllers
         public ActionResult Index(string gameId)
         {
             Session["GameId"] = gameId;
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameId);
+            var game = GameRoomController.activeGames.Find(g => g.Id == gameId);
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
                 return RedirectToAction("Index", "GameRoom");
             }
+            else if (game.IsPrivate && !game.Players.Any())
+            {
+                TempData["Error"] = "You are not allowed to join this private game. You can message the room owner to ask for an invitation.";
+                return RedirectToAction("Index", "GameRoom");
+            }
 
             var userId = User.Identity.GetUserId();
-            var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
             if (!game.Players.Any(p => p.User.Id == currentUser.Id))
             {
@@ -96,7 +101,7 @@ namespace Magic.Controllers
         public ActionResult SelectDeck(CardDeckViewModel model)
         {
             var userId = User.Identity.GetUserId();
-            var currentUser = context.Set<ApplicationUser>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
             var player = new Player(currentUser);
             player.SelectDeck(model);
@@ -139,7 +144,7 @@ namespace Magic.Controllers
             if (game.Observers != null) { 
             foreach (var user in game.Observers)
             {
-                user.Games.Add(new Player_GameStatus()
+                user.Games.Add(new GameUser()
                 {
                     GameId = game.Id,
                     UserId = user.Id,
@@ -152,12 +157,12 @@ namespace Magic.Controllers
             foreach (var user in game.Players)
             {
                 user.User.Status = UserStatus.Playing;
-                user.User.Games.Add(new Player_GameStatus()
+                user.User.Games.Add(new GameUser()
                 {
                     GameId = game.Id,
                     UserId = user.User.Id,
                     User = user.User,
-                    Status = GameStatus.Unfinished
+                    Status = GameStatus.InProgress
                 });
                 context.InsertOrUpdate(user.User);
             }

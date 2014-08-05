@@ -14,6 +14,7 @@ namespace Magic.Migrations
             AutomaticMigrationsEnabled = true;
             AutomaticMigrationDataLossAllowed = true;
             ContextKey = "Magic.Models.DataContext.MagicDBContext";
+            SetSqlGenerator("System.Data.SqlClient", new GenerateDateSqlServerMigrationSqlGenerator());
         }
 
         protected override void Seed(Magic.Models.DataContext.MagicDbContext context)

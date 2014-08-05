@@ -20,11 +20,7 @@ namespace Magic.Controllers
             ChatRoomViewModel roomViewModel;
             if (string.IsNullOrEmpty(roomId))
             {
-                var chatUsers = new List<ChatUserViewModel>();
-                foreach (var userName in recipientNames.Distinct())
-                {
-                    chatUsers.Add(new ChatUserViewModel(context.Users.FirstOrDefault(u => u.UserName == userName)));
-                }
+                var chatUsers = recipientNames.Distinct().Select(userName => new ChatUserViewModel(context.Users.FirstOrDefault(u => u.UserName == userName))).ToList();
 
                 roomViewModel = new ChatRoomViewModel()
                 {
@@ -57,28 +53,6 @@ namespace Magic.Controllers
             return PartialView("_ChatRoomPartial", roomViewModel);
         }
 
-        //public ActionResult GetChatMessagePartial(string roomId = null, string[] recipientNames = null)
-        //{
-        //    if (string.IsNullOrEmpty(roomId))
-        //    {
-        //        var chatUsers = new List<ChatUserViewModel>();
-        //        foreach (var userName in recipientNames.Distinct())
-        //        {
-        //            chatUsers.Add(new ChatUserViewModel(context.Users.FirstOrDefault(u => u.UserName == userName)));
-        //        }
-
-        //        return PartialView("_ChatRoomPartial", new ChatRoomViewModel()
-        //        {
-        //            Id = Guid.NewGuid().ToString(),
-        //            Users = chatUsers
-        //        });
-        //    }
-
-        //    var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(c => c.User)).First(r => r.Id == roomId);
-        //    var userId = User.Identity.GetUserId();
-        //    return PartialView("_ChatRoomPartial", chatRoom.GetViewModel(userId));
-        //}
-
         public ActionResult GetAvailableUsersPartial()
         {
             return PartialView("_AvailableUsersPartial");
@@ -95,7 +69,7 @@ namespace Magic.Controllers
                 return "Add to friends";
             }
 
-            relation = new ApplicationUserRelation_Friend()
+            relation = new UserRelationFriend()
                 {
                     UserId = userId,
                     RelatedUserId = id
