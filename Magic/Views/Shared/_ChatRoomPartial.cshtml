@@ -25,17 +25,21 @@
 
     <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
         <span class="chat-room-tab-name">
-            @if (string.IsNullOrEmpty(Model.Name))
+            @if (!string.IsNullOrEmpty(Model.Name))
+            {
+                @Model.Name
+            }
+            else if (Model.IsGameRoom && !Model.IsPrivate)
+            {
+                @:Game
+            }
+            else
             {
                 @Model.Users.ElementAt(0).UserName
                 for (var i = 1; i < Model.Users.Count(); i++)
                 {
                     @: | @Model.Users.ElementAt(i).UserName
-                    }
-            }
-            else
-            {
-                @Model.Name
+                }
             }
         </span>
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Magic.Models.Helpers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using Magic.Models;
@@ -46,7 +47,7 @@ namespace Magic.Hubs
             }
         }
 
-        public void AddUserToRoom(string roomId, string userId)
+        public static void AddUserToRoom(string roomId, string userId)
         {
             using (var context = new MagicDbContext())
             {
@@ -98,11 +99,19 @@ namespace Magic.Hubs
             }
         }
 
-        public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, string[] recipientNames = null)
+        public static void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, string[] recipientNames = null)
         {
             using (var context = new MagicDbContext())
             {
-                var chatRoom = new ChatRoom(roomId, isGameRoom, isPrivate);
+                var chatRoom = new ChatRoom(roomId){
+                    IsGameRoom = isGameRoom, 
+                    IsPrivate = isPrivate
+                };
+                
+                if (isGameRoom)
+                {
+                    chatRoom.TabColorCode = string.Empty.AssignRandomColorCode();
+                }
                 context.Insert(chatRoom);
 
                 if (isPrivate)
@@ -141,7 +150,8 @@ namespace Magic.Hubs
                 context.Insert(chatRoomConnection);
             }
 
-            await Groups.Add(Context.ConnectionId, roomId);
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            await chatHubContext.Groups.Add(Context.ConnectionId, roomId);
 
             UpdateChatRoomUsers(roomId);
         }
@@ -169,7 +179,7 @@ namespace Magic.Hubs
             }
         }
 
-        public void UpdateChatRoomUsers(string roomId, bool callerOnly = false)
+        public static void UpdateChatRoomUsers(string roomId, string connectionId = null)
         {
             using (var context = new MagicDbContext())
             {
@@ -185,13 +195,14 @@ namespace Magic.Hubs
                     chatUsers = chatRoom.GetUserList().ToList();
                 }
 
-                if (callerOnly)
+                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                if (string.IsNullOrWhiteSpace(connectionId))
                 {
-                    Clients.Caller.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+                    chatHubContext.Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
                 }
                 else
                 {
-                    Clients.All.updateChatRoomUsers(Json.Encode(chatUsers), roomId);
+                    chatHubContext.Clients.Client(connectionId).updateChatRoomUsers(Json.Encode(chatUsers), roomId);
                 }
             }
         }
@@ -281,7 +292,7 @@ namespace Magic.Hubs
                 if (recipient == null)
                 {
                     // Recipient included but invalid, alert sender.
-                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
                         "- no such user found, have you misspelled the name?", recipientName, "#696969");
                     return false;
                 }
@@ -290,7 +301,7 @@ namespace Magic.Hubs
                 if (recipient.Status == UserStatus.Offline)
                 {
                     // Valid recipient but is offline, alert sender.
-                    Clients.Caller.addMessage(DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
                         "is currently offline and unable to receive messages.", recipient.UserName,
                         recipient.ColorCode);
                     return false;
@@ -372,32 +383,37 @@ namespace Magic.Hubs
             }
         }
 
-        public async void ToggleGameChatSubscription(string roomId, bool isPrivate = false, string[] recipientNames = null, bool activate = true)
+        public static void ToggleGameChatSubscription(string userId, string roomId, bool isPrivate = false, string[] recipientNames = null, bool activate = true)
         {
             using (var context = new MagicDbContext())
             {
                 var chatRoom = context.ChatRooms.Find(roomId);
-                var userId = Context.User.Identity.GetUserId();
 
                 if (chatRoom == null)
                 {
                     CreateChatRoom(roomId, true, isPrivate, recipientNames);
+                    AddUserToRoom(roomId, userId);
                     System.Diagnostics.Debug.WriteLine("Joining " + roomId);
                 }
-                else if (chatRoom.IsPrivate == false || chatRoom.Users.Any(u => u.UserId == userId))
-                {
-                    SubscribeChatRoom(roomId);
-                    System.Diagnostics.Debug.WriteLine("Joining " + roomId);
-                }
-                else
+                else if (chatRoom.IsPrivate && !chatRoom.Users.Any(u => u.UserId != userId))
                 {
                     System.Diagnostics.Debug.WriteLine("Can't join private game " + roomId);
                     return;
                 }
+                else if (chatRoom.Connections.Any(c => c.UserId == userId))
+                {
+                    return;
+                }
+
+                AddUserToRoom(roomId, userId);
+                // await that!
+                SubscribeActiveConnections(roomId, userId);
+                System.Diagnostics.Debug.WriteLine("Joining " + roomId);
 
                 // Sent info message on joining and leaving group.
                 var user = context.Users.Find(userId);
-                Clients.Group(roomId).addMessage(DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (activate ? " entered the game." : " left the game."));
+                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                chatHubContext.Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (activate ? " entered the game." : " left the game."));
             
 
                 //var currentConnection = context.Connections.Find(Context.ConnectionId);

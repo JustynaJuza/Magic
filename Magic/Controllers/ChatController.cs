@@ -15,40 +15,45 @@ namespace Magic.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        public ActionResult GetChatRoomPartial(string roomId = null, string[] recipientNames = null)
+        public ActionResult GetChatRoomPartial(string roomId = null, bool isPrivate = true, string[] recipientNames = null)
         {
             ChatRoomViewModel roomViewModel;
-            if (string.IsNullOrEmpty(roomId))
-            {
-                var chatUsers = recipientNames.Distinct().Select(userName => new ChatUserViewModel(context.Users.FirstOrDefault(u => u.UserName == userName))).ToList();
-
-                roomViewModel = new ChatRoomViewModel()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Users = chatUsers
-                };
-            }
-            else
+            if (!string.IsNullOrEmpty(roomId))
             {
                 var chatRoom = context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
+                if (!isPrivate)
+                {
+                    roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel();
+                    return PartialView("_ChatRoomPartial", roomViewModel);
+                }
+
                 var userId = User.Identity.GetUserId();
-                roomViewModel = (ChatRoomViewModel)chatRoom.GetViewModel(userId);
+                roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel(userId);
 
                 foreach (var user in chatRoom.Users)
                 {
                     ChatHub.AddConnectionsToRoomGroup(user.User.Connections.Select(c => c.Id).ToList(), chatRoom.Id);
                 }
             }
+            else
+            {
+                var chatUsers = recipientNames.Distinct().Select(userName => new ChatUserViewModel(context.Users.FirstOrDefault(u => u.UserName == userName))).ToList();
+
+                roomViewModel = new ChatRoomViewModel()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    IsPrivate = true,
+                    Users = chatUsers
+                };
+            }
 
             var currentUserName = User.Identity.GetUserName();
             roomViewModel.Users = roomViewModel.Users.OrderBy(u => u.UserName == currentUserName).ToList();
 
-            if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count == 1 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
-            //if (roomId != ChatHub.DefaultRoomId && roomViewModel.Users.Count <= 2 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
+            if (roomViewModel.Users.Count == 1 && string.IsNullOrEmpty(roomViewModel.TabColorCode))
             {
                 roomViewModel.TabColorCode = roomViewModel.Users.First().ColorCode;
             }
-
 
             return PartialView("_ChatRoomPartial", roomViewModel);
         }

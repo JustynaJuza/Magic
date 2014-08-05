@@ -94,7 +94,9 @@ ul {
 }
 
 .chat-room-users-container {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
     margin: 0;
     width: 110px;
     height: 215px;
@@ -106,8 +108,6 @@ ul {
 .chat-room-users,
 .chat-room-messages {
     list-style-type: none;
-    overflow: hidden;
-    white-space: nowrap;
 }
 
 .chat-user,

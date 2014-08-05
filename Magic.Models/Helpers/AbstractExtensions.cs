@@ -24,8 +24,8 @@ namespace Magic.Models.Helpers
 
         public string ToHtmlString()
         {
-            var toString = this.GetType().FullName + ": ";
-            var classMembers = this.GetType().GetProperties();
+            var toString = GetType().FullName + ": ";
+            var classMembers = GetType().GetProperties();
 
             foreach (System.Reflection.PropertyInfo member in classMembers)
                 toString += "<br />" + member.Name + " : " + member.GetValue(this) + "; ";
@@ -36,7 +36,7 @@ namespace Magic.Models.Helpers
         // Returns a new instance of the related viewModel.
         public IViewModel GetViewModel(params object[] args)
         {
-            string viewModelName = this.GetType().FullName;
+            string viewModelName = GetType().FullName;
 
             if (viewModelName.Contains("System.Data.Entity.DynamicProxies"))
             {

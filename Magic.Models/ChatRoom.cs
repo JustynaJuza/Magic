@@ -20,15 +20,18 @@ namespace Magic.Models
         public virtual IList<ChatRoomUser> Users { get; set; }
         public virtual IList<ChatRoomUserConnection> Connections { get; set; }
 
-        public ChatRoom() { }
-
-        public ChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false)
+        public ChatRoom()
         {
-            Id = roomId ?? Guid.NewGuid().ToString();
-            IsGameRoom = isGameRoom;
-            IsPrivate = isPrivate;
+            Id = Guid.NewGuid().ToString();
+            IsGameRoom = false;
+            IsPrivate = false;
             Users = new List<ChatRoomUser>();
             Connections = new List<ChatRoomUserConnection>();
+        }
+
+        public ChatRoom(string roomId) : this()
+        {
+            Id = roomId ?? Guid.NewGuid().ToString();
         }
 
         public void AddMessageToLog(ChatMessage message)
@@ -52,18 +55,12 @@ namespace Magic.Models
 
         public IList<ChatUserViewModel> GetUserList()
         {
-            return Users.Select(u => u.User).Select(user => new ChatUserViewModel(user)).ToList();
+            return Users.Select(u => new ChatUserViewModel(u.User)).ToList();
         }
 
         public IList<ChatUserViewModel> GetActiveUserList()
         {
-            var users = Connections.Select(c => c.User).Distinct().ToList();
-
-            //if (!string.IsNullOrWhiteSpace(exceptUserId))
-            //{
-            //    users.Remove(users.First(u => u.Id == exceptUserId));
-            //}
-
+            var users = Connections.Select(c => c.User).Distinct();
             return users.Select(user => new ChatUserViewModel(user)).ToList();
         }
 
@@ -79,17 +76,22 @@ namespace Magic.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string TabColorCode { get; set; }
+        public bool IsGameRoom { get; set; }
         public bool IsPrivate { get; set; }
         public IList<ChatUserViewModel> Users { get; set; }
         public ChatLogViewModel Log { get; set; }
 
-        public ChatRoomViewModel() {
+        public ChatRoomViewModel()
+        {
+            IsGameRoom = false;
+            IsPrivate = false;
             Users = new List<ChatUserViewModel>();
             Log = new ChatLogViewModel();
         }
         public ChatRoomViewModel(ChatRoom room) {
             Id = room.Id;
             Name = room.Name;
+            IsGameRoom = room.IsGameRoom;
             IsPrivate = room.IsPrivate;
             TabColorCode = room.TabColorCode;
             Users = room.GetUserList();

@@ -2,7 +2,6 @@
 
 @{
     ViewBag.Title = "Game";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Welcome to the Game!</h2>
@@ -23,32 +22,6 @@
     }
 
     @Html.ActionLink("Pause", "Pause", "Game", null, new { @class = "btn btn-default" })
-</div>
-
-<div class="row">
-    <div class="col-md-10">
-        @*@Html.Partial("_ChatPartial")*@
-    </div>
-</div>
-<div class="chat-container">
-    <h3>Game</h3>
-    <p class="form-horizontal form-group">
-        @Html.TextBox("chat-message", null, new { id = "chat-message", @class = "form-control" })
-
-        <input type="button" id="chat-send" class="btn btn-primary" value="Send" />
-    </p>
-
-    <div class="form-control chat-log" style="width: 500px; height: 220px; overflow: auto;">
-        <ul id="discussion" style="list-style-type: none; margin:0px">
-            @*@if (Model != null)
-                {
-                    foreach (var message in Model.MessageLog)
-                    {
-                        <li>@message.TimeSend.Value.ToString("hh:mm:ss") <strong>@message.Sender.UserName </strong> @message.Message</li>
-                    }
-                }*@
-        </ul>
-    </div>
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@

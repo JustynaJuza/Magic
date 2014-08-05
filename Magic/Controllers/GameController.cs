@@ -31,19 +31,19 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Index(string gameId)
         {
-            Session["GameId"] = gameId;
             var game = GameRoomController.activeGames.Find(g => g.Id == gameId);
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
                 return RedirectToAction("Index", "GameRoom");
             }
-            else if (game.IsPrivate && !game.Players.Any())
+            if (game.IsPrivate && !game.Players.Any())
             {
                 TempData["Error"] = "You are not allowed to join this private game. You can message the room owner to ask for an invitation.";
                 return RedirectToAction("Index", "GameRoom");
             }
 
+            Session["GameId"] = gameId;
             var userId = User.Identity.GetUserId();
             var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
@@ -94,7 +94,7 @@ namespace Magic.Controllers
             }
 
             // Join game room chat.
-            //ChatHub.ToggleGameChatSubscription(gameId, true);
+            ChatHub.ToggleGameChatSubscription(userId, gameId, game.IsPrivate);
             return View(game);
         }
 

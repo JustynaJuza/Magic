@@ -35,7 +35,11 @@ namespace Magic.Models
 
         public IList<ChatMessageViewModel> GetUserMessages(string userId)
         {
-            return Messages.Select(m => new ChatMessageViewModel(m) { IsRead = m.Recipients.Any(r => r.RecipientId == userId) }).ToList();
+            return Messages.Select(m => new ChatMessageViewModel(m)
+            {
+                IsRead = m.Recipients.Any(r => r.RecipientId == userId) 
+            
+            }).ToList();
         }
     }
 
@@ -53,6 +57,7 @@ namespace Magic.Models
         {
             Id = log.Id;
             DateCreated = log.DateCreated;
+            Messages = log.GetUserMessages(null);
         }
         public ChatLogViewModel(ChatLog log, string userId) : this()
         {

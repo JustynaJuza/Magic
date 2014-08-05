@@ -192,8 +192,10 @@
 
             }
 
+            alert('get')
             if (roomId) {
                 // Room id already known, get markup only.
+                alert(0)
                 $.get(url, { roomId: roomId }, appendRoomToChat);
             }
             else {
@@ -210,9 +212,11 @@
                                 return $('#room-tab-' + roomId).trigger('click');
                             }
 
+                            alert(1)
                             $.get(url + $.now(), { roomId: roomId }, appendRoomToChat);
                         }
                         else {
+                            alert(2)
                             jQuery.ajaxSettings.traditional = true;
                             $.get(url, { recipientNames: recipients }, function (htmlContent) {
                                 roomId = $($.parseHTML(htmlContent)).find('.chat-room-tab').prop('id').substr(9);
