@@ -213,6 +213,7 @@
     <Content Include="Content\Images\Users\Justyna.jpg" />
     <Content Include="Content\jquery-ui-1.10.4.css" />
     <Content Include="Content\jquery-ui-1.10.4.min.css" />
+    <Content Include="Content\tooltipster.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -230,6 +231,8 @@
     <Content Include="Scripts\jquery.color.svg-names-2.1.2.min.js" />
     <Content Include="Scripts\jquery.signalR-2.0.3.js" />
     <Content Include="Scripts\jquery.signalR-2.0.3.min.js" />
+    <Content Include="Scripts\jquery.tooltipster.js" />
+    <Content Include="Scripts\jquery.tooltipster.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
@@ -320,11 +323,11 @@
     <Content Include="Views\Files\Example.cshtml" />
     <Content Include="Views\Shared\_LayoutCms.cshtml" />
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
-    <Content Include="Views\Shared\_ChatMessagePartial.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
     <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
+    <Content Include="Views\Shared\_UserProfileTooltipPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Chat\" />

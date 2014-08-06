@@ -1,8 +1,7 @@
-﻿@using Magic.Hubs
-@using Microsoft.AspNet.Identity
+﻿@model ProfileViewModel
 
-<style>
-    .dialog {
+@*<style>
+    .tooltip {
         position: absolute;
         border: 2px solid #000000;
         display: none;
@@ -11,14 +10,14 @@
         width: 200px;
         height: auto;
         background-color: #ffffff;
-        z-index: 100;
+        z-index: 102;
         text-align: center;
         padding: 10px;
     }
 
-    .overlay {
+    #user-profile-tooltip-overlay {
         position: fixed;
-        z-index: 99;
+        z-index: 101;
         width: 100%;
         height: 100%;
         top: 0;
@@ -56,24 +55,22 @@
         border: 1px solid #cccccc;
     }
 
-    #available-chat-users{
+    /*#available-chat-users{
         text-overflow: ellipsis;
         margin: 10px 10px;
         text-align: left;
         padding: 0;
-    }
+    }*/
 
-</style>
+</style>*@
 
-<div id="available-users-overlay" class="overlay"></div>
+@*<div id="user-profile-tooltip-overlay" class="overlay"></div>*@
 
-<div id="available-users" class="chat-room-users-container dialog">
-    <span id="available-users-close-btn">X</span>
-    <ul id="available-chat-users" class="chat-room-users">
-        @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
-        {
-            <li class="available-chat-user chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
-        }
-    </ul>
-    <span id="available-users-confirm-btn" class="btn btn-default">Create group</span>
+<div id="user-profile-tooltip" class="tooltip">
+    <span id="user-profile-tooltip-close-btn" class="close-btn" >X</span>
+    <div id="profile-data">
+        @Html.DisplayFor(m => m.Image, "Image")
+        @Model.UserName
+        @Html.ActionLink("View Profile", "Profile", "Account", new {id = Model.UserName }, new { @class = "btn btn-default"})
+    </div>
 </div>

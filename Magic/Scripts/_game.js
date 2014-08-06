@@ -6,13 +6,14 @@
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
-    var chat = window.chat = $.connection.chatHub;
-    var game = window.game = $.connection.gameHub;
+    //window.chat = $.connection.chatHub;
+    window.game = $.connection.gameHub;
 
     // Initialize game handling.
     window.game.initialize = function initializeGame() {
-        chat.server.toggleGameChatSubscription($gameId.val(), true);
-        alert(0)
+        alert('init')
+        window.chat.server.toggleGameChatSubscription($gameId.val(), true);
+
         $playerReadyButton.click(function () {
             isReady = !isReady;
             if (isReady) {
@@ -30,7 +31,7 @@
 
     // ------------------------ GAME DISPLAY ----------------------- START
     // Toggle player ready handler on server.
-    game.client.togglePlayerReady = function (playerName, playerColor, resetPlayerReadyButton) {
+    window.game.client.togglePlayerReady = function (playerName, playerColor, resetPlayerReadyButton) {
         var $existingPlayer = $playerName.filter(function (element) {
             return $(this).text() == playerName;
         });
@@ -50,7 +51,7 @@
     };
 
     // Add player who has joined to player list.
-    game.client.playerJoined = function (playerName) {
+    window.game.client.playerJoined = function (playerName) {
         var $existingPlayer = $playerName.filter(function (element) {
             return $(this).text() == playerName;
         });
@@ -62,7 +63,7 @@
     };
 
     // Add observer who has joined to observer list.
-    game.client.observerJoined = function (observerName) {
+    window.game.client.observerJoined = function (observerName) {
         var $existingObserver = $observerName.filter(function (element) {
             return $(this).text() == observerName;
         });
@@ -74,7 +75,7 @@
     };
 
     // Remove absent user from list.
-    game.client.userLeft = function (playerName) {
+    window.game.client.userLeft = function (playerName) {
         var $existingPlayer = $playerName.filter(function (element) {
             return $(this).text() == playerName;
         });

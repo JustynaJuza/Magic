@@ -1,4 +1,4 @@
-﻿@model Magic.Models.GameViewModel
+﻿@model GameViewModel
 
 @{
     ViewBag.Title = "Game";
@@ -25,8 +25,7 @@
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
-@Scripts.Render("~/bundles/jquerysignalR")
-@Scripts.Render("~/signalr/hubs")
-@Scripts.Render("~/Scripts/_game.js")
-@*@Scripts.Render("~/Scripts/_chat.js")
-@Scripts.Render("~/Scripts/_hub-start.js")*@
+@section scripts
+{
+    @Scripts.Render("~/Scripts/_game.js")
+}

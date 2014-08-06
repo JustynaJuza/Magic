@@ -63,6 +63,13 @@ namespace Magic.Controllers
             return PartialView("_AvailableUsersPartial");
         }
 
+        public ActionResult GetUserProfileTooltipPartial(string userName)
+        {
+            var user = context.Users.First(u => u.UserName == userName);
+
+            return PartialView("_UserProfileTooltipPartial", user.GetProfileViewModel());
+        }
+
         public string AddOrRemoveFriend(string id)
         {
             var userId = User.Identity.GetUserId();

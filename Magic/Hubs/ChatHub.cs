@@ -99,7 +99,7 @@ namespace Magic.Hubs
             }
         }
 
-        public static void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, string[] recipientNames = null)
+        public static void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)
         {
             using (var context = new MagicDbContext())
             {
@@ -350,7 +350,7 @@ namespace Magic.Hubs
             }
         }
 
-        public static void SubscribeActiveConnections(string roomId, string userId)
+        public static async Task SubscribeActiveConnections(string roomId, string userId)
         {
             using (var context = new MagicDbContext())
             {
@@ -368,7 +368,7 @@ namespace Magic.Hubs
                     });
 
                     var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                    chatHubContext.Groups.Add(connectionId, roomId);
+                    await chatHubContext.Groups.Add(connectionId, roomId);
                 }
                 context.SaveChanges();
             }
@@ -383,37 +383,40 @@ namespace Magic.Hubs
             }
         }
 
-        public static void ToggleGameChatSubscription(string userId, string roomId, bool isPrivate = false, string[] recipientNames = null, bool activate = true)
+        public async Task ToggleGameChatSubscription(string roomId, bool activate = true)
         {
             using (var context = new MagicDbContext())
             {
                 var chatRoom = context.ChatRooms.Find(roomId);
+                var userId = Context.User.Identity.GetUserId();
 
                 if (chatRoom == null)
                 {
-                    CreateChatRoom(roomId, true, isPrivate, recipientNames);
+                    var game = GameRoomController.activeGames.First(g => g.Id == roomId);
+                    CreateChatRoom(roomId, true, game.IsPrivate, game.Players.Select(p => p.User.UserName).ToList());
                     AddUserToRoom(roomId, userId);
-                    System.Diagnostics.Debug.WriteLine("Joining " + roomId);
-                }
-                else if (chatRoom.IsPrivate && !chatRoom.Users.Any(u => u.UserId != userId))
-                {
-                    System.Diagnostics.Debug.WriteLine("Can't join private game " + roomId);
-                    return;
                 }
                 else if (chatRoom.Connections.Any(c => c.UserId == userId))
                 {
                     return;
                 }
+                else if (!chatRoom.Users.Any(u => u.UserId != userId))
+                {
+                    if (chatRoom.IsPrivate)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Can't join private game " + roomId);
+                        return;
+                    }
 
-                AddUserToRoom(roomId, userId);
-                // await that!
-                SubscribeActiveConnections(roomId, userId);
+                    AddUserToRoom(roomId, userId);
+                }
+
+                await SubscribeActiveConnections(roomId, userId);
                 System.Diagnostics.Debug.WriteLine("Joining " + roomId);
 
                 // Sent info message on joining and leaving group.
                 var user = context.Users.Find(userId);
-                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                chatHubContext.Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (activate ? " entered the game." : " left the game."));
+                Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (activate ? " entered the game." : " left the game."));
             
 
                 //var currentConnection = context.Connections.Find(Context.ConnectionId);
@@ -435,11 +438,6 @@ namespace Magic.Hubs
                 //}
                 //}
 
-                //var message = new ChatMessage
-                //{
-                //    Sender = user,
-                //    Message = activate ? " entered the game." : " left the game."
-                //};
                 }
         }
         #endregion MANAGE CHAT & GAME GROUPS

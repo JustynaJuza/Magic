@@ -9,13 +9,28 @@
     tabBlinkingTracker = [],
     horizontalMouseOverScroll;
 
-    // Make chat sender names clickable for reply.
-    $(document).on('click', '.chat-message-sender, .chat-room .chat-user', function () {
-        $chat.newMessage.val('@' + $(this).text() + ' ');
-        $chat.newMessage.focus();
+    $(document).on('click', '.chat-user', function () {
+        $(this).data('dblclick', false);
+        setTimeout(function (element) {
+            var dblclick = $(element).data('dblclick');
+            if (dblclick) {
+                if (!selectExiststingRoom($(element).text())) {
+                    $chat.addRoomTab($(element).text());
+                    $chat.newMessage.focus();
+                }
+            } else if (!$(element).hasClass('available-chat-user')) {
+                console.log('singleclick');
+                showUserTooltip();
+            }
+        }, 350, this);
     });
-    $(document).on('click', '.chat-message-recipient', function () {
-        $chat.newMessage.val($(this).text() + ' ');
+
+    $(document).on('dblclick', '.chat-user', function () {
+        $(this).data('dblclick', true);
+    });
+
+    $(document).on('click', '.chat-message-recipient, .chat-message-sender', function () {
+        $chat.newMessage.val($chat.newMessage.text() + '@' + $(this).text() + ' ');
         $chat.newMessage.focus();
     });
 
@@ -136,13 +151,6 @@
         }
     });
 
-    $(document).on('dblclick', '.chat-message-sender, .chat-room .chat-user', function () {
-        if (!selectExiststingRoom($(this).text())) {
-            $chat.addRoomTab($(this).text());
-            $chat.newMessage.focus();
-        }
-    });
-
     function chat() {
         this.container = $('.chat');
         this.roomsContainer = $('#chat-rooms-container');
@@ -192,10 +200,9 @@
 
             }
 
-            alert('get')
             if (roomId) {
+                alert('get')
                 // Room id already known, get markup only.
-                alert(0)
                 $.get(url, { roomId: roomId }, appendRoomToChat);
             }
             else {
@@ -212,11 +219,9 @@
                                 return $('#room-tab-' + roomId).trigger('click');
                             }
 
-                            alert(1)
                             $.get(url + $.now(), { roomId: roomId }, appendRoomToChat);
                         }
                         else {
-                            alert(2)
                             jQuery.ajaxSettings.traditional = true;
                             $.get(url, { recipientNames: recipients }, function (htmlContent) {
                                 roomId = $($.parseHTML(htmlContent)).find('.chat-room-tab').prop('id').substr(9);
@@ -255,8 +260,8 @@
                 $('.chat-room-tab').slideUp();
             }
             else {
-                $('.chat-room-users-container').css({'border-top-right-radius': 0 });
-                $('.chat-room-messages-container').css({ 'border-top-left-radius': 0});
+                $('.chat-room-users-container').css({ 'border-top-right-radius': 0 });
+                $('.chat-room-messages-container').css({ 'border-top-left-radius': 0 });
                 $('.chat-room-tab').slideDown();
             }
         }
@@ -383,12 +388,6 @@
     //    $(this).scroll(smoothScroll($(this), $('.chat-user')));
     //});
 
-    // Html-encode messages for display in the page.
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
-    }
-
     //function adjustNewMessageElementPadding() {
     //    var newPadding = basicNewMessagePadding + parseInt($chat.roomSelection.css('width'));
     //    $newChatMessage.css('padding-left', newPadding);
@@ -404,6 +403,32 @@
     //});
 
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
+
+    //$('.chat-user').tooltip();
+    //$('.chat-user').tooltipster({
+    //    trigger: 'click',
+    //    interactive: 'true',
+    //    content: 'Loading...',
+    //    functionBefore: function (element, continueTooltip) {
+    //        alert(0)
+    //        // we'll make this function asynchronous and allow the tooltip to go ahead and show the loading notification while fetching our data
+    //        //continueTooltip();
+
+    //        // next, we want to check if our data has already been cached
+    //        if (!element.data('ajax')) {
+    //            var url = window.basePath + 'Chat/GetAvailableUsersPartial/';
+    //            $.get(url, { userName: element.text() }, function (htmlContent) {
+    //                alert(htmlContent)
+    //                element.tooltipster('content', htmlContent).data('ajax', true);
+    //            });
+    //        }
+    //    }
+    //});
+
+    function showUserTooltip() {
+        $('.chat-user').tooltip('show');
+    }
+
 
     // --------------------- HELPER FUNCTIONS ---------------------- START
     function smoothScroll($container, $scrollingEntry) {
@@ -459,6 +484,12 @@
     function moveToScroll(element) {
         var top = $(window).scrollTop();
         $(element).css('top', top + 'px');
+    }
+
+    // Html-encode messages for display in the page.
+    function htmlEncode(value) {
+        var encodedValue = $('<div />').text(value).html();
+        return encodedValue;
     }
     // --------------------- HELPER FUNCTIONS ---------------------- END
 });

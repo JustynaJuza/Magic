@@ -7,11 +7,15 @@
     <title>@ViewBag.Title | justyna.co.uk</title>
 
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/tooltipster.css")
     @Styles.Render("~/Content/chat.css")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/modernizr")
+        @Scripts.Render("~/bundles/modernizr")
+        @Scripts.Render("~/bundles/jquerysignalR")
     @Scripts.Render("~/Scripts/underscore.js")
+    @Scripts.Render("~/Scripts/jquery.tooltipster.js")
+    @Scripts.Render("~/signalr/hubs")
     @RenderSection("additionalHeaderScriptsAndStyles", required: false)
 
 </head>
@@ -41,7 +45,7 @@
         @RenderBody()
         <hr />
         <div class="row">
-            <div class="col-md-10">                
+            <div class="col-md-10">
                 @{Html.RenderPartial("_ChatPartial");}
             </div>
         </div>
@@ -50,8 +54,7 @@
         </footer>
     </div>
 
-        @RenderSection("scripts", required: false)
-
+    @RenderSection("scripts", required: false)
     @Scripts.Render("~/Scripts/_hub-start.js")
 </body>
 </html>

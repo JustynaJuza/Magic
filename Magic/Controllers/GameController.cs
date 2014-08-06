@@ -37,18 +37,26 @@ namespace Magic.Controllers
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
                 return RedirectToAction("Index", "GameRoom");
             }
-            if (game.IsPrivate && !game.Players.Any())
+
+            var userId = User.Identity.GetUserId();
+            var isPlayer = game.Players.Any(p => p.User.Id == userId);
+            if (game.IsPrivate && !isPlayer)
             {
                 TempData["Error"] = "You are not allowed to join this private game. You can message the room owner to ask for an invitation.";
                 return RedirectToAction("Index", "GameRoom");
             }
 
-            Session["GameId"] = gameId;
-            var userId = User.Identity.GetUserId();
-            var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-
-            if (!game.Players.Any(p => p.User.Id == currentUser.Id))
+            if (isPlayer)
             {
+                ViewBag.IsPlayer = true;
+                // TODO: choose deck!
+                return View(game);
+            }
+
+
+            Session["GameId"] = gameId;
+            var currentUser = context.Users.Find(userId);
+
                 if (game.Players.Count < game.PlayerCapacity)
                 {
                     if (currentUser.DeckCollection.Count == 0)
@@ -87,14 +95,9 @@ namespace Magic.Controllers
                     ViewBag.IsPlayer = false;
                     GameHub.DisplayObserverJoined(currentUser.UserName, game.Id);
                 }
-            }
-            else
-            {
-                ViewBag.IsPlayer = true;
-            }
 
             // Join game room chat.
-            ChatHub.ToggleGameChatSubscription(userId, gameId, game.IsPrivate);
+            //ChatHub.ToggleGameChatSubscription(userId, gameId, game.IsPrivate);
             return View(game);
         }
 

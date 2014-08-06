@@ -7,7 +7,7 @@
                     window.chat.initialized = true;
                 }
                 if (typeof window.game != 'undefined') {
-                    window.game.initialized = true;
+                    window.game.initialize();
                 }
             });
     }

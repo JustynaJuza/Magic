@@ -1,13 +1,6 @@
 ﻿@using Magic.Hubs;
 @using Microsoft.AspNet.Identity
 
-<div id="user-list-overlay"></div>
-<div id="user-list-add-member-container" style="overflow: auto; height: 220px;">
-    <ul id="user-list-add-member">
-        <li class="chat-user" />
-    </ul>
-</div>
-
 <h3>
     Hello@{ if (User.Identity.IsAuthenticated)
      { <span id=user-name>@User.Identity.GetUserName()</span>} }!
@@ -37,7 +30,12 @@
 <script>
     window.basePath = '@VirtualPathUtility.ToAbsolute("~/")';
 </script>
-@Scripts.Render("~/bundles/jquerysignalR")
-@Scripts.Render("~/signalr/hubs")
 @Scripts.Render("~/Scripts/_chat.js")
-@*@Scripts.Render("~/Scripts/_hub-start.js")*@
+@*@section additionalHeaderScriptsAndStyles
+{
+    @Scripts.Render("~/bundles/jquerysignalR")
+    @Scripts.Render("~/signalr/hubs")
+    @Scripts.Render("~/Scripts/_hub-start.js")
+    @Scripts.Render("~/Scripts/_chat.js")
+}*@
+
