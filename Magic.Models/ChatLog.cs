@@ -12,7 +12,6 @@ namespace Magic.Models
     public class ChatLog : AbstractExtensions
     {
         public string Id { get; set; }
-        [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
         public virtual List<ChatMessage> Messages { get; set; }
 

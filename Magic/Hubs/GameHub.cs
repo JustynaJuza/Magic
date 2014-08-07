@@ -28,7 +28,7 @@ namespace Magic.Hubs
                 var foundPlayer = game.Players.FirstOrDefault(p => p.User.Id == userId);
                 foundPlayer.ConnectionId = Context.ConnectionId;
 
-                GameHub.DisplayPlayerReady(foundPlayer.User, gameId, isReady);
+                DisplayPlayerReady(foundPlayer.User, gameId, isReady);
 
                 // Start the game if all players are ready.
                 if (game.Players.FindAll(p => p.ConnectionId != null).Count == game.PlayerCapacity)

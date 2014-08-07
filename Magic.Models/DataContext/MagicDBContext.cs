@@ -23,7 +23,6 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<IdentityUserClaim>().ToTable("UserClaims");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");
 
-
             modelBuilder.Entity<User>().Property(u => u.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<ChatLog>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<UserRelation>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
@@ -56,9 +55,9 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
             modelBuilder.Entity<ChatMessage>().HasRequired(m => m.Log).WithMany(l => l.Messages).HasForeignKey(m => m.LogId);
 
-            modelBuilder.Entity<MessageRecipient>().HasKey(mr => new { mr.MessageId, mr.LogId, mr.RecipientId });
-            modelBuilder.Entity<MessageRecipient>().HasRequired(mr => mr.Message).WithMany(m => m.Recipients).HasForeignKey(mr => new { mr.MessageId, mr.LogId });
-            modelBuilder.Entity<MessageRecipient>().HasRequired(mr => mr.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(mr => mr.RecipientId);
+            modelBuilder.Entity<ChatMessageNotification>().HasKey(mr => new { mr.MessageId, mr.LogId, mr.RecipientId });
+            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(mn => mn.RecipientId);
+            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Message).WithMany(m => m.Recipients).HasForeignKey(mn => new { mn.MessageId, mn.LogId });
 
             modelBuilder.Entity<ChatRoom>().HasOptional(r => r.Log).WithOptionalDependent();
         }
@@ -70,6 +69,7 @@ namespace Magic.Models.DataContext
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatLog> ChatLogs { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<ChatMessageNotification> ChatMessageNotifications { get; set; }
         public DbSet<Card> Cards { get; set; }
         public DbSet<CardColor> CardColors { get; set; }
         public DbSet<CardType> CardTypes { get; set; }

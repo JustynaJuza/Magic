@@ -27,7 +27,7 @@ namespace Magic.Models
         public virtual IList<CardDeck> DeckCollection { get; set; }
         public virtual IList<UserConnection> Connections { get; set; }
         public virtual IList<GameUser> Games { get; set; }
-        public virtual IList<MessageRecipient> ChatMessages { get; set; }
+        public virtual IList<ChatMessageNotification> ChatMessages { get; set; }
         public virtual IList<UserRelation> Relations { get; set; }
         //public virtual IList<UserRelationFriend> Friends { get; set; }
         //public virtual IList<UserRelationIgnored> Ignored { get; set; }

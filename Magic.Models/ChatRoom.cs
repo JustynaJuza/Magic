@@ -40,6 +40,7 @@ namespace Magic.Models
             {
                 Log = new ChatLog(Id);
             }
+
             Log.Messages.Add(message);
         }
 
