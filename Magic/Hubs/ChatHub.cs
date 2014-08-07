@@ -99,15 +99,16 @@ namespace Magic.Hubs
             }
         }
 
-        public static void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)
+        public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)
         {
             using (var context = new MagicDbContext())
             {
-                var chatRoom = new ChatRoom(roomId){
-                    IsGameRoom = isGameRoom, 
+                var chatRoom = new ChatRoom(roomId)
+                {
+                    IsGameRoom = isGameRoom,
                     IsPrivate = isPrivate
                 };
-                
+
                 if (isGameRoom)
                 {
                     chatRoom.TabColorCode = string.Empty.AssignRandomColorCode();
@@ -179,7 +180,7 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UpdateChatRoomUsers(string roomId, string connectionId = null)
+        public void UpdateChatRoomUsers(string roomId, string connectionId = null)
         {
             using (var context = new MagicDbContext())
             {
@@ -350,7 +351,7 @@ namespace Magic.Hubs
             }
         }
 
-        public static async Task SubscribeActiveConnections(string roomId, string userId)
+        public void SubscribeActiveConnections(string roomId, string userId)
         {
             using (var context = new MagicDbContext())
             {
@@ -358,6 +359,7 @@ namespace Magic.Hubs
                 var subscribedConnectionIds = context.ChatRoomConnections.Where(crc => crc.UserId == userId && crc.ChatRoomId == roomId).Select(crc => crc.ConnectionId);
                 var unsubscribedConnectionIds = activeConnectionIds.Except(subscribedConnectionIds);
 
+                var groupsProcessed = new List<Task>();
                 foreach (var connectionId in unsubscribedConnectionIds)
                 {
                     context.ChatRoomConnections.Add(new ChatRoomUserConnection
@@ -368,9 +370,12 @@ namespace Magic.Hubs
                     });
 
                     var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                    await chatHubContext.Groups.Add(connectionId, roomId);
+                    groupsProcessed.Add(chatHubContext.Groups.Add(connectionId, roomId));
                 }
+
                 context.SaveChanges();
+
+                Task.WaitAll(groupsProcessed.ToArray(), 2000);
             }
         }
 
@@ -411,13 +416,14 @@ namespace Magic.Hubs
                     AddUserToRoom(roomId, userId);
                 }
 
-                await SubscribeActiveConnections(roomId, userId);
+
+                SubscribeActiveConnections(roomId, userId);
                 System.Diagnostics.Debug.WriteLine("Joining " + roomId);
 
                 // Sent info message on joining and leaving group.
                 var user = context.Users.Find(userId);
                 Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (activate ? " entered the game." : " left the game."));
-            
+
 
                 //var currentConnection = context.Connections.Find(Context.ConnectionId);
 
@@ -438,7 +444,7 @@ namespace Magic.Hubs
                 //}
                 //}
 
-                }
+            }
         }
         #endregion MANAGE CHAT & GAME GROUPS
 

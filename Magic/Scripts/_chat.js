@@ -172,7 +172,7 @@
             $chat.newMessage.val('');
         };
 
-        this.addRoomTab = function (recipientNames, roomId) {
+        this.addRoomTab = function (recipientNames, roomId, isAsyncRequest) {
             var recipients = [];
             if (recipientNames instanceof Array) {
                 recipients = [userName].concat(recipientNames);
@@ -196,12 +196,16 @@
                 else {
                     $('#room-content-' + roomId).hide();
                 }
-                scrollContainerToBottom('#room-messages-container-' + roomId);
 
+                scrollContainerToBottom('#room-messages-container-' + roomId);
             }
 
+            jQuery.ajaxSetup({
+                async: isAsyncRequest,
+                traditional: true
+            });
+
             if (roomId) {
-                alert('get')
                 // Room id already known, get markup only.
                 $.get(url, { roomId: roomId }, appendRoomToChat);
             }
@@ -222,7 +226,6 @@
                             $.get(url + $.now(), { roomId: roomId }, appendRoomToChat);
                         }
                         else {
-                            jQuery.ajaxSettings.traditional = true;
                             $.get(url, { recipientNames: recipients }, function (htmlContent) {
                                 roomId = $($.parseHTML(htmlContent)).find('.chat-room-tab').prop('id').substr(9);
                                 appendRoomToChat(htmlContent);
@@ -283,7 +286,7 @@
     // Hub callback delivering new messages.
     window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
         if (!$('#room-' + roomId).length) {
-            $chat.addRoomTab(sender, roomId);
+            $chat.addRoomTab(sender, roomId, false);
         }
 
         $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
