@@ -72,7 +72,7 @@
             $('#room-' + roomId).remove();
             $chat.adjustRoomTabs();
         } else {
-            window.chat.server.unsubscribeChatRoom(roomId, null);
+            window.chat.server.unsubscribeChatRoom(roomId);
         }
         event.stopPropagation();
     });
@@ -211,7 +211,7 @@
             }
             else {
                 // Request information for room with selected memebers.
-                window.chat.server.getChatRoom(recipients)
+                window.chat.server.getExistingChatRoomIdForUsers(recipients)
                     .done(function (existingRoomId) {
                         isExistingRoom = existingRoomId.length != 0;
                         roomId = existingRoomId;
