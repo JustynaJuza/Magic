@@ -38,13 +38,17 @@ namespace Magic.Hubs
         }
 
         // Returns chat rooms the user has any connections subscribed to to open them on page load.
-        public static IList<ChatRoom> GetUserChatRooms(string userId, bool includeDefaultRoom)
+        public static IList<ChatRoom> GetUserChatRooms(string userId, bool exceptDefaultRoom = false)
         {
             using (var context = new MagicDbContext())
             {
+                
                 var chatRooms = context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.Connections.Any(c => c.UserId == userId)).ToList();
-
-                    return (includeDefaultRoom ? chatRooms : chatRooms.Remove(chatRooms.First(r => r.Id == DefaultRoomId)));
+                if (exceptDefaultRoom)
+                {
+                    chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == DefaultRoomId));
+                }
+                return chatRooms;
             }
         }
 
@@ -344,7 +348,7 @@ namespace Magic.Hubs
                     context.Insert(chatRoomConnection);
                 }
 
-                //Task.WaitAll(groupsProcessed.ToArray(), 2000);
+                Task.WhenAll(groupsProcessed.ToArray());
             }
         }
 
@@ -471,7 +475,6 @@ namespace Magic.Hubs
                         {
                             UpdateChatRoomUsers(chatRoom.Id);
                         }
-                        UpdateChatRoomUsers(DefaultRoomId);
                     }
 
                     //if (connection.GetType() == typeof(ApplicationUserGameConnection))

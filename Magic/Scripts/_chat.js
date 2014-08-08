@@ -10,24 +10,29 @@
     horizontalMouseOverScroll;
 
     $(document).on('click', '.chat-user', function () {
-        $(this).data('dblclick', false);
-        setTimeout(function (element) {
-            var dblclick = $(element).data('dblclick');
-            if (dblclick) {
-                if (!selectExiststingRoom($(element).text())) {
-                    $chat.addRoomTab($(element).text());
-                    $chat.newMessage.focus();
-                }
-            } else if (!$(element).hasClass('available-chat-user')) {
-                console.log('singleclick');
-                showUserTooltip();
-            }
+        clearTimeout(window.clickTimer);
+        window.clickTimer = setTimeout(function (element) {
+            console.log('singleclick');
+            showUserTooltip();
+            return $(element).data('click', false);
         }, 350, this);
+
+        if ($(this).data('click')) {
+            clearTimeout(window.clickTimer);
+            console.log('dblclick');
+            if (!selectExiststingRoom($(this).text())) {
+                $chat.addRoomTab($(this).text());
+                $chat.newMessage.focus();
+            }
+            return $(this).data('click', false);
+        }
+        return $(this).data('click', true);
     });
 
-    $(document).on('dblclick', '.chat-user', function () {
-        $(this).data('dblclick', true);
-    });
+    //$(document).on('dblclick', '.chat-user', function () {
+    //    console.log('set')
+    //    $(this).data('dblclick', true);
+    //});
 
     $(document).on('click', '.chat-message-recipient, .chat-message-sender', function () {
         $chat.newMessage.val($chat.newMessage.text() + '@' + $(this).text() + ' ');
@@ -205,6 +210,7 @@
                 traditional: true
             });
 
+            console.log('get')
             if (roomId) {
                 // Room id already known, get markup only.
                 $.get(url, { roomId: roomId }, appendRoomToChat);
@@ -258,14 +264,10 @@
                 $chat.roomSelection.data('chatRoomId', 'default');
                 $chat.roomSelection.data('recipients', '');
 
-                $('.chat-room-users-container').animate({ 'border-top-right-radius': '4px' }, 500);
-                $('.chat-room-messages-container').animate({ 'border-top-left-radius': '4px' }, 500);
-                $('.chat-room-tab').slideUp();
+                setTimeout(toggleTabBar(), 150);
             }
             else {
-                $('.chat-room-users-container').css({ 'border-top-right-radius': 0 });
-                $('.chat-room-messages-container').css({ 'border-top-left-radius': 0 });
-                $('.chat-room-tab').slideDown();
+                toggleTabBar(true);
             }
         }
 
@@ -449,6 +451,20 @@
         $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1);
         // Fade lower lines out.
         $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01);
+    }
+
+    function toggleTabBar(show) {
+        if (show) {
+            $('.chat-room-users-container').css({ 'border-top-right-radius': 0 });
+            $('.chat-room-messages-container').css({ 'border-top-left-radius': 0 });
+            $('.chat-room-tab').slideDown();
+            $('.chat').animate({ 'margin-top': '5px' }, 400);
+        } else {
+            $('.chat-room-users-container').animate({ 'border-top-right-radius': '4px' }, 400);
+            $('.chat-room-messages-container').animate({ 'border-top-left-radius': '4px' }, 400);
+            $('.chat-room-tab').slideUp();
+            $('.chat').animate({ 'margin-top': '-31px' }, 400);
+        }
     }
 
     function matchNewChatMessage(value) {

@@ -11,7 +11,7 @@
 
     <div id="chat-rooms-container">
         @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatHub.DefaultRoomId, isPrivate = false });}
-        @foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId()))
+        @foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
         {
             Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate });
         }
