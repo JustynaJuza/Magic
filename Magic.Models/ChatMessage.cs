@@ -31,7 +31,7 @@ namespace Magic.Models
         public int Id { get; set; }
         public string LogId { get; set; }
         public string SenderId { get; set; }
-        public DateTime? TimeSend { get; set; }
+        public DateTime TimeSend { get; set; }
         public string Message { get; set; }
         public virtual User Sender { get; set; }
         public virtual ChatLog Log { get; set; }

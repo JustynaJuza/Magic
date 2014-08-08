@@ -37,18 +37,26 @@ namespace Magic.Hubs
             }
         }
 
-        // Returns chat rooms the user has any connections subscribed to to open them on page load.
+        // Returns non-game chat rooms the user has any connections subscribed to to open them on page load.
         public static IList<ChatRoom> GetUserChatRooms(string userId, bool exceptDefaultRoom = false)
         {
             using (var context = new MagicDbContext())
             {
-
-                var chatRooms = context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.Connections.Any(c => c.UserId == userId)).ToList();
+                var chatRooms = context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom && r.Connections.Any(c => c.UserId == userId)).ToList();
                 if (exceptDefaultRoom)
                 {
                     chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == DefaultRoomId));
                 }
                 return chatRooms;
+            }
+        }
+        
+        // Returns game chat rooms the user has any connections subscribed to to open them on page load.
+        public static IList<ChatRoom> GetUserGameRooms(string userId, bool exceptDefaultRoom = false)
+        {
+            using (var context = new MagicDbContext())
+            {
+                return context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.IsGameRoom && r.Connections.Any(c => c.UserId == userId)).ToList();
             }
         }
 
@@ -148,7 +156,7 @@ namespace Magic.Hubs
                     Message = messageText
                 };
 
-                Clients.Group(roomId).addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                Clients.Group(roomId).addMessage(roomId, message.TimeSend.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
 
                 var chatRoom = context.ChatRooms.Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId);
                 chatRoom.AddMessageToLog(message);
@@ -182,11 +190,11 @@ namespace Magic.Hubs
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 if (roomId.Length > 0)
                 {
-                    chatHubContext.Clients.Group(roomId).addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.Group(roomId).addMessage(roomId, message.TimeSend.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                 }
                 else
                 {
-                    chatHubContext.Clients.All.addMessage(roomId, message.TimeSend.Value.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.All.addMessage(roomId, message.TimeSend.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
                 }
             }
         }
