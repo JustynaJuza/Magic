@@ -15,6 +15,19 @@ namespace Magic.Models
         public DateTime? DateStarted { get; set; }
         public DateTime? DateEnded { get; set; }
         public virtual IList<GameUser> Players { get; set; }
+
+        public Game()
+        {
+            Id = Guid.NewGuid().ToString();
+            IsPrivate = false;
+            Players = new List<GameUser>();
+        }
+        public Game(bool isPrivate) : this()
+        {
+            Id = Guid.NewGuid().ToString();
+            IsPrivate = isPrivate;
+            Players = new List<GameUser>();
+        }
     }
 
     public class GameViewModel : AbstractExtensions, IViewModel
@@ -35,15 +48,18 @@ namespace Magic.Models
             Players = new List<Player>();
             Observers = new List<User>();
         }
+        public GameViewModel(Game game) : this()
+        {
+            Id = game.Id;
+            IsPrivate = game.IsPrivate;
+        }
         // Constructor with number of players.
-        public GameViewModel(int playerCount) 
-            : this()
+        public GameViewModel(Game game, int playerCount) : this(game)
         {
             PlayerCapacity = playerCount;
         }
         // Constructor with players.
-        public GameViewModel(List<Player> players)
-            : this()
+        public GameViewModel(Game game, List<Player> players) : this(game)
         {
             PlayerCapacity = players.Count;
             Players = players;

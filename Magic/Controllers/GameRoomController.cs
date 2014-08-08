@@ -14,6 +14,7 @@ namespace Magic.Controllers
     [Authorize]
     public class GameRoomController : Controller
     {
+        private MagicDbContext context = new MagicDbContext();
         public static List<GameViewModel> activeGames = new List<GameViewModel>();
 
         [HttpGet]
@@ -24,8 +25,10 @@ namespace Magic.Controllers
 
         public ActionResult Create()
         {
-            GameViewModel game = new GameViewModel();
-            activeGames.Add(game);
+            var game = new Game();
+            context.Insert(game);
+
+            activeGames.Add((GameViewModel) game.GetViewModel());
             return RedirectToAction("Index", "Game", new { gameId = game.Id });
         }
 

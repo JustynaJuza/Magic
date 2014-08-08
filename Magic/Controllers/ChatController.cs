@@ -32,7 +32,7 @@ namespace Magic.Controllers
 
                 foreach (var user in chatRoom.Users)
                 {
-                    ChatHub.AddConnectionsToRoomGroup(user.User.Connections.Select(c => c.Id).ToList(), chatRoom.Id);
+                    ChatHub.SubscribeActiveConnections(chatRoom.Id, user.UserId);
                 }
             }
             else

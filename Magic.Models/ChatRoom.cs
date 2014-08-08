@@ -44,9 +44,14 @@ namespace Magic.Models
             Log.Messages.Add(message);
         }
 
-        public bool UserIsInRoom(string userId)
+        public bool IsUserInRoom(string userId)
         {
             return Connections.Any(c => c.Connection.UserId == userId);
+        }
+
+        public bool IsUserAllowedToJoin(string userId)
+        {
+            return IsPrivate == false || Users.Any(u => u.UserId == userId);
         }
 
         public int ActiveUserCount()

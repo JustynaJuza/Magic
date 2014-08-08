@@ -286,9 +286,12 @@
     };
 
     // Hub callback delivering new messages.
-    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message) {
+    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message, setfocus) {
         if (!$('#room-' + roomId).length) {
             $chat.addRoomTab(sender, roomId, false);
+        }
+        if (setfocus) {
+            $('#room-' + roomId).trigger('click');
         }
 
         $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
