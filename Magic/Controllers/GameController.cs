@@ -59,7 +59,15 @@ namespace Magic.Controllers
 
                 if (game.Players.Count < game.PlayerCapacity)
                 {
-                    if (currentUser.DeckCollection.Count == 0)
+                    if (currentUser.DeckCollection.Any())
+                    {
+                        // Initialise with last used deck.
+                        lock (game.Players)
+                        {
+                            game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
+                        }
+                    }
+                    else
                     {
                         lock (game.Players)
                         {
@@ -67,14 +75,6 @@ namespace Magic.Controllers
                         }
                         TempData["Message"] = "Please select a deck to play with before starting the game.";
                         ViewBag.SelectDeck = true;
-                    }
-                    else
-                    {
-                        // Initialise with last used deck.
-                        lock (game.Players)
-                        {
-                            game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
-                        }
                     }
 
                     ViewBag.IsPlayer = true;
@@ -97,7 +97,6 @@ namespace Magic.Controllers
                 }
 
             // Join game room chat.
-            //ChatHub.SubscribeGameChat(userId, gameId, game.IsPrivate);
             return View(game);
         }
 

@@ -42,7 +42,7 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                var chatRooms = context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom && r.Connections.Any(c => c.UserId == userId)).ToList();
+                var chatRooms = context.ChatRoomConnections.Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().ToList(); //.Where(r => !r.IsGameRoom).ToList();
                 if (exceptDefaultRoom)
                 {
                     chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == DefaultRoomId));
@@ -56,7 +56,7 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                return context.ChatRoomConnections.Select(rc => rc.ChatRoom).Distinct().Where(r => r.IsGameRoom && r.Connections.Any(c => c.UserId == userId)).ToList();
+                return context.ChatRoomConnections.Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => r.IsGameRoom).ToList();
             }
         }
 
@@ -388,8 +388,7 @@ namespace Magic.Hubs
                 }
                 else if (chatRoom.IsUserInRoom(userId))
                 {
-                    SetAsGameConnection(roomId);
-                    return true;
+                    //return true;
                 }
                 else if (chatRoom.IsUserAllowedToJoin(userId))
                 {
@@ -409,21 +408,10 @@ namespace Magic.Hubs
                 var user = context.Users.Find(userId);
                 Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, " entered the game.", true);
                 return true;
-
-                //else
-                //{
-                //    currentConnection.GameId = null;
-                // Closing main connection to a game, remove chat subscribtion from all other connections.
-                //foreach (var connection in message.Sender.Connections)
-                //{
-                //    Groups.Remove(connection.Id, gameId);
-                //}
-                //}
-
             }
         }
 
-        public void UnsubscribeGameChat()
+        public async void UnsubscribeGameChat()
         {
             using (var context = new MagicDbContext())
             {
@@ -434,8 +422,13 @@ namespace Magic.Hubs
 
                 if (hasOtherGameConnections) return;
 
+                var leavingGame = GameHub.LeaveGame(connection);
+
                 var roomId = connection.GameId;
                 UnsubscribeChatRoom(roomId);
+                System.Diagnostics.Debug.WriteLine("Unsubscribing " + roomId);
+
+                await leavingGame;
 
                 // Sent info message on joining and leaving group.
                 var user = context.Users.Find(userId);

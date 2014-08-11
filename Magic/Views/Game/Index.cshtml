@@ -1,4 +1,5 @@
-﻿@model GameViewModel
+﻿@using Microsoft.AspNet.Identity
+@model GameViewModel
 
 @{
     ViewBag.Title = "Game";
@@ -8,20 +9,37 @@
 @Html.Partial("_MessagePartial")
 @Html.HiddenFor(m => m.Id, new { id = "gameId"})
 
-<div id="players-list">
+<div id="players-container">
+    <ul id="players">
     @foreach (var player in Model.Players)
     {
-        <h2 class="player-name" style="color:#808080">@player.User.UserName</h2>
+        <li class="player" style="color:#808080">@player.User.UserName</li>
     }
+        </ul>
+</div>
+
+<div id="observers-container">
+    <ul id="observers">
+        @foreach (var user in Model.Observers)
+        {
+            <li class="observer" style="color:#000000">@user.UserName</li>
+        }
+    </ul>
 </div>
 
 <div class="row">
-    @if(ViewBag.IsPlayer != null){
+    @if (ViewBag.IsPlayer != null)
+    {
+        @Html.Hidden("player", User.Identity.GetUserName(), new {id = "player"})
         <input type="button" id="player-ready" class="btn btn-primary" value="Ready to start" />
         //@Html.ActionLink("Start", "Start", "Game", null, new { @class = "btn btn-default", id="startGame"})
-    }
 
-    @Html.ActionLink("Pause", "Pause", "Game", null, new { @class = "btn btn-default" })
+        @Html.ActionLink("Pause", "Pause", "Game", null, new {@class = "btn btn-default"})
+    }
+    else
+    {
+        @Html.Hidden("observer", User.Identity.GetUserName(), new { id = "observer" })
+    }
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@

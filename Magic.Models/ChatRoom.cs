@@ -46,7 +46,7 @@ namespace Magic.Models
 
         public bool IsUserInRoom(string userId)
         {
-            return Connections.Any(c => c.Connection.UserId == userId);
+            return Connections.Any(c => c.UserId == userId);
         }
 
         public bool IsUserAllowedToJoin(string userId)

@@ -12,14 +12,12 @@
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
-            console.log('singleclick');
             showUserTooltip();
             return $(element).data('click', false);
         }, 350, this);
 
         if ($(this).data('click')) {
             clearTimeout(window.clickTimer);
-            console.log('dblclick');
             if (!selectExiststingRoom($(this).text())) {
                 $chat.addRoomTab($(this).text());
                 $chat.newMessage.focus();
@@ -210,7 +208,6 @@
                 traditional: true
             });
 
-            console.log('get')
             if (roomId) {
                 // Room id already known, get markup only.
                 $.get(url, { roomId: roomId }, appendRoomToChat);
