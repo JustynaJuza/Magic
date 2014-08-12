@@ -68,7 +68,7 @@
 <div id="available-users-overlay" class="overlay"></div>
 
 <div id="available-users" class="chat-room-users-container dialog">
-    <span id="available-users-close-btn">X</span>
+    <span id="available-users-close-btn" class="close-btn">X</span>
     <ul id="available-chat-users" class="chat-room-users">
         @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
         {

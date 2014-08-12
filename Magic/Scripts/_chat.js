@@ -3,7 +3,8 @@
     window.chat = $.connection.chatHub;
     window.chatRoomUsers = [];
 
-    var $chat = new chat();
+    var $chat = new chat(),
+        chatRoomRequestInProgress = [];
 
     var userName = $('#user-name').text(),
     tabBlinkingTracker = [],
@@ -176,6 +177,7 @@
         };
 
         this.addRoomTab = function (recipientNames, roomId, isAsyncRequest) {
+            chatRoomRequestInProgress[roomId] = true;
             var recipients = [];
             if (recipientNames instanceof Array) {
                 recipients = [userName].concat(recipientNames);
@@ -201,6 +203,7 @@
                 }
 
                 scrollContainerToBottom('#room-messages-container-' + roomId);
+                chatRoomRequestInProgress[roomId] = false;
             }
 
             jQuery.ajaxSetup({
@@ -267,8 +270,6 @@
                 toggleTabBar(true);
             }
         }
-
-        this.joinChatRoom = function () { };
     }
 
     $chat.adjustRoomTabs();
@@ -284,7 +285,7 @@
 
     // Hub callback delivering new messages.
     window.chat.client.addMessage = function (roomId, time, sender, senderColor, message, setfocus) {
-        if (!$('#room-' + roomId).length) {
+        if (!$('#room-' + roomId).length && !chatRoomRequestInProgress[roomId]) {
             $chat.addRoomTab(sender, roomId, false);
         }
         if (setfocus) {
@@ -315,7 +316,9 @@
         chatUsers = $.parseJSON(chatUsers);
         var updatedChatUsersHtml = '';
         for (var i = 0; i < chatUsers.length; i++) {
-            updatedChatUsersHtml += '<li class="chat-user" style="color:' + htmlEncode(chatUsers[i].ColorCode) + (chatUsers[i].Status == 'Offline' ? "; font-weight:normal" : ';">') + chatUsers[i].UserName + '</li>';
+            updatedChatUsersHtml += '<li class="chat-user" style="color:' + chatUsers[i].ColorCode
+                + (chatUsers[i].Status == 0 ? '; font-weight:normal;">' : ';">')
+                + chatUsers[i].UserName + '</li>';
         }
 
         $('#room-users-' + roomId).children().remove();

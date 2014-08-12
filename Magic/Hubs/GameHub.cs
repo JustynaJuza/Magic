@@ -89,10 +89,14 @@ namespace Magic.Hubs
 
         public void ResetReadyStatus(string gameId)
         {
-            var players = GameRoomController.activeGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
-            foreach (var player in players)
+            var users = GameRoomController.activeGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
+            using (var context = new MagicDbContext())
             {
-                ChatHub.UserStatusBroadcast(player.Id, player.Status = UserStatus.Unready, gameId);
+                foreach (var user in users)
+                {
+                    user.Status = UserStatus.Unready;
+                    context.InsertOrUpdate(user);
+                }
             }
             Clients.Group(gameId).resetReadyStatus();
         }
@@ -144,6 +148,7 @@ namespace Magic.Hubs
                 game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
             }
 
+            DisplayUserLeft(connection.User.UserName, game.Id);
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             return gameHubContext.Groups.Remove(connection.Id, connection.GameId);
         }

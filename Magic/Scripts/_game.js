@@ -4,7 +4,8 @@
         userName = ($('#player').length ? $('#player').val() : $('#observer').val()),
         $gameId = $('#gameId'),
         $playerReadyButton = $('#player-ready'),
-        $playerName = $('.player');
+        $playerName = $('.player'),
+        $observerName = $('.observer');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -46,7 +47,7 @@
         }
     };
 
-    window.game.client.resetReadyStatus = function() {
+    window.game.client.resetReadyStatus = function () {
         $playerName.css('color', '#808080');
 
         if (isPlayer) {
@@ -60,9 +61,9 @@
         var isExistingPlayer = $playerName.filter(function (i, element) {
             return $(element).text() == playerName;
         });
-        console.log(isExistingPlayer)
-        if (isExistingPlayer.length) {
-            $('#players-list').append('<h2 class="player-name" style="color:#808080">' + playerName + '</h2>');
+
+        if (!isExistingPlayer) {
+            $('#players').append('<li class="player" style="color:#808080">' + playerName + '</li>');
             // Refresh the variable content.
             $playerName = $($playerName.selector);
         }
@@ -73,8 +74,9 @@
         var isExistingObserver = $observerName.filter(function (i, element) {
             return $(element).text() == observerName;
         });
-        if (isExistingObserver.length) {
-            $('#observers-list').append('<h2 class="observer-name" style="color:#808080">' + observerName + '</h2>');
+
+        if (!isExistingObserver) {
+            $('#observers').append('<li class="observer" style="color:#808080">' + observerName + '</li>');
             // Refresh the variable content.
             $observerName = $($observerName.selector);
         }
@@ -82,6 +84,7 @@
 
     // Remove absent user from list.
     window.game.client.userLeft = function (playerName) {
+        alert(playerName + ' leaving')
         var $existingPlayer = $playerName.filter(function (i, element) {
             return $(element).text() == playerName;
         });
