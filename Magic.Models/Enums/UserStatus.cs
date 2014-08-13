@@ -2,7 +2,7 @@
 {
     public enum UserStatus
     {
-        Offline = 0,
+        Offline,
         Online,
         AFK,
         Playing,

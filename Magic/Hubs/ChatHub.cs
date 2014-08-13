@@ -92,16 +92,7 @@ namespace Magic.Hubs
                 var recipientIds = recipients.Select(r => r.Id);
                 var chatRoom = context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
 
-                if (chatRoom == null)
-                {
-                    return String.Empty;
-                }
-
-                foreach (var user in recipients)
-                {
-                    SubscribeActiveConnections(chatRoom.Id, user.Id);
-                }
-                return chatRoom.Id;
+                return chatRoom == null ? String.Empty : chatRoom.Id;
             }
         }
 
@@ -114,6 +105,7 @@ namespace Magic.Hubs
                 {
                     IsGameRoom = isGameRoom,
                     IsPrivate = isPrivate,
+                    Name = (isGameRoom ? "Game" : null),
                     TabColorCode = (isGameRoom ? string.Empty.AssignRandomColorCode() : null)
                 };
                 context.Insert(chatRoom);
@@ -189,27 +181,22 @@ namespace Magic.Hubs
             }
         }
 
-        public static void UserStatusBroadcast(string userId, UserStatus status, string roomId)
+        public static void UserStatusUpdate(string userId, UserStatus status, string roomId)
         {
             using (var context = new MagicDbContext())
             {
-                var message = new ChatMessage
-                {
-                    Sender = context.Users.Find(userId),
-                    Message = UserStatusBroadcastMessage(status)
-                };
-                message.Sender.Status = status;
-                context.InsertOrUpdate(message.Sender, true);
-
+                var user = context.Users.Find(userId);
+                user.Status = status;
+                context.InsertOrUpdate(user, true);
 
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 if (roomId.Length > 0)
                 {
-                    chatHubContext.Clients.Group(roomId).addMessage(roomId, message.TimeSend.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, UserStatusBroadcastMessage(status));
                 }
                 else
                 {
-                    chatHubContext.Clients.All.addMessage(roomId, message.TimeSend.ToString("HH:mm:ss"), message.Sender.UserName, message.Sender.ColorCode, message.Message);
+                    chatHubContext.Clients.All.addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, UserStatusBroadcastMessage(status));
                 }
             }
         }
@@ -353,7 +340,7 @@ namespace Magic.Hubs
                 }
             }
         }
-
+        
         public static void SubscribeActiveConnections(string roomId, string userId)
         {
             using (var context = new MagicDbContext())
@@ -400,20 +387,21 @@ namespace Magic.Hubs
             {
                 var chatRoom = context.ChatRooms.Find(roomId);
                 var userId = Context.User.Identity.GetUserId();
+                bool isExistingUser = false;
 
                 if (chatRoom == null)
                 {
                     var game = GameRoomController.activeGames.First(g => g.Id == roomId);
                     CreateChatRoom(roomId, true, game.IsPrivate, game.Players.Select(p => p.User.UserName).ToList());
-                    AddUserToRoom(roomId, userId);
+                    //AddUserToRoom(roomId, userId);
                 }
                 else if (chatRoom.IsUserInRoom(userId))
                 {
-                    //return true;
+                    isExistingUser = true;
                 }
                 else if (chatRoom.IsUserAllowedToJoin(userId))
                 {
-                    AddUserToRoom(roomId, userId);
+                    //AddUserToRoom(roomId, userId);
                 }
                 else
                 {
@@ -425,14 +413,20 @@ namespace Magic.Hubs
                 SetAsGameConnection(roomId);
                 SubscribeActiveConnections(roomId, userId);
 
-                // Sent info message on joining and leaving group.
-                var user = context.Users.Find(userId);
-                Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, " entered the game.", true);
+                // Send info message on joining group - also opens the chat tab for joining user.
+                if (isExistingUser)
+                {
+                    Clients.Caller.addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " Welcome back!", true);
+                }
+                else {
+                    var user = context.Users.Find(userId);
+                    Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, " entered the game.", true);
+                }
                 return true;
             }
         }
 
-        public async void UnsubscribeGameChat()
+        public void UnsubscribeGameChat()
         {
             using (var context = new MagicDbContext())
             {
@@ -443,15 +437,13 @@ namespace Magic.Hubs
 
                 if (hasOtherGameConnections) return;
 
-                var leavingGame = GameHub.LeaveGame(connection);
+                GameHub.LeaveGame(connection);
 
                 var roomId = connection.GameId;
                 UnsubscribeChatRoom(roomId);
                 System.Diagnostics.Debug.WriteLine("Unsubscribing " + roomId);
 
-                await leavingGame;
-
-                // Sent info message on joining and leaving group.
+                // Sent info message on leaving group.
                 var user = context.Users.Find(userId);
                 Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (" left the game."), true);
             }
@@ -478,7 +470,7 @@ namespace Magic.Hubs
                 if (foundUser.Connections.Count == 1)
                 {
                     // If this is the user's only connection broadcast a chat info.
-                    UserStatusBroadcast(userId, UserStatus.Online, DefaultRoomId);
+                    UserStatusUpdate(userId, UserStatus.Online, DefaultRoomId);
                 }
 
                 UpdateChatRoomUsers(DefaultRoomId);
@@ -504,6 +496,8 @@ namespace Magic.Hubs
 
         private async void DeleteConnection()
         {
+            await Task.Delay(1500);
+
             using (var context = new MagicDbContext())
             {
                 var connection = context.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
@@ -514,7 +508,6 @@ namespace Magic.Hubs
                     UnsubscribeGameChat();
                 }
 
-                await Task.Delay(1000);
                 System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
 
                 var isLastConnection = connection.User.Connections.Count == 1;
@@ -530,7 +523,7 @@ namespace Magic.Hubs
 
                 context.Delete(connection, true);
 
-                UserStatusBroadcast(userId, UserStatus.Offline, DefaultRoomId);
+                UserStatusUpdate(userId, UserStatus.Offline, DefaultRoomId);
                 foreach (var chatRoom in chatRooms)
                 {
                     UpdateChatRoomUsers(chatRoom.Id);

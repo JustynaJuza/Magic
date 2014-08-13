@@ -176,7 +176,7 @@
             $chat.newMessage.val('');
         };
 
-        this.addRoomTab = function (recipientNames, roomId, isAsyncRequest) {
+        this.addRoomTab = function (recipientNames, roomId, isAsyncRequest, activateTabAfterwards) {
             chatRoomRequestInProgress[roomId] = true;
             var recipients = [];
             if (recipientNames instanceof Array) {
@@ -185,7 +185,7 @@
                 recipients = [recipientNames, userName];
             }
             var isExistingRoom = roomId != null;
-            var activateTabAfterwards = roomId == null;
+            activateTabAfterwards = roomId == null || activateTabAfterwards;
             var url = window.basePath + 'Chat/GetChatRoomPartial/';
 
             // Extension used to append new room markup to chat.
@@ -284,12 +284,9 @@
     };
 
     // Hub callback delivering new messages.
-    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message, setfocus) {
+    window.chat.client.addMessage = function (roomId, time, sender, senderColor, message, activateTabAfterwards) {
         if (!$('#room-' + roomId).length && !chatRoomRequestInProgress[roomId]) {
-            $chat.addRoomTab(sender, roomId, false);
-        }
-        if (setfocus) {
-            $('#room-' + roomId).trigger('click');
+            $chat.addRoomTab(sender, roomId, false, activateTabAfterwards);
         }
 
         $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)

@@ -51,18 +51,11 @@
         @{Html.RenderPartial("_MessagePartial");}
         @RenderBody()
         <hr />
-        <div class="row">
-            <div class="col-md-10">
-                @{Html.RenderPartial("_ChatPartial");}
-            </div>
-        </div>
         <footer>
             <p>&copy; @DateTime.Now.Year Justyna</p>
         </footer>
     </div>
 
     @RenderSection("scripts", required: false)
-
-    @Scripts.Render("~/Scripts/_hub-start.js")
 </body>
 </html>

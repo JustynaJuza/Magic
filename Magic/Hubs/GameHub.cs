@@ -39,7 +39,7 @@ namespace Magic.Hubs
         }
 
         #region GAME DISPLAY UPDATES
-        public static void DisplayPlayerReady(User user, string gameId, bool isReady, bool broadcastMessage = true)
+        public static void DisplayPlayerReady(User user, string gameId, bool isReady)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
 
@@ -47,34 +47,27 @@ namespace Magic.Hubs
             {
                 // Update display to show player is ready.
                 gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, user.ColorCode);
-                ChatHub.UserStatusBroadcast(user.Id, UserStatus.Ready, gameId);
+                ChatHub.UserStatusUpdate(user.Id, UserStatus.Ready, gameId);
             }
             else
             {
-                if (broadcastMessage)
-                {
-                    // Update display to show player is not yet ready.
-                    ChatHub.UserStatusBroadcast(user.Id, UserStatus.Unready, gameId);
-                    gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
-                }
-                else
-                {
-                    // Automatically update display without message if other player leaves game before start.
-                    gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, null, true);
-                }
+                // Update display to show player is not yet ready.
+                ChatHub.UserStatusUpdate(user.Id, UserStatus.Unready, gameId);
+                gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
             }
         }
-
-        public static void DisplayPlayerJoined(string userName, string gameId)
+        
+        public static void DisplayUserJoined(string userName, string gameId, bool isPlayer)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            gameHubContext.Clients.Group(gameId).playerJoined(userName);
-        }
-
-        public static void DisplayObserverJoined(string userName, string gameId)
-        {
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            gameHubContext.Clients.Group(gameId).observerJoined(userName);
+            if (isPlayer)
+            {
+                gameHubContext.Clients.Group(gameId).playerJoined(userName);
+            }
+            else
+            {
+                gameHubContext.Clients.Group(gameId).observerJoined(userName);
+            }
         }
 
         public static void DisplayUserLeft(string userName, string gameId)
@@ -83,11 +76,8 @@ namespace Magic.Hubs
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
-        #endregion GAME DISPLAY UPDATES
 
-        #region MANAGE GAME GROUPS
-
-        public void ResetReadyStatus(string gameId)
+        public static void ResetReadyStatus(string gameId)
         {
             var users = GameRoomController.activeGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
             using (var context = new MagicDbContext())
@@ -98,23 +88,23 @@ namespace Magic.Hubs
                     context.InsertOrUpdate(user);
                 }
             }
-            Clients.Group(gameId).resetReadyStatus();
-        }
 
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            gameHubContext.Clients.Group(gameId).resetReadyStatus();
+        }
+        #endregion GAME DISPLAY UPDATES
+
+        #region MANAGE GAME GROUPS
         public async Task JoinGame(string gameId, string userName, bool isPlayer)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             var joinGame = gameHubContext.Groups.Add(Context.ConnectionId, gameId);
+            DisplayUserJoined(userName, gameId, isPlayer);
 
             if (isPlayer)
             {
                 gameHubContext.Groups.Add(Context.ConnectionId, gameId + "_players");
-                DisplayPlayerJoined(userName, gameId);
                 ResetReadyStatus(gameId);
-            }
-            else
-            {
-                DisplayObserverJoined(userName, gameId);
             }
 
             await joinGame;
@@ -130,12 +120,7 @@ namespace Magic.Hubs
             {
                 if (!game.DateStarted.HasValue)
                 {
-                    // Set all other player to 'not ready'.
-                    foreach (var player in game.Players)
-                    {
-                        //player.ConnectionId = null;
-                        DisplayPlayerReady(player.User, game.Id, false, false);
-                    }
+                    ResetReadyStatus(game.Id);
                 }
                 else
                 {

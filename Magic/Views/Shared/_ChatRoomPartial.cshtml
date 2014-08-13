@@ -29,10 +29,6 @@
             {
                 @Model.Name
             }
-            else if (Model.IsGameRoom && !Model.IsPrivate)
-            {
-                @:Game
-            }
             else
             {
                 @Model.Users.ElementAt(0).UserName

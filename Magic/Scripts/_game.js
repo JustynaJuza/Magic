@@ -5,7 +5,8 @@
         $gameId = $('#gameId'),
         $playerReadyButton = $('#player-ready'),
         $playerName = $('.player'),
-        $observerName = $('.observer');
+        $observerName = $('.observer'),
+        $gameUsers = $('.game-user');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -37,14 +38,14 @@
             $existingPlayer.css('color', playerColor);
         }
         // Display the player is not ready.    
-        else {
-            $existingPlayer.css('color', '#808080');
-            // Set player to 'not ready' if other player left before game start.
-            if (resetPlayerReadyButton) {
-                isReady = false;
-                $playerReadyButton.val("Ready to start");
-            }
-        }
+        //else {
+        //    $existingPlayer.css('color', '#808080');
+        //    // Set player to 'not ready' if other player left before game start.
+        //    if (resetPlayerReadyButton) {
+        //        isReady = false;
+        //        $playerReadyButton.val("Ready to start");
+        //    }
+        //}
     };
 
     window.game.client.resetReadyStatus = function () {
@@ -58,42 +59,40 @@
 
     // Add player who has joined to player list.
     window.game.client.playerJoined = function (playerName) {
-        var isExistingPlayer = $playerName.filter(function (i, element) {
+        $playerName = $($playerName.selector);
+        var $existingPlayer = $playerName.filter(function (i, element) {
             return $(element).text() == playerName;
         });
 
-        if (!isExistingPlayer) {
+        if (!$existingPlayer.length) {
             $('#players').append('<li class="player" style="color:#808080">' + playerName + '</li>');
-            // Refresh the variable content.
-            $playerName = $($playerName.selector);
         }
     };
 
     // Add observer who has joined to observer list.
     window.game.client.observerJoined = function (observerName) {
-        var isExistingObserver = $observerName.filter(function (i, element) {
+        $observerName = $($observerName.selector);
+        var $existingObserver = $observerName.filter(function (i, element) {
             return $(element).text() == observerName;
         });
 
-        if (!isExistingObserver) {
+        if (!$existingObserver.length) {
             $('#observers').append('<li class="observer" style="color:#808080">' + observerName + '</li>');
-            // Refresh the variable content.
-            $observerName = $($observerName.selector);
         }
     };
 
     // Remove absent user from list.
-    window.game.client.userLeft = function (playerName) {
-        alert(playerName + ' leaving')
-        var $existingPlayer = $playerName.filter(function (i, element) {
-            return $(element).text() == playerName;
+    window.game.client.userLeft = function (name) {
+        $gameUsers = $($gameUsers.selector);
+        var $existingUser = $gameUsers.filter(function (i, element) {
+            return $(element).text() == name;
         });
-        $existingPlayer.remove();
-        $playerName = $($playerName.selector);
-
-        $playerName.each(function () {
-            $(this).css('color', '#808080');
-        });
+        $existingUser.remove();
     };
+
+
+    window.game.client.activateGame = function () {
+        alert("LET THE GAMES BEGIN!");
+    }
     // ------------------------ GAME DISPLAY ----------------------- START
 });

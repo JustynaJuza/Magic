@@ -78,7 +78,6 @@ namespace Magic.Controllers
                     }
 
                     ViewBag.IsPlayer = true;
-                    GameHub.DisplayPlayerJoined(currentUser.UserName, game.Id);
                 }
                 else
                 {
@@ -93,7 +92,6 @@ namespace Magic.Controllers
                     }
 
                     ViewBag.IsPlayer = false;
-                    GameHub.DisplayObserverJoined(currentUser.UserName, game.Id);
                 }
 
             // Join game room chat.

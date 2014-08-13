@@ -29,11 +29,6 @@ namespace Magic.Controllers
 
                 var userId = User.Identity.GetUserId();
                 roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel(userId);
-
-                foreach (var user in chatRoom.Users)
-                {
-                    ChatHub.SubscribeActiveConnections(chatRoom.Id, user.UserId);
-                }
             }
             else
             {
