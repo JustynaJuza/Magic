@@ -14,6 +14,7 @@ namespace Magic.Controllers
     [System.Web.Mvc.Authorize]
     public class GameController : Controller
     {
+        public static int DefaultPlayerHealth = 20;
         private MagicDbContext context = new MagicDbContext();
         // Constructor with predefined player list.
         //public GameController(IList<string> playerIdList = null)
@@ -31,7 +32,7 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Index(string gameId)
         {
-            var game = GameRoomController.activeGames.Find(g => g.Id == gameId);
+            var game = GameRoomController.ActiveGames.Find(g => g.Id == gameId);
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
@@ -50,85 +51,91 @@ namespace Magic.Controllers
             {
                 ViewBag.IsPlayer = true;
                 // TODO: choose deck!
-                return View(game);
+                return View((GameViewModel)game.GetViewModel());
             }
-
 
             Session["GameId"] = gameId;
-            var currentUser = context.Users.Find(userId);
+            var user = context.Users.Find(userId);
 
+            lock (game.Players)
+            {
                 if (game.Players.Count < game.PlayerCapacity)
                 {
-                    if (currentUser.DeckCollection.Any())
+                    var player = new Player
                     {
-                        // Initialise with last used deck.
-                        lock (game.Players)
-                        {
-                            game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
-                        }
-                    }
-                    else
-                    {
-                        lock (game.Players)
-                        {
-                            game.Players.Add(new Player(currentUser));
-                        }
-                        TempData["Message"] = "Please select a deck to play with before starting the game.";
-                        ViewBag.SelectDeck = true;
-                    }
+                        GameId = gameId,
+                        User = user
+                    };
+
+                    game.Players.Add(new GamePlayerStatus(player));
+                    context.InsertOrUpdate(game);
 
                     ViewBag.IsPlayer = true;
+                    return View((GameViewModel)game.GetViewModel());
                 }
-                else
-                {
-                    if (!game.Observers.Any(o => o.Id == currentUser.Id))
-                    {
-                        lock (game.Observers)
-                        {
-                            game.Observers.Add(currentUser);
-                        }
-                        TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
-                                            + "You can take a player seat by refreshing the page if a spot becomes available.";
-                    }
-
-                    ViewBag.IsPlayer = false;
-                }
-
-            // Join game room chat.
-            return View(game);
-        }
-
-        public ActionResult SelectDeck(CardDeckViewModel model)
-        {
-            var userId = User.Identity.GetUserId();
-            var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
-
-            var player = new Player(currentUser);
-            player.SelectDeck(model);
-
-            var selectedDeck = currentUser.DeckCollection.FirstOrDefault(d => d.Id == model.Id);
-            if (selectedDeck == null)
-            {
-                selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
-                currentUser.DeckCollection.Insert(0, selectedDeck);
-                context.InsertOrUpdate(currentUser);
-            }
-            else
-            {
-                currentUser.DeckCollection.Remove(selectedDeck);
-                currentUser.DeckCollection.Insert(0, selectedDeck);
             }
 
-            return View("Index");
+            if (game.Observers.All(o => o.Id != userId))
+            {
+                game.Observers.Add(user.GetViewModel());
+                TempData["Message"] = "You have joined the game as an observer, because all player spots have been taken.\n"
+                                    + "You can take a player seat by refreshing the page if a spot becomes available.";
+            }
+
+            ViewBag.IsPlayer = false;
+            return View((GameViewModel)game.GetViewModel());
+
+            //if (currentUser.DeckCollection.Any())
+            //{
+            //    // Initialise with last used deck.
+            //    lock (game.Players)
+            //    {
+            //        game.Players.Add(new Player(currentUser, currentUser.DeckCollection.ElementAt(0)));
+            //    }
+            //}
+            //else
+            //{
+            //    lock (game.Players)
+            //    {
+            //        game.Players.Add(new Player(currentUser));
+            //    }
+            //    TempData["Message"] = "Please select a deck to play with before starting the game.";
+            //    ViewBag.SelectDeck = true;
+            //}
+
         }
+
+        //public ActionResult SelectDeck(CardDeckViewModel model)
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+
+        //    var player = new Player(currentUser);
+        //    player.SelectDeck(model);
+
+        //    var selectedDeck = currentUser.DeckCollection.FirstOrDefault(d => d.Id == model.Id);
+        //    if (selectedDeck == null)
+        //    {
+        //        selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
+        //        currentUser.DeckCollection.Insert(0, selectedDeck);
+        //        context.InsertOrUpdate(currentUser);
+        //    }
+        //    else
+        //    {
+        //        currentUser.DeckCollection.Remove(selectedDeck);
+        //        currentUser.DeckCollection.Insert(0, selectedDeck);
+        //    }
+
+        //    return View("Index");
+        //}
 
         public ActionResult Start()
         {
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == (string) Session["GameId"]);
+            var game = GameRoomController.ActiveGames.FirstOrDefault(g => g.Id == (string)Session["GameId"]);
             UpdateUserStatuses(game);
 
-                var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
-                hubContext.Clients.Group(game.Id).activateGame();
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
+            hubContext.Clients.Group(game.Id).activateGame();
 
             foreach (var player in game.Players)
             {
@@ -139,32 +146,28 @@ namespace Magic.Controllers
         }
 
         #region HELPERS
-        private void UpdateUserStatuses(GameViewModel game)
+        private void UpdateUserStatuses(Game game)
         {
-            if (game.Observers != null) { 
-            foreach (var user in game.Observers)
+            if (game.Observers != null)
             {
-                user.Games.Add(new GameUser()
+                foreach (var observer in game.Observers)
+                {
+                    var user = context.Users.Find(observer.Id);
+                    user.Status = UserStatus.Observing;
+                    context.InsertOrUpdate(user, true);
+                }
+            }
+            foreach (var player in game.Players)
+            {
+                player.User.Status = UserStatus.Playing;
+                player.User.Games.Add(new GamePlayerStatus()
                 {
                     GameId = game.Id,
-                    UserId = user.Id,
-                    User = user,
-                    Status = GameStatus.Observed
-                });
-                user.Status = UserStatus.Observing; ;
-                context.InsertOrUpdate(user);
-            }}
-            foreach (var user in game.Players)
-            {
-                user.User.Status = UserStatus.Playing;
-                user.User.Games.Add(new GameUser()
-                {
-                    GameId = game.Id,
-                    UserId = user.User.Id,
-                    User = user.User,
+                    UserId = player.User.Id,
+                    User = player.User,
                     Status = GameStatus.InProgress
                 });
-                context.InsertOrUpdate(user.User);
+                context.InsertOrUpdate(player.User);
             }
         }
         #endregion HELPERS

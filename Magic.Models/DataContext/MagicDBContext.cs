@@ -46,10 +46,27 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ChatRoomUser>().HasKey(k => new { k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoomUser>().HasRequired(ru => ru.ChatRoom).WithMany(r => r.Users).HasForeignKey(ru => ru.ChatRoomId);
             modelBuilder.Entity<ChatRoomUser>().HasRequired(ru => ru.User).WithMany().HasForeignKey(ru => ru.UserId);
-            
-            modelBuilder.Entity<GameUser>().HasKey(k => new { k.GameId, k.UserId });
-            modelBuilder.Entity<GameUser>().HasRequired(pgs => pgs.Game).WithMany(g => g.Players).HasForeignKey(pgs => pgs.GameId);
-            modelBuilder.Entity<GameUser>().HasRequired(pgs => pgs.User).WithMany(u => u.Games).HasForeignKey(pgs => pgs.UserId);
+
+            modelBuilder.Entity<Game>().Ignore(g => g.Observers);
+            modelBuilder.Entity<Game>().Ignore(g => g.PlayerCapacity); 
+
+            modelBuilder.Entity<GamePlayerStatus>().HasKey(k => new { k.UserId, k.GameId });
+            modelBuilder.Entity<GamePlayerStatus>().HasRequired(gps => gps.Game).WithMany(g => g.Players).HasForeignKey(gps => gps.GameId);
+            modelBuilder.Entity<GamePlayerStatus>().HasRequired(gps => gps.User).WithMany(u => u.Games).HasForeignKey(gps => gps.UserId);
+            modelBuilder.Entity<GamePlayerStatus>().HasOptional(gps => gps.Player).WithRequired();
+
+            modelBuilder.Entity<Player>().HasKey(k => new { k.UserId, k.GameId });
+            modelBuilder.Entity<Player>().HasRequired(p => p.Game).WithMany().HasForeignKey(p => p.GameId);
+            modelBuilder.Entity<Player>().HasRequired(p => p.User).WithMany().HasForeignKey(p => p.UserId);
+            modelBuilder.Entity<Player>().HasOptional(p => p.Deck).WithRequired(d => d.Player);
+
+            modelBuilder.Entity<PlayerCard>().HasKey(k => new { k.UserId, k.GameId, k.CardId });
+            modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Card).WithMany().HasForeignKey(pc => pc.CardId);
+            modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Player).WithMany().HasForeignKey(pc => new { pc.UserId, pc.GameId });
+            modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Deck).WithMany(d => d.Cards).HasForeignKey(pc => new { pc.DeckId, pc.UserId, pc.GameId });
+
+            modelBuilder.Entity<PlayerCardDeck>().HasKey(k => new { k.DeckId, k.UserId, k.GameId });
+            modelBuilder.Entity<PlayerCardDeck>().HasRequired(pcd => pcd.Deck).WithMany().HasForeignKey(pcd => pcd.DeckId);
 
             modelBuilder.Entity<ChatMessage>().HasKey(m => new { m.Id, m.LogId });
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
@@ -75,7 +92,8 @@ namespace Magic.Models.DataContext
         public DbSet<CardType> CardTypes { get; set; }
         public DbSet<CardDeck> CardDecks { get; set; }
         public DbSet<Game> Games { get; set; }
-        public DbSet<GameUser> GameUsers { get; set; }
+        public DbSet<GamePlayerStatus> GameStatuses { get; set; }
+        public DbSet<Player> Players { get; set; }
 
         #region CRUD
         public T Read<T, U>(U id)

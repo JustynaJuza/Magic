@@ -22,7 +22,7 @@ namespace Magic.Controllers
         }
 
         [HttpPost]
-        public ViewResult Index(IList<int> ids)
+        public ViewResult Index(IList<string> ids)
         {
             return View(context.Cards.ToList());
         }
@@ -36,13 +36,20 @@ namespace Magic.Controllers
         }
 
         [HttpGet]
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(string id)
         {
-            if (id > 0)
+            if (id != null)
             {
                 string errorText;
-                var model = context.Read<Card, int>((int) id, out errorText);
-                TempData["Error"] = errorText;
+                // TODO: Fix this.
+                //var model = context.Read<Card, string>((string) id, out errorText);
+                //TempData["Error"] = errorText;
+                var model = context.Cards.Find(id);
+
+                if (model == null)
+                {
+                    RedirectToAction("Index");
+                }
 
                 ViewBag.IsUpdate = true;
                 return View("CreateOrEdit", model);

@@ -9,25 +9,60 @@ using System.Web;
 
 namespace Magic.Models
 {
-    public class GameUser : AbstractExtensions
+    public class GamePlayerStatus : AbstractExtensions
     {
+        public string UserId { get; set; }
+        public string GameId { get; set; }
+        public virtual User User { get; set; }
+        public virtual Game Game { get; set; }
+        public virtual Player Player { get; set; }
+        public GameStatus Status { get; set; }
+
+        public GamePlayerStatus()
+        {
+            Status = GameStatus.Awaiting;
+        }
+        public GamePlayerStatus(Player player)
+        {
+            UserId = player.UserId;
+            GameId = player.GameId;
+            Player = player;
+            Status = GameStatus.Awaiting;
+        }
+    }
+
+    public class Player : AbstractExtensions
+    {
+        private int defaultHealth = 20;
+
         public string GameId { get; set; }
         public string UserId { get; set; }
         public virtual Game Game { get; set; }
         public virtual User User { get; set; }
-        public GameStatus? Status { get; set; }
+
+        public virtual PlayerCardDeck Deck { get; set; }
+        public int HealthTotal { get; set; }
+        public int HealthCurrent { get; set; }
+
+        public Player()
+        {
+            HealthTotal = defaultHealth;
+            HealthCurrent = defaultHealth;
+        }
+
+        public Player(string gameId, string userId)
+        {
+            GameId = gameId;
+            UserId = userId;
+            HealthTotal = defaultHealth;
+            HealthCurrent = defaultHealth;
+        }
     }
 
-    public class Player : AbstractExtensions, IViewModel
+    public class PlayerViewModel : AbstractExtensions, IViewModel
     {
-        private int defaultHealth = 20;
-
-        public virtual string GameId { get; set; }
-        public virtual Game Game { get; set; }
-        public virtual string UserId { get; set; }
-        public virtual User User { get; set; }
-        public virtual CardDeckViewModel Deck { get; set; }
-        public string ConnectionId { get; set; }
+        public UserViewModel User { get; set; }
+        public CardDeckViewModel Deck { get; set; }
         public int HealthTotal { get; set; }
         public int HealthCurrent { get; set; }
         public int CardsInLibraryTotal { get; set; }
@@ -39,19 +74,22 @@ namespace Magic.Models
         public List<CardViewModel> Battlefield { get; set; }
 
         // Constructor.
-        public Player(User user)
+        public PlayerViewModel(Player player)
         {
-            User = user;
-            HealthTotal = defaultHealth;
-            HealthCurrent = defaultHealth;
+            User = player.User.GetViewModel();
+            //Deck = (CardDeckViewModel) player.Deck.GetViewModel();
+            HealthTotal = player.HealthTotal;
+            HealthCurrent = player.HealthCurrent;
+            //CardsInLibraryTotal = player.CardsInLibraryTotal;
+            //CardsPlayed = player.CardsPlayed;
             Library = new List<CardViewModel>();
             Graveyard = new List<CardViewModel>();
             Exiled = new List<CardViewModel>();
             Battlefield = new List<CardViewModel>();
         }
+
         // Constructor with deck.
-        public Player(User user, CardDeck deck)
-            : this(user)
+        public PlayerViewModel(CardDeck deck)
         {
             Deck = (CardDeckViewModel) deck.GetViewModel();
 

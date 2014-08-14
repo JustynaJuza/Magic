@@ -13,6 +13,7 @@ namespace Magic.Models
         Friend,
         Ignored
     }
+
     public abstract class UserRelation : AbstractExtensions
     {
         public string UserId { get; set; }

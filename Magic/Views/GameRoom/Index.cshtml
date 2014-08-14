@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Magic.Models.GameViewModel>
+﻿@model IEnumerable<Magic.Models.Game>
 
 @{
     ViewBag.Title = "Index";
@@ -37,14 +37,18 @@
                     @Html.ActionLink("Join!", "Join", new { Id = item.Id })
                 </td>
                 <td>
-                    @if (item.Players.Count > 0) {
-                    foreach (var player in item.Players)
+                    @if (item.Players.Any())
                     {
-                        @Html.DisplayFor(x => player.User.UserName)
-                        @: @*Insert space*@
+                        foreach (var player in item.Players)
+                        {
+                            @Html.DisplayFor(x => player.User.UserName)
+                            @: @*Insert space*@
+                        }
                     }
+                    else
+                    {
+                        @Html.DisplayName("None")
                     }
-                    else{@Html.DisplayName("None")}
                 </td>
                 <td>
                     @{ var status = item.DateStarted == null ? "Starts soon" : (item.DateEnded == null ? "In progress" : "Ended"); }
@@ -54,8 +58,7 @@
                     @{ var timeElapsed = item.DateStarted == null ? new TimeSpan(0) : DateTime.Now - item.DateStarted; }
                     @Html.DisplayName(timeElapsed.Value.TotalMinutes.ToString("F0") + " min")
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Observers.Count)
+                <td>@(item.Observers.Any() ? Html.DisplayFor(x => item.Observers.Count) : Html.DisplayName("None"))
                 </td>
             </tr>
         }

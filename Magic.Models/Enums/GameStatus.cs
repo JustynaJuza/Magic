@@ -2,12 +2,12 @@
 {
     public enum GameStatus
     {
-        InProgress,
         Lost,
         Won,
         Draw,
-        Finished,
+        InProgress,
+        Awaiting,
         Unfinished,
-        Observed = -1
+        Finished,
     }
 }

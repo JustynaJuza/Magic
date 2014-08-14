@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
-    public class ChatRoomUserConnection
+    public class ChatRoomUserConnection : AbstractExtensions
     {
         public string ChatRoomId { get; set; }
         public string UserId { get; set; }

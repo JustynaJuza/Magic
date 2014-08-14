@@ -20,7 +20,7 @@ namespace Magic.Models
         public string Image { get; set; }
         public string ColorCode { get; set; }
         //public virtual IList<CardDeck> DeckCollection { get; set; }
-        //public virtual IList<GameUser> Games { get; set; }
+        //public virtual IList<Player> Games { get; set; }
 
         public bool IsFriend { get; set; }
         public bool IsCurrentUser { get; set; }

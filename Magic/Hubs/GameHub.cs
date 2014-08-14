@@ -8,12 +8,21 @@ using System.Threading.Tasks;
 using Magic.Models.DataContext;
 using Magic.Models;
 using Magic.Controllers;
+using System.Data.Entity;
 
 namespace Magic.Hubs
 {
     [Authorize]
     public class GameHub : Hub
     {
+        public static List<Game> GetGames()
+        {
+            using (var context = new MagicDbContext())
+            {
+                return context.Games.Include(g => g.Players.Select(p => p.Player)).Where(g => g.DateEnded.HasValue == false).ToList();
+            }
+        }
+
         public List<string> GetPlayerGameConnections(string gameId)
         {
             var userId = Context.User.Identity.GetUserId();
@@ -27,11 +36,13 @@ namespace Magic.Hubs
         {
             var userId = Context.User.Identity.GetUserId();
 
-            var game = GameRoomController.activeGames.FirstOrDefault(g => g.Id == gameId);
-            var player = game.Players.FirstOrDefault(p => p.User.Id == userId);
-            DisplayPlayerReady(player.User, gameId, isReady);
+            using (var context = new MagicDbContext())
+            {
+                var player = context.Players.Find(userId, gameId);
+                DisplayPlayerReady(player.User, gameId, isReady);
 
-            if (!isReady || (game.Players.Count(p => p.User.Status == UserStatus.Ready) != game.PlayerCapacity)) return;
+                if (!isReady || (player.Game.Players.Count(p => p.User.Status == UserStatus.Ready) != player.Game.PlayerCapacity)) return;
+            }
 
             // TODO: START THE GAME!
             System.Diagnostics.Debug.WriteLine("LET THE GAMES BEGIN!");
@@ -56,7 +67,7 @@ namespace Magic.Hubs
                 gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
             }
         }
-        
+
         public static void DisplayUserJoined(string userName, string gameId, bool isPlayer)
         {
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
@@ -79,7 +90,7 @@ namespace Magic.Hubs
 
         public static void ResetReadyStatus(string gameId)
         {
-            var users = GameRoomController.activeGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
+            var users = GameRoomController.ActiveGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
             using (var context = new MagicDbContext())
             {
                 foreach (var user in users)
@@ -110,32 +121,39 @@ namespace Magic.Hubs
             await joinGame;
         }
 
-        public static Task LeaveGame(UserConnection connection)
+        public async static Task LeaveGame(UserConnection connection)
         {
-            var game = GameRoomController.activeGames.Find(g => g.Id == connection.GameId);
-            var wasPlayer = game.Players.Remove(game.Players.First(p => p.User.Id == connection.UserId));
+            DisplayUserLeft(connection.User.UserName, connection.GameId);
 
-            // Update game accordingly if a player left.
-            if (wasPlayer)
+            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+            var leavingGroup = gameHubContext.Groups.Remove(connection.Id, connection.GameId);
+
+            using (var context = new MagicDbContext())
             {
-                if (!game.DateStarted.HasValue)
+                var player = context.Players.Find(connection.UserId, connection.GameId);
+                var game = player.Game;
+                var wasPlayer = context.Delete(player);
+
+                // Update game accordingly if a player left.
+                if (wasPlayer)
                 {
-                    ResetReadyStatus(game.Id);
+                    if (!game.DateStarted.HasValue)
+                    {
+                        ResetReadyStatus(game.Id);
+                    }
+                    else
+                    {
+                        // TODO: STOP THE GAME, A PLAYER IS MISSING!
+                    }
                 }
                 else
                 {
-                    // TODO: STOP THE GAME, A PLAYER IS MISSING!
+                    // Remove observer who left.
+                    game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
                 }
             }
-            else
-            {
-                // Remove observer who left.
-                game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
-            }
 
-            DisplayUserLeft(connection.User.UserName, game.Id);
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            return gameHubContext.Groups.Remove(connection.Id, connection.GameId);
+            await leavingGroup;
         }
         #endregion MANAGE GAME GROUPS
     }

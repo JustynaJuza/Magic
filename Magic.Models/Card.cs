@@ -11,7 +11,7 @@ namespace Magic.Models
 {
     public class Card : AbstractExtensions
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         public string Name { get; set; }
         [DataType(DataType.ImageUrl)]
@@ -28,10 +28,9 @@ namespace Magic.Models
         public int Toughness { get; set; }
     }
 
-
     public class CardViewModel : AbstractExtensions, ICard, IViewModel
     {
-        public int Id { get {return this.Id;} }
+        public string Id { get {return this.Id;} }
         [Required(ErrorMessage = "The card must have a name.")]
         public string Name { get; set; }
         public bool Tapped { get; set; }

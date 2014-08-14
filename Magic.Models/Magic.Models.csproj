@@ -142,6 +142,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlayerCards.cs" />
     <Compile Include="UserConnection.cs" />
     <Compile Include="ChatLog.cs" />
     <Compile Include="ChatRoom.cs" />

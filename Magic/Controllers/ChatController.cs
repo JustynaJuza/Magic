@@ -29,6 +29,8 @@ namespace Magic.Controllers
 
                 var userId = User.Identity.GetUserId();
                 roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel(userId);
+
+                ChatHub.SubscribeActiveConnections(roomId, userId);
             }
             else
             {

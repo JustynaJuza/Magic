@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
 
@@ -15,12 +16,16 @@ namespace Magic.Controllers
     public class GameRoomController : Controller
     {
         private MagicDbContext context = new MagicDbContext();
-        public static List<GameViewModel> activeGames = new List<GameViewModel>();
+
+        public static List<Game> ActiveGames
+        {
+            get { return GameHub.GetGames(); }
+        }
 
         [HttpGet]
         public ActionResult Index()
         {
-            return View(activeGames);
+            return View(ActiveGames);
         }
 
         public ActionResult Create()
@@ -28,13 +33,12 @@ namespace Magic.Controllers
             var game = new Game();
             context.Insert(game);
 
-            activeGames.Add((GameViewModel) game.GetViewModel());
             return RedirectToAction("Index", "Game", new { gameId = game.Id });
         }
 
         public ActionResult Join(string Id)
         {
-            var game = activeGames.FirstOrDefault(g => g.Id == Id);
+            var game = ActiveGames.FirstOrDefault(g => g.Id == Id);
             if (game == null)
             {
                 TempData["Error"] = "This game is already finished or no longer available.";

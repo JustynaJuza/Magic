@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Magic.Models.Helpers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
@@ -9,7 +8,6 @@ using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
 using System.Web.Helpers;
-using Magic.Helpers;
 using Magic.Controllers;
 using System.Data.Entity;
 
@@ -110,16 +108,15 @@ namespace Magic.Hubs
                 };
                 context.Insert(chatRoom);
 
-                // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
-                if (isPrivate)
-                {
-                    var recipients = recipientNames.Distinct().Select(userName => context.Users.FirstOrDefault(u => u.UserName == userName)).ToList();
+                if (!isPrivate) return;
 
-                    foreach (var user in recipients)
-                    {
-                        AddUserToRoom(chatRoom.Id, user.Id);
-                        SubscribeActiveConnections(chatRoom.Id, user.Id);
-                    }
+                // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
+                var recipients = recipientNames.Distinct().Select(userName => context.Users.FirstOrDefault(u => u.UserName == userName)).ToList();
+
+                foreach (var user in recipients)
+                {
+                    AddUserToRoom(chatRoom.Id, user.Id);
+                    SubscribeActiveConnections(chatRoom.Id, user.Id);
                 }
             }
         }
@@ -169,7 +166,7 @@ namespace Magic.Hubs
                 chatRoom.AddMessageToLog(message);
                 context.InsertOrUpdate(chatRoom);
 
-                foreach (var notification in chatRoom.Users.Where(u => u.User.Status == UserStatus.Offline).Select(u => new ChatMessageNotification()
+                foreach (var notification in chatRoom.Users.Where(u => u.User.Status == UserStatus.Offline).Select(u => new ChatMessageNotification
                     {
                         RecipientId = u.UserId,
                         MessageId = message.Id,
@@ -391,7 +388,7 @@ namespace Magic.Hubs
 
                 if (chatRoom == null)
                 {
-                    var game = GameRoomController.activeGames.First(g => g.Id == roomId);
+                    var game = GameRoomController.ActiveGames.First(g => g.Id == roomId);
                     CreateChatRoom(roomId, true, game.IsPrivate, game.Players.Select(p => p.User.UserName).ToList());
                     //AddUserToRoom(roomId, userId);
                 }
