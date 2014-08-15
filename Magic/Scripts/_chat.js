@@ -81,7 +81,7 @@
         event.stopPropagation();
     });
 
-    $(document).on('click', '.chat-room-tab-add-user', function () {
+    $(document).on('click', '#chat-add-user-btn, .chat-room-tab-add-user', function () {
         var requestIsMade = null;
         if (!$('#available-users').length) {
             var url = window.basePath + 'Chat/GetAvailableUsersPartial/';

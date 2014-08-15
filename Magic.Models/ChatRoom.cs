@@ -56,12 +56,13 @@ namespace Magic.Models
 
         public int ActiveUserCount()
         {
-            return Connections.Distinct(new ChatRoom_ApplicationUserConnection_UserComparer()).Count();
+            return Connections.Distinct(new ChatRoomConnection_UserComparer()).Count();
         }
 
         public IList<ChatUserViewModel> GetUserList()
         {
-            return Users.Select(u => new ChatUserViewModel(u.User)).ToList();
+            return IsPrivate ? Users.Select(u => new ChatUserViewModel(u.User)).ToList() 
+                : Connections.Distinct(new ChatRoomConnection_UserComparer()).Select(u => new ChatUserViewModel(u.User)).ToList();
         }
 
         public IList<ChatUserViewModel> GetActiveUserList()

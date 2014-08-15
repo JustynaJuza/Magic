@@ -1,10 +1,13 @@
 ﻿@using Magic.Hubs;
 @using Microsoft.AspNet.Identity
 
-<h3>
-    Hello@{ if (User.Identity.IsAuthenticated)
-     { <span id=user-name>@User.Identity.GetUserName()</span>} }!
-</h3>
+<div id="chat-header-bar">
+    <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
+    <h3 id="chat-header">
+        Hello@{ if (User.Identity.IsAuthenticated)
+         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+    </h3>
+</div>
 
 <div class="chat container">
     <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />

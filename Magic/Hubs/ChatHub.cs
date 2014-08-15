@@ -125,16 +125,19 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
+                var chatRoom = context.ChatRooms.Find(roomId);
+
                 List<ChatUserViewModel> chatUsers;
-                if (roomId == DefaultRoomId)
+                if (chatRoom.IsPrivate)
                 {
-                    var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == roomId);
-                    chatUsers = chatRoom.GetActiveUserList().ToList();
+                    context.Entry(chatRoom).Collection(r => r.Users).Query().Include(u => u.User).Load(); //ChatRooms.Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId)));
+                    chatUsers = chatRoom.GetUserList().ToList();
                 }
                 else
                 {
-                    var chatRoom = context.ChatRooms.Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId);
-                    chatUsers = chatRoom.GetUserList().ToList();
+                    context.Entry(chatRoom).Collection(r => r.Connections).Query().Include(u => u.User).Load();
+                    //var chatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == roomId);
+                    chatUsers = chatRoom.GetActiveUserList().ToList();
                 }
 
                 Clients.Group(roomId).updateChatRoomUsers(Json.Encode(chatUsers), roomId);

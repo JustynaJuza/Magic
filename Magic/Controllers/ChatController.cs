@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Magic.Models.DataContext;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using System.Data.Entity;
 using Magic.Models;
@@ -20,13 +21,15 @@ namespace Magic.Controllers
             ChatRoomViewModel roomViewModel;
             if (!string.IsNullOrEmpty(roomId))
             {
-                var chatRoom = context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
-                if (!isPrivate)
+                var chatRoom = context.ChatRooms.Find(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
+                if (!chatRoom.IsPrivate)
                 {
+                    context.Entry(chatRoom).Collection(r => r.Connections).Query().Include(c => c.User).Load();
                     roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel();
                     return PartialView("_ChatRoomPartial", roomViewModel);
                 }
 
+                context.Entry(chatRoom).Collection(r => r.Users).Query().Include(u => u.User).Load();
                 var userId = User.Identity.GetUserId();
                 roomViewModel = (ChatRoomViewModel) chatRoom.GetViewModel(userId);
 

@@ -56,8 +56,8 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<GamePlayerStatus>().HasOptional(gps => gps.Player).WithRequired().WillCascadeOnDelete();
 
             modelBuilder.Entity<Player>().HasKey(k => new { k.UserId, k.GameId });
-            modelBuilder.Entity<Player>().HasRequired(p => p.Game).WithMany().HasForeignKey(p => p.GameId).WillCascadeOnDelete(false); ;
-            modelBuilder.Entity<Player>().HasRequired(p => p.User).WithMany().HasForeignKey(p => p.UserId).WillCascadeOnDelete(false); ;
+            modelBuilder.Entity<Player>().HasRequired(p => p.Game).WithMany().HasForeignKey(p => p.GameId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Player>().HasRequired(p => p.User).WithMany().HasForeignKey(p => p.UserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Player>().HasOptional(p => p.Deck).WithRequired(d => d.Player);
 
             modelBuilder.Entity<PlayerCard>().HasKey(k => new { k.UserId, k.GameId, k.CardId });

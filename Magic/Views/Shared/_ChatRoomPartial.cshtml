@@ -24,7 +24,7 @@
     }
 
     <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
-        <span class="chat-room-tab-name">
+        <span class="chat-room-tab-name @(Model.Id == ChatHub.DefaultRoomId || Model.IsGameRoom ? "no-tab-close" : "")">
             @if (!string.IsNullOrEmpty(Model.Name))
             {
                 @Model.Name
@@ -39,10 +39,10 @@
             }
         </span>
 
-        @if (Model.Id != ChatHub.DefaultRoomId)
+        @if (Model.Id != ChatHub.DefaultRoomId && !Model.IsGameRoom)
         {
-            <span class="chat-room-tab-add-user">+</span>
-            <span class="chat-room-tab-close">X</span>
+            @*<span class="chat-room-tab-add-user">+</span>*@
+            <span class="chat-room-tab-close">x</span>
         }
     </div>
 

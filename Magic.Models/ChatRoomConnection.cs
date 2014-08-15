@@ -17,7 +17,7 @@ namespace Magic.Models
         public UserConnection Connection { get; set; }
     }
 
-    public class ChatRoom_ApplicationUserConnection_ChatRoomComparer : IEqualityComparer<ChatRoomConnection>
+    public class ChatRoomConnection_ChatRoomComparer : IEqualityComparer<ChatRoomConnection>
     {
         public bool Equals(ChatRoomConnection x, ChatRoomConnection y)
         {
@@ -30,7 +30,7 @@ namespace Magic.Models
         }
     }
 
-    public class ChatRoom_ApplicationUserConnection_UserComparer : IEqualityComparer<ChatRoomConnection>
+    public class ChatRoomConnection_UserComparer : IEqualityComparer<ChatRoomConnection>
     {
         public bool Equals(ChatRoomConnection x, ChatRoomConnection y)
         {
