@@ -17,15 +17,12 @@ namespace Magic.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        public static List<Game> ActiveGames
-        {
-            get { return GameHub.GetGames(); }
-        }
-
         [HttpGet]
         public ActionResult Index()
         {
-            return View(ActiveGames);
+            var activeGames = context.Games.Include(g => g.Players.Select(p => p.User)).Where(g => g.DateEnded.HasValue == false).ToList();
+
+            return View(activeGames);
         }
 
         public ActionResult Create()
@@ -36,14 +33,14 @@ namespace Magic.Controllers
             return RedirectToAction("Index", "Game", new { gameId = game.Id });
         }
 
-        public ActionResult Join(string Id)
+        public ActionResult Join(string id)
         {
-            var game = ActiveGames.FirstOrDefault(g => g.Id == Id);
+            var game = context.Games.Find(id);
             if (game == null)
             {
-                TempData["Error"] = "This game is already finished or no longer available.";
+                TempData["Error"] = "This game has already finished or is no longer available.";
             }
-            return RedirectToAction("Index", "Game", new { gameId = Id });
+            return RedirectToAction("Index", "Game", new { gameId = id });
         }
 
     }

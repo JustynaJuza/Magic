@@ -32,7 +32,7 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Index(string gameId)
         {
-            var game = GameRoomController.ActiveGames.Find(g => g.Id == gameId);
+            var game = context.Games.Find(gameId);
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
@@ -61,13 +61,12 @@ namespace Magic.Controllers
             {
                 if (game.Players.Count < game.PlayerCapacity)
                 {
-                    var player = new Player
+                    game.Players.Add(new GamePlayerStatus(new Player
                     {
                         GameId = gameId,
+                        UserId = userId,
                         User = user
-                    };
-
-                    game.Players.Add(new GamePlayerStatus(player));
+                    }));
                     context.InsertOrUpdate(game);
 
                     ViewBag.IsPlayer = true;
@@ -129,21 +128,21 @@ namespace Magic.Controllers
         //    return View("Index");
         //}
 
-        public ActionResult Start()
-        {
-            var game = GameRoomController.ActiveGames.FirstOrDefault(g => g.Id == (string)Session["GameId"]);
-            UpdateUserStatuses(game);
+        //public ActionResult Start()
+        //{
+        //    var game = GameRoomController.ActiveGames.FirstOrDefault(g => g.Id == (string)Session["GameId"]);
+        //    UpdateUserStatuses(game);
 
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
-            hubContext.Clients.Group(game.Id).activateGame();
+        //    var hubContext = GlobalHost.ConnectionManager.GetHubContext<Magic.Hubs.GameHub>();
+        //    hubContext.Clients.Group(game.Id).activateGame();
 
-            foreach (var player in game.Players)
-            {
-                //GameHub.ActivateGameForPlayer(player.User.Id, game.Id);
-            }
+        //    foreach (var player in game.Players)
+        //    {
+        //        //GameHub.ActivateGameForPlayer(player.User.Id, game.Id);
+        //    }
 
-            return View("Index");
-        }
+        //    return View("Index");
+        //}
 
         #region HELPERS
         private void UpdateUserStatuses(Game game)

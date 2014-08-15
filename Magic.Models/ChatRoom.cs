@@ -18,7 +18,7 @@ namespace Magic.Models
         public bool IsPrivate { get; set; }
         public virtual ChatLog Log { get; set; }
         public virtual IList<ChatRoomUser> Users { get; set; }
-        public virtual IList<ChatRoomUserConnection> Connections { get; set; }
+        public virtual IList<ChatRoomConnection> Connections { get; set; }
 
         public ChatRoom()
         {
@@ -26,7 +26,7 @@ namespace Magic.Models
             IsGameRoom = false;
             IsPrivate = false;
             Users = new List<ChatRoomUser>();
-            Connections = new List<ChatRoomUserConnection>();
+            Connections = new List<ChatRoomConnection>();
         }
 
         public ChatRoom(string roomId) : this()

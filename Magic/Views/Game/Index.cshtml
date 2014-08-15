@@ -5,6 +5,13 @@
     ViewBag.Title = "Game";
 }
 
+<style>
+    .player-ready {
+        font-weight: bold;
+    }
+</style>
+
+
 <h2>Welcome to the Game!</h2>
 @Html.Partial("_MessagePartial")
 @Html.HiddenFor(m => m.Id, new { id = "gameId"})
@@ -13,7 +20,7 @@
     <ul id="players">
     @foreach (var player in Model.Players)
     {
-        <li class="player game-user" style="color:#808080">@player.User.UserName</li>
+        <li class="player" style="color:#808080">@player.User.UserName</li>
     }
         </ul>
 </div>
@@ -22,7 +29,7 @@
     <ul id="observers">
         @foreach (var user in Model.Observers)
         {
-            <li class="observer game-user" style="color:#000000">@user.UserName</li>
+            <li class="observer" style="color:#000000">@user.UserName</li>
         }
     </ul>
 </div>

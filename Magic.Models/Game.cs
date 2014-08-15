@@ -13,7 +13,9 @@ namespace Magic.Models
         public string Id { get; set; }
         public bool IsPrivate { get; set; }
         public int PlayerCapacity { get; set; }
+        public TimeSpan TimePlayed { get; set; }
         public DateTime? DateStarted { get; set; }
+        public DateTime? DateSuspended { get; set; }
         public DateTime? DateEnded { get; set; }
         public IList<UserViewModel> Observers { get; set; }
         public virtual IList<GamePlayerStatus> Players { get; set; }
@@ -23,6 +25,7 @@ namespace Magic.Models
             Id = Guid.NewGuid().ToString();
             IsPrivate = false;
             PlayerCapacity = 2;
+            TimePlayed = new TimeSpan(0);
             Players = new List<GamePlayerStatus>();
             Observers = new List<UserViewModel>();
         }
@@ -32,7 +35,7 @@ namespace Magic.Models
             IsPrivate = isPrivate;
         }
 
-        public Game(IList<Player> players)
+        public Game(IList<Player> players) : this(true)
         {
             PlayerCapacity = players.Count;
             Players = new List<GamePlayerStatus>();
@@ -75,7 +78,7 @@ namespace Magic.Models
             Players = new List<PlayerViewModel>();
             foreach (var player in game.Players)
             {
-                Players.Add((PlayerViewModel)player.GetViewModel());
+                Players.Add((PlayerViewModel)player.Player.GetViewModel());
             }
             Observers = game.Observers.ToList();
         }

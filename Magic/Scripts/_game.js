@@ -6,7 +6,7 @@
         $playerReadyButton = $('#player-ready'),
         $playerName = $('.player'),
         $observerName = $('.observer'),
-        $gameUsers = $('.game-user');
+        $gameUsers = $('.player, .observer');
 
     // ---------------------------- HUB ---------------------------- BEGIN
     // Reference the auto-generated proxy for the hub.
@@ -28,28 +28,28 @@
 
     // ------------------------ GAME DISPLAY ----------------------- START
     // Toggle player ready handler on server.
-    window.game.client.togglePlayerReady = function (playerName, playerColor, resetPlayerReadyButton) {
+    window.game.client.togglePlayerReady = function (playerName, playerColor) {
+        $playerName = $($playerName.selector);
         var $existingPlayer = $playerName.filter(function (i, element) {
             return $(element).text() == playerName;
         });
 
         // Display the player is ready.
         if (playerColor) {
-            $existingPlayer.css('color', playerColor);
+            $existingPlayer.css({ 'color': playerColor });
+            $existingPlayer.addClass('player-ready');
         }
         // Display the player is not ready.    
-        //else {
-        //    $existingPlayer.css('color', '#808080');
-        //    // Set player to 'not ready' if other player left before game start.
-        //    if (resetPlayerReadyButton) {
-        //        isReady = false;
-        //        $playerReadyButton.val("Ready to start");
-        //    }
-        //}
+        else {
+            $existingPlayer.css({ 'color': '#808080' });
+            $existingPlayer.removeClass('player-ready');
+        }
     };
 
     window.game.client.resetReadyStatus = function () {
+        $playerName = $($playerName.selector);
         $playerName.css('color', '#808080');
+        $playerName.removeClass('player-ready');
 
         if (isPlayer) {
             isReady = false;
@@ -92,7 +92,7 @@
 
 
     window.game.client.activateGame = function () {
-        alert("LET THE GAMES BEGIN!");
+        console.log("LET THE GAMES BEGIN!");
     }
     // ------------------------ GAME DISPLAY ----------------------- START
 });

@@ -6,8 +6,6 @@
         Online,
         AFK,
         Playing,
-        Ready,
-        Unready,
         Observing,
     }
 }

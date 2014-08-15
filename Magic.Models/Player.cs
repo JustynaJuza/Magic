@@ -9,6 +9,13 @@ using System.Web;
 
 namespace Magic.Models
 {
+    public enum PlayerStatus
+    {
+        Unready,
+        Ready,
+        Missing = -1
+    }
+
     public class GamePlayerStatus : AbstractExtensions
     {
         public string UserId { get; set; }
@@ -22,12 +29,13 @@ namespace Magic.Models
         {
             Status = GameStatus.Awaiting;
         }
-        public GamePlayerStatus(Player player)
+        public GamePlayerStatus(Player player) : this()
         {
             UserId = player.UserId;
             GameId = player.GameId;
+            User = player.User;
+            Game = player.Game;
             Player = player;
-            Status = GameStatus.Awaiting;
         }
     }
 
@@ -43,6 +51,7 @@ namespace Magic.Models
         public virtual PlayerCardDeck Deck { get; set; }
         public int HealthTotal { get; set; }
         public int HealthCurrent { get; set; }
+        public PlayerStatus Status { get; set; }
 
         public Player()
         {
@@ -50,12 +59,11 @@ namespace Magic.Models
             HealthCurrent = defaultHealth;
         }
 
-        public Player(string gameId, string userId)
+        public Player(string gameId, string userId) : this()
         {
             GameId = gameId;
             UserId = userId;
-            HealthTotal = defaultHealth;
-            HealthCurrent = defaultHealth;
+            Status = PlayerStatus.Unready;
         }
     }
 

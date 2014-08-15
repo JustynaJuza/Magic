@@ -24,10 +24,10 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                var userWithRelations = context.Users.Include(u => u.Relations.Select(r => r.RelatedUser)).First(u => u.Id == userId);
+                var userWithRelations = context.Users.Where(u => u.Id == userId).Include(u => u.Relations.Select(r => r.RelatedUser)).First();
                 var usersFriends = userWithRelations.GetFriendsList().OrderBy(u => u.UserName);
 
-                var defaultChatRoom = context.ChatRooms.Include(r => r.Connections.Select(u => u.User)).First(r => r.Id == DefaultRoomId);
+                var defaultChatRoom = context.ChatRooms.Where(r => r.Id == DefaultRoomId).Include(r => r.Connections.Select(u => u.User)).First();
                 var activeUsers = defaultChatRoom.GetActiveUserList().OrderBy(u => u.UserName).ToList();
 
                 activeUsers.Remove(activeUsers.First(u => u.Id == userId));
@@ -207,8 +207,8 @@ namespace Magic.Hubs
                 case UserStatus.Offline: return " left.";
                 case UserStatus.Observing: return " is observing a duel.";
                 case UserStatus.Playing: return " concentrates on a game right now.";
-                case UserStatus.Ready: return " is ready for action.";
-                case UserStatus.Unready: return " seems to be not prepared!";
+                //case UserStatus.Ready: return " is ready for action.";
+                //case UserStatus.Unready: return " seems to be not prepared!";
                 default: return null;
             }
         }
@@ -283,7 +283,7 @@ namespace Magic.Hubs
 
             using (var context = new MagicDbContext())
             {
-                var chatRoomConnection = new ChatRoomUserConnection
+                var chatRoomConnection = new ChatRoomConnection
                 {
                     ChatRoomId = roomId,
                     ConnectionId = Context.ConnectionId,
@@ -325,7 +325,7 @@ namespace Magic.Hubs
 
                 foreach (var roomId in activeChatRoomIds)
                 {
-                    var chatRoomConnection = new ChatRoomUserConnection
+                    var chatRoomConnection = new ChatRoomConnection
                     {
                         ChatRoomId = roomId,
                         ConnectionId = connectionId,
@@ -351,7 +351,7 @@ namespace Magic.Hubs
                 var groupsProcessed = new List<Task>();
                 foreach (var connectionId in unsubscribedConnectionIds)
                 {
-                    var chatRoomConnection = new ChatRoomUserConnection
+                    var chatRoomConnection = new ChatRoomConnection
                     {
                         ChatRoomId = roomId,
                         ConnectionId = connectionId,
@@ -388,7 +388,7 @@ namespace Magic.Hubs
 
                 if (chatRoom == null)
                 {
-                    var game = GameRoomController.ActiveGames.First(g => g.Id == roomId);
+                    var game = context.Games.Find(roomId);
                     CreateChatRoom(roomId, true, game.IsPrivate, game.Players.Select(p => p.User.UserName).ToList());
                     //AddUserToRoom(roomId, userId);
                 }

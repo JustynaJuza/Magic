@@ -38,10 +38,10 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<UserRelation>().Map<UserRelationFriend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
             modelBuilder.Entity<UserRelation>().Map<UserRelationIgnored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
 
-            modelBuilder.Entity<ChatRoomUserConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
-            modelBuilder.Entity<ChatRoomUserConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
-            modelBuilder.Entity<ChatRoomUserConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
-            modelBuilder.Entity<ChatRoomUserConnection>().HasRequired(ruc => ruc.Connection).WithMany().HasForeignKey(ruc => new { ruc.ConnectionId, ruc.UserId });
+            modelBuilder.Entity<ChatRoomConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
+            modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
+            modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.Connection).WithMany().HasForeignKey(ruc => new { ruc.ConnectionId, ruc.UserId });
 
             modelBuilder.Entity<ChatRoomUser>().HasKey(k => new { k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoomUser>().HasRequired(ru => ru.ChatRoom).WithMany(r => r.Users).HasForeignKey(ru => ru.ChatRoomId);
@@ -53,11 +53,11 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<GamePlayerStatus>().HasKey(k => new { k.UserId, k.GameId });
             modelBuilder.Entity<GamePlayerStatus>().HasRequired(gps => gps.Game).WithMany(g => g.Players).HasForeignKey(gps => gps.GameId);
             modelBuilder.Entity<GamePlayerStatus>().HasRequired(gps => gps.User).WithMany(u => u.Games).HasForeignKey(gps => gps.UserId);
-            modelBuilder.Entity<GamePlayerStatus>().HasOptional(gps => gps.Player).WithRequired();
+            modelBuilder.Entity<GamePlayerStatus>().HasOptional(gps => gps.Player).WithRequired().WillCascadeOnDelete();
 
             modelBuilder.Entity<Player>().HasKey(k => new { k.UserId, k.GameId });
-            modelBuilder.Entity<Player>().HasRequired(p => p.Game).WithMany().HasForeignKey(p => p.GameId);
-            modelBuilder.Entity<Player>().HasRequired(p => p.User).WithMany().HasForeignKey(p => p.UserId);
+            modelBuilder.Entity<Player>().HasRequired(p => p.Game).WithMany().HasForeignKey(p => p.GameId).WillCascadeOnDelete(false); ;
+            modelBuilder.Entity<Player>().HasRequired(p => p.User).WithMany().HasForeignKey(p => p.UserId).WillCascadeOnDelete(false); ;
             modelBuilder.Entity<Player>().HasOptional(p => p.Deck).WithRequired(d => d.Player);
 
             modelBuilder.Entity<PlayerCard>().HasKey(k => new { k.UserId, k.GameId, k.CardId });
@@ -82,7 +82,7 @@ namespace Magic.Models.DataContext
         public DbSet<UserConnection> Connections { get; set; }
         public DbSet<UserRelation> UserRelations { get; set; }
         public DbSet<ChatRoomUser> ChatRoomUsers { get; set; }
-        public DbSet<ChatRoomUserConnection> ChatRoomConnections { get; set; }
+        public DbSet<ChatRoomConnection> ChatRoomConnections { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatLog> ChatLogs { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }

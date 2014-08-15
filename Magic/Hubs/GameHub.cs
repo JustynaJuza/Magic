@@ -15,14 +15,6 @@ namespace Magic.Hubs
     [Authorize]
     public class GameHub : Hub
     {
-        public static List<Game> GetGames()
-        {
-            using (var context = new MagicDbContext())
-            {
-                return context.Games.Include(g => g.Players.Select(p => p.Player)).Where(g => g.DateEnded.HasValue == false).ToList();
-            }
-        }
-
         public List<string> GetPlayerGameConnections(string gameId)
         {
             var userId = Context.User.Identity.GetUserId();
@@ -39,9 +31,16 @@ namespace Magic.Hubs
             using (var context = new MagicDbContext())
             {
                 var player = context.Players.Find(userId, gameId);
-                DisplayPlayerReady(player.User, gameId, isReady);
+                //DisplayPlayerReady(player.User, gameId, isReady);
+                player.Status = isReady ? PlayerStatus.Ready : PlayerStatus.Unready;
+                context.InsertOrUpdate(player, true);
+                Clients.Group(gameId).togglePlayerReady(player.User.UserName, (isReady ? player.User.ColorCode : ""));
 
-                if (!isReady || (player.Game.Players.Count(p => p.User.Status == UserStatus.Ready) != player.Game.PlayerCapacity)) return;
+                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), player.User.UserName, player.User.ColorCode,
+                    (isReady ? " is ready for action." : " seems to be not prepared!"));
+
+                if (!isReady || (player.Game.Players.Count(p => p.Player.Status == PlayerStatus.Ready) != player.Game.PlayerCapacity)) return;
             }
 
             // TODO: START THE GAME!
@@ -50,23 +49,23 @@ namespace Magic.Hubs
         }
 
         #region GAME DISPLAY UPDATES
-        public static void DisplayPlayerReady(User user, string gameId, bool isReady)
-        {
-            var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
+        //public static void DisplayPlayerReady(User user, string gameId, bool isReady)
+        //{
+        //    var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
 
-            if (isReady)
-            {
-                // Update display to show player is ready.
-                gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, user.ColorCode);
-                ChatHub.UserStatusUpdate(user.Id, UserStatus.Ready, gameId);
-            }
-            else
-            {
-                // Update display to show player is not yet ready.
-                ChatHub.UserStatusUpdate(user.Id, UserStatus.Unready, gameId);
-                gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
-            }
-        }
+        //    if (isReady)
+        //    {
+        //        // Update display to show player is ready.
+        //        gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName, user.ColorCode);
+        //        ChatHub.UserStatusUpdate(user.Id, UserStatus.Ready, gameId);
+        //    }
+        //    else
+        //    {
+        //        // Update display to show player is not yet ready.
+        //        ChatHub.UserStatusUpdate(user.Id, UserStatus.Unready, gameId);
+        //        gameHubContext.Clients.Group(gameId).togglePlayerReady(user.UserName);
+        //    }
+        //}
 
         public static void DisplayUserJoined(string userName, string gameId, bool isPlayer)
         {
@@ -88,16 +87,40 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
 
-        public static void ResetReadyStatus(string gameId)
+        public void PauseGame(string gameId, bool isPlayerMissing = false)
         {
-            var users = GameRoomController.ActiveGames.Find(g => g.Id == gameId).Players.Select(p => p.User);
             using (var context = new MagicDbContext())
             {
-                foreach (var user in users)
+                var game = context.Games.Find(gameId);
+                if (!game.DateStarted.HasValue) return;
+
+                foreach (var player in game.Players)
                 {
-                    user.Status = UserStatus.Unready;
-                    context.InsertOrUpdate(user);
+                    player.Status = GameStatus.Unfinished;
                 }
+
+                game.TimePlayed = game.TimePlayed + (DateTime.Now - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
+                game.DateSuspended = DateTime.Now;
+                context.InsertOrUpdate(game, true);
+
+                if (isPlayerMissing) return;
+
+                var chatRoom = context.ChatRooms.Find(gameId);
+                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " the game has been paused.");
+            }
+        }
+
+        public static void ResetReadyStatus(string gameId)
+        {
+            using (var context = new MagicDbContext())
+            {
+                var game = context.Games.Find(gameId);
+                foreach (var player in game.Players.Select(p => p.Player))
+                {
+                    player.Status = PlayerStatus.Unready;
+                }
+                context.InsertOrUpdate(game, true);
             }
 
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
@@ -126,34 +149,36 @@ namespace Magic.Hubs
             DisplayUserLeft(connection.User.UserName, connection.GameId);
 
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-            var leavingGroup = gameHubContext.Groups.Remove(connection.Id, connection.GameId);
+            gameHubContext.Groups.Remove(connection.Id, connection.GameId);
 
             using (var context = new MagicDbContext())
             {
-                var player = context.Players.Find(connection.UserId, connection.GameId);
-                var game = player.Game;
-                var wasPlayer = context.Delete(player);
-
-                // Update game accordingly if a player left.
-                if (wasPlayer)
-                {
-                    if (!game.DateStarted.HasValue)
-                    {
-                        ResetReadyStatus(game.Id);
-                    }
-                    else
-                    {
-                        // TODO: STOP THE GAME, A PLAYER IS MISSING!
-                    }
-                }
-                else
+                var game = context.Games.Find(connection.GameId);
+                if (game.Players.All(p => p.UserId != connection.UserId))
                 {
                     // Remove observer who left.
                     game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
+                    return;
+                }
+
+                if (game.DateStarted.HasValue && !game.DateEnded.HasValue)
+                {
+                    // TODO: STOP THE GAME, A PLAYER IS MISSING! Ask players to start game timeout?
+                    var player = context.Players.Find(connection.UserId, connection.GameId);
+                    player.Status = PlayerStatus.Missing;
+                    context.InsertOrUpdate(player, true);
+
+                    var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                    chatHubContext.Clients.Group(connection.GameId).addMessage(connection.GameId, DateTime.Now.ToString("HH:mm:ss"), connection.User.UserName, connection.User.ColorCode,
+                        " has fled the battle, the game will be interrupted.");
+                }
+                else
+                {
+                    var playerStatus = context.GameStatuses.Find(connection.UserId, connection.GameId);
+                    context.Delete(playerStatus, true);
+                    ResetReadyStatus(game.Id);
                 }
             }
-
-            await leavingGroup;
         }
         #endregion MANAGE GAME GROUPS
     }

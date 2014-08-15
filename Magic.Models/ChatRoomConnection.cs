@@ -6,7 +6,7 @@ using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
-    public class ChatRoomUserConnection : AbstractExtensions
+    public class ChatRoomConnection : AbstractExtensions
     {
         public string ChatRoomId { get; set; }
         public string UserId { get; set; }
@@ -17,27 +17,27 @@ namespace Magic.Models
         public UserConnection Connection { get; set; }
     }
 
-    public class ChatRoom_ApplicationUserConnection_ChatRoomComparer : IEqualityComparer<ChatRoomUserConnection>
+    public class ChatRoom_ApplicationUserConnection_ChatRoomComparer : IEqualityComparer<ChatRoomConnection>
     {
-        public bool Equals(ChatRoomUserConnection x, ChatRoomUserConnection y)
+        public bool Equals(ChatRoomConnection x, ChatRoomConnection y)
         {
             return x.ChatRoomId == y.ChatRoomId;
         }
 
-        public int GetHashCode(ChatRoomUserConnection obj)
+        public int GetHashCode(ChatRoomConnection obj)
         {
             return obj.ChatRoomId.GetHashCode();
         }
     }
 
-    public class ChatRoom_ApplicationUserConnection_UserComparer : IEqualityComparer<ChatRoomUserConnection>
+    public class ChatRoom_ApplicationUserConnection_UserComparer : IEqualityComparer<ChatRoomConnection>
     {
-        public bool Equals(ChatRoomUserConnection x, ChatRoomUserConnection y)
+        public bool Equals(ChatRoomConnection x, ChatRoomConnection y)
         {
             return x.UserId == y.UserId;
         }
 
-        public int GetHashCode(ChatRoomUserConnection obj)
+        public int GetHashCode(ChatRoomConnection obj)
         {
             return obj.UserId.GetHashCode();
         }
