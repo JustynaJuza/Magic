@@ -92,7 +92,7 @@ ul {
     margin: 0 8px 0 8px;
 }
 
-.chat-room-tab-close {
+.chat-room-tab-close-btn {
     cursor: pointer;
     position: absolute;
     right: 0;
@@ -146,6 +146,7 @@ ul {
 .chat-user,
 .chat-message-sender {
     font-weight: bold;
+    cursor: pointer;
 }
 
     .chat-room-tab:hover,

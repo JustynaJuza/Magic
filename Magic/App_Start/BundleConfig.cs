@@ -25,6 +25,10 @@ namespace Magic
 
             bundles.Add(new ScriptBundle("~/bundles/jquerysignalR").Include(
                         "~/Scripts/jquery.signalR-{version}.js"));
+            
+            bundles.Add(new ScriptBundle("~/bundles/underscore").Include(
+                        "~/Scripts/underscore.js",
+                        "~/Scripts/underscore.string.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.

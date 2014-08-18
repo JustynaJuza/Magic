@@ -16,9 +16,11 @@ namespace Magic.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        public ActionResult GetChatRoomPartial(string roomId = null, bool isPrivate = true, string[] recipientNames = null)
+        public ActionResult GetChatRoomPartial(string roomId = null, bool isPrivate = true, string[] recipientNames = null, bool createHidden = false)
         {
+            ViewBag.CreateHidden = createHidden;
             ChatRoomViewModel roomViewModel;
+
             if (!string.IsNullOrEmpty(roomId))
             {
                 var chatRoom = context.ChatRooms.Find(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);

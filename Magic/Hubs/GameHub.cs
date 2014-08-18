@@ -41,11 +41,10 @@ namespace Magic.Hubs
                     (isReady ? " is ready for action." : " seems to be not prepared!"));
 
                 if (!isReady || (player.Game.Players.Count(p => p.Player.Status == PlayerStatus.Ready) != player.Game.PlayerCapacity)) return;
+                
+                StartGame(gameId);
             }
 
-            // TODO: START THE GAME!
-            System.Diagnostics.Debug.WriteLine("LET THE GAMES BEGIN!");
-            Clients.Group(gameId).activateGame();
         }
 
         #region GAME DISPLAY UPDATES
@@ -92,22 +91,34 @@ namespace Magic.Hubs
             using (var context = new MagicDbContext())
             {
                 var game = context.Games.Find(gameId);
-                if (!game.DateStarted.HasValue) return;
-
-                foreach (var player in game.Players)
-                {
-                    player.Status = GameStatus.Unfinished;
-                }
-
                 game.TimePlayed = game.TimePlayed + (DateTime.Now - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
                 game.DateSuspended = DateTime.Now;
                 context.InsertOrUpdate(game, true);
+                Clients.Group(gameId).pauseGame();
 
                 if (isPlayerMissing) return;
 
                 var chatRoom = context.ChatRooms.Find(gameId);
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " the game has been paused.");
+            }
+        }
+
+        public void StartGame(string gameId)
+        {
+            System.Diagnostics.Debug.WriteLine("LET THE GAMES BEGIN!");
+            using (var context = new MagicDbContext())
+            {
+                var game = context.Games.Find(gameId);
+                game.DateStarted = DateTime.Now;
+
+                foreach (var player in game.Players)
+                {
+                    player.Status = GameStatus.Unfinished;
+                }
+                context.InsertOrUpdate(game, true);
+
+                Clients.Group(gameId).activateGame();
             }
         }
 

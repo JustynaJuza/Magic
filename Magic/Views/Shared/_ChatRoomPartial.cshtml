@@ -42,17 +42,17 @@
         @if (Model.Id != ChatHub.DefaultRoomId && !Model.IsGameRoom)
         {
             @*<span class="chat-room-tab-add-user">+</span>*@
-            <span class="chat-room-tab-close">x</span>
+            <span class="chat-room-tab-close-btn">x</span>
         }
     </div>
 
-    <div id="room-content-@Model.Id" class="chat-room-content">
+    <div id="room-content-@Model.Id" class="chat-room-content" style="@(ViewBag.CreateHidden ? "display:none" : "")">
 
         @*<ul class="chat-room-users-selectlist">
-                <li class="chat-room-users-selection">
-                    Online
-                </li>
-            </ul>*@
+            <li class="chat-room-users-selection">
+                Online
+            </li>
+        </ul>*@
 
         <div class="chat-room-users-container container right">
             <ul id="room-users-@Model.Id" class="chat-room-users">

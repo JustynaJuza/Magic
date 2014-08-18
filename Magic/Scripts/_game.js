@@ -1,33 +1,36 @@
 ﻿$(function () {
+
+    window.game = $.connection.gameHub;
+
     var isReady = false,
         isPlayer = ($('#player').length ? true : false),
         userName = ($('#player').length ? $('#player').val() : $('#observer').val()),
-        $gameId = $('#gameId'),
-        $playerReadyButton = $('#player-ready'),
+        gameId = $('#gameId').val(),
+        $gameTimer = $('#game-timer'),
+        $pauseBtn = $('#game-pause-btn'),
+        $playerReadyButton = $('#player-ready-btn'),
         $playerName = $('.player'),
         $observerName = $('.observer'),
-        $gameUsers = $('.player, .observer');
+        $gameUsers = $('.player, .observer'),
+        $battlefield = $('#game-battlefield');
+    
+    $(document).on('click', $pauseBtn, function () {
+        window.game.server.pauseGame(gameId);
+    });
 
     // ---------------------------- HUB ---------------------------- BEGIN
-    // Reference the auto-generated proxy for the hub.
-    window.game = $.connection.gameHub;
 
     // Initialize game handling.
     window.game.initialize = function initializeGame() {
-        window.chat.server.subscribeGameChat($gameId.val());
-        window.game.server.joinGame($gameId.val(), userName, isPlayer);
+        window.chat.server.subscribeGameChat(gameId);
+        window.game.server.joinGame(gameId, userName, isPlayer);
 
         $playerReadyButton.click(function () {
             isReady = !isReady;
             $playerReadyButton.val((isReady ? "Not ready!" : "Ready to start"));
-            game.server.togglePlayerReady($gameId.val(), isReady);
+            game.server.togglePlayerReady(gameId, isReady);
         });
     }
-    // ---------------------------- HUB ---------------------------- END
-
-
-    // ------------------------ GAME DISPLAY ----------------------- START
-    // Toggle player ready handler on server.
     window.game.client.togglePlayerReady = function (playerName, playerColor) {
         $playerName = $($playerName.selector);
         var $existingPlayer = $playerName.filter(function (i, element) {
@@ -39,13 +42,27 @@
             $existingPlayer.css({ 'color': playerColor });
             $existingPlayer.addClass('player-ready');
         }
-        // Display the player is not ready.    
+            // Display the player is not ready.    
         else {
             $existingPlayer.css({ 'color': '#808080' });
             $existingPlayer.removeClass('player-ready');
         }
     };
 
+    window.game.client.activateGame = function () {
+        $pauseBtn.removeClass('disabled');
+        window.gameTimer = setInterval(updateGameTimer, 1000);
+        console.log("LET THE GAMES BEGIN!");
+    }
+
+    window.game.client.pauseGame = function () {
+        $pauseBtn.addClass('disabled');
+        clearInterval(window.gameTimer);
+        $battlefield.addClass('disabled');
+    }
+
+    // ---------------------- GAME DISPLAY --------------------- START
+    // Reset players and ready buttons when player joins or leaves before game start.
     window.game.client.resetReadyStatus = function () {
         $playerName = $($playerName.selector);
         $playerName.css('color', '#808080');
@@ -89,10 +106,30 @@
         });
         $existingUser.remove();
     };
+    // ---------------------- GAME DISPLAY --------------------- END
+    // ---------------------------- HUB ---------------------------- END
 
 
-    window.game.client.activateGame = function () {
-        console.log("LET THE GAMES BEGIN!");
+    // --------------------- HELPER FUNCTIONS ---------------------- START
+    function updateGameTimer() {
+        var time = $gameTimer.text().split(':').map(parseFloat);
+        time[2] = time[2] + 1;
+        if (time[2] == 60) {
+            time[2] = 0;
+            time[1] = time[1] + 1;
+            if (time[1] == 60) {
+                time[1] = 0;
+                time[0] = time[0] + 1;
+            }
+        }
+        $gameTimer.text(formatTime(time));
     }
-    // ------------------------ GAME DISPLAY ----------------------- START
+
+    function formatTime(timeArray) {
+        return (timeArray[1] < 10 ? '0' : '') + timeArray[0] + ':'
+            + (timeArray[1] < 10 ? '0' : '') + timeArray[1] + ':'
+            + (timeArray[2] < 10 ? '0' : '') + timeArray[2];
+    }
+    // --------------------- HELPER FUNCTIONS ---------------------- END
+
 });

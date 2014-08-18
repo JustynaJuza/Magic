@@ -1,15 +1,14 @@
 ﻿$(function () {
 
     window.chat = $.connection.chatHub;
-    window.chatRoomUsers = [];
 
     var $chat = new chat(),
-        chatRoomRequestInProgress = [];
+        userName = $('#user-name').text(),
+        tabBlinkingTracker = [],
+        chatRoomRequestInProgress = [],
+        horizontalMouseOverScroll;
 
-    var userName = $('#user-name').text(),
-    tabBlinkingTracker = [],
-    horizontalMouseOverScroll;
-
+    // ----------------------- EVENT HANDLERS ---------------------- BEGIN
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
@@ -66,7 +65,7 @@
         $chat.roomSelection.data('isNew', $(this).data('isNew') || false);
     });
 
-    $(document).on('click', '.chat-room-tab-close', function (event) {
+    $(document).on('click', '.chat-room-tab-close-btn', function (event) {
         var roomTab = $(this).closest('.chat-room-tab');
         var roomId = roomTab.prop('id').substr(9);
         if (roomTab.data('isNew') == true) {
@@ -123,9 +122,9 @@
                 if ($(element).is(':animated')) {
                     return null;
                 }
-                scrollLeft(element, overflow);
+                animateScrollLeft(element, overflow);
                 setTimeout(function () {
-                    scrollRight(element);
+                    animateScrollRight(element);
                 }, 250);
                 return scrolling;
             }(this), 3500, this);
@@ -154,7 +153,9 @@
             $chat.newMessage.val('').focus();
         }
     });
+    // ----------------------- EVENT HANDLERS ---------------------- END
 
+    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
     function chat() {
         this.container = $('.chat');
         this.roomsContainer = $('#chat-rooms-container');
@@ -173,8 +174,32 @@
 
         this.commands = ['/msg', '/game', '/all'];
         this.command_all = function () {
-            $chat.newMessage.val('');
+            this.newMessage.val('');
         };
+
+        // Send button enabled only on chat message input.
+        this.sendButton.prop('disabled', true);
+        this.newMessage.on('input', function () {
+            if ($chat.newMessage.val() == '') {
+                $chat.sendButton.prop('disabled', true);
+            } else {
+                $chat.sendButton.prop('disabled', false);
+            }
+        });
+
+        // Send messages on enter.
+        this.newMessage.keyup(function (e) {
+            if (e.keyCode == 13 && $chat.newMessage.val().length > 0) {
+                $chat.sendButton.toggleClass('clicked');
+                $chat.sendButton.trigger('click');
+                $chat.sendButton.prop('disabled', true);
+            }
+            else if (e.keyCode == 32 && $chat.newMessage.val().split(' ').length == 2) {
+                if (_.any($chat.commands, matchNewChatMessage)) {
+                    this['command_' + $chat.newMessage.val().split(' ')[0].toLowerCase()].apply();
+                };
+            }
+        });
 
         this.addRoomTab = function (recipientNames, roomId, isAsyncRequest, activateTabAfterwards) {
             chatRoomRequestInProgress[roomId] = true;
@@ -261,8 +286,8 @@
 
             // Tabs closed - only default chat room left, hide tab bar.
             if (tabCount <= 1) {
-                $chat.roomSelection.data('chatRoomId', 'default');
-                $chat.roomSelection.data('recipients', '');
+                this.roomSelection.data('chatRoomId', 'default');
+                this.roomSelection.data('recipients', '');
 
                 setTimeout(toggleTabBar(), 150);
             }
@@ -271,16 +296,14 @@
             }
         }
     }
-
-    $chat.adjustRoomTabs();
-    $chat.roomTabs.first().trigger('click');
-    scrollContainerToBottom('#room-messages-container-default');
+    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
 
     // ---------------------------- HUB ---------------------------- BEGIN
-    // Reference the auto-generated proxy for the hub.
-
     // Initialize chat handling.
+    $chat.adjustRoomTabs();
+    $chat.roomTabs.first().trigger('click');
     window.chat.initialize = function initializeChat() {
+        scrollContainerToBottom('#room-messages-container-default');
     };
 
     // Hub callback delivering new messages.
@@ -342,31 +365,6 @@
     //});
     // ---------------------------- HUB ---------------------------- END
 
-    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
-    // Send button enabled only on chat message input.
-    $chat.sendButton.prop('disabled', true);
-    $chat.newMessage.on('input', function () {
-        if ($chat.newMessage.val() == '') {
-            $chat.sendButton.prop('disabled', true);
-        } else {
-            $chat.sendButton.prop('disabled', false);
-        }
-    });
-
-    // Send messages on enter.
-    $chat.newMessage.keyup(function (e) {
-        if (e.keyCode == 13 && $chat.newMessage.val().length > 0) {
-            $chat.sendButton.toggleClass('clicked');
-            $chat.sendButton.trigger('click');
-            $chat.sendButton.prop('disabled', true);
-        }
-        else if (e.keyCode == 32 && $chat.newMessage.val().split(' ').length == 2) {
-            if (_.any($chat.commands, matchNewChatMessage)) {
-                $chat['command_' + $chat.newMessage.val().split(' ')[0].toLowerCase()].apply();
-            };
-        }
-    });
-
     // Provide checkboxes for hiding general/private messages.
     //$chatGeneralCheckbox.change(function () {
     //    $chatMessage = $($chatMessage.selector);
@@ -406,8 +404,6 @@
     //    alert('select in list changed')
     //    activeChatRoom = $chat.roomSelection.prop('id');
     //});
-
-    // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- END
 
     //$('.chat-user').tooltip();
     //$('.chat-user').tooltipster({
@@ -453,8 +449,8 @@
         $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01);
     }
 
-    function toggleTabBar(show) {
-        if (show) {
+    function toggleTabBar(on) {
+        if (on) {
             $('.chat-room-users-container').css({ 'border-top-right-radius': 0 });
             $('.chat-room-messages-container').css({ 'border-top-left-radius': 0 });
             $('.chat-room-tab').slideDown();
@@ -483,11 +479,11 @@
         return false;
     }
 
-    function scrollLeft(element, overflow) {
+    function animateScrollLeft(element, overflow) {
         $(element).animate({ scrollLeft: overflow }, 1625);
     }
 
-    function scrollRight(element) {
+    function animateScrollRight(element) {
         $(element).animate({ scrollLeft: 0 }, 1625);
     }
 

@@ -9,20 +9,32 @@
     .player-ready {
         font-weight: bold;
     }
+
+    #game-timer {
+        font: 18px bold;
+    }
+
+    #game-battlefield {
+        height: 300px;
+        width: 500px;
+        background: #008b8b;
+        border: 2px solid black;
+        margin: 20px;
+    }
 </style>
 
 
 <h2>Welcome to the Game!</h2>
 @Html.Partial("_MessagePartial")
-@Html.HiddenFor(m => m.Id, new { id = "gameId"})
+@Html.HiddenFor(m => m.Id, new { id = "gameId" })
 
 <div id="players-container">
     <ul id="players">
-    @foreach (var player in Model.Players)
-    {
-        <li class="player" style="color:#808080">@player.User.UserName</li>
-    }
-        </ul>
+        @foreach (var player in Model.Players)
+        {
+            <li class="player" style="color:#808080">@player.User.UserName</li>
+        }
+    </ul>
 </div>
 
 <div id="observers-container">
@@ -35,18 +47,27 @@
 </div>
 
 <div class="row">
+    <div>
+        <span id="game-timer">00:00:00</span>
+    </div>
+
     @if (ViewBag.IsPlayer != null)
     {
-        @Html.Hidden("player", User.Identity.GetUserName(), new {id = "player"})
-        <input type="button" id="player-ready" class="btn btn-primary" value="Ready to start" />
+        @Html.Hidden("player", User.Identity.GetUserName(), new { id = "player" })
+        <input type="button" id="player-ready-btn" class="btn btn-primary" value="Ready to start" />
         //@Html.ActionLink("Start", "Start", "Game", null, new { @class = "btn btn-default", id="startGame"})
 
-        @Html.ActionLink("Pause", "Pause", "Game", null, new {@class = "btn btn-default"})
+        <input type="button" id="game-pause-btn" class="btn btn-default disabled" value="Pause" />
+        //@Html.ActionLink("Pause", "Pause", "Game", null, new {id = "game-pause-btn", @class = "btn btn-default disabled"})
     }
     else
     {
         @Html.Hidden("observer", User.Identity.GetUserName(), new { id = "observer" })
-    }
+    }>
+</div>
+
+
+<div id="game-battlefield">
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
