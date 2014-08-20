@@ -86,7 +86,7 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
 
-        public void PauseGame(string gameId, bool isPlayerMissing = false)
+        public async Task PauseGame(string gameId, bool isPlayerMissing = false)
         {
             using (var context = new MagicDbContext())
             {
@@ -94,13 +94,17 @@ namespace Magic.Hubs
                 game.TimePlayed = game.TimePlayed + (DateTime.Now - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
                 game.DateSuspended = DateTime.Now;
                 context.InsertOrUpdate(game, true);
-                Clients.Group(gameId).pauseGame();
+                Clients.Group(gameId).pauseGame("The game has been paused.");
 
                 if (isPlayerMissing) return;
-
+                
+                var pause = Task.Delay(10000);
                 var chatRoom = context.ChatRooms.Find(gameId);
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " the game has been paused.");
+
+                await pause;
+                Clients.Group(gameId).activateGame();
             }
         }
 

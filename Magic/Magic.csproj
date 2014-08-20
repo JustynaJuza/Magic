@@ -214,6 +214,10 @@
     <Content Include="Content\jquery-ui-1.10.4.css" />
     <Content Include="Content\jquery-ui-1.10.4.min.css" />
     <Content Include="Content\tooltipster.css" />
+    <Content Include="Content\twitter-bootstrap-css\bootstrap-theme.css" />
+    <Content Include="Content\twitter-bootstrap-css\bootstrap-theme.min.css" />
+    <Content Include="Content\twitter-bootstrap-css\bootstrap.css" />
+    <Content Include="Content\twitter-bootstrap-css\bootstrap.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -242,6 +246,8 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\twitter-popover.js" />
+    <Content Include="Scripts\twitter-popover.min.js" />
     <Content Include="Scripts\underscore-min.js" />
     <Content Include="Scripts\underscore.js" />
     <Content Include="Scripts\underscore.string.js" />

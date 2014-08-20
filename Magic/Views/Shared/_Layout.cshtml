@@ -7,13 +7,15 @@
     <title>@ViewBag.Title | justyna.co.uk</title>
 
     @Styles.Render("~/Content/css")
-    @Styles.Render("~/Content/tooltipster.css")
+    @*@Styles.Render("~/Content/tooltipster.css")*@
     @Styles.Render("~/Content/chat.css")
+    @Styles.Render("~/Content/twitterBootstrap")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-        @Scripts.Render("~/bundles/modernizr")
-        @Scripts.Render("~/bundles/jquerysignalR")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquerysignalR")
     @Scripts.Render("~/Scripts/underscore.js")
+    @Scripts.Render("~/bundles/twitterBootstrap")
     @Scripts.Render("~/Scripts/jquery.tooltipster.js")
     @Scripts.Render("~/signalr/hubs")
     @RenderSection("additionalHeaderScriptsAndStyles", required: false)

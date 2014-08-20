@@ -12,10 +12,12 @@
         $playerName = $('.player'),
         $observerName = $('.observer'),
         $gameUsers = $('.player, .observer'),
-        $battlefield = $('#game-battlefield');
+        $gameField = $('#game-field'),
+        $gameFieldOverlay = $('#game-field-overlay'),
+        $gameFieldOverlayMsg = $('#game-field-overlay-message');
     
-    $(document).on('click', $pauseBtn, function () {
-        window.game.server.pauseGame(gameId);
+    $(document).on('click', '#game-pause-btn', function () {
+        window.game.server.pauseGame(gameId, false);
     });
 
     // ---------------------------- HUB ---------------------------- BEGIN
@@ -52,13 +54,15 @@
     window.game.client.activateGame = function () {
         $pauseBtn.removeClass('disabled');
         window.gameTimer = setInterval(updateGameTimer, 1000);
-        console.log("LET THE GAMES BEGIN!");
+        $gameFieldOverlay.slideUp();
+        $gameFieldOverlayMsg.text('Let\'s play!');
     }
 
-    window.game.client.pauseGame = function () {
+    window.game.client.pauseGame = function (message) {
         $pauseBtn.addClass('disabled');
         clearInterval(window.gameTimer);
-        $battlefield.addClass('disabled');
+        $gameFieldOverlayMsg.text(message);
+        $gameFieldOverlay.slideDown();
     }
 
     // ---------------------- GAME DISPLAY --------------------- START

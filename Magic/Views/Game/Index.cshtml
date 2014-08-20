@@ -6,25 +6,51 @@
 }
 
 <style>
-    .player-ready {
-        font-weight: bold;
+    #players,
+    #observers {
+        
     }
+
+     .player-ready {
+         font-weight: bold;
+     }
 
     #game-timer {
         font: 18px bold;
     }
 
-    #game-battlefield {
+    #game-field {
         height: 300px;
         width: 500px;
         background: #008b8b;
         border: 2px solid black;
         margin: 20px;
     }
+
+    #game-field-overlay {
+        width: 100%;
+        height: 100%;
+        background: #b0c4de;
+        border: 2px solid black;
+        -moz-filter: alpha(opacity=50);
+        -o-filter: alpha(opacity=50);
+        -webkit-filter: alpha(opacity=50);
+        -ms-opacity: 0.5;
+        filter: alpha(opacity=50);
+        opacity: 0.5;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    #game-field-message {
+        height: 20px;
+        opacity: 1;
+        top: 50%-10px;
+    }
 </style>
 
 
-<h2>Welcome to the Game!</h2>
+@*<h2>Welcome to the Game!</h2>*@
 @Html.Partial("_MessagePartial")
 @Html.HiddenFor(m => m.Id, new { id = "gameId" })
 
@@ -63,11 +89,13 @@
     else
     {
         @Html.Hidden("observer", User.Identity.GetUserName(), new { id = "observer" })
-    }>
+    }
 </div>
 
 
-<div id="game-battlefield">
+<div id="game-field">
+    <div id="game-field-overlay"></div>
+    <span id="game-field-message">Awaiting game start...</span>
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
