@@ -52,6 +52,7 @@
     };
 
     window.game.client.activateGame = function () {
+        alert('active')
         $pauseBtn.removeClass('disabled');
         window.gameTimer = setInterval(updateGameTimer, 1000);
         $gameFieldOverlay.slideUp();
@@ -59,6 +60,7 @@
     }
 
     window.game.client.pauseGame = function (message) {
+        alert('pause')
         $pauseBtn.addClass('disabled');
         clearInterval(window.gameTimer);
         $gameFieldOverlayMsg.text(message);

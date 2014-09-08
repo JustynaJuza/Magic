@@ -86,26 +86,26 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
 
-        public async Task PauseGame(string gameId, bool isPlayerMissing = false)
+        public void PauseGame(string gameId, bool isPlayerMissing = false)
         {
-
             using (var context = new MagicDbContext())
             {
-                var game = context.Games.Find(gameId); 
-                Clients.Group(gameId).pauseGame("The game has been paused.");
-                game.TimePlayed = game.TimePlayed + (DateTime.Now - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
-                game.DateSuspended = DateTime.Now;
-                context.InsertOrUpdate(game, true);
+            Clients.Group(gameId).pauseGame("The game has been paused.");
+            var dateSuspended = DateTime.Now;
+            var pause = Task.Delay(10000);
 
-                if (isPlayerMissing) return;
-                
-                var pause = Task.Delay(10000);
                 var chatRoom = context.ChatRooms.Find(gameId);
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " the game has been paused.");
 
-                await pause;
-                Clients.Group(gameId).activateGame();
+                var game = context.Games.Find(gameId);
+                game.TimePlayed = game.TimePlayed + (dateSuspended - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
+                game.DateSuspended = dateSuspended;
+                context.InsertOrUpdate(game, true);
+                
+                if (isPlayerMissing) return;
+
+                pause.ContinueWith(Clients.Group(gameId).activateGame());
             }
         }
 
