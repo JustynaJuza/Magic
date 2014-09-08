@@ -8,6 +8,12 @@ using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
+    public enum Role
+    {
+        Developer,
+        Admin
+    }
+
     public class User : IdentityUser
     {
         public DateTime DateCreated { get; set; }

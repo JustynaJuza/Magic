@@ -2,10 +2,13 @@
 @using Microsoft.AspNet.Identity
 
 <div id="chat-header-bar">
-    <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
+    @if (User.Identity.IsAuthenticated)
+    {
+        <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
+    }
     <h3 id="chat-header">
         Hello@{ if (User.Identity.IsAuthenticated)
-         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+                { <span id=user-name>@User.Identity.GetUserName()</span>} }!
     </h3>
 </div>
 

@@ -3,22 +3,20 @@ using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace Magic.Models
 {
     public class Card : AbstractExtensions
     {
         public string Id { get; set; }
+        public DateTime DateCreated { get; set; }
         [Required]
         public string Name { get; set; }
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
         public virtual CardType Type { get; set; }
         public IList<int> CostPerColor { get; set; }
-        public virtual IList<CardColor> Colors { get; set; }
+        public virtual IList<ManaColor> Colors { get; set; }
         public virtual IList<CardAbility> Abilities { get; set; }
     }
 
@@ -36,7 +34,7 @@ namespace Magic.Models
         public bool Tapped { get; set; }
         public bool Permanent { get; set; }
         public IList<int> CostPerColor { get; set; }
-        public virtual IList<CardColor> Colors { get; set; }
+        public virtual IList<ManaColor> Colors { get; set; }
         public virtual IList<CardAbility> Abilities { get; set; }
 
         public void Tap()

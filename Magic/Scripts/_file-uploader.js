@@ -79,7 +79,7 @@
     }
 
     function sendFile(file) {
-        var uri = basePath + 'Files/UploadFile';
+        var uri = basePath + 'Admin/Files/UploadFile';
 
         var fd = new FormData();
         fd.append('file', file);

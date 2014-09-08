@@ -142,7 +142,10 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\Color.cs" />
+    <Compile Include="GamePlayerStatus.cs" />
     <Compile Include="PlayerCards.cs" />
+    <Compile Include="Enums\PlayerStatus.cs" />
     <Compile Include="UserConnection.cs" />
     <Compile Include="ChatLog.cs" />
     <Compile Include="ChatRoom.cs" />
@@ -154,10 +157,11 @@
     <Compile Include="Game.cs" />
     <Compile Include="Helpers\AbstractExtensions.cs" />
     <Compile Include="UserRelation.cs" />
+    <Compile Include="Enums\UserRelationship.cs" />
     <Compile Include="UserViewModels.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CardAbility.cs" />
-    <Compile Include="CardColor.cs" />
+    <Compile Include="ManaColor.cs" />
     <Compile Include="CardCost.cs" />
     <Compile Include="CardDeck.cs" />
     <Compile Include="CardType.cs" />

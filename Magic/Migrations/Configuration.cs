@@ -3,6 +3,8 @@ using System.Data.Entity.Migrations;
 using System;
 using Magic.Hubs;
 using Magic.Models;
+using System.Linq;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Magic.Migrations
 {
@@ -21,12 +23,7 @@ namespace Magic.Migrations
             context.Database.ExecuteSqlCommand("ALTER TABLE [dbo].[UserConnections] DROP CONSTRAINT [FK_dbo.UserConnections_dbo.Games_GameId]");
             context.Database.ExecuteSqlCommand("ALTER TABLE [dbo].[UserConnections] ADD CONSTRAINT [FK_dbo.UserConnections_dbo.Games_GameId] " +
                                                "FOREIGN KEY ([GameId]) REFERENCES [dbo].[Games] ([Id]) ON UPDATE NO ACTION ON DELETE SET NULL");
-
-            foreach (Color color in Enum.GetValues(typeof(Color)))
-            {
-                context.CardColors.AddOrUpdate(new CardColor { Color = color });
-            }
-
+            
             context.ChatRooms.AddOrUpdate(new ChatRoom
             {
                 Id = ChatHub.DefaultRoomId,
@@ -34,6 +31,16 @@ namespace Magic.Migrations
                 TabColorCode = "#445566",
                 Log = new ChatLog(ChatHub.DefaultRoomId)
             });
+
+            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
+            {
+                context.CardColors.AddOrUpdate(new ManaColor { Color = color });
+            }
+
+            //foreach (var role in Enum.GetNames(typeof(Role)))
+            //{
+            //    context.Roles.AddOrUpdate(new IdentityRole { Name = role });
+            //}
         }
     }
 }

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="@Url.Content("~/Content/favicon.ico")" rel="shortcut icon" type="image/x-icon" />
+    <title>@ViewBag.Title | justyna.co.uk</title>
+
+    @Styles.Render("~/Content/css")
+    @Styles.Render("//cdn.datatables.net/1.10.0/css/jquery.dataTables.css")
+    @Styles.Render("//cdn.datatables.net/fixedheader/2.1.1/css/dataTables.fixedHeader.css")
+    @Styles.Render("//cdn.datatables.net/fixedcolumns/3.0.1/css/dataTables.fixedColumns.css")
+    @Styles.Render("//cdn.datatables.net/tabletools/2.2.1/css/dataTables.tableTools.css")
+
+    @*@Scripts.Render("~/bundles/jquery")*@
+    @Scripts.Render("//code.jquery.com/jquery-1.10.2.min.js")
+    @Scripts.Render("//cdn.datatables.net/1.10.0/js/jquery.dataTables.js")
+    @Scripts.Render("//cdn.datatables.net/fixedheader/2.1.1/js/dataTables.fixedHeader.min.js")
+    @Scripts.Render("//cdn.datatables.net/fixedcolumns/3.0.1/js/dataTables.fixedColumns.min.js")
+    @Scripts.Render("//cdn.datatables.net/tabletools/2.2.1/js/dataTables.tableTools.min.js")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/Scripts/underscore.js")
+
+    @RenderSection("AdditionalScripts", required: false)
+
+</head>
+<body>
+    @{ Html.RenderPartial("_NavBarPartial"); }
+
+    <div class="container body-content">
+        <h1>@ViewBag.Title</h1>
+        @{Html.RenderPartial("_MessagePartial");}
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year Justyna</p>
+        </footer>
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

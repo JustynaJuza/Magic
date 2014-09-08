@@ -8,7 +8,7 @@ namespace Magic.Models
 {
     public class CardCost : AbstractExtensions
     {
-        public CardColor Color { get; set; }
+        public ManaColor Color { get; set; }
         public int Cost { get; set; }
     }
 }

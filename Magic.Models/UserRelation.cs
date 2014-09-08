@@ -8,12 +8,6 @@ using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
-    public enum UserRelationship
-    {
-        Friend,
-        Ignored
-    }
-
     public abstract class UserRelation : AbstractExtensions
     {
         public string UserId { get; set; }

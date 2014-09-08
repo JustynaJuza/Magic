@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Magic.Models.Card>
+
+@{
+    ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.GenericTypeArguments[0].Name.ToLower();
+    ViewBag.Title = "All your " + ViewBag.ModelTypeName + "s";
+}
+
+<p>
+    @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<table id="cms_listing" class="dataTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(m => m.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { id = "delete-" + item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot></tfoot>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('.dataTable').DataTable({
+            aoColumnDefs: [
+                    {
+                        "aTargets": [-1],
+                        "bSearchable": false,
+                        "bSortable": false
+                    }
+            ],
+            fnDrawCallback: function () {
+                if ($('#cms_listing').find('tr').length <= $('#cms_listing_length option:selected').val() + 1) {
+                    $('#cms_listing_length').hide();
+                    $('#cms_listing_paginate').hide();
+                } else {
+                    $('#cms_listing_length').show();
+                    $('#cms_listing_paginate').show();
+                }
+            },
+            dom: 'T<"clear">lfrtip',
+            tableTools: {
+                //sSwfPath: '/swf/copy_csv_xls_pdf.swf',
+                aButtons: [
+                    {
+                        sExtends: 'copy',
+                        sButtonText: 'Edit',
+                    },
+                    {
+                        sExtends: 'text',
+                        sButtonText: 'Delete',
+                        fnClick: function (nButton, oConfig, oFlash) {
+                            console.log(nButton, oConfig, oFlash);
+
+                        }
+                    },
+                    {
+                        sExtends: 'collection',
+                        sButtonText: 'Export',
+                        aButtons: [ 'xls', 'csv', 'pdf' ]
+                    },
+                    'print',
+                    'select_all'],
+                sRowSelect: 'multi'
+            }
+        });
+    });
+</script>

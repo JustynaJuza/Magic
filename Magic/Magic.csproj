@@ -167,22 +167,23 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
     <Compile Include="Controllers\AccountController.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Controllers\CardsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\CardsController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
-    <Compile Include="Controllers\ChatLogsController.cs" />
-    <Compile Include="Controllers\CMSController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ChatLogsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\GameRoomController.cs" />
     <Compile Include="Controllers\HomeController.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Controllers\FilesController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FilesController.cs" />
     <Compile Include="Controllers\LandingPagesController.cs" />
-    <Compile Include="Controllers\PlayersController.cs" />
+    <Compile Include="Areas\Admin\Controllers\PlayersController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -192,9 +193,9 @@
     <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Migrations\201408141645489_Initialization.cs" />
-    <Compile Include="Migrations\201408141645489_Initialization.Designer.cs">
-      <DependentUpon>201408141645489_Initialization.cs</DependentUpon>
+    <Compile Include="Migrations\201409081448075_Initial.cs" />
+    <Compile Include="Migrations\201409081448075_Initial.Designer.cs">
+      <DependentUpon>201409081448075_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
@@ -262,6 +263,8 @@
     <Content Include="Scripts\_helpers.js" />
     <Content Include="Scripts\_hub-start.js" />
     <Content Include="Content\_chat.less" />
+    <Content Include="Areas\Admin\Views\web.config" />
+    <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
@@ -280,7 +283,6 @@
     <Content Include="Views\LandingPages\Index.aspx" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_TableControlsPartial.ascx" />
     <Content Include="Views\Web.config">
       <SubType>Designer</SubType>
@@ -298,12 +300,11 @@
     <Content Include="Views\Account\_ManagePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ManagePlayerPartial.cshtml" />
     <Content Include="Views\Account\_Register.cshtml" />
-    <Content Include="Views\Cards\CreateOrEdit.cshtml" />
-    <Content Include="Views\Cards\Edit.cshtml" />
-    <Content Include="Views\Cards\Index.cshtml" />
-    <Content Include="Views\ChatLog\Index.cshtml" />
-    <Content Include="Views\ChatLog\Messages.cshtml" />
-    <Content Include="Views\CMS\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Cards\CreateOrEdit.cshtml" />
+    <Content Include="Areas\Admin\Views\Cards\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\ChatLogs\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\ChatLogs\Messages.cshtml" />
+    <Content Include="Areas\Admin\Views\Home\Index.cshtml" />
     <Content Include="Views\GameRoom\Create.cshtml" />
     <Content Include="Views\GameRoom\Details.cshtml" />
     <Content Include="Views\GameRoom\Edit.cshtml" />
@@ -311,10 +312,6 @@
     <Content Include="Views\Game\Index.cshtml" />
     <Content Include="Views\Shared\_ChatPartial.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
-    <Content Include="Views\_Cards\Create.cshtml" />
-    <Content Include="Views\_Cards\Edit.cshtml" />
-    <Content Include="Views\_Cards\Index.cshtml" />
-    <Content Include="Views\_Cards\_CreateOrEdit.cshtml" />
     <Content Include="Views\LandingPages\_AjaxUploadFilePartial.cshtml" />
     <Content Include="Views\LandingPages\_AnimationFramePartial.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\AnimationFrame.cshtml" />
@@ -328,16 +325,17 @@
     <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
     <Content Include="Views\Shared\_UploaderPartial.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />
-    <Content Include="Views\Files\Example.cshtml" />
-    <Content Include="Views\Shared\_LayoutCms.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
     <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
     <Content Include="Views\Shared\_UserProfileTooltipPartial.cshtml" />
+    <Content Include="Views\Shared\_NavBarPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Views\Chat\" />
     <Folder Include="Views\Error\" />
   </ItemGroup>
@@ -358,8 +356,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201408141645489_Initialization.resx">
-      <DependentUpon>201408141645489_Initialization.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201409081448075_Initial.resx">
+      <DependentUpon>201409081448075_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

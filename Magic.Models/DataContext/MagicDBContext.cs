@@ -23,6 +23,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<IdentityUserClaim>().ToTable("UserClaims");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");
 
+            modelBuilder.Entity<Card>().Property(c => c.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<User>().Property(u => u.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<ChatLog>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<UserRelation>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
@@ -88,7 +89,7 @@ namespace Magic.Models.DataContext
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatMessageNotification> ChatMessageNotifications { get; set; }
         public DbSet<Card> Cards { get; set; }
-        public DbSet<CardColor> CardColors { get; set; }
+        public DbSet<ManaColor> CardColors { get; set; }
         public DbSet<CardType> CardTypes { get; set; }
         public DbSet<CardDeck> CardDecks { get; set; }
         public DbSet<Game> Games { get; set; }
@@ -230,7 +231,7 @@ namespace Magic.Models.DataContext
             }
         }
 
-        public string ShowErrorMessage(Exception ex)
+        public static string ShowErrorMessage(Exception ex)
         {
             if (ex is ArgumentNullException)
             {

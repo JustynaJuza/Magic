@@ -48,27 +48,27 @@ namespace Magic.Models
         public PlayerCardDeck Deck { get; set; }
     }
     
-    public class PlayerCardsBattlefield : PlayerCard
+    public class PlayerCardBattlefield : PlayerCard
     {
 
     }
 
-    public class PlayerCardsHand : PlayerCard
+    public class PlayerCardHand : PlayerCard
     {
 
     }
 
-    public class PlayerCardsLibrary : PlayerCard
+    public class PlayerCardLibrary : PlayerCard
     {
 
     }
 
-    public class PlayerCardsGraveyard : PlayerCard
+    public class PlayerCardGraveyard : PlayerCard
     {
 
     }
 
-    public class PlayerCardsExiled : PlayerCard
+    public class PlayerCardExiled : PlayerCard
     {
 
     }

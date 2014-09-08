@@ -88,13 +88,14 @@ namespace Magic.Hubs
 
         public async Task PauseGame(string gameId, bool isPlayerMissing = false)
         {
+
             using (var context = new MagicDbContext())
             {
-                var game = context.Games.Find(gameId);
+                var game = context.Games.Find(gameId); 
+                Clients.Group(gameId).pauseGame("The game has been paused.");
                 game.TimePlayed = game.TimePlayed + (DateTime.Now - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
                 game.DateSuspended = DateTime.Now;
                 context.InsertOrUpdate(game, true);
-                Clients.Group(gameId).pauseGame("The game has been paused.");
 
                 if (isPlayerMissing) return;
                 

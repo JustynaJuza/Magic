@@ -15,7 +15,7 @@ namespace Magic.Models
         public string Name { get; set; }
         public DateTime DateCreated { get; set; }
         public IList<int> CardsPerTypeNumber { get; set; }
-        public virtual IList<CardColor> CardColors { get; set; }
+        public virtual IList<ManaColor> CardColors { get; set; }
         public virtual IList<Card> Cards { get; set; }
         public virtual User Creator { get; set; }
     }
@@ -25,7 +25,7 @@ namespace Magic.Models
         public int Id { get; private set; }
         public string Name { get; set; }
         public IList<int> CardsPerTypeNumber { get; set; }
-        public virtual IList<CardColor> CardColors { get; set; }
+        public virtual IList<ManaColor> CardColors { get; set; }
         public virtual IList<Card> Cards { get; set; }
         public virtual UserViewModel Creator { get; set; }
 

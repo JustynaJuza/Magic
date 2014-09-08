@@ -257,18 +257,17 @@ namespace Magic.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                var userId = User.Identity.GetUserId();
-                var foundUser = context.Users.Find(userId);
+            if (!User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
 
-                //ChatHub.ToggleChatSubscription(foundUser);
-                //foundUser.Connections.Clear();
-                foundUser.Status = UserStatus.Offline;
-                context.InsertOrUpdate(foundUser);
+            var userId = User.Identity.GetUserId();
+            var foundUser = context.Users.Find(userId);
 
-                AuthenticationManager.SignOut();
-            }
+            //ChatHub.ToggleChatSubscription(foundUser);
+            //foundUser.Connections.Clear();
+            foundUser.Status = UserStatus.Offline;
+            context.InsertOrUpdate(foundUser);
+
+            AuthenticationManager.SignOut();
 
             return RedirectToAction("Index", "Home");
         }
