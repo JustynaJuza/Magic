@@ -49,7 +49,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ChatRoomUser>().HasRequired(ru => ru.User).WithMany().HasForeignKey(ru => ru.UserId);
 
             modelBuilder.Entity<Game>().Ignore(g => g.Observers);
-            modelBuilder.Entity<Game>().Ignore(g => g.PlayerCapacity); 
+            modelBuilder.Entity<Game>().Ignore(g => g.PlayerCapacity);
 
             modelBuilder.Entity<GamePlayerStatus>().HasKey(k => new { k.UserId, k.GameId });
             modelBuilder.Entity<GamePlayerStatus>().HasRequired(gps => gps.Game).WithMany(g => g.Players).HasForeignKey(gps => gps.GameId);

@@ -51,16 +51,17 @@
         }
     };
 
-    window.game.client.activateGame = function () {
-        alert('active')
-        $pauseBtn.removeClass('disabled');
+    window.game.client.activateGame = function (gameTime) {
+        if (gameTime) {
+            $gameTimer.text(gameTime);
+        }
         window.gameTimer = setInterval(updateGameTimer, 1000);
-        $gameFieldOverlay.slideUp();
         $gameFieldOverlayMsg.text('Let\'s play!');
+        $pauseBtn.removeClass('disabled');
+        $gameFieldOverlay.slideUp();
     }
 
     window.game.client.pauseGame = function (message) {
-        alert('pause')
         $pauseBtn.addClass('disabled');
         clearInterval(window.gameTimer);
         $gameFieldOverlayMsg.text(message);

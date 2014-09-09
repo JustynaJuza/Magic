@@ -76,5 +76,15 @@ namespace Magic.Models.Helpers
 
             return System.Drawing.ColorTranslator.ToHtml(color);
         }
+
+        public static string ToTotalHoursString(this TimeSpan timeSpan)
+        {
+            var str = timeSpan.ToString("hh\\:mm\\:ss");
+            if (timeSpan.Days > 0)
+            {
+                str = str.Remove(0, 2).Insert(0, (timeSpan.Days * 24 + timeSpan.Hours).ToString());
+            }
+            return str;
+        }
     }
 }

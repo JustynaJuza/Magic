@@ -1,4 +1,5 @@
-﻿using Magic.Models.Helpers;
+﻿using System.Threading;
+using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Magic.Models
         public int PlayerCapacity { get; set; }
         public TimeSpan TimePlayed { get; set; }
         public DateTime? DateStarted { get; set; }
-        public DateTime? DateSuspended { get; set; }
+        public DateTime? DateResumed { get; set; }
         public DateTime? DateEnded { get; set; }
         public IList<UserViewModel> Observers { get; set; }
         public virtual IList<GamePlayerStatus> Players { get; set; }
@@ -48,6 +49,11 @@ namespace Magic.Models
                 });
             }
         }
+
+        public void UpdateTimePlayed(DateTime dateSuspended)
+        {
+            TimePlayed += (dateSuspended - (DateTime)(DateResumed.HasValue ? DateResumed : DateStarted));
+        }
     }
 
     public class GameViewModel : AbstractExtensions, IViewModel
@@ -55,6 +61,7 @@ namespace Magic.Models
         public string Id { get; set; }
         public bool IsPrivate { get; set; }
         public int PlayerCapacity { get; set; }
+        public string TimePlayed { get; set; }
         public DateTime? DateStarted { get; set; }
         public DateTime? DateEnded { get; set; }
         public virtual List<PlayerViewModel> Players { get; set; }
@@ -66,15 +73,16 @@ namespace Magic.Models
             Id = Guid.NewGuid().ToString();
             PlayerCapacity = 2;
             IsPrivate = false;
+            TimePlayed = "00:00:00";
             Players = new List<PlayerViewModel>();
             Observers = new List<UserViewModel>();
         }
-        public GameViewModel(Game game)
-            : this()
+        public GameViewModel(Game game) : this()
         {
             Id = game.Id;
             IsPrivate = game.IsPrivate;
             PlayerCapacity = game.PlayerCapacity;
+            TimePlayed = game.TimePlayed.ToTotalHoursString();
             Players = new List<PlayerViewModel>();
             foreach (var player in game.Players)
             {
@@ -83,8 +91,7 @@ namespace Magic.Models
             Observers = game.Observers.ToList();
         }
         // Constructor with number of players.
-        public GameViewModel(Game game, int playerCount)
-            : this(game)
+        public GameViewModel(Game game, int playerCount) : this(game)
         {
             PlayerCapacity = playerCount;
         }

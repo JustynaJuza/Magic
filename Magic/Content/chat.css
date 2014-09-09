@@ -139,11 +139,6 @@ ul {
 }
 
 .chat-user,
-.available-chat-user {
-    /*position: absolute;*/
-}
-
-.chat-user,
 .chat-message-sender {
     font-weight: bold;
     cursor: pointer;

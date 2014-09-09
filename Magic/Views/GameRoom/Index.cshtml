@@ -41,7 +41,10 @@
                     {
                         foreach (var player in item.Players)
                         {
-                            @Html.DisplayFor(x => player.User.UserName)
+                            var playerStyling = "color:" + player.User.ColorCode + (player.Status == GameStatus.Unfinished ? ";padding: 3px;border:1px solid" + player.User.ColorCode : (item.DateStarted.HasValue ? ";font-weight:bold" : ";"));
+
+                            @Html.ActionLink(player.User.UserName, "Profile", "Account", new { id = player.User.UserName },
+                            new { style = playerStyling })
                             @: @*Insert space*@
                         }
                     }
@@ -58,9 +61,10 @@
                     @{ var timeElapsed = item.DateStarted == null ? new TimeSpan(0) : DateTime.Now - item.DateStarted; }
                     @Html.DisplayName(timeElapsed.Value.TotalMinutes.ToString("F0") + " min")
                 </td>
-                <td>@(item.Observers.Any() ? Html.DisplayFor(x => item.Observers.Count) : Html.DisplayName("None"))
-                </td>
-            </tr>
+                <td>
+                    @(item.Observers.Any() ? Html.DisplayFor(x => item.Observers.Count) : Html.DisplayName("None"))
+            </td>
+        </tr>
         }
     </tbody>
     <tfoot>

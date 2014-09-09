@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using System.Threading;
+using Magic.Models.Helpers;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ namespace Magic.Hubs
                     (isReady ? " is ready for action." : " seems to be not prepared!"));
 
                 if (!isReady || (player.Game.Players.Count(p => p.Player.Status == PlayerStatus.Ready) != player.Game.PlayerCapacity)) return;
-                
+
                 StartGame(gameId);
             }
 
@@ -86,26 +88,26 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
 
-        public void PauseGame(string gameId, bool isPlayerMissing = false)
+        public async Task PauseGame(string gameId, bool isPlayerMissing = false)
         {
             using (var context = new MagicDbContext())
             {
-            Clients.Group(gameId).pauseGame("The game has been paused.");
-            var dateSuspended = DateTime.Now;
-            var pause = Task.Delay(10000);
+                Clients.Group(gameId).pauseGame(Context.User.Identity.GetUserName() + " has paused the game.");
+                var dateSuspended = DateTime.Now;
+                // TODO: Figure a way how to cancel that on player request or disconnect.
+                var pause = Task.Delay(10000);
 
                 var chatRoom = context.ChatRooms.Find(gameId);
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " the game has been paused.");
+                chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " has been paused.");
 
                 var game = context.Games.Find(gameId);
-                game.TimePlayed = game.TimePlayed + (dateSuspended - (DateTime)(game.DateSuspended.HasValue ? game.DateSuspended : game.DateStarted));
-                game.DateSuspended = dateSuspended;
+                game.UpdateTimePlayed(dateSuspended);
+                game.DateResumed = dateSuspended + new TimeSpan(0, 0, 10);
                 context.InsertOrUpdate(game, true);
-                
-                if (isPlayerMissing) return;
 
-                pause.ContinueWith(Clients.Group(gameId).activateGame());
+                await pause;
+                Clients.Group(gameId).activateGame(game.TimePlayed.ToTotalHoursString());
             }
         }
 
@@ -115,11 +117,18 @@ namespace Magic.Hubs
             using (var context = new MagicDbContext())
             {
                 var game = context.Games.Find(gameId);
-                game.DateStarted = DateTime.Now;
+                if (game.DateStarted.HasValue)
+                {
+                    game.DateResumed = DateTime.Now;
+                }
+                else
+                {
+                    game.DateStarted = DateTime.Now;
+                }
 
                 foreach (var player in game.Players)
                 {
-                    player.Status = GameStatus.Unfinished;
+                    player.Status = GameStatus.InProgress;
                 }
                 context.InsertOrUpdate(game, true);
 
@@ -162,10 +171,10 @@ namespace Magic.Hubs
 
         public async static Task LeaveGame(UserConnection connection)
         {
-            DisplayUserLeft(connection.User.UserName, connection.GameId);
-
+            var dateSuspended = DateTime.Now;
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             gameHubContext.Groups.Remove(connection.Id, connection.GameId);
+            gameHubContext.Clients.Group(connection.GameId).userLeft(connection.User.UserName);
 
             using (var context = new MagicDbContext())
             {
@@ -180,13 +189,18 @@ namespace Magic.Hubs
                 if (game.DateStarted.HasValue && !game.DateEnded.HasValue)
                 {
                     // TODO: STOP THE GAME, A PLAYER IS MISSING! Ask players to start game timeout?
-                    var player = context.Players.Find(connection.UserId, connection.GameId);
-                    player.Status = PlayerStatus.Missing;
-                    context.InsertOrUpdate(player, true);
+                    game.UpdateTimePlayed(dateSuspended);
+                    game.DateResumed = null;
+                    gameHubContext.Clients.Group(connection.GameId).pauseGame(connection.User.UserName + " has fled the battle!");
 
                     var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                     chatHubContext.Clients.Group(connection.GameId).addMessage(connection.GameId, DateTime.Now.ToString("HH:mm:ss"), connection.User.UserName, connection.User.ColorCode,
                         " has fled the battle, the game will be interrupted.");
+
+                    var playerStatus = game.Players.First(ps => ps.UserId == connection.UserId);
+                    playerStatus.Status = GameStatus.Unfinished;
+                    playerStatus.Player.Status = PlayerStatus.Missing;
+                    context.InsertOrUpdate(game, true);
                 }
                 else
                 {
