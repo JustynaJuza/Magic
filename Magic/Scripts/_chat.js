@@ -312,7 +312,7 @@
             $chat.addRoomTab(sender, roomId, false, activateTabAfterwards);
         }
 
-        $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + htmlEncode(senderColor) + '">' + htmlEncode(sender)
+        $('#room-messages-' + roomId).append('<li class="chat-message">' + time + ' <span class="chat-message-sender" style="font-weight:bold;color:' + senderColor + '">' + htmlEncode(sender)
             + ' </span>' + htmlEncode(message) + '</li>');
 
         if ($chat.roomSelection.data('chatRoomId') != roomId) {

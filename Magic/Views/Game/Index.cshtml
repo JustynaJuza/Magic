@@ -87,8 +87,10 @@
         <input type="button" id="player-ready-btn" class="btn btn-primary" value="@(Model.DateStarted.HasValue ? "Resume" : "Ready to start")" />
         //@Html.ActionLink("Start", "Start", "Game", null, new { @class = "btn btn-default", id="startGame"})
 
-        <input type="button" id="game-pause-btn" class="btn btn-default disabled" value="Pause" />
-        //@Html.ActionLink("Pause", "Pause", "Game", null, new {id = "game-pause-btn", @class = "btn btn-default disabled"})
+        <input type="button" id="game-pause-btn" class="btn btn-default disabled" value="Pause"/>
+        <input type="button" id="game-pause-cancel-btn" class="btn btn-default" value="Unpause" style="display: none"/>   
+        //@Ajax.ActionLink("Pause", "Pause", "Game", new { gameId = Model.Id }, new AjaxOptions { HttpMethod = "Post" }, new { id = "game-pause-btn", @class = "btn btn-default disabled" })
+        //@Ajax.ActionLink("Unpause", "CancelPause", "Game", new { gameId = Model.Id }, new AjaxOptions { HttpMethod = "Post" }, new { id = "game-pause-cancel-btn", @class = "btn btn-default disabled" })
     }
     else
     {
@@ -99,7 +101,7 @@
 
 <div id="game-field">
     <div id="game-field-overlay">
-        <span id="game-field-overlay-message">Awaiting game start...</span>
+        <div id="game-field-overlay-message">Awaiting game start...</div>
     </div>
 </div>
 

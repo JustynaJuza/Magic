@@ -8,6 +8,7 @@
         gameId = $('#gameId').val(),
         $gameTimer = $('#game-timer'),
         $pauseBtn = $('#game-pause-btn'),
+        $unpauseBtn = $('#game-pause-cancel-btn'),
         $playerReadyButton = $('#player-ready-btn'),
         $playerName = $('.player'),
         $observerName = $('.observer'),
@@ -15,9 +16,19 @@
         $gameField = $('#game-field'),
         $gameFieldOverlay = $('#game-field-overlay'),
         $gameFieldOverlayMsg = $('#game-field-overlay-message');
-    
+
     $(document).on('click', '#game-pause-btn', function () {
-        window.game.server.pauseGame(gameId, false);
+        $pauseBtn.addClass('disabled');
+        var url = window.basePath + 'Game/Pause/';
+        jQuery.ajaxSetup({
+            async: true
+        });
+        $.get(url, { gameId: gameId });
+    });
+
+    $(document).on('click', '#game-pause-cancel-btn', function () {
+        var url = window.basePath + 'Game/CancelPause/';
+        $.get(url, { gameId: gameId });
     });
 
     // ---------------------------- HUB ---------------------------- BEGIN
@@ -57,13 +68,16 @@
         }
         window.gameTimer = setInterval(updateGameTimer, 1000);
         $gameFieldOverlayMsg.text('Let\'s play!');
+        $unpauseBtn.hide();
         $pauseBtn.removeClass('disabled');
         $gameFieldOverlay.slideUp();
     }
 
-    window.game.client.pauseGame = function (message) {
+    window.game.client.pauseGame = function (message, sender, senderColor, ) {
         $pauseBtn.addClass('disabled');
+        $unpauseBtn.show();
         clearInterval(window.gameTimer);
+        message = (sender ? '<span class="chat-message-sender" style="font-weight:bold;color:' + senderColor + '">' + htmlEncode(sender) + ' </span>' : '') + message;
         $gameFieldOverlayMsg.text(message);
         $gameFieldOverlay.slideDown();
     }
@@ -71,6 +85,7 @@
     // ---------------------- GAME DISPLAY --------------------- START
     // Reset players and ready buttons when player joins or leaves before game start.
     window.game.client.resetReadyStatus = function () {
+        clearInterval(window.gameTimer);
         $playerName = $($playerName.selector);
         $playerName.css('color', '#808080');
         $playerName.removeClass('player-ready');

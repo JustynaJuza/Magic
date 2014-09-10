@@ -1,9 +1,12 @@
-﻿using Magic.Models;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Magic.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Magic.Models.DataContext;
 using Magic.Hubs;
@@ -101,7 +104,6 @@ namespace Magic.Controllers
             //    TempData["Message"] = "Please select a deck to play with before starting the game.";
             //    ViewBag.SelectDeck = true;
             //}
-
         }
 
         //public ActionResult SelectDeck(CardDeckViewModel model)
@@ -143,6 +145,19 @@ namespace Magic.Controllers
 
         //    return View("Index");
         //}
+
+        public async Task Pause(string gameId)
+        {
+            var dateSuspended = DateTime.Now;
+            HttpContext.Application[gameId] = new CancellationTokenSource();
+            var user = context.Users.Find(User.Identity.GetUserId());
+            await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource)HttpContext.Application[gameId]).Token);
+        }
+
+        public void CancelPause(string gameId)
+        {
+            ((CancellationTokenSource)HttpContext.Application[gameId]).Cancel();
+        }
 
         #region HELPERS
         private void UpdateUserStatuses(Game game)
