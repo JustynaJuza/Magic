@@ -4,7 +4,6 @@ using System;
 using Magic.Hubs;
 using Magic.Models;
 using System.Linq;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Magic.Migrations
 {

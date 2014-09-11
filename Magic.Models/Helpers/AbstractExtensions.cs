@@ -1,4 +1,6 @@
-﻿using Magic.Models.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,30 +15,25 @@ namespace Magic.Models.Helpers
 
         public override string ToString()
         {
-            string toString = this.GetType().FullName + ": ";
-            var classMembers = this.GetType().GetProperties();
+            var objName = GetType().FullName + ": ";
+            var classMembers = GetType().GetProperties();
 
-            foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(this) + "; ";
-
-            return toString;
+            return classMembers.Aggregate(objName, (toString, member) => toString + ("\n" + member.Name + " : " + member.GetValue(this) + "; "));
         }
 
         public string ToHtmlString()
         {
-            var toString = GetType().FullName + ": ";
+            var objName = GetType().FullName + ": ";
             var classMembers = GetType().GetProperties();
 
-            foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "<br />" + member.Name + " : " + member.GetValue(this) + "; ";
-
-            return WebUtility.HtmlDecode(toString);
+            var str = classMembers.Aggregate(objName, (toString, member) => toString + ("<br />" + member.Name + " : " + member.GetValue(this) + "; "));
+            return WebUtility.HtmlDecode(str);
         }
 
         // Returns a new instance of the related viewModel.
         public IViewModel GetViewModel(params object[] args)
         {
-            string viewModelName = GetType().FullName;
+            var viewModelName = GetType().FullName;
 
             if (viewModelName.Contains("System.Data.Entity.DynamicProxies"))
             {
@@ -44,7 +41,9 @@ namespace Magic.Models.Helpers
             }
 
             var viewModel = Type.GetType(viewModelName + "ViewModel");
-            //Convert.ChangeType(Activator.CreateInstance(viewModel, this), viewModel);
+            if (viewModel == null) 
+                throw new NotImplementedException("No viewModel was found for model " + viewModelName + ". Please check if you have a viewModel class provided in the same namespace.");
+
             if (args.Length > 0)
             {
                 return (IViewModel)Activator.CreateInstance(viewModel, this, args[0]);
@@ -57,13 +56,10 @@ namespace Magic.Models.Helpers
     {
         public static string ToFullString(this object obj)
         {
-            var toString = obj.GetType().FullName + ": ";
+            var objName = obj.GetType().FullName + ": ";
             var classMembers = obj.GetType().GetProperties();
 
-            foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(obj) + "; ";
-
-            return toString;
+            return classMembers.Aggregate(objName, (toString, member) => toString + ("\n" + member.Name + " : " + member.GetValue(obj) + "; "));
         }
 
         public static string AssignRandomColorCode(this string str)
@@ -85,6 +81,12 @@ namespace Magic.Models.Helpers
                 str = str.Remove(0, 2).Insert(0, (timeSpan.Days * 24 + timeSpan.Hours).ToString());
             }
             return str;
+        }
+
+        public static string GetDisplayName(this Enum enumValue, Type enumType)
+        {
+            var display = enumType.GetMember(enumValue.ToString()).First().GetCustomAttribute<DisplayAttribute>();
+            return display != null ? display.Name : enumValue.ToString();
         }
     }
 }

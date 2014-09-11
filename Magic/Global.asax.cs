@@ -1,10 +1,7 @@
-﻿using Magic.Hubs;
-using Magic.Models;
+﻿using Magic.Models;
 using Magic.Models.DataContext;
 using Microsoft.AspNet.SignalR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;

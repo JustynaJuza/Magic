@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Magic.Models;
@@ -65,9 +66,9 @@ namespace Magic.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Create")]
-        public ActionResult Insert(Card model, bool isUpdate = false) // 
+        public ActionResult Insert(Card model, bool isUpdate = false)
         {
-            model.Id = Guid.NewGuid().ToString();
+            model.Id = model.Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", ""); //Guid.NewGuid().ToString();
             return InsertOrUpdate(model, isUpdate);
         }
 

@@ -193,9 +193,9 @@
     <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
-    <Compile Include="Migrations\201409081448075_Initial.cs" />
-    <Compile Include="Migrations\201409081448075_Initial.Designer.cs">
-      <DependentUpon>201409081448075_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201409111616392_Initial.cs" />
+    <Compile Include="Migrations\201409111616392_Initial.Designer.cs">
+      <DependentUpon>201409111616392_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
@@ -356,8 +356,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201409081448075_Initial.resx">
-      <DependentUpon>201409081448075_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201409111616392_Initial.resx">
+      <DependentUpon>201409111616392_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
+using Magic.Models.Helpers;
 
 namespace Magic.Models
 {
-    using Magic.Models.Helpers;
     // Instants and sorceries have the same subtypes.
     using SorceryType = InstantType;
-
+    
     public class CardType : AbstractExtensions
     {
         public int Id { get; set; }
-        public virtual CardMainType MainType { get; set; }
-    }
-
-    public class CardMainType : AbstractExtensions
-    {
-        public int Id { get; set; }
-        public MainType Type { get; set; }
-        public virtual IList<CardSubType> SubTypes { get; set; }
-    }
-
-    public class CardSubType : AbstractExtensions
-    {
-        public int Id { get; set; }
         public string Name { get; set; }
-        public virtual IList<CardMainType> MainTypes { get; set; }
+        public IList<Card> Cards{ get; set; }
+    }
+
+    public class CardSuperType : CardType { }
+
+    public class CardMainType : CardType { }
+
+    public class CardSubType : CardType { }
+
+    public class CreatureCardSubType : CardSubType
+    {
+        public bool IsRace { get; set; }
     }
 }

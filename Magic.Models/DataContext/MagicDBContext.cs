@@ -28,17 +28,19 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<ChatLog>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<UserRelation>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<ChatMessage>().Property(m => m.TimeSend).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-            
+
+            //modelBuilder.Entity<User>().HasRequired(u => u.Creator).WithMany();
+
             modelBuilder.Entity<UserConnection>().HasKey(k => new { k.Id, k.UserId });
             modelBuilder.Entity<UserConnection>().HasRequired(c => c.User).WithMany(u => u.Connections).HasForeignKey(c => c.UserId);
             modelBuilder.Entity<UserConnection>().HasOptional(c => c.Game).WithMany().HasForeignKey(c => c.GameId);
 
             modelBuilder.Entity<UserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
-            modelBuilder.Entity<UserRelation>().HasRequired(uu => uu.User).WithMany(u => u.Relations).HasForeignKey(uu => uu.UserId);
-            modelBuilder.Entity<UserRelation>().HasRequired(uu => uu.RelatedUser).WithMany().HasForeignKey(uu => uu.RelatedUserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<UserRelation>().HasRequired(ur => ur.User).WithMany(u => u.Relations).HasForeignKey(ur => ur.UserId);
+            modelBuilder.Entity<UserRelation>().HasRequired(ur => ur.RelatedUser).WithMany().HasForeignKey(ur => ur.RelatedUserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<UserRelation>().Map<UserRelationFriend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
             modelBuilder.Entity<UserRelation>().Map<UserRelationIgnored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
-
+            
             modelBuilder.Entity<ChatRoomConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
             modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
@@ -64,10 +66,23 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<PlayerCard>().HasKey(k => new { k.UserId, k.GameId, k.CardId });
             modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Card).WithMany().HasForeignKey(pc => pc.CardId);
             modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Player).WithMany().HasForeignKey(pc => new { pc.UserId, pc.GameId });
-            modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Deck).WithMany(d => d.Cards).HasForeignKey(pc => new { pc.DeckId, pc.UserId, pc.GameId });
+            modelBuilder.Entity<PlayerCard>().HasRequired(pc => pc.Deck).WithMany(d => d.Cards).HasForeignKey(pc => new { pc.DeckId, pc.UserId, pc.GameId }).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<PlayerCardDeck>().HasKey(k => new { k.DeckId, k.UserId, k.GameId });
             modelBuilder.Entity<PlayerCardDeck>().HasRequired(pcd => pcd.Deck).WithMany().HasForeignKey(pcd => pcd.DeckId);
+
+            modelBuilder.Entity<CardDeck>().HasMany(d => d.Colors).WithMany();
+            modelBuilder.Entity<CardDeck>().HasRequired(d => d.Creator).WithMany(u => u.DecksCreated);
+
+            modelBuilder.Entity<CardManaCost>().HasKey(k => new { k.CardId, k.ColorId });
+            modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Card).WithMany(u => u.Colors).HasForeignKey(c => c.CardId);
+            modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Color).WithMany(m => m.Cards).HasForeignKey(c => c.ColorId);
+
+            modelBuilder.Entity<CardAvailableAbility>().HasKey(k => new { k.CardId, k.AbilityId });
+            modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Card).WithMany(m => m.Abilities).HasForeignKey(c => c.CardId);
+            modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Ability).WithMany(u => u.Cards).HasForeignKey(c => c.AbilityId);
+
+            modelBuilder.Entity<CardType>().HasMany(t => t.Cards).WithMany(c => c.Types);
 
             modelBuilder.Entity<ChatMessage>().HasKey(m => new { m.Id, m.LogId });
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
@@ -90,8 +105,10 @@ namespace Magic.Models.DataContext
         public DbSet<ChatMessageNotification> ChatMessageNotifications { get; set; }
         public DbSet<Card> Cards { get; set; }
         public DbSet<ManaColor> CardColors { get; set; }
+        public DbSet<CardManaCost> ManaCosts { get; set; }
         public DbSet<CardType> CardTypes { get; set; }
         public DbSet<CardDeck> CardDecks { get; set; }
+        public DbSet<CardSet> Sets { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<GamePlayerStatus> GameStatuses { get; set; }
         public DbSet<Player> Players { get; set; }

@@ -11,11 +11,10 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual IList<ManaColor> CardColors { get; set; }
-        public IList<int> CardCostPerColor { get; set; }
+        public IList<CardAvailableAbility> Cards { get; set; }
 
         [NotMapped]
-        public virtual Card target { get; set; }
+        public virtual Card Target { get; set; }
 
         public void Effect()
         {

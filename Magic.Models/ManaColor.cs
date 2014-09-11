@@ -10,6 +10,6 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public Color Color { get; set; }
-        public virtual IList<Card> Cards { get; set; }
+        public virtual IList<CardManaCost> Cards { get; set; }
     }
 }

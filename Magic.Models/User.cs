@@ -31,6 +31,7 @@ namespace Magic.Models
         public string Image { get; set; }
         public string ColorCode { get; set; }
         public virtual IList<CardDeck> DeckCollection { get; set; }
+        public virtual IList<CardDeck> DecksCreated { get; set; }
         public virtual IList<UserConnection> Connections { get; set; }
         public virtual IList<GamePlayerStatus> Games { get; set; }
         public virtual IList<ChatMessageNotification> ChatMessages { get; set; }
