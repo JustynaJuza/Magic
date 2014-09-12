@@ -18,6 +18,7 @@ namespace Magic.Models
         public virtual IList<ManaColor> Colors { get; set; }
         public virtual IList<Card> Cards { get; set; }
         public virtual User Creator { get; set; }
+        public virtual IList<User> UsedByUsers { get; set; }
     }
 
     public class CardDeckViewModel : AbstractExtensions, IViewModel

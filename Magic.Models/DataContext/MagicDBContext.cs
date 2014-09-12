@@ -72,7 +72,8 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<PlayerCardDeck>().HasRequired(pcd => pcd.Deck).WithMany().HasForeignKey(pcd => pcd.DeckId);
 
             modelBuilder.Entity<CardDeck>().HasMany(d => d.Colors).WithMany();
-            modelBuilder.Entity<CardDeck>().HasRequired(d => d.Creator).WithMany(u => u.DecksCreated);
+            modelBuilder.Entity<CardDeck>().HasRequired(d => d.Creator).WithMany(u => u.DecksCreated).WillCascadeOnDelete(false);
+            modelBuilder.Entity<CardDeck>().HasMany(d => d.UsedByUsers).WithMany(u => u.DeckCollection);
 
             modelBuilder.Entity<CardManaCost>().HasKey(k => new { k.CardId, k.ColorId });
             modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Card).WithMany(u => u.Colors).HasForeignKey(c => c.CardId);
