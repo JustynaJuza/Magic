@@ -13,5 +13,12 @@ namespace Magic.Models
         public Card Card { get; set; }
         public ManaColor Color { get; set; }
         public int Cost { get; set; }
+        public bool IsHybrid { get; set; }
     }
+
+    //public class HybridManaCost : CardManaCost
+    //{
+    //    public int SecondColorId { get; set; }
+    //    public ManaColor SecondColor { get; set; }
+    //}
 }

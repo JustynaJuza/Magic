@@ -78,12 +78,15 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<CardManaCost>().HasKey(k => new { k.CardId, k.ColorId });
             modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Card).WithMany(u => u.Colors).HasForeignKey(c => c.CardId);
             modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Color).WithMany(m => m.Cards).HasForeignKey(c => c.ColorId);
+            //modelBuilder.Entity<HybridManaCost>().HasRequired(c => c.SecondColor).WithMany(m => m.Cards).HasForeignKey(c => c.SecondColorId);
 
             modelBuilder.Entity<CardAvailableAbility>().HasKey(k => new { k.CardId, k.AbilityId });
             modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Card).WithMany(m => m.Abilities).HasForeignKey(c => c.CardId);
             modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Ability).WithMany(u => u.Cards).HasForeignKey(c => c.AbilityId);
 
             modelBuilder.Entity<CardType>().HasMany(t => t.Cards).WithMany(c => c.Types);
+
+            modelBuilder.Entity<Card>().HasOptional(c => c.Set).WithMany().HasForeignKey(c => c.SetId);
 
             modelBuilder.Entity<ChatMessage>().HasKey(m => new { m.Id, m.LogId });
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);

@@ -89,6 +89,7 @@
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.IdentityModel.Selectors" />
     <Reference Include="System.identitymodel.services" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -147,6 +148,7 @@
     <Compile Include="Enums\Color.cs" />
     <Compile Include="GamePlayerStatus.cs" />
     <Compile Include="CardManaCost.cs" />
+    <Compile Include="JsonConverter.cs" />
     <Compile Include="PlayerCardDeck.cs" />
     <Compile Include="PlayerCards.cs" />
     <Compile Include="Enums\PlayerStatus.cs" />

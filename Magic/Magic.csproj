@@ -192,6 +192,7 @@
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
     <Compile Include="Helpers\ViewRenderer.cs" />
+    <Compile Include="Hubs\AdminHub.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Migrations\201409111616392_Initial.cs" />
