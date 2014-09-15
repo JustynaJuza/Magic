@@ -8,27 +8,17 @@ namespace Magic.Migrations
         public override void Up()
         {
             CreateTable(
-                "dbo.ManaColors",
+                "dbo.CardDecks",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Color = c.Int(nullable: false),
+                        Name = c.String(),
+                        DateCreated = c.DateTime(nullable: false),
+                        Creator_Id = c.String(nullable: false, maxLength: 128),
                     })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.CardManaCosts",
-                c => new
-                    {
-                        CardId = c.String(nullable: false, maxLength: 128),
-                        ColorId = c.Int(nullable: false),
-                        Cost = c.Int(nullable: false),
-                    })
-                .PrimaryKey(t => new { t.CardId, t.ColorId })
-                .ForeignKey("dbo.Cards", t => t.CardId, cascadeDelete: true)
-                .ForeignKey("dbo.ManaColors", t => t.ColorId, cascadeDelete: true)
-                .Index(t => t.CardId)
-                .Index(t => t.ColorId);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Users", t => t.Creator_Id)
+                .Index(t => t.Creator_Id);
             
             CreateTable(
                 "dbo.Cards",
@@ -48,17 +38,20 @@ namespace Magic.Migrations
                         Rarity = c.Int(nullable: false),
                         ConvertedManaCost = c.Int(nullable: false),
                         Description = c.String(),
-                        Flavour = c.String(),
+                        Flavor = c.String(),
                         IsToken = c.Boolean(),
                         Power = c.Int(),
                         Toughness = c.Int(),
                         Loyalty = c.Int(),
                         Discriminator = c.String(nullable: false, maxLength: 128),
+                        CardSet_Id = c.String(maxLength: 128),
                         CardDeck_Id = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.CardSets", t => t.CardSet_Id)
                 .ForeignKey("dbo.CardSets", t => t.SetId)
                 .ForeignKey("dbo.CardDecks", t => t.CardDeck_Id)
+                .Index(t => t.CardSet_Id)
                 .Index(t => t.SetId)
                 .Index(t => t.CardDeck_Id);
             
@@ -85,6 +78,33 @@ namespace Magic.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
+                "dbo.CardManaCosts",
+                c => new
+                    {
+                        CardId = c.String(nullable: false, maxLength: 128),
+                        ColorId = c.Int(nullable: false),
+                        Cost = c.Int(nullable: false),
+                        HybridColorId = c.Int(),
+                        Discriminator = c.String(nullable: false, maxLength: 128),
+                    })
+                .PrimaryKey(t => new { t.CardId, t.ColorId })
+                .ForeignKey("dbo.Cards", t => t.CardId, cascadeDelete: true)
+                .ForeignKey("dbo.ManaColors", t => t.ColorId, cascadeDelete: true)
+                .ForeignKey("dbo.ManaColors", t => t.HybridColorId)
+                .Index(t => t.CardId)
+                .Index(t => t.ColorId)
+                .Index(t => t.HybridColorId);
+            
+            CreateTable(
+                "dbo.ManaColors",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.CardSets",
                 c => new
                     {
@@ -93,7 +113,7 @@ namespace Magic.Migrations
                         Type = c.String(),
                         Block = c.String(),
                         Description = c.String(),
-                        ReleasedDate = c.DateTime(nullable: false),
+                        DateReleased = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -103,23 +123,9 @@ namespace Magic.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(),
-                        IsRace = c.Boolean(),
-                        Discriminator = c.String(nullable: false, maxLength: 128),
+                        Discriminator = c.Int(),
                     })
                 .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.CardDecks",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(),
-                        DateCreated = c.DateTime(nullable: false),
-                        Creator_Id = c.String(nullable: false, maxLength: 128),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Users", t => t.Creator_Id)
-                .Index(t => t.Creator_Id);
             
             CreateTable(
                 "dbo.Users",
@@ -460,11 +466,13 @@ namespace Magic.Migrations
             DropForeignKey("dbo.CardDeckManaColors", "ManaColor_Id", "dbo.ManaColors");
             DropForeignKey("dbo.CardDeckManaColors", "CardDeck_Id", "dbo.CardDecks");
             DropForeignKey("dbo.Cards", "CardDeck_Id", "dbo.CardDecks");
-            DropForeignKey("dbo.CardManaCosts", "ColorId", "dbo.ManaColors");
-            DropForeignKey("dbo.CardManaCosts", "CardId", "dbo.Cards");
             DropForeignKey("dbo.CardTypeCards", "Card_Id", "dbo.Cards");
             DropForeignKey("dbo.CardTypeCards", "CardType_Id", "dbo.CardTypes");
             DropForeignKey("dbo.Cards", "SetId", "dbo.CardSets");
+            DropForeignKey("dbo.Cards", "CardSet_Id", "dbo.CardSets");
+            DropForeignKey("dbo.CardManaCosts", "HybridColorId", "dbo.ManaColors");
+            DropForeignKey("dbo.CardManaCosts", "ColorId", "dbo.ManaColors");
+            DropForeignKey("dbo.CardManaCosts", "CardId", "dbo.Cards");
             DropForeignKey("dbo.CardAvailableAbilities", "CardId", "dbo.Cards");
             DropForeignKey("dbo.CardAvailableAbilities", "AbilityId", "dbo.CardAbilities");
             DropIndex("dbo.ChatRoomConnections", new[] { "UserId" });
@@ -501,11 +509,13 @@ namespace Magic.Migrations
             DropIndex("dbo.CardDeckManaColors", new[] { "ManaColor_Id" });
             DropIndex("dbo.CardDeckManaColors", new[] { "CardDeck_Id" });
             DropIndex("dbo.Cards", new[] { "CardDeck_Id" });
-            DropIndex("dbo.CardManaCosts", new[] { "ColorId" });
-            DropIndex("dbo.CardManaCosts", new[] { "CardId" });
             DropIndex("dbo.CardTypeCards", new[] { "Card_Id" });
             DropIndex("dbo.CardTypeCards", new[] { "CardType_Id" });
             DropIndex("dbo.Cards", new[] { "SetId" });
+            DropIndex("dbo.Cards", new[] { "CardSet_Id" });
+            DropIndex("dbo.CardManaCosts", new[] { "HybridColorId" });
+            DropIndex("dbo.CardManaCosts", new[] { "ColorId" });
+            DropIndex("dbo.CardManaCosts", new[] { "CardId" });
             DropIndex("dbo.CardAvailableAbilities", new[] { "CardId" });
             DropIndex("dbo.CardAvailableAbilities", new[] { "AbilityId" });
             DropTable("dbo.CardDeckUsers");
@@ -529,14 +539,14 @@ namespace Magic.Migrations
             DropTable("dbo.ChatMessages");
             DropTable("dbo.ChatMessageNotifications");
             DropTable("dbo.Users");
-            DropTable("dbo.CardDecks");
             DropTable("dbo.CardTypes");
             DropTable("dbo.CardSets");
+            DropTable("dbo.ManaColors");
+            DropTable("dbo.CardManaCosts");
             DropTable("dbo.CardAbilities");
             DropTable("dbo.CardAvailableAbilities");
             DropTable("dbo.Cards");
-            DropTable("dbo.CardManaCosts");
-            DropTable("dbo.ManaColors");
+            DropTable("dbo.CardDecks");
         }
     }
 }

@@ -151,7 +151,13 @@ namespace Magic.Controllers
             var dateSuspended = DateTime.Now;
             HttpContext.Application[gameId] = new CancellationTokenSource();
             var user = context.Users.Find(User.Identity.GetUserId());
-            await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource)HttpContext.Application[gameId]).Token);
+            try
+            {
+                await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource) HttpContext.Application[gameId]).Token);
+            }
+            catch (OperationCanceledException) {
+                System.Diagnostics.Debug.WriteLine("The game pause was canceled");
+            }
         }
 
         public void CancelPause(string gameId)

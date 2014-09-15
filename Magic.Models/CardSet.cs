@@ -12,7 +12,7 @@ namespace Magic.Models
         public string Type { get; set; }
         public string Block { get; set; }
         public string Description { get; set; }
-        public DateTime ReleasedDate { get; set; }
+        public DateTime DateReleased { get; set; }
         public IList<Card> Cards { get; set; } 
     }
 }

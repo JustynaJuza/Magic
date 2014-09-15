@@ -159,7 +159,7 @@
     <Compile Include="ChatRoom.cs" />
     <Compile Include="ChatRoomUser.cs" />
     <Compile Include="ChatRoomConnection.cs" />
-    <Compile Include="Enums\CardMainType.cs" />
+    <Compile Include="Enums\Type.cs" />
     <Compile Include="Enums\GameStatus.cs" />
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Game.cs" />

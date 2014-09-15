@@ -108,10 +108,12 @@ namespace Magic.Hubs
                     await pause;
                 }
                 catch (OperationCanceledException) { }
-
-                game.DateResumed = DateTime.Now;
-                gameHubContext.Clients.Group(gameId).activateGame(game.TimePlayed.ToTotalHoursString());
-                context.InsertOrUpdate(game, true);
+                finally
+                {
+                    game.DateResumed = DateTime.Now;
+                    gameHubContext.Clients.Group(gameId).activateGame(game.TimePlayed.ToTotalHoursString());
+                    context.InsertOrUpdate(game, true);
+                }
             }
         }
 

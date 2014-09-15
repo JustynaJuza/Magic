@@ -67,18 +67,18 @@
             $gameTimer.text(gameTime);
         }
         window.gameTimer = setInterval(updateGameTimer, 1000);
-        $gameFieldOverlayMsg.text('Let\'s play!');
+        $gameFieldOverlayMsg.html('Let&#39;s play!');
         $unpauseBtn.hide();
         $pauseBtn.removeClass('disabled');
         $gameFieldOverlay.slideUp();
     }
 
-    window.game.client.pauseGame = function (message, sender, senderColor, ) {
+    window.game.client.pauseGame = function (message, sender, senderColor) {
         $pauseBtn.addClass('disabled');
         $unpauseBtn.show();
         clearInterval(window.gameTimer);
-        message = (sender ? '<span class="chat-message-sender" style="font-weight:bold;color:' + senderColor + '">' + htmlEncode(sender) + ' </span>' : '') + message;
-        $gameFieldOverlayMsg.text(message);
+        message = (sender ? '<span class="chat-message-sender" style="font-weight:bold;color:' + senderColor + '">' + sender + ' </span>' : '') + message;
+        $gameFieldOverlayMsg.html(message);
         $gameFieldOverlay.slideDown();
     }
 

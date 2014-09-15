@@ -33,13 +33,13 @@ namespace Magic.Models
         {
             if (((string)jObject["type"]).Contains("Creature"))
             {
-                return new CreatureCard();
+                return new CreatureCard(jObject);
             }
             if (((string)jObject["type"]).Contains("Planeswalker"))
             {
-                return new PlaneswalkerCard();
+                return new PlaneswalkerCard(jObject);
             }
-            return new Card();
+            return new Card(jObject);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -48,12 +48,14 @@ namespace Magic.Models
             System.Diagnostics.Debug.WriteLine(jObject);
 
             // Create target object based on JObject
-            var card = Create(objectType, jObject);
-
-            var properties = jObject.Properties();
-
-            System.Diagnostics.Debug.WriteLine(properties);
-
+            try
+            {
+                return Create(objectType, jObject);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
             //// Populate C# object with according JObject data.
             //var deserializedTweet = new Tweet()
             //{
@@ -109,7 +111,36 @@ namespace Magic.Models
             //    //    }
             //    //};
             //}
-            return card;
         }
+
+    //    public class CardTypeConverter : JsonCreationConverter<Card>
+    //{
+    //    protected override Card Create(Type objectType, JObject jObject)
+    //    {
+    //        if (((string)jObject["type"]).Contains("Creature"))
+    //        {
+    //            return new CreatureCard(jObject);
+    //        }
+    //        if (((string)jObject["type"]).Contains("Planeswalker"))
+    //        {
+    //            return new PlaneswalkerCard(jObject);
+    //        }
+    //        return new Card(jObject);
+    //    }
+
+    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    //    {
+    //        var jObject = JObject.Load(reader);
+    //        System.Diagnostics.Debug.WriteLine(jObject);
+
+    //        // Create target object based on JObject
+    //        try
+    //        {
+    //            return Create(objectType, jObject);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            return null;
+    //        }
     }
 }

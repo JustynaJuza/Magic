@@ -4,6 +4,7 @@ using System;
 using Magic.Hubs;
 using Magic.Models;
 using System.Linq;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Magic.Migrations
 {
@@ -33,13 +34,23 @@ namespace Magic.Migrations
 
             foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
             {
-                context.CardColors.AddOrUpdate(new ManaColor { Color = color });
+                context.ManaColors.AddOrUpdate(new ManaColor { Name = color.ToString() });
             }
 
-            //foreach (var role in Enum.GetNames(typeof(Role)))
-            //{
-            //    context.Roles.AddOrUpdate(new IdentityRole { Name = role });
-            //}
+            foreach (var type in Enum.GetValues(typeof(SuperType)).Cast<SuperType>())
+            {
+                context.CardTypes.AddOrUpdate(new CardSuperType { Name = type.ToString() });
+            }
+
+            foreach (var type in Enum.GetValues(typeof(MainType)).Cast<MainType>().Distinct())
+            {
+                context.CardTypes.AddOrUpdate(new CardMainType { Name = type.ToString() });
+            }
+
+            foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            {
+                context.Roles.AddOrUpdate(new IdentityRole { Name = role.ToString() });
+            }
         }
     }
 }

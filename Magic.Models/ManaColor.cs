@@ -9,7 +9,6 @@ namespace Magic.Models
     public class ManaColor : AbstractExtensions
     {
         public int Id { get; set; }
-        public Color Color { get; set; }
-        public virtual IList<CardManaCost> Cards { get; set; }
+        public string Name { get; set; }
     }
 }
