@@ -7,6 +7,11 @@
         Blue,
         Green,
         Red,
-        White
+        White,
+        B = Black,
+        U = Blue,
+        G = Green,
+        R = Red,
+        W = White
     }
 }

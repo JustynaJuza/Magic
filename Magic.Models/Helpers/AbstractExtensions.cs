@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 using System.Reflection;
 using Magic.Models.Interfaces;
 using System;
@@ -70,7 +71,7 @@ namespace Magic.Models.Helpers
             var blue = random.Next(256);
             var color = System.Drawing.Color.FromArgb(red, green, blue);
 
-            return System.Drawing.ColorTranslator.ToHtml(color);
+            return ColorTranslator.ToHtml(color);
         }
 
         public static string ToTotalHoursString(this TimeSpan timeSpan)
@@ -87,6 +88,17 @@ namespace Magic.Models.Helpers
         {
             var display = enumType.GetMember(enumValue.ToString()).First().GetCustomAttribute<DisplayAttribute>();
             return display != null ? display.Name : enumValue.ToString();
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rng)
+        {
+            var elements = source.ToArray();
+            for (var i = elements.Length - 1; i >= 0; i--)
+            {
+                var swapIndex = rng.Next(i + 1);
+                yield return elements[swapIndex];
+                elements[swapIndex] = elements[i];
+            }
         }
     }
 }

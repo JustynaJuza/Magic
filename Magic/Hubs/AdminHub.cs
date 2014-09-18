@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Magic.Models;
+using Magic.Models.DataContext;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,6 +30,13 @@ namespace Magic.Hubs
             //{
                var cards = JArray.Parse(response).Select(c => JsonConvert.DeserializeObject<Card>(c.ToString(), new CardConverter()));
             //}
+            foreach (var card in cards)
+            {
+                using (var context = new MagicDbContext())
+                {
+                    context.InsertOrUpdate(card);
+                }
+            }
             return cards.FirstOrDefault();
         }
 

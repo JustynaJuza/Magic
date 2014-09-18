@@ -20,12 +20,19 @@ namespace Magic.Models
         public string GameId { get; set; }
         public string CardId { get; set; }
         public int DeckId { get; set; }
+        public int Index { get; set; }
+        public PlayerCardLocation Location { get; set; }
 
         //public User User { get; set; }
         //public Game Game { get; set; }
         public Player Player { get; set; }
         public Card Card { get; set; }
         public PlayerCardDeck Deck { get; set; }
+
+        public PlayerCard()
+        {
+            Location = PlayerCardLocation.Library;
+        }
     }
     
     public class PlayerCardBattlefield : PlayerCard

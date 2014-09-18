@@ -155,10 +155,10 @@
     <Compile Include="Enums\Rarity.cs" />
     <Compile Include="CardSet.cs" />
     <Compile Include="UserConnection.cs" />
-    <Compile Include="ChatLog.cs" />
-    <Compile Include="ChatRoom.cs" />
-    <Compile Include="ChatRoomUser.cs" />
-    <Compile Include="ChatRoomConnection.cs" />
+    <Compile Include="Chat\ChatLog.cs" />
+    <Compile Include="Chat\ChatRoom.cs" />
+    <Compile Include="Chat\ChatRoomUser.cs" />
+    <Compile Include="Chat\ChatRoomConnection.cs" />
     <Compile Include="Enums\Type.cs" />
     <Compile Include="Enums\GameStatus.cs" />
     <Compile Include="Enums\UserStatus.cs" />
@@ -172,7 +172,7 @@
     <Compile Include="ManaColor.cs" />
     <Compile Include="CardDeck.cs" />
     <Compile Include="CardType.cs" />
-    <Compile Include="ChatMessage.cs" />
+    <Compile Include="Chat\ChatMessage.cs" />
     <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Helpers\CardFactory.cs" />

@@ -35,6 +35,11 @@ namespace Magic.Models
             UserId = userId;
             Status = PlayerStatus.Unready;
         }
+
+        public PlayerCard TakeCard()
+        {
+            return Deck.DrawCard();
+        }
     }
 
     public class PlayerViewModel : AbstractExtensions, IViewModel

@@ -32,7 +32,7 @@ namespace Magic.Migrations
                 Log = new ChatLog(ChatHub.DefaultRoomId)
             });
 
-            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
+            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>().Distinct())
             {
                 context.ManaColors.AddOrUpdate(new ManaColor { Name = color.ToString() });
             }
