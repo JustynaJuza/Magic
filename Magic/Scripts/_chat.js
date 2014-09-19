@@ -1,5 +1,4 @@
 ﻿$(function () {
-
     window.chat = $.connection.chatHub;
 
     var $chat = new chat(),
@@ -9,6 +8,30 @@
         horizontalMouseOverScroll;
 
     // ----------------------- EVENT HANDLERS ---------------------- BEGIN
+    $(document).popover({
+        selector: '.chat-user',
+        container: '.chat',
+        trigger: 'click',
+        html: true,
+        content: function () {
+            return '<button class="btn btn-default" style="width: 100px;">' + $(this).text() + '</button>';
+        },
+        title: function () {
+            return 'Test';
+        },
+        placement: function (tip, element) {
+            var offset = $(element).offset();
+            height = $(document).outerHeight();
+            width = $(document).outerWidth();
+            vert = 0.5 * height - offset.top;
+            vertPlacement = vert > 0 ? 'bottom' : 'top';
+            horiz = 0.5 * width - offset.left;
+            horizPlacement = horiz > 0 ? 'right' : 'left';
+            placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
+            return placement;
+        }
+    });
+
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
@@ -91,6 +114,7 @@
 
         $.when(requestIsMade).then(function () {
             moveToScroll('#available-users');
+            attachToThis('#chat-add-user-btn', '#available-users');
             $('#available-users-overlay').show();
             $('#available-users').show();
         });
@@ -405,7 +429,11 @@
     //    activeChatRoom = $chat.roomSelection.prop('id');
     //});
 
-    //$('.chat-user').tooltip();
+    //$('.chat-user').popover({
+    //    placement: 'top',
+    //    content: '<button class="btn btn-default" style="width: 100px;">' + this.text() + '</button><button class="btn btn-default" style="width: 100px;">Test</button>',
+    //    html: true
+    //});
     //$('.chat-user').tooltipster({
     //    trigger: 'click',
     //    interactive: 'true',
@@ -425,9 +453,9 @@
     //        }
     //    }
     //});
-
+    
     function showUserTooltip() {
-        $('.chat-user').tooltip('show');
+        
     }
 
 
@@ -497,8 +525,18 @@
     }
 
     function moveToScroll(element) {
-        var top = $(window).scrollTop();
-        $(element).css('top', top + 'px');
+            var top = $(window).scrollTop() - $(element).offset().top;
+            //var left = 0.5 * $(document).outerWidth() - offset.left;
+            $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
+    }
+
+    function attachToThis(element, otherElement) {
+        var box = $(element)[0].getBoundingClientRect();
+        var left = box.left;
+        //var left = 0.5 * $(document).outerWidth() - offset.left;
+        var width = $(otherElement).outerWidth();
+        var x = left - 0.5 * width;
+        $(otherElement).css({ 'left': x + 'px' }); //, {'left': left + 'px'});
     }
 
     // Html-encode messages for display in the page.
