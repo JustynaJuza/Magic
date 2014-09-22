@@ -14,7 +14,14 @@
         trigger: 'manual',
         html: true,
         content: function () {
-            return '<button class="btn btn-default" style="width: 100px;">' + $(this).text() + '</button>';
+            var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
+            jQuery.ajaxSetup({
+                async: false,
+                traditional: true
+            });
+            $.get(url, { userName: $(this).text() }, function (htmlContent) {
+                return htmlContent;
+            });
         },
         title: function () {
             return 'Test';
@@ -35,7 +42,7 @@
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
-            showUserTooltip();
+            //showUserTooltip(element);
             return $(element).data('click', false);
         }, 350, this);
 
@@ -49,12 +56,7 @@
         }
         return $(this).data('click', true);
     });
-
-    //$(document).on('dblclick', '.chat-user', function () {
-    //    console.log('set')
-    //    $(this).data('dblclick', true);
-    //});
-
+    
     $(document).on('click', '.chat-message-recipient, .chat-message-sender', function () {
         $chat.newMessage.val($chat.newMessage.text() + '@' + $(this).text() + ' ');
         $chat.newMessage.focus();
@@ -450,8 +452,8 @@
     //    }
     //});
     
-    function showUserTooltip() {
-        
+    function showUserTooltip(element) {
+        $(element).popover('show');
     }
 
 
