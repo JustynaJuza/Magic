@@ -38,8 +38,9 @@ ul {
 #chat-add-user-btn {
     position: absolute;
     right: 0;
-    bottom: 0;
+    top: 0;
     padding: 2px 8px;
+    z-index: 101;
 }
 
 .chat-room {

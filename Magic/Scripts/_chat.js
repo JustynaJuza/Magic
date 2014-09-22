@@ -11,7 +11,7 @@
     $(document).popover({
         selector: '.chat-user',
         container: '.chat',
-        trigger: 'click',
+        trigger: 'manual',
         html: true,
         content: function () {
             return '<button class="btn btn-default" style="width: 100px;">' + $(this).text() + '</button>';
@@ -108,15 +108,12 @@
         if (!$('#available-users').length) {
             var url = window.basePath + 'Chat/GetAvailableUsersPartial/';
             requestIsMade = $.get(url, function (htmlContent) {
-                $chat.container.append(htmlContent);
+                $chat.header.append(htmlContent);
             });
         }
 
         $.when(requestIsMade).then(function () {
-            moveToScroll('#available-users');
-            attachToThis('#chat-add-user-btn', '#available-users');
-            $('#available-users-overlay').show();
-            $('#available-users').show();
+            toggleAvailableUsers($('#available-users').hasClass('zero-size'));
         });
     });
 
@@ -130,13 +127,11 @@
         });
 
         $chat.addRoomTab(selectedUsers.toArray());
-        $('#available-users-overlay').fadeOut();
-        $('#available-users').fadeOut();
+        toggleAvailableUsers(false);
     });
 
-    $(document).on('click', '#available-users-close-btn', function () {
-        $('#available-users-overlay').fadeOut();
-        $('#available-users').fadeOut();
+    $(document).on('click', '#available-users-overlay', function () {
+        toggleAvailableUsers(false);
     });
 
     $(document).on('mouseover', '.chat-room-tab-name, .chat-user, .available-chat-user', function () {
@@ -182,6 +177,7 @@
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
     function chat() {
         this.container = $('.chat');
+        this.header = $('#chat-header-bar');
         this.roomsContainer = $('#chat-rooms-container');
         this.rooms = $('.chat-room');
         this.roomTabs = $('.chat-room-tab');
@@ -488,6 +484,17 @@
             $('.chat-room-messages-container').animate({ 'border-top-left-radius': '4px' }, 400);
             $('.chat-room-tab').slideUp();
             $('.chat').animate({ 'margin-top': '-31px' }, 400);
+        }
+    }
+
+    function toggleAvailableUsers(on) {
+        if (on) {
+            $('#available-users-overlay').fadeIn();
+            $('#available-users').removeClass('zero-size', 500);
+        } else {
+            $('#available-users-overlay').fadeOut();
+            $('#available-users').addClass('zero-size', 500);
+            $('.available-chat-user').removeClass('toggle');
         }
     }
 
