@@ -8,7 +8,7 @@
     }
     <h3 id="chat-header">
         Hello@{ if (User.Identity.IsAuthenticated)
-                { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
     </h3>
 </div>
 
@@ -21,11 +21,8 @@
         {
             Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
         }
-        
-        <div style="width: 100%;">
-            <div class="dummy container right" style="width: 110px;height:215px;"></div>
-            <div class="user-profile-tooltip container left" style="height: 100%;">Test</div>
-        </div>
+
+        <div id="user-profile-tooltip-container"></div>
     </div>
 
     @if (User.Identity.IsAuthenticated)
@@ -43,10 +40,10 @@
 </script>
 @Scripts.Render("~/Scripts/_chat.js")
 @*@section additionalHeaderScriptsAndStyles
-{
-    @Scripts.Render("~/bundles/jquerysignalR")
-    @Scripts.Render("~/signalr/hubs")
-    @Scripts.Render("~/Scripts/_hub-start.js")
-    @Scripts.Render("~/Scripts/_chat.js")
-}*@
+    {
+        @Scripts.Render("~/bundles/jquerysignalR")
+        @Scripts.Render("~/signalr/hubs")
+        @Scripts.Render("~/Scripts/_hub-start.js")
+        @Scripts.Render("~/Scripts/_chat.js")
+    }*@
 

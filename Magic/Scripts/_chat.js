@@ -8,41 +8,47 @@
         horizontalMouseOverScroll;
 
     // ----------------------- EVENT HANDLERS ---------------------- BEGIN
-    $(document).popover({
-        selector: '.chat-user',
-        container: '.chat',
-        trigger: 'manual',
-        html: true,
-        content: function () {
-            var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
-            jQuery.ajaxSetup({
-                async: false,
-                traditional: true
-            });
-            $.get(url, { userName: $(this).text() }, function (htmlContent) {
-                return htmlContent;
-            });
-        },
-        title: function () {
-            return 'Test';
-        },
-        placement: function (tip, element) {
-            var offset = $(element).offset();
-            height = $(document).outerHeight();
-            width = $(document).outerWidth();
-            vert = 0.5 * height - offset.top;
-            vertPlacement = vert > 0 ? 'bottom' : 'top';
-            horiz = 0.5 * width - offset.left;
-            horizPlacement = horiz > 0 ? 'right' : 'left';
-            placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
-            return placement;
-        }
+    $(document).click(function (e) {
+        if ($chat.userTooltip.is(':hidden')) return;
+        if (e.target.id != 'user-profile-tooltip-container' && !e.target.hasClass('chat-user'))
+            toggleUserTooltip();
     });
+
+    //$(document).popover({
+    //    selector: '.chat-user',
+    //    container: '.chat',
+    //    trigger: 'manual',
+    //    html: true,
+    //    content: function () {
+    //        var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
+    //        jQuery.ajaxSetup({
+    //            async: false,
+    //            traditional: true
+    //        });
+    //        $.get(url, { userName: $(this).text() }, function (htmlContent) {
+    //            return htmlContent;
+    //        });
+    //    },
+    //    title: function () {
+    //        return 'Test';
+    //    },
+    //    placement: function (tip, element) {
+    //        var offset = $(element).offset();
+    //        height = $(document).outerHeight();
+    //        width = $(document).outerWidth();
+    //        vert = 0.5 * height - offset.top;
+    //        vertPlacement = vert > 0 ? 'bottom' : 'top';
+    //        horiz = 0.5 * width - offset.left;
+    //        horizPlacement = horiz > 0 ? 'right' : 'left';
+    //        placement = Math.abs(horiz) > Math.abs(vert) ? horizPlacement : vertPlacement;
+    //        return placement;
+    //    }
+    //});
 
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
-            //showUserTooltip(element);
+            toggleUserTooltip($(element).text());
             return $(element).data('click', false);
         }, 350, this);
 
@@ -56,7 +62,35 @@
         }
         return $(this).data('click', true);
     });
-    
+
+    //$(document).on('click', '#user-profile-tooltip-container-overlay', function () {
+    //    toggleUserTooltip();
+    //});
+
+    //$(document).on('mouseenter', '.chat-user', function () {
+    //    window.tooltipTimer = setTimeout(function (element) {
+    //        var user = $(element).text();
+    //        if ($chat.userTooltip.data('user') != user) {
+    //            var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
+    //            //jQuery.ajaxSetup({
+    //            //    async: false,
+    //            //    traditional: true
+    //            //});
+    //            $.get(url, { userName: user }, function(htmlContent) {
+    //                $chat.userTooltip.data('user', user);
+    //                $chat.userTooltip.html('');
+    //                $chat.userTooltip.append(htmlContent);
+    //            });
+    //        }
+    //        $chat.userTooltip.show();
+    //    }, 1000, this);
+    //});
+
+    //$(document).on('mouseleave', '.chat-user', function () {
+    //    clearTimeout(window.tooltipTimer);
+    //    $chat.userTooltip.hide();
+    //});
+
     $(document).on('click', '.chat-message-recipient, .chat-message-sender', function () {
         $chat.newMessage.val($chat.newMessage.text() + '@' + $(this).text() + ' ');
         $chat.newMessage.focus();
@@ -178,8 +212,9 @@
 
     // ---------------- CHAT DISPLAY & FUNCTIONALITY --------------- START
     function chat() {
-        this.container = $('.chat');
         this.header = $('#chat-header-bar');
+
+        this.container = $('.chat');
         this.roomsContainer = $('#chat-rooms-container');
         this.rooms = $('.chat-room');
         this.roomTabs = $('.chat-room-tab');
@@ -190,6 +225,7 @@
 
         this.messagesContainers = $('.chat-room-messages-container');
         this.usersContainers = $('.chat-room-users-container');
+        this.userTooltip = $('#user-profile-tooltip-container');
 
         this.newMessage = $('#chat-message-new');
         this.sendButton = $('#chat-message-send-btn'),
@@ -358,7 +394,7 @@
         chatUsers = $.parseJSON(chatUsers);
         var updatedChatUsersHtml = '';
         for (var i = 0; i < chatUsers.length; i++) {
-            updatedChatUsersHtml += '<li class="chat-user" style="color:' + chatUsers[i].ColorCode
+            updatedChatUsersHtml += '<li class="chat-user display-name" style="color:' + chatUsers[i].ColorCode
                 + (chatUsers[i].Status == 0 ? '; font-weight:normal;">' : ';">')
                 + chatUsers[i].UserName + '</li>';
         }
@@ -451,11 +487,6 @@
     //        }
     //    }
     //});
-    
-    function showUserTooltip(element) {
-        $(element).popover('show');
-    }
-
 
     // --------------------- HELPER FUNCTIONS ---------------------- START
     function smoothScroll($container, $scrollingEntry) {
@@ -500,6 +531,23 @@
         }
     }
 
+    function toggleUserTooltip(user) {
+        if ($chat.userTooltip.data('user') != user) {
+            // Get tooltip data.
+            var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
+            $.get(url, { userName: user }, function (htmlContent) {
+                $chat.userTooltip.html(htmlContent);
+                $chat.userTooltip.data('user', user);
+            });
+            $chat.userTooltip.show();
+        }
+        else if ($chat.userTooltip.data('user') == user && $chat.userTooltip.is(':hidden')) {
+            $chat.userTooltip.show();
+        } else {
+            $chat.userTooltip.hide();
+        }
+    }
+
     function matchNewChatMessage(value) {
         return $chat.newMessage.val().split(' ')[0].toLowerCase() == value;
     }
@@ -534,9 +582,9 @@
     }
 
     function moveToScroll(element) {
-            var top = $(window).scrollTop() - $(element).offset().top;
-            //var left = 0.5 * $(document).outerWidth() - offset.left;
-            $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
+        var top = $(window).scrollTop() - $(element).offset().top;
+        //var left = 0.5 * $(document).outerWidth() - offset.left;
+        $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
     }
 
     function attachToThis(element, otherElement) {

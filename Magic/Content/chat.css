@@ -139,9 +139,12 @@ ul {
     list-style-type: none;
 }
 
+.display-name {
+    font-weight: bold;
+}
+
 .chat-user,
 .chat-message-sender {
-    font-weight: bold;
     cursor: pointer;
 }
 
@@ -172,20 +175,20 @@ ul {
     width: 100%;
     max-width: 100%;
     display: inline;
-    margin: 0px -63px 3px 0px;
+    margin: 0 -63px 3px 0;
     padding-right: 67px;
     -ms-border-top-left-radius: 0;
     border-top-left-radius: 0;
     -ms-border-top-right-radius: 0;
     border-top-right-radius: 0;
     border: 1px solid black;
-    border-top: 0px;
+    border-top: 0;
 }
 
 #chat-message-send-btn {
     width: 60px;
     display: inline;
-    margin: 0px 0px 3px 0px;
+    margin: 0 0 3px 0;
 }
 
 
@@ -208,3 +211,33 @@ ul {
     white-space: nowrap;
     padding: 0;
 }
+
+.dummy {
+    visibility: hidden;
+}
+
+#user-profile-tooltip-container {
+    display: none;
+    height: 100%;
+        margin-right: 110px;
+        padding: 10px;
+}
+
+    .user-profile-tooltip {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        background-color: #ffffff;
+        text-align: center
+    }
+
+    #user-profile {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+    }
+
+    #user-profile-data {
+        margin: 20px 0;
+        display: block;
+    }

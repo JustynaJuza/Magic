@@ -1,21 +1,8 @@
 ﻿@model ProfileViewModel
 
-@*<style>
-    .tooltip {
-        position: absolute;
-        border: 2px solid #000000;
-        display: none;
-        left: 50%;
-        margin-left: -100px;
-        width: 200px;
-        height: auto;
-        background-color: #ffffff;
-        z-index: 102;
-        text-align: center;
-        padding: 10px;
-    }
+<style>
 
-    #user-profile-tooltip-overlay {
+    /*#user-profile-tooltip-overlay {
         position: fixed;
         z-index: 101;
         width: 100%;
@@ -53,7 +40,7 @@
     .toggle {
         background-color: #fbfbfb !important;
         border: 1px solid #cccccc;
-    }
+    }*/
 
     /*#available-chat-users{
         text-overflow: ellipsis;
@@ -62,15 +49,19 @@
         padding: 0;
     }*/
 
-</style>*@
+</style>
 
 @*<div id="user-profile-tooltip-overlay" class="overlay"></div>*@
 
-<div id="user-profile-tooltip" class="tooltip">
-    <span id="user-profile-tooltip-close-btn" class="close-btn" >X</span>
-    <div id="profile-data">
+@*<div id="user-profile-tooltip" class="tooltip">*@
+    @*<span id="user-profile-tooltip-close-btn" class="close-btn" >X</span>*@
+<div class="user-profile-tooltip">
+    <div id="user-profile">
         @Html.DisplayFor(m => m.Image, "Image")
-        @Model.UserName
-        @Html.ActionLink("View Profile", "Profile", "Account", new {id = Model.UserName }, new { @class = "btn btn-default"})
+        <span id="user-profile-data" class="display-name" style="color:@Model.ColorCode">@Model.UserName</span>
+        @Html.ActionLink("View Profile", "Profile", "Account", new { id = Model.UserName }, new { @class = "btn btn-default" })
+        @*@Html.ActionLinkElement(Html.ActionLink("View Profile", "Profile", "Account", new { id = Model.UserName }, new { @class = "btn btn-default" }),
+        "<span class=\"chat-user\" style=\"color:" + @Model.ColorCode + "\">" + Model.UserName + "</span>")*@
     </div>
 </div>
+@*</div>*@

@@ -49,6 +49,7 @@
         box-sizing: border-box;
         height: 25px;
         padding: 0 0 0 5px;
+        cursor: pointer
     }
 
     .toggle {
@@ -83,7 +84,7 @@
     <ul id="available-chat-users" class="chat-room-users">
         @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
         {
-            <li class="available-chat-user chat-user" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
+            <li class="available-chat-user display-name" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
         }
     </ul>
     <span id="available-users-confirm-btn" class="btn btn-default">Create group</span>

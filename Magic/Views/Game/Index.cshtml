@@ -6,10 +6,6 @@
 }
 
 <style>
-    #players,
-    #observers {
-    }
-
     .player-ready {
         font-weight: bold;
     }
@@ -62,7 +58,7 @@
     <ul id="players">
         @foreach (var player in Model.Players)
         {
-            <li class="player" style="color:#808080">@player.User.UserName</li>
+            <li class="player display-name" style="color:#808080">@player.User.UserName</li>
         }
     </ul>
 </div>
@@ -71,7 +67,7 @@
     <ul id="observers">
         @foreach (var user in Model.Observers)
         {
-            <li class="observer" style="color:#000000">@user.UserName</li>
+            <li class="observer display-name" style="color:#000000">@user.UserName</li>
         }
     </ul>
 </div>
