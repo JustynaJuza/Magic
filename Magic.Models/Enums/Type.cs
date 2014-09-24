@@ -27,9 +27,9 @@
         Artifact,
         Planeswalker,
         Tribal,
-        Conspiracy,
-        Interrupt = Instant,
-        Summon = Creature
+        Conspiracy
+        //Interrupt = Instant,
+        //Summon = Creature
     }
 
     //---------- SUBTYPES ----------

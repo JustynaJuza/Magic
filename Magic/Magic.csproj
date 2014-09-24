@@ -209,6 +209,7 @@
     <Content Include="App_Data\MagicDB_log.ldf">
       <DependentUpon>MagicDB.mdf</DependentUpon>
     </Content>
+    <Content Include="Areas\Admin\Scripts\_admin.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chat.css" />

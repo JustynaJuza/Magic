@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
 
@@ -27,6 +28,12 @@ namespace Magic.Areas.Admin.Controllers
         {
             return View(context.Cards.ToList());
         }
+        
+        //[AsyncTimeout(200)]
+        //public async void FetchCardsAsync()
+        //{
+        //    AdminHub.MakeCardsRequest();
+        //}
 
         #region CREATE/EDIT
         [HttpGet]

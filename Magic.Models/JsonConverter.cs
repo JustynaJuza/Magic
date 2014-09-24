@@ -15,7 +15,7 @@ namespace Magic.Models
         /// <param name="objectType">Type of object expected</param>
         /// <param name="jObject">Contents of JSON object that will be deserialized</param>
         protected abstract T Create(Type objectType, JObject jObject);
-        
+
         public override bool CanConvert(Type objectType)
         {
             return typeof(T).IsAssignableFrom(objectType);
@@ -42,7 +42,8 @@ namespace Magic.Models
             return new Card(jObject);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
             var jObject = JObject.Load(reader);
             System.Diagnostics.Debug.WriteLine(jObject);
@@ -112,35 +113,29 @@ namespace Magic.Models
             //    //};
             //}
         }
+    }
 
-    //    public class CardTypeConverter : JsonCreationConverter<Card>
-    //{
-    //    protected override Card Create(Type objectType, JObject jObject)
-    //    {
-    //        if (((string)jObject["type"]).Contains("Creature"))
-    //        {
-    //            return new CreatureCard(jObject);
-    //        }
-    //        if (((string)jObject["type"]).Contains("Planeswalker"))
-    //        {
-    //            return new PlaneswalkerCard(jObject);
-    //        }
-    //        return new Card(jObject);
-    //    }
+    public class CardSetConverter : JsonCreationConverter<CardSet>
+    {
+        protected override CardSet Create(Type objectType, JObject jObject)
+        {
+            return new CardSet(jObject);
+        }
 
-    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    //    {
-    //        var jObject = JObject.Load(reader);
-    //        System.Diagnostics.Debug.WriteLine(jObject);
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
+        {
+            var jObject = JObject.Load(reader);
+            System.Diagnostics.Debug.WriteLine(jObject);
 
-    //        // Create target object based on JObject
-    //        try
-    //        {
-    //            return Create(objectType, jObject);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return null;
-    //        }
+            try
+            {
+                return Create(objectType, jObject);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

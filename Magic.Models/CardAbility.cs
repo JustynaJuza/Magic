@@ -51,7 +51,7 @@ namespace Magic.Models
     public class ActiveAbility : CardAbility
     {
         public bool RequiresTap { get; set; }
-        public IList<CardManaCost> Cost { get; set; }
+        public IList<CardManaCost> Costs { get; set; }
     }
 
     public class TargetAbility : ActiveAbility

@@ -14,6 +14,9 @@ namespace Magic.Models
 {
     public class Card : AbstractExtensions
     {
+        private IEnumerable<string> typeNames;
+        private string manaCode;
+
         public string Id { get; set; }
         public int MultiverseId { get; set; }
         [Required(ErrorMessage = "The card must have a name.")]
@@ -44,112 +47,109 @@ namespace Magic.Models
             Abilities = new List<CardAvailableAbility>();
         }
 
-        public Card(JObject jCardObject) : this()
+        public Card(JObject jObject)
+            : this()
         {
-            MultiverseId = jCardObject.Value<int>("id");
-            Name = jCardObject.Value<string>("name");
-            //SetId = jCardObject.Value<string>("cardSetId");
-            SetNumber = jCardObject.Value<int>("setNumber");
-            DateReleased = jCardObject.Value<DateTime>("releasedAt");
-            Artist = jCardObject.Value<string>("artist");
-            Rarity = (Rarity)Enum.Parse(typeof(Rarity), jCardObject.Value<string>("rarity"), true);
-            ConvertedManaCost = jCardObject.Value<int>("convertedManaCost");
-            Description = jCardObject.Value<string>("description");
-            Flavor = jCardObject.Value<string>("flavor");
-
-            var types = jCardObject.Value<string>("type").Split(' ');
-            Types = AssignTypes(jCardObject.Value<string>("subType").Split(' ').Concat(types));
-            Colors = DecodeManaCost(jCardObject.Value<string>("manaCost"));
+            MultiverseId = jObject.Value<int>("id");
+            Name = jObject.Value<string>("name");
+            //SetId = jObject.Value<string>("cardSetId");
+            SetNumber = jObject.Value<int>("setNumber");
+            DateReleased = jObject.Value<DateTime>("releasedAt");
+            Artist = jObject.Value<string>("artist");
+            Rarity = (Rarity)Enum.Parse(typeof(Rarity), jObject.Value<string>("rarity"), true);
+            ConvertedManaCost = jObject.Value<int>("convertedManaCost");
+            Description = jObject.Value<string>("description");
+            Flavor = jObject.Value<string>("flavor").Replace("â€”", " —").Trim();
             Id = Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", "");
+
+            var types = jObject.Value<string>("type").Replace("Summon", "Creature").Replace("Interrupt", "Instant").Split(' ');
+            typeNames = jObject.Value<string>("subType").Split(' ').Concat(types);
+            manaCode = jObject.Value<string>("manaCost");
         }
 
-        public IList<CardType> AssignTypes(IEnumerable<string> typeNames)
+        public void AssignTypes(MagicDbContext context)
         {
-            var types = new List<CardType>();
-            using (var context = new MagicDbContext())
+            foreach (var typeName in typeNames)
             {
-                foreach (var typeName in typeNames)
+                var type = context.CardTypes.FirstOrDefault(t => t.Name == typeName);
+                if (type != null)
                 {
-                    var type = context.CardTypes.FirstOrDefault(t => t.Name == typeName);
-                    if (type != null)
-                    {
-                        types.Add(type);
-                    }
-                    //else if (CardType.IsSuperType(typeName))
-                    //{
-                    //    types.Add(new CardSuperType { Name = typeName });
-                    //}
-                    else if (CardType.IsMainType(typeName))
-                    {
-                        // Possibly old card with obsolete type, replace with newest value.
-                        var name = Enum.Parse(typeof (MainType), typeName).ToString();
-                        type = context.CardTypes.FirstOrDefault(t => t.Name == name);
-                        types.Add(type ?? new CardMainType { Name = typeName });
-                    }
-                    else
-                    {
-                        types.Add(new CardSubType { Name = typeName });
-                    }
+                    Types.Add(type);
+                }
+                //else if (CardType.IsSuperType(typeName))
+                //{
+                //    types.Add(new CardSuperType { Name = typeName });
+                //}
+                else if (CardType.IsMainType(typeName))
+                {
+                    // Possibly old card with obsolete type, replace with newest value.
+                    var name = Enum.Parse(typeof(MainType), typeName).ToString();
+                    type = context.CardTypes.FirstOrDefault(t => t.Name == name);
+                    Types.Add(type ?? new CardMainType { Name = typeName });
+                }
+                else
+                {
+                    Types.Add(new CardSubType { Name = typeName });
                 }
             }
-            return types;
         }
 
-        public IList<CardManaCost> DecodeManaCost(string manaCode)
+        public void DecodeManaCost(MagicDbContext context)
         {
-            var mana = new List<CardManaCost>();
-            var codes = new[] { "B", "U", "G", "R", "W" };
-            using (var context = new MagicDbContext())
+            var mana = new List<CardManaCost>
             {
-                // TODO: Fix this to enable hybrids.
-                foreach (Match hybrid in Regex.Matches(manaCode, @"(./.)"))
+                new CardManaCost
                 {
-                    var color = hybrid.Value.Substring(0, 1);
-                    var hybridColor = hybrid.Value.Substring(2, 1);
-                    mana.Add(new HybridManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof (Color), color).ToString()),
-                        HybridColor = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof (Color), color).ToString()),
-                        Cost = 1
-                    });
+                    ColorId = context.ManaColors.First(c => c.Name == "Black").Id,
+                    Cost = manaCode.Count(c => c == 'B')
+                },
+                new CardManaCost
+                {
+                    ColorId = context.ManaColors.First(c => c.Name == "Blue").Id,
+                    Cost = manaCode.Count(c => c == 'U')
+                },
+                new CardManaCost
+                {
+                    ColorId = context.ManaColors.First(c => c.Name == "Green").Id,
+                    Cost = manaCode.Count(c => c == 'G')
+                },
+                new CardManaCost
+                {
+                    ColorId = context.ManaColors.First(c => c.Name == "Red").Id,
+                    Cost = manaCode.Count(c => c == 'R')
+                },
+                new CardManaCost
+                {
+                    ColorId = context.ManaColors.First(c => c.Name == "White").Id,
+                    Cost = manaCode.Count(c => c == 'W')
                 }
+            };
 
+            int colorless;
+            if (int.TryParse(Regex.Match(manaCode, "[0-9]*").Value, out colorless))
+            {
                 mana.Add(new CardManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == "Black"),
-                        Cost = manaCode.Count(c => c == 'B')
-                    });
-                    mana.Add(new CardManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == "Blue"),
-                        Cost = manaCode.Count(c => c == 'U')
-                    });
-                    mana.Add(new CardManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == "Green"),
-                        Cost = manaCode.Count(c => c == 'G')
-                    });
-                    mana.Add(new CardManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == "Red"),
-                        Cost = manaCode.Count(c => c == 'R')
-                    });
-                    mana.Add(new CardManaCost
-                    {
-                        Color = context.ManaColors.FirstOrDefault(c => c.Name == "White"),
-                        Cost = manaCode.Count(c => c == 'W')
-                    });
-                    int colorless;
-                    if (int.TryParse(Regex.Match(manaCode, "[0-9]*").Value, out colorless))
-                    {
-                        mana.Add(new CardManaCost
-                        {
-                            Color = context.ManaColors.FirstOrDefault(c => c.Name == "Colorless"),
-                            Cost = colorless
-                        });
-                    }
-                };
-            return mana.Where(m => m.Cost > 0).ToList();
+                {
+                    ColorId = context.ManaColors.First(c => c.Name == "Colorless").Id,
+                    Cost = colorless
+                });
+            }
+
+            // TODO: Fix this to enable hybrids.
+            //var codes = new[] { "B", "U", "G", "R", "W" };
+            //foreach (Match hybrid in Regex.Matches(manaCode, @"(./.)"))
+            //{
+            //    var color = hybrid.Value.Substring(0, 1);
+            //    var hybridColor = hybrid.Value.Substring(2, 1);
+            //    mana.Add(new HybridManaCost
+            //    {
+            //        Color = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
+            //        HybridColor = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
+            //        Cost = 1
+            //    });
+            //}
+
+            Colors = mana.Where(m => m.Cost > 0).ToList();
         }
 
         public bool Play()
@@ -170,28 +170,30 @@ namespace Magic.Models
         public int Toughness { get; set; }
 
         public CreatureCard() { }
-        public CreatureCard(JObject jCardObject) : base(jCardObject)
+        public CreatureCard(JObject jObject)
+            : base(jObject)
         {
-            Power = jCardObject.Value<int>("power");
-            Toughness = jCardObject.Value<int>("toughness");
-            IsToken = jCardObject.Value<bool>("token");
+            Power = jObject.Value<int>("power");
+            Toughness = jObject.Value<int>("toughness");
+            IsToken = jObject.Value<bool>("token");
         }
     }
-    
+
     public class PlaneswalkerCard : Card
     {
         public int Loyalty { get; set; }
 
         public PlaneswalkerCard() { }
-        public PlaneswalkerCard(JObject jCardObject) : base(jCardObject)
+        public PlaneswalkerCard(JObject jObject)
+            : base(jObject)
         {
-            Loyalty = jCardObject.Value<int>("loyalty");
+            Loyalty = jObject.Value<int>("loyalty");
         }
     }
 
     public class CardViewModel : AbstractExtensions, ICard, IViewModel
     {
-        public string Id { get {return this.Id;} }
+        public string Id { get { return this.Id; } }
         public string CasterId { get; set; }
         public string Name { get; set; }
         public bool Tapped { get; set; }

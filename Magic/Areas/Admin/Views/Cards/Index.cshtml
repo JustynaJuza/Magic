@@ -7,6 +7,12 @@
 
 <p>
     @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
+
+    <input type="text" id="fetch-set-name" placeholder="Type set id..." />
+    <input type="button" id="fetch-set-submit" class="btn btn-default" value="Fetch selected set (external request)" />
+    <p id="fetch-set-info"></p> 
+
+    @Html.ActionLink("Fetch Cards", "GetCards", "Home", null, new { @class = "btn btn-default" })
 </p>
 
 <table id="cms_listing" class="dataTable">
@@ -35,50 +41,4 @@
     <tfoot></tfoot>
 </table>
 
-<script>
-    $(document).ready(function () {
-        $('.dataTable').DataTable({
-            aoColumnDefs: [
-                    {
-                        "aTargets": [-1],
-                        "bSearchable": false,
-                        "bSortable": false
-                    }
-            ],
-            fnDrawCallback: function () {
-                if ($('#cms_listing').find('tr').length <= $('#cms_listing_length option:selected').val() + 1) {
-                    $('#cms_listing_length').hide();
-                    $('#cms_listing_paginate').hide();
-                } else {
-                    $('#cms_listing_length').show();
-                    $('#cms_listing_paginate').show();
-                }
-            },
-            dom: 'T<"clear">lfrtip',
-            tableTools: {
-                //sSwfPath: '/swf/copy_csv_xls_pdf.swf',
-                aButtons: [
-                    {
-                        sExtends: 'copy',
-                        sButtonText: 'Edit',
-                    },
-                    {
-                        sExtends: 'text',
-                        sButtonText: 'Delete',
-                        fnClick: function (nButton, oConfig, oFlash) {
-                            console.log(nButton, oConfig, oFlash);
-
-                        }
-                    },
-                    {
-                        sExtends: 'collection',
-                        sButtonText: 'Export',
-                        aButtons: [ 'xls', 'csv', 'pdf' ]
-                    },
-                    'print',
-                    'select_all'],
-                sRowSelect: 'multi'
-            }
-        });
-    });
-</script>
+@Scripts.Render("~/Areas/Admin/Scripts/_admin.js")

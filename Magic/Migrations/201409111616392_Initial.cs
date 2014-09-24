@@ -74,6 +74,13 @@ namespace Magic.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(),
+                        Reminder = c.String(),
+                        CallbackName = c.String(),
+                        RequiresTap = c.Boolean(),
+                        PlayerTargets = c.Int(),
+                        CardTargets = c.Int(),
+                        TargetsRequired = c.Int(),
+                        Discriminator = c.String(nullable: false, maxLength: 128),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -85,7 +92,7 @@ namespace Magic.Migrations
                         ColorId = c.Int(nullable: false),
                         Cost = c.Int(nullable: false),
                         HybridColorId = c.Int(),
-                        Discriminator = c.String(nullable: false, maxLength: 128),
+                        Discriminator = c.Int(),
                     })
                 .PrimaryKey(t => new { t.CardId, t.ColorId })
                 .ForeignKey("dbo.Cards", t => t.CardId, cascadeDelete: true)
@@ -105,6 +112,16 @@ namespace Magic.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
+                "dbo.CardTypes",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(),
+                        Discriminator = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.CardSets",
                 c => new
                     {
@@ -114,16 +131,6 @@ namespace Magic.Migrations
                         Block = c.String(),
                         Description = c.String(),
                         DateReleased = c.DateTime(nullable: false),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.CardTypes",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(),
-                        Discriminator = c.Int(),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -320,6 +327,8 @@ namespace Magic.Migrations
                         GameId = c.String(nullable: false, maxLength: 128),
                         CardId = c.String(nullable: false, maxLength: 128),
                         DeckId = c.Int(nullable: false),
+                        Index = c.Int(nullable: false),
+                        Location = c.Int(nullable: false),
                         Discriminator = c.String(nullable: false, maxLength: 128),
                     })
                 .PrimaryKey(t => new { t.UserId, t.GameId, t.CardId })
@@ -390,6 +399,20 @@ namespace Magic.Migrations
                 .Index(t => t.UserId);
             
             CreateTable(
+                "dbo.ActiveAbilityCardManaCosts",
+                c => new
+                    {
+                        ActiveAbility_Id = c.Int(nullable: false),
+                        CardManaCost_CardId = c.String(nullable: false, maxLength: 128),
+                        CardManaCost_ColorId = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => new { t.ActiveAbility_Id, t.CardManaCost_CardId, t.CardManaCost_ColorId })
+                .ForeignKey("dbo.CardAbilities", t => t.ActiveAbility_Id, cascadeDelete: true)
+                .ForeignKey("dbo.CardManaCosts", t => new { t.CardManaCost_CardId, t.CardManaCost_ColorId }, cascadeDelete: true)
+                .Index(t => t.ActiveAbility_Id)
+                .Index(t => new { t.CardManaCost_CardId, t.CardManaCost_ColorId });
+            
+            CreateTable(
                 "dbo.CardTypeCards",
                 c => new
                     {
@@ -401,6 +424,19 @@ namespace Magic.Migrations
                 .ForeignKey("dbo.Cards", t => t.Card_Id, cascadeDelete: true)
                 .Index(t => t.CardType_Id)
                 .Index(t => t.Card_Id);
+            
+            CreateTable(
+                "dbo.TargetAbilityCardTypes",
+                c => new
+                    {
+                        TargetAbility_Id = c.Int(nullable: false),
+                        CardType_Id = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => new { t.TargetAbility_Id, t.CardType_Id })
+                .ForeignKey("dbo.CardAbilities", t => t.TargetAbility_Id, cascadeDelete: true)
+                .ForeignKey("dbo.CardTypes", t => t.CardType_Id, cascadeDelete: true)
+                .Index(t => t.TargetAbility_Id)
+                .Index(t => t.CardType_Id);
             
             CreateTable(
                 "dbo.CardDeckManaColors",
@@ -466,15 +502,19 @@ namespace Magic.Migrations
             DropForeignKey("dbo.CardDeckManaColors", "ManaColor_Id", "dbo.ManaColors");
             DropForeignKey("dbo.CardDeckManaColors", "CardDeck_Id", "dbo.CardDecks");
             DropForeignKey("dbo.Cards", "CardDeck_Id", "dbo.CardDecks");
-            DropForeignKey("dbo.CardTypeCards", "Card_Id", "dbo.Cards");
-            DropForeignKey("dbo.CardTypeCards", "CardType_Id", "dbo.CardTypes");
             DropForeignKey("dbo.Cards", "SetId", "dbo.CardSets");
             DropForeignKey("dbo.Cards", "CardSet_Id", "dbo.CardSets");
+            DropForeignKey("dbo.CardAvailableAbilities", "CardId", "dbo.Cards");
+            DropForeignKey("dbo.CardAvailableAbilities", "AbilityId", "dbo.CardAbilities");
+            DropForeignKey("dbo.TargetAbilityCardTypes", "CardType_Id", "dbo.CardTypes");
+            DropForeignKey("dbo.TargetAbilityCardTypes", "TargetAbility_Id", "dbo.CardAbilities");
+            DropForeignKey("dbo.CardTypeCards", "Card_Id", "dbo.Cards");
+            DropForeignKey("dbo.CardTypeCards", "CardType_Id", "dbo.CardTypes");
+            DropForeignKey("dbo.ActiveAbilityCardManaCosts", new[] { "CardManaCost_CardId", "CardManaCost_ColorId" }, "dbo.CardManaCosts");
+            DropForeignKey("dbo.ActiveAbilityCardManaCosts", "ActiveAbility_Id", "dbo.CardAbilities");
             DropForeignKey("dbo.CardManaCosts", "HybridColorId", "dbo.ManaColors");
             DropForeignKey("dbo.CardManaCosts", "ColorId", "dbo.ManaColors");
             DropForeignKey("dbo.CardManaCosts", "CardId", "dbo.Cards");
-            DropForeignKey("dbo.CardAvailableAbilities", "CardId", "dbo.Cards");
-            DropForeignKey("dbo.CardAvailableAbilities", "AbilityId", "dbo.CardAbilities");
             DropIndex("dbo.ChatRoomConnections", new[] { "UserId" });
             DropIndex("dbo.ChatRoomConnections", new[] { "ConnectionId", "UserId" });
             DropIndex("dbo.ChatRoomConnections", new[] { "ChatRoomId" });
@@ -509,18 +549,24 @@ namespace Magic.Migrations
             DropIndex("dbo.CardDeckManaColors", new[] { "ManaColor_Id" });
             DropIndex("dbo.CardDeckManaColors", new[] { "CardDeck_Id" });
             DropIndex("dbo.Cards", new[] { "CardDeck_Id" });
-            DropIndex("dbo.CardTypeCards", new[] { "Card_Id" });
-            DropIndex("dbo.CardTypeCards", new[] { "CardType_Id" });
             DropIndex("dbo.Cards", new[] { "SetId" });
             DropIndex("dbo.Cards", new[] { "CardSet_Id" });
+            DropIndex("dbo.CardAvailableAbilities", new[] { "CardId" });
+            DropIndex("dbo.CardAvailableAbilities", new[] { "AbilityId" });
+            DropIndex("dbo.TargetAbilityCardTypes", new[] { "CardType_Id" });
+            DropIndex("dbo.TargetAbilityCardTypes", new[] { "TargetAbility_Id" });
+            DropIndex("dbo.CardTypeCards", new[] { "Card_Id" });
+            DropIndex("dbo.CardTypeCards", new[] { "CardType_Id" });
+            DropIndex("dbo.ActiveAbilityCardManaCosts", new[] { "CardManaCost_CardId", "CardManaCost_ColorId" });
+            DropIndex("dbo.ActiveAbilityCardManaCosts", new[] { "ActiveAbility_Id" });
             DropIndex("dbo.CardManaCosts", new[] { "HybridColorId" });
             DropIndex("dbo.CardManaCosts", new[] { "ColorId" });
             DropIndex("dbo.CardManaCosts", new[] { "CardId" });
-            DropIndex("dbo.CardAvailableAbilities", new[] { "CardId" });
-            DropIndex("dbo.CardAvailableAbilities", new[] { "AbilityId" });
             DropTable("dbo.CardDeckUsers");
             DropTable("dbo.CardDeckManaColors");
+            DropTable("dbo.TargetAbilityCardTypes");
             DropTable("dbo.CardTypeCards");
+            DropTable("dbo.ActiveAbilityCardManaCosts");
             DropTable("dbo.ChatRoomUsers");
             DropTable("dbo.ChatRooms");
             DropTable("dbo.ChatRoomConnections");
@@ -539,8 +585,8 @@ namespace Magic.Migrations
             DropTable("dbo.ChatMessages");
             DropTable("dbo.ChatMessageNotifications");
             DropTable("dbo.Users");
-            DropTable("dbo.CardTypes");
             DropTable("dbo.CardSets");
+            DropTable("dbo.CardTypes");
             DropTable("dbo.ManaColors");
             DropTable("dbo.CardManaCosts");
             DropTable("dbo.CardAbilities");

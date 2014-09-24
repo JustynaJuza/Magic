@@ -32,7 +32,7 @@ namespace Magic.Migrations
                 Log = new ChatLog(ChatHub.DefaultRoomId)
             });
 
-            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>().Distinct())
+            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
             {
                 context.ManaColors.AddOrUpdate(new ManaColor { Name = color.ToString() });
             }
@@ -42,15 +42,15 @@ namespace Magic.Migrations
                 context.CardTypes.AddOrUpdate(new CardSuperType { Name = type.ToString() });
             }
 
-            foreach (var type in Enum.GetValues(typeof(MainType)).Cast<MainType>().Distinct())
+            foreach (var type in Enum.GetValues(typeof(MainType)).Cast<MainType>())
             {
                 context.CardTypes.AddOrUpdate(new CardMainType { Name = type.ToString() });
             }
 
-            foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
-            {
-                context.Roles.AddOrUpdate(new IdentityRole { Name = role.ToString() });
-            }
+            //foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            //{
+            //    context.Roles.AddOrUpdate(new IdentityRole { Name = role.ToString() });
+            //}
         }
     }
 }

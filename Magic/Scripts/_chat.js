@@ -10,7 +10,7 @@
     // ----------------------- EVENT HANDLERS ---------------------- BEGIN
     $(document).click(function (e) {
         if ($chat.userTooltip.is(':hidden')) return;
-        if (e.target.id != 'user-profile-tooltip-container' && !e.target.hasClass('chat-user'))
+        if (e.target.id != 'user-profile-tooltip-container' && !$(e.target).hasClass('chat-user'))
             toggleUserTooltip();
     });
 
@@ -532,6 +532,10 @@
     }
 
     function toggleUserTooltip(user) {
+        if (!user) {
+            return $chat.userTooltip.hide();
+        }
+
         if ($chat.userTooltip.data('user') != user) {
             // Get tooltip data.
             var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';

@@ -23,7 +23,7 @@ namespace Magic.Areas.Admin.Controllers
         [AsyncTimeout(200)]
         public async Task<ActionResult> GetCardsAsync()
         {
-            var card = await AdminHub.MakeCardRequest();
+            var card = await AdminHub.MakeCardsRequest();
             return View(card);
         }
     }

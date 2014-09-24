@@ -81,10 +81,16 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Card).WithMany(u => u.Colors).HasForeignKey(c => c.CardId);
             modelBuilder.Entity<CardManaCost>().HasRequired(c => c.Color).WithMany().HasForeignKey(c => c.ColorId);
             modelBuilder.Entity<HybridManaCost>().HasRequired(h => h.HybridColor).WithMany().HasForeignKey(h => h.HybridColorId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<CardManaCost>().Map<CardManaCost>(r => r.Requires("Discriminator").HasValue(0));
+            modelBuilder.Entity<CardManaCost>().Map<HybridManaCost>(r => r.Requires("Discriminator").HasValue(1));
 
             modelBuilder.Entity<CardAvailableAbility>().HasKey(k => new { k.CardId, k.AbilityId });
             modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Card).WithMany(m => m.Abilities).HasForeignKey(c => c.CardId);
             modelBuilder.Entity<CardAvailableAbility>().HasRequired(c => c.Ability).WithMany(u => u.Cards).HasForeignKey(c => c.AbilityId);
+
+            modelBuilder.Entity<CardAbility>();
+            modelBuilder.Entity<ActiveAbility>().HasMany(a => a.Costs).WithMany();
+            modelBuilder.Entity<TargetAbility>().HasMany(a => a.CardTypesRequired).WithMany();
 
             //modelBuilder.Entity<CardType>().HasKey(k => k.Name);
             modelBuilder.Entity<CardType>().HasMany(t => t.Cards).WithMany(c => c.Types);
