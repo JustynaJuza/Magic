@@ -1,0 +1,132 @@
+﻿@model Autographer.Models.LandingPages.PictureTile
+@{ var i = 0; }
+
+<div class="narrow-container clearfix" id="pictureTile_@ViewData["tileIndex"]" 
+     style="background: @(Model.IsBlack ? "black" : "white"); color: @(Model.IsBlack ? "white" : "black"); border: 2px solid black; margin: 2px 0;">
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Type)
+
+    <figure>
+        <div class="imgWrapper">
+            <div class="property-editor" style="min-height: 500px;">
+                <div class="display-default">
+                    <div class="placeholder-img" style="min-height: 500px;">Click to add image.</div>
+                    @*@Html.LabelFor(m => m.ImageUrl)*@
+                </div>
+                <div class="display-field img">
+                    @Html.DisplayFor(m => m.ImageUrl, "Image")
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(m => m.ImageUrl, "UploadImage")
+                </div>
+                @Html.ValidationMessageFor(m => m.ImageUrl)
+
+                <div class="property-editor alt">
+                    <div class="display-default">
+                        @Html.LabelFor(m => m.ImageDescription)
+                    </div>
+                    <div class="display-field">
+                        @Html.DisplayFor(m => m.ImageDescription)
+                    </div>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(m => m.ImageDescription, new { placeholder = "Image description (Alt text)" })
+                        <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                    </div>
+                    @Html.ValidationMessageFor(m => m.ImageDescription)
+                </div>
+            </div>
+
+            @Html.CheckBoxFor(m => m.IsBlack, new { id = "pictureTile-chk_" + @ViewData["tileIndex"] })
+
+            <input type="button" id="AddAnimationFrame_@ViewData["tileIndex"]" name="AddAnimationFrame_@ViewData["tileIndex"]" value="Add a frame" class="btn btn-warning" />
+            <input type="button" id="RemoveAnimationFrame_@ViewData["tileIndex"]" name="RemoveAnimationFrame_@ViewData["tileIndex"]" value="Remove last frame" class="btn btn-danger" />
+
+
+            <div id="animationFrames_@ViewData["tileIndex"]" class="animationFrames clearfix">
+                @while (i < Model.AnimationFrames.Count)
+{
+    <div class="property-editor" style="min-height: 185px">
+        <div class="display-default">
+            <div class="placeholder-img" style="min-height: 185px">Click to add image.</div>
+        </div>
+        <div class="display-field img">
+            @Html.DisplayFor(m => m.AnimationFrames[i].ImageUrl, "Image")
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(m => m.AnimationFrames[i].ImageUrl, "UploadImage")
+        </div>
+        @Html.ValidationMessageFor(m => m.AnimationFrames[i].ImageUrl)
+    </div>
+    i++;
+}
+            </div>
+        </div>
+
+        <figcaption>
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.Title)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.Title)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(x => x.Title, new { @class = "textarea" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div class="tile-caption">
+                <div class="property-editor">
+                    <div class="display-default">
+                        @Html.LabelFor(m => m.Description)
+                    </div>
+                    <div class="display-field">
+                        @Html.DisplayFor(m => m.Description)
+                    </div>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(x => x.Description, new { @class = "textarea" })
+                        <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Description)
+                </div>
+            </div>
+        </figcaption>
+    </figure>
+</div>
+
+<script>
+    $(function() {
+        var i = '@i';
+        $('#AddAnimationFrame_@ViewData["tileIndex"]').click(function() {
+            $.ajax({
+                url: '@Url.Action("AddAnimationFramePartial")',
+                data: {
+                    panelIndex: '@ViewData["panelIndex"]',
+                    tileIndex: '@ViewData["tileIndex"]',
+                    frameIndex: i
+                },
+                type: 'POST',
+                success: function(data) {
+                    i++;
+                    $('#animationFrames_@ViewData["tileIndex"]').append(data);
+                }
+            });
+        });
+
+        $('#RemoveAnimationFrame_@ViewData["tileIndex"]').click(function() {
+            if (i > 0) {
+                i--;
+            }
+            $('#animationFrames_@ViewData["tileIndex"] .property-editor:last').remove();
+        });
+
+        $(document).on('change', '#pictureTile-chk_@ViewData["tileIndex"]', function() {
+            $('#pictureTile_@ViewData["tileIndex"]').css({
+                background: ($(this).is(':checked') ? 'black' : 'white'),
+                color: ($(this).is(':checked') ? 'white' : 'black')
+            });
+        });
+    });
+    </script>

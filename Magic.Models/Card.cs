@@ -28,6 +28,8 @@ namespace Magic.Models
         public DateTime DateReleased { get; set; }
         [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
+        [DataType(DataType.ImageUrl)]
+        public string ImagePreview { get; set; }
         public string Artist { get; set; }
         public bool IsPermanent { get; set; }
         public bool IsTapped { get; set; }
@@ -41,6 +43,7 @@ namespace Magic.Models
 
         public Card()
         {
+            //Image = 
             IsTapped = false;
             Types = new List<CardType>();
             Colors = new List<CardManaCost>();
@@ -52,18 +55,21 @@ namespace Magic.Models
         {
             MultiverseId = jObject.Value<int>("id");
             Name = jObject.Value<string>("name");
-            //SetId = jObject.Value<string>("cardSetId");
+            SetId = jObject.Value<string>("cardSetId");
             SetNumber = jObject.Value<int>("setNumber");
             DateReleased = jObject.Value<DateTime>("releasedAt");
             Artist = jObject.Value<string>("artist");
-            Rarity = (Rarity)Enum.Parse(typeof(Rarity), jObject.Value<string>("rarity"), true);
+
+            var rarity = jObject.Value<string>("rarity").Replace(" ", "");
+            Rarity = Enum.IsDefined(typeof(Rarity), rarity) ? (Rarity)Enum.Parse(typeof(Rarity), rarity, true) : Rarity.Common;
+
             ConvertedManaCost = jObject.Value<int>("convertedManaCost");
             Description = jObject.Value<string>("description");
             Flavor = jObject.Value<string>("flavor").Replace("â€”", " —").Trim();
-            Id = Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", "");
+            Id = Name.ToLower().Replace("\\s+", "_").Replace("[^a-z0-9]*", "");
 
             var types = jObject.Value<string>("type").Replace("Summon", "Creature").Replace("Interrupt", "Instant").Split(' ');
-            typeNames = jObject.Value<string>("subType").Split(' ').Concat(types);
+            typeNames = jObject.Property("subType").Value.HasValues ? jObject.Value<string>("subType").Split(' ').Concat(types) : types;
             manaCode = jObject.Value<string>("manaCost");
         }
 

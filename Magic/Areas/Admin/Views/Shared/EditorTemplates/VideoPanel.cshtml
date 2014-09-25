@@ -1,0 +1,145 @@
+﻿@model Autographer.Models.LandingPages.VideoPanel
+@{ var i = 0; }
+
+
+<div class="alternativePanel">
+    <div class="narrow-container">
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.Type)
+
+        <header class="with_A_divider">
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.Title)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.Title)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(x => x.Title, new { @class = "textarea" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.Description)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.Description)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(x => x.Description, new { @class = "textarea" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.Description)
+            </div>
+        </header>
+
+        <div class="property-editor" style="min-height: 70px;">
+            <div class="display-default">
+                <div class="placeholder-img" style="min-height: 70px;">Click to add image.</div>
+                @*@Html.LabelFor(m => m.VideoImageUrl)*@
+            </div>
+            <div class="display-field img">
+                @Html.DisplayFor(m => m.VideoImageUrl, "Image")
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(m => m.VideoImageUrl, "UploadImage")
+            </div>
+            @Html.ValidationMessageFor(m => m.VideoImageUrl)
+        </div>
+
+        <div class="property-editor">
+            <div class="display-default">
+                @Html.LabelFor(m => m.VideoUrl)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(m => m.VideoUrl)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(m => m.VideoUrl, new { placeholder = "YouTube video link" })
+                <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+            </div>
+            @Html.ValidationMessageFor(m => m.VideoUrl)
+        </div>
+
+        <div class="property-editor">
+            <div class="display-default">
+                @Html.LabelFor(m => m.SensorDescription)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(m => m.SensorDescription)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(x => x.SensorDescription, new { @class = "textarea" })
+                <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+            </div>
+            @Html.ValidationMessageFor(m => m.SensorDescription)
+        </div>
+
+        <div class="property-editor" style="min-height: 70px;">
+            <div class="display-default">
+                <div class="placeholder-img" style="min-height: 70px;">Click to add image.</div>
+                @*@Html.LabelFor(m => m.ImageUrl)*@
+            </div>
+            <div class="display-field img">
+                @Html.DisplayFor(m => m.ImageUrl, "Image")
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(m => m.ImageUrl, "UploadImage")
+            </div>
+            @Html.ValidationMessageFor(m => m.ImageUrl)
+
+            <div class="property-editor alt">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.ImageDescription)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.ImageDescription)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.ImageDescription, new { placeholder = "Image description (Alt text)" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.ImageDescription)
+            </div>
+        </div>
+
+        <div class="property-editor">
+            <div class="display-default">
+                @Html.LabelFor(m => m.VideoDescription)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(m => m.VideoDescription)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(x => x.VideoDescription, new { @class = "textarea" })
+                <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+            </div>
+            @Html.ValidationMessageFor(m => m.VideoDescription)
+        </div>
+    </div>
+
+    <div id="accessories" class="clearfix">
+        @while (i < Model.PictureBar.Count)
+        {
+            <div class="property-editor" style="float: left; width: 16.6666666%; min-height: 70px; margin-bottom:0px">
+                <div class="display-default" style="margin-bottom: 0px">
+                    <div class="placeholder-img" style="min-height: 70px; margin-bottom: 0px">Click to add image.</div>
+                    @*@Html.LabelFor(m => m.PictureBar[i].ImageUrl)*@
+                </div>
+                <div class="display-field img" style="margin-bottom: 0px">
+                    @Html.DisplayFor(m => m.PictureBar[i].ImageUrl, "Image")
+                </div>
+                <div class="editor-field" style="margin-bottom: 0px">
+                    @Html.EditorFor(m => m.PictureBar[i].ImageUrl, "UploadImage")
+                </div>
+                @Html.ValidationMessageFor(m => m.PictureBar[i].ImageUrl)
+            </div>
+            i++;
+        }
+    </div>
+
+</div>

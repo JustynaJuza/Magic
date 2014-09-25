@@ -13,18 +13,13 @@ using Newtonsoft.Json;
 namespace Magic.Areas.Admin.Controllers
 {
     [Authorize]
-    public class HomeController : AsyncController
+    public class HomeController : Controller
     {
         public ActionResult Index()
         {
             return View();
         }
 
-        [AsyncTimeout(200)]
-        public async Task<ActionResult> GetCardsAsync()
-        {
-            var card = await AdminHub.MakeCardsRequest();
-            return View(card);
-        }
+        //[AsyncTimeout(200)]
     }
 }

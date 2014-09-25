@@ -72,6 +72,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<PlayerCardDeck>().HasRequired(pcd => pcd.Deck).WithMany().HasForeignKey(pcd => pcd.DeckId);
 
             modelBuilder.Entity<CardDeck>().HasMany(d => d.Colors).WithMany();
+            modelBuilder.Entity<CardDeck>().HasMany(d => d.Cards).WithMany();
             modelBuilder.Entity<CardDeck>().HasRequired(d => d.Creator).WithMany(u => u.DecksCreated).WillCascadeOnDelete(false);
             modelBuilder.Entity<CardDeck>().HasMany(d => d.UsedByUsers).WithMany(u => u.DeckCollection);
 
@@ -98,7 +99,9 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<CardType>().Map<CardMainType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.MainType));
             modelBuilder.Entity<CardType>().Map<CardSubType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.SubType));
 
-            modelBuilder.Entity<Card>().HasOptional(c => c.Set).WithMany().HasForeignKey(c => c.SetId);
+            modelBuilder.Entity<Card>().HasOptional(c => c.Set).WithMany(s => s.Cards).HasForeignKey(c => c.SetId);
+            modelBuilder.Entity<Card>().Map<CreatureCard>(r => r.Requires("Discriminator").HasValue("Creature"));
+            modelBuilder.Entity<Card>().Map<PlaneswalkerCard>(r => r.Requires("Discriminator").HasValue("Planeswalker"));
 
             modelBuilder.Entity<ChatMessage>().HasKey(m => new { m.Id, m.LogId });
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);

@@ -199,6 +199,10 @@
     <Compile Include="Migrations\201409111616392_Initial.Designer.cs">
       <DependentUpon>201409111616392_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201409251519524_ImgePreview.cs" />
+    <Compile Include="Migrations\201409251519524_ImgePreview.Designer.cs">
+      <DependentUpon>201409251519524_ImgePreview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -268,7 +272,6 @@
     <Content Include="Content\_chat.less" />
     <Content Include="Areas\Admin\Views\web.config" />
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
-    <Content Include="Areas\Admin\Views\Home\GetCards.cshtml" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
@@ -318,22 +321,22 @@
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
     <Content Include="Views\LandingPages\_AjaxUploadFilePartial.cshtml" />
     <Content Include="Views\LandingPages\_AnimationFramePartial.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\AnimationFrame.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ArticlePanel.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\FormPanel.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\IntroPanel.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PicturePanel.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\PictureTile.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\SimpleTile.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\VideoPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\AnimationFrame.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\Card.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\FormPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\IntroPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\PicturePanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\PictureTile.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\SimpleTile.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\VideoPanel.cshtml" />
     <Content Include="Views\Shared\_TilePanelPartial.cshtml" />
     <Content Include="Views\Shared\_UploaderPartial.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ImageUpload.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\ImageUpload.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
     <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
     <Content Include="Views\Shared\_UserProfileTooltipPartial.cshtml" />
     <Content Include="Views\Shared\_NavBarPartial.cshtml" />
@@ -362,6 +365,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201409111616392_Initial.resx">
       <DependentUpon>201409111616392_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201409251519524_ImgePreview.resx">
+      <DependentUpon>201409251519524_ImgePreview.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
