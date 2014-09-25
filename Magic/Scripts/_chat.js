@@ -14,37 +14,6 @@
             toggleUserTooltip();
     });
 
-    //$(document).popover({
-    //    selector: '.chat-user',
-    //    container: '.chat',
-    //    trigger: 'manual',
-    //    html: true,
-    //    content: function () {
-    //        var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
-    //        jQuery.ajaxSetup({
-    //            async: false,
-    //            traditional: true
-    //        });
-    //        $.get(url, { userName: $(this).text() }, function (htmlContent) {
-    //            return htmlContent;
-    //        });
-    //    },
-    //    title: function () {
-    //        return 'Test';
-    //    },
-    //    placement: function (tip, element) {
-    //        var offset = $(element).offset();
-    //        height = $(document).outerHeight();
-    //        width = $(document).outerWidth();
-    //        vert = 0.5 * height - offset.top;
-    //        vertPlacement = vert > 0 ? 'bottom' : 'top';
-    //        horiz = 0.5 * width - offset.left;
-    //        horizPlacement = horiz > 0 ? 'right' : 'left';
-    //        placement = Math.abs(horiz) > Math.abs(vert) ? horizPlacement : vertPlacement;
-    //        return placement;
-    //    }
-    //});
-
     $(document).on('click', '.chat-user', function () {
         clearTimeout(window.clickTimer);
         window.clickTimer = setTimeout(function (element) {
@@ -54,8 +23,9 @@
 
         if ($(this).data('click')) {
             clearTimeout(window.clickTimer);
-            if (!selectExiststingRoom($(this).text())) {
-                $chat.addRoomTab($(this).text());
+            var recipients = [userName, $(this).text()].sort();
+            if (!$chat.selectExiststingRoom(recipients)) {
+                $chat.addRoomTab(recipients);
                 $chat.newMessage.focus();
             }
             return $(this).data('click', false);
@@ -63,19 +33,11 @@
         return $(this).data('click', true);
     });
 
-    //$(document).on('click', '#user-profile-tooltip-container-overlay', function () {
-    //    toggleUserTooltip();
-    //});
-
     //$(document).on('mouseenter', '.chat-user', function () {
     //    window.tooltipTimer = setTimeout(function (element) {
     //        var user = $(element).text();
     //        if ($chat.userTooltip.data('user') != user) {
     //            var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
-    //            //jQuery.ajaxSetup({
-    //            //    async: false,
-    //            //    traditional: true
-    //            //});
     //            $.get(url, { userName: user }, function(htmlContent) {
     //                $chat.userTooltip.data('user', user);
     //                $chat.userTooltip.html('');
@@ -161,8 +123,13 @@
         var selectedUsers = $('.toggle').map(function () {
             return $(this)[0].textContent;
         });
+        selectedUsers.push(userName);
+        selectedUsers.sort();
+        selectedUsers = selectedUsers.toArray();
 
-        $chat.addRoomTab(selectedUsers.toArray());
+        if (!$chat.selectExiststingRoom(selectedUsers)) {
+            $chat.addRoomTab(selectedUsers);
+        }
         toggleAvailableUsers(false);
     });
 
@@ -172,12 +139,11 @@
 
     $(document).on('mouseover', '.chat-room-tab-name, .chat-user, .available-chat-user', function () {
         if (this.offsetWidth < this.scrollWidth) {
-            var overflow = this.scrollWidth - this.offsetWidth + 2;
             horizontalMouseOverScroll = setInterval(function scrolling(element) {
                 if ($(element).is(':animated')) {
                     return null;
                 }
-                animateScrollLeft(element, overflow);
+                animateScrollLeft(element);
                 setTimeout(function () {
                     animateScrollRight(element);
                 }, 250);
@@ -259,14 +225,20 @@
             }
         });
 
-        this.addRoomTab = function (recipientNames, roomId, isAsyncRequest, activateTabAfterwards) {
-            chatRoomRequestInProgress[roomId] = true;
-            var recipients = [];
-            if (recipientNames instanceof Array) {
-                recipients = [userName].concat(recipientNames);
-            } else {
-                recipients = [recipientNames, userName];
+        this.selectExiststingRoom = function (recipients) {
+            var exisitingRoom = _.find(this.roomTabs, function (element) {
+                return recipients.equals($(element).data('recipients'));
+            });
+
+            if (exisitingRoom) {
+                $('#' + exisitingRoom.id).trigger('click');
+                return true;
             }
+            return false;
+        };
+
+        this.addRoomTab = function (recipients, roomId, isAsyncRequest, activateTabAfterwards) {
+            chatRoomRequestInProgress[roomId] = true;
             var isExistingRoom = roomId != null;
             activateTabAfterwards = roomId == null || activateTabAfterwards;
             var url = window.basePath + 'Chat/GetChatRoomPartial/';
@@ -443,7 +415,7 @@
 
     // Enable smooth scrolling chat messages and chat users.
     //$chat.messagesContainers.each(function() {
-    //    $(this).scroll(smoothScroll($(this), $('.chat-message')));
+    //    $(this).scroll(smoothScroll(this, '.chat-message'));
     //});
     //$chat.usersContainers.each(function() {
     //    $(this).scroll(smoothScroll($(this), $('.chat-user')));
@@ -454,57 +426,23 @@
     //    $newChatMessage.css('padding-left', newPadding);
     //}
 
-    //$chat.roomSelection.click(function () {
-    //    $chatRoomSelectList.toggle();
-    //});
-
-    //$chatRoomSelectList.select(function () {
-    //    alert('select in list changed')
-    //    activeChatRoom = $chat.roomSelection.prop('id');
-    //});
-
-    //$('.chat-user').popover({
-    //    placement: 'top',
-    //    content: '<button class="btn btn-default" style="width: 100px;">' + this.text() + '</button><button class="btn btn-default" style="width: 100px;">Test</button>',
-    //    html: true
-    //});
-    //$('.chat-user').tooltipster({
-    //    trigger: 'click',
-    //    interactive: 'true',
-    //    content: 'Loading...',
-    //    functionBefore: function (element, continueTooltip) {
-    //        alert(0)
-    //        // we'll make this function asynchronous and allow the tooltip to go ahead and show the loading notification while fetching our data
-    //        //continueTooltip();
-
-    //        // next, we want to check if our data has already been cached
-    //        if (!element.data('ajax')) {
-    //            var url = window.basePath + 'Chat/GetAvailableUsersPartial/';
-    //            $.get(url, { userName: element.text() }, function (htmlContent) {
-    //                alert(htmlContent)
-    //                element.tooltipster('content', htmlContent).data('ajax', true);
-    //            });
-    //        }
-    //    }
-    //});
-
     // --------------------- HELPER FUNCTIONS ---------------------- START
-    function smoothScroll($container, $scrollingEntry) {
-        var lineHeightInPixels = 20;
-        var marginSize = 10;
-        var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
-        var linesTotal = (($container[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
+    //function smoothScroll($container, $scrollingEntry) {
+    //    var lineHeightInPixels = 20;
+    //    var marginSize = 10;
+    //    var linesVisible = ($container.height() / lineHeightInPixels).toFixed(0);
+    //    var linesTotal = (($container[0].scrollHeight - marginSize) / lineHeightInPixels).toFixed(0);
 
-        // Get number of oldest message lines to fade out based on line height and scroll position.
-        var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
-        console.log(linesTotal, linesVisible, linesToFadeUpper);
-        // Fade upper lines out.
-        $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01);
-        // Fade visible lines in.
-        $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1);
-        // Fade lower lines out.
-        $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01);
-    }
+    //    // Get number of oldest message lines to fade out based on line height and scroll position.
+    //    var linesToFadeUpper = ($container.scrollTop() / lineHeightInPixels).toFixed(0);
+    //    console.log(linesTotal, linesVisible, linesToFadeUpper);
+    //    // Fade upper lines out.
+    //    $scrollingEntry.slice(0, linesToFadeUpper).fadeTo(0, 0.01);
+    //    // Fade visible lines in.
+    //    $scrollingEntry.slice(linesToFadeUpper, linesToFadeUpper + linesVisible).fadeTo(0, 1);
+    //    // Fade lower lines out.
+    //    $scrollingEntry.slice(linesToFadeUpper + linesVisible, linesTotal).fadeTo(0, 0.01);
+    //}
 
     function toggleTabBar(on) {
         if (on) {
@@ -556,54 +494,8 @@
         return $chat.newMessage.val().split(' ')[0].toLowerCase() == value;
     }
 
-    function selectExiststingRoom(selectedUser) {
-        var exisitingRoom = _.find($chat.roomTabs, function (element) {
-            return element.textContent.trim().split(' ')[0] == selectedUser;
-        });
-
-        if (exisitingRoom) {
-            $('#' + exisitingRoom.id).trigger('click');
-            return true;
-        }
-        return false;
-    }
-
-    function animateScrollLeft(element, overflow) {
-        $(element).animate({ scrollLeft: overflow }, 1625);
-    }
-
-    function animateScrollRight(element) {
-        $(element).animate({ scrollLeft: 0 }, 1625);
-    }
-
-    function blink(element) {
-        $(element).fadeTo(500, 0.75);
-        $(element).fadeTo(500, 1);
-    }
-
     function scrollContainerToBottom(element) {
         $(element).animate({ scrollTop: $(element)[0].scrollHeight }, 1000);
-    }
-
-    function moveToScroll(element) {
-        var top = $(window).scrollTop() - $(element).offset().top;
-        //var left = 0.5 * $(document).outerWidth() - offset.left;
-        $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
-    }
-
-    function attachToThis(element, otherElement) {
-        var box = $(element)[0].getBoundingClientRect();
-        var left = box.left;
-        //var left = 0.5 * $(document).outerWidth() - offset.left;
-        var width = $(otherElement).outerWidth();
-        var x = left - 0.5 * width;
-        $(otherElement).css({ 'left': x + 'px' }); //, {'left': left + 'px'});
-    }
-
-    // Html-encode messages for display in the page.
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
     }
     // --------------------- HELPER FUNCTIONS ---------------------- END
 });
