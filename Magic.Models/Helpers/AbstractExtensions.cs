@@ -1,6 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
+using System.Text;
+using System.Web.Mvc;
+using System.Web.UI;
 using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -99,6 +103,28 @@ namespace Magic.Models.Helpers
                 yield return elements[swapIndex];
                 elements[swapIndex] = elements[i];
             }
+        }
+
+        public static string RenderPartialToString(string viewName, object model)
+        {
+            var viewPage = new ViewPage
+            {
+                ViewContext = new ViewContext(), 
+                ViewData = new ViewDataDictionary(model)
+            };
+
+            viewPage.Controls.Add(viewPage.LoadControl(viewName));
+
+            var sb = new StringBuilder();
+            using (var sw = new StringWriter(sb))
+            {
+                using (var tw = new HtmlTextWriter(sw))
+                {
+                    viewPage.RenderControl(tw);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

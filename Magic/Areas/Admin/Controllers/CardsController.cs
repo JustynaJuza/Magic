@@ -9,10 +9,11 @@ using System.Web.Mvc;
 using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
+using Microsoft.AspNet.SignalR;
 
 namespace Magic.Areas.Admin.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class CardsController : Controller
     {
         private MagicDbContext context = new MagicDbContext();
@@ -29,6 +30,18 @@ namespace Magic.Areas.Admin.Controllers
             return View(context.Cards.ToList());
         }
         
+        //public static void UpdateCard(Card model)
+        //{
+        //    var partial = PartialView("~/Areas/Admin/Views/Shared/EditorTemplates/Card.cshtml", model)
+        //    var adminHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+        //    adminHubContext.Clients.All.updateCard(model.Id, partial);
+        //}
+
+        //public async ActionResult FetchSetWithCards(string id)
+        //{
+        //    return await FetchSet(id, true).Result;
+        //}
+
         //[AsyncTimeout(200)]
         //public async void FetchCardsAsync()
         //{
@@ -93,6 +106,7 @@ namespace Magic.Areas.Admin.Controllers
             {
                 string errorText;
                 TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
+                UpdateCard(model);
                 return RedirectToAction("Index");
             }
 

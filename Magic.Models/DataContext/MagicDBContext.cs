@@ -40,7 +40,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<UserRelation>().HasRequired(ur => ur.RelatedUser).WithMany().HasForeignKey(ur => ur.RelatedUserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<UserRelation>().Map<UserRelationFriend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
             modelBuilder.Entity<UserRelation>().Map<UserRelationIgnored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
-            
+
             modelBuilder.Entity<ChatRoomConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
             modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.User).WithMany().HasForeignKey(ruc => ruc.UserId).WillCascadeOnDelete(false);
@@ -100,6 +100,7 @@ namespace Magic.Models.DataContext
             modelBuilder.Entity<CardType>().Map<CardSubType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.SubType));
 
             modelBuilder.Entity<Card>().HasOptional(c => c.Set).WithMany(s => s.Cards).HasForeignKey(c => c.SetId);
+            modelBuilder.Entity<Card>().Map<Card>(r => r.Requires("Discriminator").HasValue("Card"));
             modelBuilder.Entity<Card>().Map<CreatureCard>(r => r.Requires("Discriminator").HasValue("Creature"));
             modelBuilder.Entity<Card>().Map<PlaneswalkerCard>(r => r.Requires("Discriminator").HasValue("Planeswalker"));
 
@@ -273,7 +274,7 @@ namespace Magic.Models.DataContext
             {
                 return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
             }
-            
+
             if (ex is System.Data.Entity.Validation.DbEntityValidationException)
             {
                 var errors = string.Empty;
