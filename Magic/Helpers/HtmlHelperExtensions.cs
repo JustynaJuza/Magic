@@ -119,6 +119,28 @@ namespace Magic.Helpers
             return MvcHtmlString.Create(leftTag + innerElement + rightTag);
         }
 
+        public static MvcHtmlString EnumDropDownListFor<TModel, TProperty>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TProperty>> expression)
+{
+    // Get the type of the property.
+    var typeOfProperty = expression.ReturnType;
+    if (!typeOfProperty.IsEnum)
+    {
+        throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+    }
+ 
+    // Get all the enum values.
+    var values = Enum.GetValues(typeOfProperty);
+  
+    // Create a dictionary of the enum values.
+    var items = values.Cast<object>().ToDictionary(key => key, value => value.ToString());
+ 
+    // Get the metadata for the expression and ViewData of the current view.
+    var metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
+ 
+    // Create a select list from the dictionary and use the default DropDownListFor method to create a drop down list.
+    return htmlHelper.DropDownListFor(expression, new SelectList(items, "Key", "Value", metadata.Model));
+}
+
         //public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
         //{
         //    return helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));

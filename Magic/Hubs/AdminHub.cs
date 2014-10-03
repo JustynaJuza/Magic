@@ -18,30 +18,30 @@ namespace Magic.Hubs
 {
     public class AdminHub : Hub
     {
-        public void Insert(Card model, bool isUpdate = false)
-        {
-            model.Id = model.Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", ""); //Guid.NewGuid().ToString();
-            InsertOrUpdate(model, isUpdate);
-        }
+        //public void Insert(Card model, bool isUpdate = false)
+        //{
+        //    model.Id = model.Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", ""); //Guid.NewGuid().ToString();
+        //    InsertOrUpdate(model, isUpdate);
+        //}
         
-        public void Update(Card model, bool isUpdate = false) //[Bind(Include = "Id, Name")] 
-        {
-            InsertOrUpdate(model, isUpdate);
-        }
+        //public void Update(Card model, bool isUpdate = false) //[Bind(Include = "Id, Name")] 
+        //{
+        //    InsertOrUpdate(model, isUpdate);
+        //}
 
-        private void InsertOrUpdate(Card model, bool isUpdate = false)
-        {
-            if (ModelState.IsValid)
-            {
-                string errorText;
-                TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
-                return RedirectToAction("Index");
-            }
+        //private void InsertOrUpdate(Card model, bool isUpdate = false)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        string errorText;
+        //        TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
+        //        return RedirectToAction("Index");
+        //    }
 
-            // Process model errors.
-            ViewBag.IsUpdate = isUpdate;
-            return View("CreateOrEdit", model);
-        }
+        //    // Process model errors.
+        //    ViewBag.IsUpdate = isUpdate;
+        //    return View("CreateOrEdit", model);
+        //}
 
 
         //public static async Task<Card> MakeCardsRequest()
