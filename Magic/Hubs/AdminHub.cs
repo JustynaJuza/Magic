@@ -72,13 +72,14 @@ namespace Magic.Hubs
         //    return cards.FirstOrDefault();
         //}
 
-        public static async Task<IList<Card>> FetchSetWithCards(string id)
+        public async Task FetchSetWithCards(string id)
         {
-            return FetchSet(id, true).Result;
+            FetchSet(id, true);
         }
 
-        public static async Task<IList<Card>> FetchSet(string id, bool includeCards)
+        public async Task FetchSet(string id, bool includeCards)
         {
+            //Task<IList<Card>> cardProcessing = null;
             //var adminHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             //adminHubContext.Clients.Caller.updateRequestProgress("Request in progress...");
             var requestUrl = new Uri("http://api.mtgdb.info/sets/" + id);
@@ -92,15 +93,14 @@ namespace Magic.Hubs
                 requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
                     {
                         await setProcessing;
-                        return ProcessCards(request.Result);
+                        ProcessCards(request.Result);
                     });
                 //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
                 //    Task.Run(() => cardsHandler.DownloadStringTaskAsync(requestUrl + "/cards/").ContinueWith(request => ProcessCards(request.Result))));
             }
-            catch (Exception ex)
-            {
-                return new List<Card>();
-            }
+            catch (Exception ex) { }
+
+            //return cardProcessing.Result ?? new List<Card>();
         }
 
         private static void ProcessSet(string response)
@@ -117,7 +117,7 @@ namespace Magic.Hubs
         private static async Task<IList<Card>> ProcessCards(string response)
         {
             //Clients.Caller.updateRequestProgress("Processing card data...");
-            var cards = JArray.Parse(response).Select(c => JsonConvert.DeserializeObject<Card>(c.ToString(), new CardConverter()));
+            var cards = JArray.Parse(response).Select(c => JsonConvert.DeserializeObject<Card>(c.ToString(), new CardConverter())).ToList();
             foreach (var card in cards)
             {
                 var path = FetchCardImage(card.MultiverseId, card.Id);
