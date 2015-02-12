@@ -4,7 +4,7 @@
     if ($.connection.hub && $.connection.hub.state == 4) {
         $.connection.hub.start().done(function () {
             $('#fetch-set-submit').on('click', function () {
-                window.admin.server.fetchSet($('#fetch-set-name').val(), true);
+                window.admin.server.fetchSetWithCards($('#fetch-set-name').val());
                 $('#fetch-set-info').append('Request sent...<br />');
             });
         });
