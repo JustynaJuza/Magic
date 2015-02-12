@@ -106,7 +106,7 @@ namespace Magic.Areas.Admin.Controllers
             {
                 string errorText;
                 TempData["Error"] = context.InsertOrUpdate(model, out errorText) ? null : errorText;
-                UpdateCard(model);
+                //UpdateCard(model);
                 return RedirectToAction("Index");
             }
 

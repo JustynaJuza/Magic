@@ -178,13 +178,6 @@
     <Compile Include="Helpers\CardFactory.cs" />
     <Compile Include="Interfaces\ICard.cs" />
     <Compile Include="Interfaces\IViewModel.cs" />
-    <Compile Include="LandingPages\ArticlePanel.cs" />
-    <Compile Include="LandingPages\FormPanel.cs" />
-    <Compile Include="LandingPages\IntroPanel.cs" />
-    <Compile Include="LandingPages\LandingPage.cs" />
-    <Compile Include="LandingPages\LandingPagePanel.cs" />
-    <Compile Include="LandingPages\PicturePanel.cs" />
-    <Compile Include="LandingPages\VideoPanel.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />

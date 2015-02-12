@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using Magic.Models.Helpers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;

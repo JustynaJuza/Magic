@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -105,26 +105,26 @@ namespace Magic.Models.Helpers
             }
         }
 
-        public static string RenderPartialToString(string viewName, object model)
-        {
-            var viewPage = new ViewPage
-            {
-                ViewContext = new ViewContext(), 
-                ViewData = new ViewDataDictionary(model)
-            };
+        //public static string RenderPartialToString(string viewName, object model)
+        //{
+        //    var viewPage = new ViewPage
+        //    {
+        //        ViewContext = new ViewContext(), 
+        //        ViewData = new ViewDataDictionary(model)
+        //    };
 
-            viewPage.Controls.Add(viewPage.LoadControl(viewName));
+        //    viewPage.Controls.Add(viewPage.LoadControl(viewName));
 
-            var sb = new StringBuilder();
-            using (var sw = new StringWriter(sb))
-            {
-                using (var tw = new HtmlTextWriter(sw))
-                {
-                    viewPage.RenderControl(tw);
-                }
-            }
+        //    var sb = new StringBuilder();
+        //    using (var sw = new StringWriter(sb))
+        //    {
+        //        using (var tw = new HtmlTextWriter(sw))
+        //        {
+        //            viewPage.RenderControl(tw);
+        //        }
+        //    }
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
     }
 }

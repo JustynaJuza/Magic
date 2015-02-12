@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,8 +99,9 @@ namespace Magic.Hubs
             }
             catch (Exception ex)
             {
-                return new List<Card>();
             }
+            
+            return new List<Card>();
         }
 
         private static void ProcessSet(string response)
@@ -131,7 +132,7 @@ namespace Magic.Hubs
                 }
             }
             //Clients.Caller.updateRequestProgress("Card data saved!");
-            return cards;
+            return cards.ToList();
         }
 
         public static async Task<string> FetchCardImage(int id, string fileName)

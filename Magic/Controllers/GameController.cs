@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Magic.Models;
 using System;
@@ -148,15 +148,19 @@ namespace Magic.Controllers
 
         public async Task Pause(string gameId)
         {
-            var dateSuspended = DateTime.Now;
-            HttpContext.Application[gameId] = new CancellationTokenSource();
-            var user = context.Users.Find(User.Identity.GetUserId());
-            try
+            if (HttpContext.Application[gameId] == null || !((CancellationTokenSource) HttpContext.Application[gameId]).Token.IsCancellationRequested)
             {
-                await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource) HttpContext.Application[gameId]).Token);
-            }
-            catch (OperationCanceledException) {
-                System.Diagnostics.Debug.WriteLine("The game pause was canceled");
+                var dateSuspended = DateTime.Now;
+                HttpContext.Application[gameId] = new CancellationTokenSource();
+                var user = context.Users.Find(User.Identity.GetUserId());
+                try
+                {
+                    await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource) HttpContext.Application[gameId]).Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    System.Diagnostics.Debug.WriteLine("The game pause was canceled");
+                }
             }
         }
 

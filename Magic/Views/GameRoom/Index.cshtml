@@ -6,7 +6,9 @@
 }
 
 <h2>Index</h2>
-@Html.Partial("_MessagePartial")
+@{
+    Html.RenderPartial("_MessagePartial");
+}
 
 <p>
     @Html.ActionLink("Create new Game", "Create")
