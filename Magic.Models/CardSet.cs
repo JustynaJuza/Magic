@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -18,6 +19,9 @@ namespace Magic.Models
         public DateTime DateReleased { get; set; }
         public IList<Card> Cards { get; set; }
 
+        [NotMapped]
+        public int Total { get; set; }
+
         public CardSet()
         {
             Cards = new List<Card>();
@@ -31,6 +35,7 @@ namespace Magic.Models
             Block = jObject.Value<string>("block");
             Description = jObject.Value<string>("description");
             DateReleased = jObject.Value<DateTime>("releasedAt");
+            Total = jObject.Value<int>("total");
 
             cardIds = jObject.Values<int>("cardIds");
         }

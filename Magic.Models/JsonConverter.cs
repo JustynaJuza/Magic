@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -49,15 +49,16 @@ namespace Magic.Models
             System.Diagnostics.Debug.WriteLine(jObject);
 
             // Create target object based on JObject
-            try
-            {
+            //try
+            //{
                 return Create(objectType, jObject);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            //// Populate C# object with according JObject data.
+            //}
+            //catch (Exception ex)
+            //{
+            //    return null;
+            //}
+
+            // Populate C# object with according JObject data.
             //var deserializedTweet = new Tweet()
             //{
             //    Id = (string)jsonObject.SelectToken("id_str"),

@@ -1,17 +1,22 @@
-﻿@model IEnumerable<Card>
+@model IEnumerable<Card>
 
 @{
     ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.GenericTypeArguments[0].Name.ToLower();
     ViewBag.Title = "All your " + ViewBag.ModelTypeName + "s";
 }
 
-<p>
+<div>
     @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
 
     <input type="text" id="fetch-set-name" placeholder="Type set id..." />
     <input type="button" id="fetch-set-submit" class="btn btn-default" value="Fetch selected set (external request)" />
-    <p id="fetch-set-info"></p> 
-</p>
+    <div id="fetch-set-info">
+        <p id="info-cards">
+            Cards processed: <span id="info-cards-processed">0</span>/<span id="info-cards-total">0</span>
+        </p>
+    </div>
+    
+</div>
 
 <table id="cms_listing" class="dataTable">
     <thead>

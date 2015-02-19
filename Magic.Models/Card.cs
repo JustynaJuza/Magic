@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Magic.Models.DataContext;
@@ -50,8 +50,7 @@ namespace Magic.Models
             Abilities = new List<CardAvailableAbility>();
         }
 
-        public Card(JObject jObject)
-            : this()
+        public Card(JObject jObject) : this()
         {
             MultiverseId = jObject.Value<int>("id");
             Name = jObject.Value<string>("name");

@@ -86,13 +86,12 @@ namespace Magic.Hubs
             var requestHandler = new HttpClient();
             //setHandler.DownloadProgressChanged += DownloadProgressCallback; 
             //cardsHandler.DownloadProgressChanged += DownloadProgressCallback;
-
             try
             {
                 var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
                 requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
                     {
-                        await setProcessing;
+                        await setProcessing; // for database consistency to tie card to existing set.
                         ProcessCards(request.Result);
                     });
                 //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
@@ -101,26 +100,28 @@ namespace Magic.Hubs
             catch (Exception ex) { }
 
             //return cardProcessing.Result ?? new List<Card>();
-                return new List<Card>();
+            //return new List<Card>();
         }
-            
-            return new List<Card>();
 
-        private static void ProcessSet(string response)
+        private void ProcessSet(string response)
         {
-            //Clients.Caller.updateRequestProgress("Processing set data...");
+            Clients.Caller.updateRequestProgress("Processing set data...");
             var set = JsonConvert.DeserializeObject<CardSet>(response, new CardSetConverter());
             using (var context = new MagicDbContext())
             {
                 context.InsertOrUpdate(set);
             }
-            //Clients.Caller.updateRequestProgress("Set data saved!");
+
+            Clients.Caller.updateRequestProgress("Set data saved!");
+            Clients.Caller.updateCardsInSet(set.Total);
         }
 
-        private static async Task<IList<Card>> ProcessCards(string response)
+        private async void ProcessCards(string response)
         {
-            //Clients.Caller.updateRequestProgress("Processing card data...");
+            Clients.Caller.updateRequestProgress("Processing card data...");
             var cards = JArray.Parse(response).Select(c => JsonConvert.DeserializeObject<Card>(c.ToString(), new CardConverter())).ToList();
+            Clients.Caller.updateCardsTotal(cards.Count);
+
             foreach (var card in cards)
             {
                 var path = FetchCardImage(card.MultiverseId, card.Id);
@@ -132,21 +133,23 @@ namespace Magic.Hubs
                     card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
                     context.InsertOrUpdate(card);
                 }
+                Clients.Caller.updateCardsProcessed();
             }
-            //Clients.Caller.updateRequestProgress("Card data saved!");
-            return cards.ToList();
+
+            Clients.Caller.updateRequestProgress("Card data saved!");
+            //return cards.ToList();
         }
 
         public static async Task<string> FetchCardImage(int id, string fileName)
         {
             string path = null;
-            var requestPreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
-            var requestUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
+            var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
+            var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
             var requestHandler = new HttpClient();
 
             try
             {
-                requestHandler.GetStreamAsync(requestUrl).ContinueWith(request =>
+                requestHandler.GetStreamAsync(imageUrl).ContinueWith(request =>
                 {
                     path = FilesController.SaveFile(request.Result, fileName, "/Cards");
                 });

@@ -1,13 +1,29 @@
-﻿$(function () {
+$(function () {
     window.admin = $.connection.adminHub;
+    var cardsProcessed;
 
     if ($.connection.hub && $.connection.hub.state == 4) {
         $.connection.hub.start().done(function () {
             $('#fetch-set-submit').on('click', function () {
                 window.admin.server.fetchSetWithCards($('#fetch-set-name').val());
-                $('#fetch-set-info').append('Request sent...<br />');
+                $('#fetch-set-info').prepend('Request sent...<br />');
+                cardsProcessed = 0;
             });
         });
+    }
+
+    window.admin.client.updateCardsInSet = function (cardsInSet) {
+        $('#fetch-set-info').append('Found set composed of ' + cardsInSet + ' cards.<br />');
+    }
+
+    window.admin.client.updateCardsTotal = function(cardsTotal) {
+        $('#info-cards').show();
+        $('#info-cards-total').text(cardsTotal);
+    }
+
+    window.admin.client.updateCardsProcessed = function () {
+        cardsProcessed += 1;
+        $('#info-cards-processed').text(cardsProcessed);
     }
 
     window.admin.client.updateRequestProgress = function (message) {
