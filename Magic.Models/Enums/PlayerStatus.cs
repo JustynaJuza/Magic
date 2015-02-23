@@ -2,7 +2,7 @@ namespace Magic.Models
 {
     public enum PlayerStatus
     {
-        Unready,
+        Unready = 1,
         Ready,
         Missing = -1
     }

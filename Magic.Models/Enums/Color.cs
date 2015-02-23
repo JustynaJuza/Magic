@@ -1,17 +1,17 @@
-﻿namespace Magic.Models
+namespace Magic.Models
 {
     public enum Color
     {
-        Colorless,
+        Colorless = 1,
         Black,
         Blue,
         Green,
         Red,
-        White
-        //B = Black,
-        //U = Blue,
-        //G = Green,
-        //R = Red,
-        //W = White
+        White,
+        B = Black,
+        U = Blue,
+        G = Green,
+        R = Red,
+        W = White
     }
 }

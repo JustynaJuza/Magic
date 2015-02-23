@@ -1,8 +1,8 @@
-﻿namespace Magic.Models
+namespace Magic.Models
 {
     public enum UserRelationship
     {
-        Friend,
-        Ignored
+        Friend = 1,
+        Ignored = -1
     }
 }

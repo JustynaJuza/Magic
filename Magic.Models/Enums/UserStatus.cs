@@ -1,8 +1,8 @@
-﻿namespace Magic.Models
+namespace Magic.Models
 {
     public enum UserStatus
     {
-        Offline,
+        Offline = 1,
         Online,
         AFK,
         Playing,

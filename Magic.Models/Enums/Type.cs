@@ -1,15 +1,15 @@
-﻿namespace Magic.Models
+namespace Magic.Models
 {
     public enum TypeCategory
     {
-        SuperType,
+        SuperType = 1,
         MainType,
         SubType
     }
 
     public enum SuperType
     {
-        Basic,
+        Basic = 1,
         Elite,
         Legendary,
         Ongoing,
@@ -19,7 +19,7 @@
 
     public enum MainType
     {
-        Land,
+        Land = 1,
         Creature,
         Instant,
         Sorcery,
@@ -35,7 +35,7 @@
     //---------- SUBTYPES ----------
     public enum ArtifactType
     {
-        Artifact,
+        Artifact = 1,
         Creature,
         Enchantment,
         Instant,

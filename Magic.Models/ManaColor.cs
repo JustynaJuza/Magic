@@ -1,4 +1,4 @@
-﻿using Magic.Models.Helpers;
+using Magic.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +10,6 @@ namespace Magic.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Alias { get; set; }
     }
 }

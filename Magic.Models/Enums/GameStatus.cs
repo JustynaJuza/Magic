@@ -1,8 +1,8 @@
-﻿namespace Magic.Models
+namespace Magic.Models
 {
     public enum GameStatus
     {
-        Lost,
+        Lost = 1,
         Won,
         Draw,
         InProgress,

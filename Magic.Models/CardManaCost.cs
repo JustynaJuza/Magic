@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -14,6 +14,8 @@ namespace Magic.Models
         public ManaColor Color { get; set; }
         public int Cost { get; set; }
 
+        public bool HasVariableCost { get; set; }
+
         public bool IsHybrid
         {
             get
@@ -27,5 +29,11 @@ namespace Magic.Models
     {
         public int HybridColorId { get; set; }
         public ManaColor HybridColor { get; set; }
+
+        public bool HasColors(int colorId, int hybridColorId)
+        {
+            return (HybridColorId == hybridColorId && ColorId == colorId) ||
+                   (HybridColorId == colorId && ColorId == hybridColorId);
+        }
     }
 }

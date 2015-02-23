@@ -5,6 +5,14 @@
     ViewBag.Title = "All your " + ViewBag.ModelTypeName + "s";
 }
 
+<style>
+    #info-cards {
+        display: none;
+    }
+</style>
+
+
+
 <div>
     @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
 

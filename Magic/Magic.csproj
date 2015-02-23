@@ -202,6 +202,10 @@
     <Compile Include="Migrations\201409251519524_ImgePreview.Designer.cs">
       <DependentUpon>201409251519524_ImgePreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201502201245063_ManaColorAlias.cs" />
+    <Compile Include="Migrations\201502201245063_ManaColorAlias.Designer.cs">
+      <DependentUpon>201502201245063_ManaColorAlias.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -367,6 +371,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201409251519524_ImgePreview.resx">
       <DependentUpon>201409251519524_ImgePreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502201245063_ManaColorAlias.resx">
+      <DependentUpon>201502201245063_ManaColorAlias.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

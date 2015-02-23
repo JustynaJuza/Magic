@@ -32,25 +32,55 @@ namespace Magic.Migrations
                 Log = new ChatLog(ChatHub.DefaultRoomId)
             });
 
-            foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
+            foreach (var color in Enum.GetNames(typeof(Color)))
             {
-                context.ManaColors.AddOrUpdate(new ManaColor { Name = color.ToString() });
+                var colorId = (int) Enum.Parse(typeof(Color), color);
+                var existingColor = context.ManaColors.Find(colorId);
+                if (existingColor == null)
+                {
+                    context.ManaColors.AddOrUpdate(new ManaColor { Name = color });
+                    context.SaveChanges(); // Needs to be called to actually find entities added in this foreach
+                }
+                else
+                {
+                    existingColor.Alias = color;
+                    context.ManaColors.AddOrUpdate(existingColor);
+                }
             }
 
             foreach (var type in Enum.GetValues(typeof(SuperType)).Cast<SuperType>())
             {
-                context.CardTypes.AddOrUpdate(new CardSuperType { Name = type.ToString() });
+                context.CardTypes.AddOrUpdate(new CardSuperType
+                {
+                    Id = (int) type,
+                    Name = type.ToString()
+                });
             }
 
             foreach (var type in Enum.GetValues(typeof(MainType)).Cast<MainType>())
             {
-                context.CardTypes.AddOrUpdate(new CardMainType { Name = type.ToString() });
+                context.CardTypes.AddOrUpdate(new CardMainType
+                {
+                    Id = (int) type,
+                    Name = type.ToString()
+                });
             }
 
-            //foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
-            //{
-            //    context.Roles.AddOrUpdate(new IdentityRole { Name = role.ToString() });
-            //}
+            foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            {
+                var roleName = role.ToString();
+                var existingRole = context.Roles.FirstOrDefault(r => r.Name == roleName);
+                if (existingRole == null)
+                {
+                    context.Roles.AddOrUpdate(new IdentityRole
+                    {
+                        Name = role.ToString()
+                    });
+                }
+                    //else {
+                    //    existingRole.Name = role.ToString();
+                    //}
+            }
         }
     }
 }

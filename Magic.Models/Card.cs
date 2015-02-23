@@ -50,7 +50,8 @@ namespace Magic.Models
             Abilities = new List<CardAvailableAbility>();
         }
 
-        public Card(JObject jObject) : this()
+        public Card(JObject jObject)
+            : this()
         {
             MultiverseId = jObject.Value<int>("id");
             Name = jObject.Value<string>("name");
@@ -101,6 +102,127 @@ namespace Magic.Models
 
         public void DecodeManaCost(MagicDbContext context)
         {
+            var manaCost = new List<CardManaCost>();
+
+            // Check for initial colorless mana cost.
+            var colorlessCost = Regex.Match(manaCode, "^[0-9]+").Value;
+            if (!string.IsNullOrWhiteSpace(colorlessCost))
+            {
+                manaCost.Add(new CardManaCost
+                {
+                    ColorId = 1,
+                    Cost = int.Parse(colorlessCost)
+                });
+            }
+
+            // Solve: XU
+            // Parse rest of the mana code.
+            for (var i = colorlessCost.Length; i < manaCode.Length; i++)
+            {
+                var character = manaCode[i].ToString();
+                if (character == "X")
+                {
+                    i += 1;
+                    character = manaCode[i].ToString();
+
+                    var colorId = Enum.IsDefined(typeof(Color), character)
+                        ? (int)Enum.Parse(typeof(Color), character)
+                        : 0;
+
+                    if (colorId == 0)
+                    {
+                        throw new InvalidCastException(
+                            "The Color enum for mana colors does not define a color with the alias " + character);
+                    }
+
+                    manaCost.Add(new CardManaCost
+                    {
+                        ColorId = colorId,
+                        Cost = 0,
+                        HasVariableCost = true
+                    });
+                }
+                else if (character != "{")
+                {
+                    var colorId = Enum.IsDefined(typeof (Color), character)
+                        ? (int) Enum.Parse(typeof (Color), character)
+                        : 0;
+
+                    if (colorId == 0)
+                    {
+                        throw new InvalidCastException(
+                            "The Color enum for mana colors does not define a color with the alias " + character);
+                    }
+
+                    var existingManaColor = manaCost.FirstOrDefault(c => c.ColorId == colorId && !c.IsHybrid);
+                    if (existingManaColor != null)
+                    {
+                        existingManaColor.Cost += 1;
+                    }
+                    else
+                    {
+                        manaCost.Add(new CardManaCost
+                        {
+                            ColorId = colorId,
+                            Cost = 1
+                        });
+                    }
+                }
+                else
+                {
+                    character = manaCode[i + 1].ToString();
+                    var hybridCharacter = manaCode[i + 3].ToString();
+                    i += 4;
+
+                    var colorId = Enum.IsDefined(typeof (Color), character)
+                        ? (int) Enum.Parse(typeof (Color), character)
+                        : 0;
+
+                    var hybridColorId = Enum.IsDefined(typeof (Color), hybridCharacter)
+                        ? (int) Enum.Parse(typeof (Color), hybridCharacter)
+                        : 0;
+
+                    if (colorId == 0 || hybridColorId == 0)
+                    {
+                        throw new InvalidCastException(
+                            "The Color enum for mana colors does not define a color with the alias " + character);
+                    }
+
+                    var existingManaColor =
+                        manaCost.FirstOrDefault(
+                            c => c.IsHybrid && ((HybridManaCost) c).HasColors(colorId, hybridColorId));
+                    if (existingManaColor != null)
+                    {
+                        existingManaColor.Cost += 1;
+                    }
+                    else
+                    {
+                        manaCost.Add(new HybridManaCost()
+                        {
+                            ColorId = colorId,
+                            HybridColorId = hybridColorId,
+                            Cost = 1
+                        });
+                    }
+                }
+            }
+
+            // TODO: Fix this to enable hybrids.
+            //var codes = new[] { "B", "U", "G", "R", "W" };
+
+            //foreach (Match hybrid in Regex.Matches(manaCode, @"(./.)"))
+            //{
+            //    var color = hybrid.Value.Substring(0, 1);
+            //    var hybridColor = hybrid.Value.Substring(2, 1);
+            //    mana.Add(new HybridManaCost
+            //    {
+            //        Color = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
+            //        HybridColor = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
+            //        Cost = 1
+            //    });
+            //}
+
+
             var mana = new List<CardManaCost>
             {
                 new CardManaCost
@@ -140,19 +262,7 @@ namespace Magic.Models
                 });
             }
 
-            // TODO: Fix this to enable hybrids.
-            //var codes = new[] { "B", "U", "G", "R", "W" };
-            //foreach (Match hybrid in Regex.Matches(manaCode, @"(./.)"))
-            //{
-            //    var color = hybrid.Value.Substring(0, 1);
-            //    var hybridColor = hybrid.Value.Substring(2, 1);
-            //    mana.Add(new HybridManaCost
-            //    {
-            //        Color = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
-            //        HybridColor = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
-            //        Cost = 1
-            //    });
-            //}
+
 
             Colors = mana.Where(m => m.Cost > 0).ToList();
         }

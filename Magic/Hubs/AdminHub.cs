@@ -90,8 +90,8 @@ namespace Magic.Hubs
             {
                 var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
                 requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
-                    {
-                        await setProcessing; // for database consistency to tie card to existing set.
+                {
+                        await setProcessing;
                         ProcessCards(request.Result);
                     });
                 //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
@@ -125,13 +125,20 @@ namespace Magic.Hubs
             foreach (var card in cards)
             {
                 var path = FetchCardImage(card.MultiverseId, card.Id);
-                using (var context = new MagicDbContext())
+                try
                 {
-                    card.AssignTypes(context);
-                    card.DecodeManaCost(context);
-                    card.Image = await path;
-                    card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
-                    context.InsertOrUpdate(card);
+                    using (var context = new MagicDbContext())
+                    {
+                        card.AssignTypes(context);
+                        card.DecodeManaCost(context);
+                        card.Image = await path;
+                        card.ImagePreview = card.Image != null ? card.Image.Replace(".jpg", ".jpeg") : null;
+                        context.InsertOrUpdate(card);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Clients.Caller.updateRequestProgress("There was an error when processing this card: " + card.ToString());
                 }
                 Clients.Caller.updateCardsProcessed();
             }
@@ -149,13 +156,16 @@ namespace Magic.Hubs
 
             try
             {
-                requestHandler.GetStreamAsync(imageUrl).ContinueWith(request =>
+                var fileSaving = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request =>
                 {
                     path = FilesController.SaveFile(request.Result, fileName, "/Cards");
                 });
+
+                await fileSaving;
                 //requestHandler.GetStreamAsync(requestPreviewUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
             }
             catch (Exception ex) { }
+
             return path;
         }
 
