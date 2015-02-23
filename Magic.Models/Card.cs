@@ -138,7 +138,6 @@ namespace Magic.Models
                     manaCost.Add(new CardManaCost
                     {
                         ColorId = colorId,
-                        Cost = 0,
                         HasVariableCost = true
                     });
                 }

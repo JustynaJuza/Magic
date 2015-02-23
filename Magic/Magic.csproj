@@ -206,6 +206,10 @@
     <Compile Include="Migrations\201502201245063_ManaColorAlias.Designer.cs">
       <DependentUpon>201502201245063_ManaColorAlias.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201502231749094_VariableManaCost.cs" />
+    <Compile Include="Migrations\201502231749094_VariableManaCost.Designer.cs">
+      <DependentUpon>201502231749094_VariableManaCost.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -220,8 +224,21 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chat.css" />
+    <Content Include="Content\Images\Cardsicon.jpg" />
+    <Content Include="Content\Images\color-1.png" />
+    <Content Include="Content\Images\color-2.png" />
+    <Content Include="Content\Images\color-3.png" />
+    <Content Include="Content\Images\color-4.png" />
+    <Content Include="Content\Images\color-5.png" />
+    <Content Include="Content\Images\color-6.png" />
+    <Content Include="Content\Images\dot.gif" />
+    <Content Include="Content\Images\images %281%29.jpg" />
+    <Content Include="Content\Images\placeholder.jpg" />
+    <Content Include="Content\Images\placeholder.png" />
+    <Content Include="Content\Images\UploaderExample\A485CCD0-6F4F-4D1B-B5B3-D174C7A9283A[16].png" />
     <Content Include="Content\Images\Users\Bartek.jpg" />
     <Content Include="Content\Images\Users\Justyna.jpg" />
+    <Content Include="Content\Images\Users\justyna.png" />
     <Content Include="Content\jquery-ui-1.10.4.css" />
     <Content Include="Content\jquery-ui-1.10.4.min.css" />
     <Content Include="Content\tooltipster.css" />
@@ -275,6 +292,7 @@
     <Content Include="Content\_chat.less" />
     <Content Include="Areas\Admin\Views\web.config" />
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\DisplayTemplates\CardManaCost.cshtml" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
@@ -374,6 +392,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201502201245063_ManaColorAlias.resx">
       <DependentUpon>201502201245063_ManaColorAlias.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502231749094_VariableManaCost.resx">
+      <DependentUpon>201502231749094_VariableManaCost.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
