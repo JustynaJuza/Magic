@@ -1,3 +1,4 @@
+@using Magic.Helpers
 @model IEnumerable<Card>
 
 @{
@@ -61,7 +62,7 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Rarity)
+                    @Html.EnumDisplayFor(modelItem => item.Rarity)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Types)

@@ -39,13 +39,13 @@ $(function () {
             }
         ],
         fnDrawCallback: function () {
-            if ($('#cms_listing').find('tr').length <= $('#cms_listing_length option:selected').val() + 1) {
-                $('#cms_listing_length').hide();
-                $('#cms_listing_paginate').hide();
-            } else {
-                $('#cms_listing_length').show();
-                $('#cms_listing_paginate').show();
-            }
+            //if ($('#cms_listing').find('tr').length <= $('#cms_listing_length option:selected').val() + 1) {
+            //    $('#cms_listing_length').hide();
+            //    $('#cms_listing_paginate').hide();
+            //} else {
+            //    $('#cms_listing_length').show();
+            //    $('#cms_listing_paginate').show();
+            //}
         },
         dom: 'T<"clear">lfrtip',
         tableTools: {

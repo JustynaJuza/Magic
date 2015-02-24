@@ -34,6 +34,7 @@ namespace Magic.Models
         public bool IsPermanent { get; set; }
         public bool IsTapped { get; set; }
         public Rarity Rarity { get; set; }
+        [Display(Name="Mana")]
         public int ConvertedManaCost { get; set; }
         public string Description { get; set; }
         public string Flavor { get; set; }

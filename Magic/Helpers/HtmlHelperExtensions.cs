@@ -7,6 +7,9 @@ using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.Mvc.Ajax;
 using System.Web.Mvc.Html;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Web;
 
 namespace Magic.Helpers
 {
@@ -119,27 +122,98 @@ namespace Magic.Helpers
             return MvcHtmlString.Create(leftTag + innerElement + rightTag);
         }
 
-        public static MvcHtmlString EnumDropDownListFor<TModel, TProperty>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TProperty>> expression)
-{
-    // Get the type of the property.
-    var typeOfProperty = expression.ReturnType;
-    if (!typeOfProperty.IsEnum)
-    {
-        throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
-    }
- 
-    // Get all the enum values.
-    var values = Enum.GetValues(typeOfProperty);
-  
-    // Create a dictionary of the enum values.
-    var items = values.Cast<object>().ToDictionary(key => key, value => value.ToString());
- 
-    // Get the metadata for the expression and ViewData of the current view.
-    var metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
- 
-    // Create a select list from the dictionary and use the default DropDownListFor method to create a drop down list.
-    return htmlHelper.DropDownListFor(expression, new SelectList(items, "Key", "Value", metadata.Model));
-}
+        #region ENUM DISPLAYS
+        //public static MvcHtmlString EnumDropDownListFor<TModel, TProperty>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TProperty>> expression)
+        //{
+        //    // Get the type of the property.
+        //    var typeOfProperty = expression.ReturnType;
+        //    if (!typeOfProperty.IsEnum)
+        //    {
+        //        throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+        //    }
+
+        //    // Get all the enum values.
+        //    var values = Enum.GetValues(typeOfProperty);
+
+        //    // Create a dictionary of the enum values.
+        //    var items = values.Cast<object>().ToDictionary(key => key, value => value.ToString());
+
+        //    // Get the metadata for the expression and ViewData of the current view.
+        //    var metadata = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData);
+
+        //    // Create a select list from the dictionary and use the default DropDownListFor method to create a drop down list.
+        //    return htmlHelper.DropDownListFor(expression, new SelectList(items, "Key", "Value", metadata.Model));
+        //}
+
+        public static MvcHtmlString EnumDisplay(this HtmlHelper htmlHelper, string name, object enumObject, object htmlAttributes)
+        {
+            var typeOfProperty = enumObject.GetType();
+            if (!typeOfProperty.IsEnum)
+            {
+                throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+            }
+
+            return new MvcHtmlString(GetDisplayName(enumObject));
+        }
+
+        public static MvcHtmlString EnumDisplayFor<TModel, TProperty>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TProperty>> expression)
+        {
+            var typeOfProperty = expression.ReturnType;
+            if (!typeOfProperty.IsEnum && Nullable.GetUnderlyingType(typeOfProperty) != null)
+            {
+                throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+            }
+
+            var value = ModelMetadata.FromLambdaExpression(expression, htmlHelper.ViewData).Model;
+            return new MvcHtmlString(GetDisplayName(value));
+        }
+
+        public static MvcHtmlString EnumDropDownList(this HtmlHelper htmlHelper, string name, Type enumType, string selectionHint, object htmlAttributes)
+        {
+            var typeOfProperty = enumType;
+            if (!typeOfProperty.IsEnum)
+            {
+                throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+            }
+
+            var values = Enum.GetValues(typeOfProperty);
+            var items = values.Cast<object>().ToDictionary(key => key, value => GetDisplayName(value));
+
+            return htmlHelper.DropDownList(name, new SelectList(items, "Key", "Value"), selectionHint, htmlAttributes);
+        }
+
+        public static MvcHtmlString EnumDropDownList(this HtmlHelper htmlHelper, string name, Type enumType, string selectionHint, int selectedValue, object htmlAttributes)
+        {
+            var typeOfProperty = enumType;
+            if (!typeOfProperty.IsEnum)
+            {
+                throw new ArgumentException(string.Format("Type {0} is not an enum", typeOfProperty));
+            }
+
+            var values = Enum.GetValues(typeOfProperty);
+            var items = values.Cast<object>().ToDictionary(key => key, value => GetDisplayName(value));
+
+            return htmlHelper.DropDownList(name, new SelectList(items, "Key", "Value", selectedValue), selectionHint, htmlAttributes);
+        }
+
+        private static string GetDisplayName(object value)
+        {
+            var type = value.GetType();
+            if (!type.IsEnum)
+            {
+                throw new ArgumentException(string.Format("Type {0} is not an enum", type));
+            }
+
+            var field = type.GetField(value.ToString());
+            if (field == null)
+            {
+                return value.ToString();
+            }
+
+            var attributes = field.GetCustomAttribute<DisplayAttribute>();
+            return attributes != null ? attributes.Name : value.ToString();
+        }
+        #endregion ENUM DISPLAYS
 
         //public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
         //{
