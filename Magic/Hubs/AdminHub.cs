@@ -131,8 +131,8 @@ namespace Magic.Hubs
                     {
                         card.AssignTypes(context);
                         card.DecodeManaCost(context);
-                        card.Image = await path;
-                        card.ImagePreview = card.Image != null ? card.Image.Replace(".jpg", ".jpeg") : null;
+                        card.Image = "/Content/Images/Cards/" + card.Id;
+                        card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
                         context.InsertOrUpdate(card);
                     }
                 }
@@ -147,26 +147,18 @@ namespace Magic.Hubs
             //return cards.ToList();
         }
 
-        public static async Task<string> FetchCardImage(int id, string fileName)
+        public static async Task FetchCardImage(int id, string fileName)
         {
-            string path = null;
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
             var requestHandler = new HttpClient();
 
             try
             {
-                var fileSaving = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request =>
-                {
-                    path = FilesController.SaveFile(request.Result, fileName, "/Cards");
-                });
-
-                await fileSaving;
-                //requestHandler.GetStreamAsync(requestPreviewUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
+                requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
+                requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
             }
             catch (Exception ex) { }
-
-            return path;
         }
 
         private static void DownloadProgressCallback(object sender, DownloadProgressChangedEventArgs e)
