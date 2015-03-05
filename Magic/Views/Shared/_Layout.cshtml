@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -28,6 +28,9 @@
     @{ Html.RenderPartial("_NavBarPartial"); }
 
     <div class="container body-content">
+        <script>
+            window.basePath = '@(Request.Url.GetLeftPart(UriPartial.Authority) + Request.ApplicationPath)';
+        </script>
         @RenderBody()
         <hr />
         <div class="row">

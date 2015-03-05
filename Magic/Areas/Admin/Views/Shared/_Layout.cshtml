@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -29,6 +29,10 @@
 </head>
 <body>
     @{ Html.RenderPartial("_NavBarPartial"); }
+
+    <script>
+        window.basePath = '@(Request.Url.GetLeftPart(UriPartial.Authority) + Request.ApplicationPath)';
+    </script>
 
     <div class="container body-content">
         <h1>@ViewBag.Title</h1>

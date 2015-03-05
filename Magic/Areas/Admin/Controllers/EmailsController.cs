@@ -21,7 +21,7 @@ namespace Magic.Areas.Admin.Controllers
             var path = HostingEnvironment.MapPath(VirtualPathUtility.ToAbsolute(templatePath + templateName));
 
             var message = new MailMessage(
-                new MailAddress("service@magicgame.co.uk"),
+                new MailAddress("service@magicgame.com"),
                 new MailAddress(model.Email, model.Name))
             {
                 Subject = "Magic: " + model.Name + "'s message.",
@@ -37,7 +37,7 @@ namespace Magic.Areas.Admin.Controllers
             {
                 var emailService = new SmtpClient();
                 emailService.SendCompleted += SendCompletedCallback;
-                emailService.Send(message);
+                emailService.SendAsync(message, model.Email);
                 return true;
             }
             catch (Exception ex)

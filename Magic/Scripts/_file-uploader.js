@@ -1,9 +1,10 @@
-﻿$(function () {
+$(function () {
     if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
-        alert('The file upload is not fully supported in your browser version, please update to a newer version.');
+        alert('The file upload functionality is not fully supported in your browser version, you are advised to update your browser to a newer version.');
         return;
     }
 
+    var text = $('#file-uploader-selected-file-overlay').val();
     var uploader = document.getElementById('file-uploader');
     uploader.ondragover = function () { return false; };
     uploader.ondragend = function () { return false; };
@@ -48,12 +49,17 @@
         $('#file-uploader').show();
     }
 
-    function closeFileUploader() {
+    function clearFileUploader() {
         $('#file-property-id').val('');
-        $('#file-uploader-selected-file-overlay').val('Select or drag and drop file');
         $('#file-uploader-selected-file').val('');
+        $('#file-uploader-selected-file-overlay').val(text);
+        $('#file-uploader-selected-file-overlay').removeClass('disabled');
+    }
+
+    function closeFileUploader() {
         $('#file-uploader-overlay').hide();
         $('#file-uploader').hide();
+        clearFileUploader();
     }
 
     function toggleControls() {
@@ -62,53 +68,72 @@
 
     function readyToUpload(file) {
         var xhr = new XMLHttpRequest();
-        xhr.open('HEAD', basePath + 'Content/Images' + uploadPath + '/' + file.name, false);
         xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4) {
+                return;
+            }
+
             if (xhr.status == 200) {
                 var overwrite = confirm('Do you want to overwrite the existing file?');
-                if (overwrite) {
-                    sendFile(file);
+                if (!overwrite) {
+                    return clearFileUploader();
                 }
             }
-            else {
-                sendFile(file);
-            }
+            sendFile(file);
             console.log(xhr)
         };
+
+        xhr.open('HEAD', window.basePath + '/Content'/*/Images'*/ + uploadPath + '/' + file.name, false);
         return xhr.send();
     }
 
     function sendFile(file) {
-        var uri = basePath + 'Admin/Files/UploadFile';
+        var uri = window.basePath + '/Admin/Files/UploadFile';
 
         var fd = new FormData();
         fd.append('file', file);
         fd.append('uploadPath', uploadPath);
-        fd.append('allowImageOnly', true);
+        fd.append('allowImageOnly', false);
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", uri, true);
+
+        xhr.upload.progress = function (e) {
+            if (e.lengthComputable) {
+                var percentComplete = Math.floor(e.loaded / e.total) * 100;
+                $('#file-uploader-selected-file-overlay').val('Uploading: ' + percentComplete + '%');
+            }
+        }
+
         xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4) {
+                return;
+            }
+
             if (xhr.readyState == 4 && xhr.status == 200) {
                 // Successfully uploaded?
                 if (xhr.responseText[0] == '/') {
+                    $('#file-uploader-selected-file-overlay').val('Uploading: 100%');
                     // Call returned path to new image.
                     updateImage(xhr.responseText);
                     closeFileUploader();
                 } else {
                     // Call returned message.
-                    alert(xhr.responseText);
+                    $('#file-uploader-selected-file-overlay').val(xhr.responseText);
                 }
             }
             else if (xhr.readyState == 4 && xhr.status == 500 && xhr.responseText.match('Maximum request length exceeded.')) {
                 alert('The file exceeds the allowed size limit.')
+                clearFileUploader();
             }
             else if (xhr.readyState == 4) {
-                alert('There was an unexpected error while uploading this file, please try a different file.')
+                alert('There was an unexpected error while uploading this file, it may be a server issue or the file overwritten is currently in use.')
+                clearFileUploader();
             }
         };
 
         // Initiate a multipart/form-data upload
+        $('#file-uploader-selected-file-overlay').val('Uploading: 0%');
+        xhr.open('POST', uri, true);
         xhr.send(fd);
     }
 
