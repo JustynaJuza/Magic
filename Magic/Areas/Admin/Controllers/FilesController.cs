@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using Magic.Hubs;
+using Microsoft.AspNet.SignalR;
 
 namespace Magic.Areas.Admin.Controllers
 {
@@ -42,6 +44,9 @@ namespace Magic.Areas.Admin.Controllers
             var bytesTransferred = 0;
             var buffer = new byte[1048576]; // 1048576B = 1MB
             var fileSavingOperations = new List<Task>();
+
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<AdminHub>();
+
             using (var file = new FileStream(serverPath + fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous)) 
                 // 4096 is default, async prevents the file from breaking
             {
@@ -50,13 +55,17 @@ namespace Magic.Areas.Admin.Controllers
                 {
                     currentByteBlockSize = fileStream.Read(buffer, 0, buffer.Length);
                     file.Seek(bytesTransferred, SeekOrigin.Begin);
+                    var fileSaving = file.WriteAsync(buffer, 0, currentByteBlockSize);
+
                     bytesTransferred += currentByteBlockSize;
-                    var percentage = bytesTransferred / bytesTotal * 100;
-                    
-                    fileSavingOperations.Add(file.WriteAsync(buffer, 0, currentByteBlockSize).ContinueWith(
+                    var percentage = (double)bytesTransferred * 100 / bytesTotal;
+
+                    fileSavingOperations.Add(fileSaving.ContinueWith(
                         finishedTask =>
                         {
+                            System.Diagnostics.Debug.WriteLine("In continue " + percentage);
                             // TODO: update progress in view
+                            hubContext.Clients.All.updateUploadProgress(Math.Floor(percentage));
                         }));
                 }
                 while (currentByteBlockSize != 0);

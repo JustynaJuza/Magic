@@ -30,6 +30,15 @@ $(function () {
         $('#fetch-set-info').append(message + '<br />');
     }
 
+    window.admin.client.updateUploadProgress = function (percent) {
+        //var width = $('#file-uploader-progress-bar').css('width').match(/^[0-9]+/)[0];
+        var width = $('#file-uploader-progress-bar').width() / $('#file-uploader-progress-bar').parent().width() * 100;
+        if (width < percent) {
+            $('#file-uploader-progress-bar').css('width', percent + '%');
+        }
+    }
+
+
     $('.dataTable').DataTable({
         aoColumnDefs: [
             {

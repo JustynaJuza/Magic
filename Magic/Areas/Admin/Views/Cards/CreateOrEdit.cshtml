@@ -1,4 +1,4 @@
-﻿@model Magic.Models.Card
+@model Magic.Models.Card
 
 @{
     ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.Name.Split('_')[0].ToLower();
@@ -47,5 +47,6 @@
 </div>
 
 @section Scripts {
+    @Scripts.Render("~/Areas/Admin/Scripts/_admin.js")
     @Scripts.Render("~/bundles/jqueryval")
 }
