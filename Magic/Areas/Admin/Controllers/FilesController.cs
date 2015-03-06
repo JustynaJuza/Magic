@@ -48,7 +48,7 @@ namespace Magic.Areas.Admin.Controllers
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<AdminHub>();
 
             using (var file = new FileStream(serverPath + fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous)) 
-                // 4096 is default, async prevents the file from breaking
+                // 4096 is default, async prevents the file from breaking when writing from the middle of the file
             {
                 int currentByteBlockSize;
                 do
@@ -72,14 +72,6 @@ namespace Magic.Areas.Admin.Controllers
 
                 await Task.WhenAll(fileSavingOperations);
             }
-
-            //var file = new FileStream(serverPath + fileName, FileMode.Create, FileAccess.Write, FileShare.Read);
-            //await fileStream.CopyToAsync(file).ContinueWith(finishedTask => file.Close());
-
-            //using (var file = new FileStream(serverPath + fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
-            //{
-            //    await fileStream.CopyToAsync(file);
-            //}
 
             return path + fileName;
         }

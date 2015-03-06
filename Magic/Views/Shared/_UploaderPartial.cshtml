@@ -1,85 +1,33 @@
 @using Magic.Helpers
 
-<style>
-    #file-uploader {
-        position: absolute;
-        border: 2px dashed #000000;
-        display: none;
-        left: 50%;
-        margin-left: -25%;
-        width: 50%;
-        min-width: 100px;
-        max-width: 500px;
-        height: auto;
-        background-color: #ffffff;
-        z-index: 100;
-        text-align: center;
-        padding: 10px;
-    }
+@Styles.Render("~/Content/dialog.css")
 
-    #file-uploader input {
-        margin: 6px 0 6px 0;
-    }
+<div id="uploader-overlay" class="overlay"></div>
 
-    #file-uploader-overlay {
-        position: fixed;
-        z-index: 99;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        background-color: #000000;
-        overflow: hidden;
-        -moz-filter: alpha(opacity=10);
-        -o-filter: alpha(opacity=10);
-        -webkit-filter: alpha(opacity=10);
-        -ms-opacity: 0.1;
-        filter: alpha(opacity=10);
-        opacity: 0.1;
-        display: none;
-    }
+<div id="uploader" class="dialog">
 
-    #file-uploader-selected-file-overlay {
-        width: 100%;
-        max-width: 100%;
-        text-overflow: ellipsis;
-    }
+    <div class="dialog-title">
+        <span class="dialog-name"></span>
+        <div>
+            <span class="dialog-control dialog-close-btn uploader-close-btn">x</span>
+            <span class="dialog-control dialog-close-btn uploader-close-btn">_</span>
+        </div>
+    </div>
 
-    .hover {
-        background-color: #fbfbfb !important;
-    }
+    <div class="dialog-content">
 
-    #file-uploader-progress {
-  background-color: black;
-  border-radius: 13px; /* (height of inner div) / 2 + padding */
-  padding: 3px;
-}
+        <span id="uploader-file-overlay" class="uploader-default btn"></span>
+        <input type="file" id="uploader-file" class="hidden" />
+        <input type="hidden" id="uploader-property-id" value="" />
 
-   #file-uploader-progress-bar {
-   background-color: orange;
-   width: 0; /* Adjust with JavaScript */
-   height: 20px;
-   border-radius: 10px;
-}
+        <div id="uploader-progress">
+            <div id="uploader-progress-bar"></div>
+        </div>
 
-</style>
+        <input type="button" class="dialog-close-btn uploader-close-btn" value="Cancel" />
+        <input type="button" class="dialog-close-btn uploader-close-btn" value="Ok" />
 
-<div id="file-uploader-progress">
-    <div id="file-uploader-progress-bar"></div>
-</div>
-
-<div id="file-uploader-overlay" class="overlay"></div>
-
-<div id="file-uploader" class="upload dialog">
-
-    <input type="text" id="file-uploader-selected-file-overlay" value="Select or drag and drop file" class="btn" readonly/>
-    <input type="file" id="file-uploader-selected-file" class="hidden" />
-
-    <input type="hidden" id="file-property-id" value="" />
-    <input type="button" id="file-uploader-cancel-btn" value="Cancel" class="btn btn-inverse" />
-
+    </div>
 </div>
 
 <script>

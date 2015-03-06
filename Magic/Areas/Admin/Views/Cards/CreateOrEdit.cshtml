@@ -5,6 +5,11 @@
     ViewBag.Title = (ViewBag.IsUpdate ? "Edit " : "Create ") + ViewBag.ModelTypeName;
 }
 
+@section AdditionalScripts
+{
+    @Scripts.Render("~/Areas/Admin/Scripts/_admin.js")
+}
+
 @{ Html.RenderPartial("_UploaderPartial", new ViewDataDictionary { { "uploadPath", "/" + ViewBag.ModelTypeName + "s" } }); }
 
 @using (Html.BeginForm((ViewBag.IsUpdate ? "Edit" : "Create"), (string)ViewBag.ModelTypeName + "s", FormMethod.Post, new { isUpdate = ViewBag.IsUpdate }))
@@ -47,6 +52,5 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/Areas/Admin/Scripts/_admin.js")
     @Scripts.Render("~/bundles/jqueryval")
 }
