@@ -31,16 +31,30 @@ $(function () {
     }
 
     $('.dataTable').DataTable({
-        aoColumnDefs: [
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: window.basePath + '/Admin/Cards/GetCardData',
+            type: 'POST',
+            //dataSrc : ''
+        }, //"scripts/server_processing.php",
+        columns: [
+            { name: 'SetId' },
+            { name: 'Name' },
+            { name: 'Rarity' },
+            { name: 'Types' },
+            { name: 'Mana' },
+            { name: 'Colors' },
+            { name: '' }
+        ],
+        columnDefs: [
             {
-                "aTargets": [-1],
-                "bSearchable": false,
-                "bSortable": false,
-                "processing": true,
-                "serverSide": true,
+                targets : [-1],
+                searchable : false,
+                sortable : false
             }
         ],
-        fnDrawCallback: function () {
+        drawCallback: function () {
             //if ($('#cms_listing').find('tr').length <= $('#cms_listing_length option:selected').val() + 1) {
             //    $('#cms_listing_length').hide();
             //    $('#cms_listing_paginate').hide();
@@ -50,30 +64,30 @@ $(function () {
             //}
         },
         dom: 'T<"clear">lfrtip',
-        tableTools: {
-            //sSwfPath: '/swf/copy_csv_xls_pdf.swf',
-            aButtons: [
-                {
-                    sExtends: 'copy',
-                    sButtonText: 'Edit',
-                },
-                {
-                    sExtends: 'text',
-                    sButtonText: 'Delete',
-                    fnClick: function (nButton, oConfig, oFlash) {
-                        console.log(nButton, oConfig, oFlash);
+        //tableTools: {
+        //    //sSwfPath: '/swf/copy_csv_xls_pdf.swf',
+        //    aButtons: [
+        //        {
+        //            sExtends: 'copy',
+        //            sButtonText: 'Edit',
+        //        },
+        //        {
+        //            sExtends: 'text',
+        //            sButtonText: 'Delete',
+        //            fnClick: function (nButton, oConfig, oFlash) {
+        //                console.log(nButton, oConfig, oFlash);
 
-                    }
-                },
-                {
-                    sExtends: 'collection',
-                    sButtonText: 'Export',
-                    aButtons: ['xls', 'csv', 'pdf']
-                },
-                'print',
-                'select_all'
-            ],
-            sRowSelect: 'multi'
-        }
+        //            }
+        //        },
+        //        {
+        //            sExtends: 'collection',
+        //            sButtonText: 'Export',
+        //            aButtons: ['xls', 'csv', 'pdf']
+        //        },
+        //        'print',
+        //        'select_all'
+        //    ],
+        //    sRowSelect: 'multi'
+        //}
     });
 });

@@ -21,7 +21,8 @@ namespace Magic.Areas.Admin.Controllers
         [HttpGet]
         public ViewResult Index()
         {
-            return View(context.Cards.ToList());
+            return View();
+            //return View(context.Cards.ToList());
         }
 
         [HttpPost]
@@ -29,7 +30,44 @@ namespace Magic.Areas.Admin.Controllers
         {
             return View(context.Cards.ToList());
         }
-        
+
+        public class DataTablesInRequest{
+            public int Draw { get; set; }
+            public int Start { get; set; }
+            public int Length { get; set; }
+            public string Search { get; set; }
+            public string[] Columns { get; set; }
+            public string[] Order { get; set; }
+        }
+
+        public class DataTablesOutRequest
+        {
+            public int draw { get; set; }
+            public int recordsTotal { get; set; }
+            public int recordsFiltered { get; set; }
+            public IList<Object> data { get; set; }
+            public string error { get; set; }
+        }
+
+        public JsonResult GetCardData(DataTablesInRequest o)
+        {
+    //        var dataTablesResult = new DataTablesResult(
+    //    requestParameters.Draw,
+    //    pagedData,
+    //    filteredDataSet.Count(),
+    //    totalCount
+    //);
+            var cards = context.Cards;
+            return new JsonResult { Data = new DataTablesOutRequest
+            {
+                draw = o.Draw,
+                recordsTotal = cards.Count(),
+                recordsFiltered = cards.Count(),
+                data = new[] { "A", "B", "C", "D", "E", "F", "G"}
+            }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
+            //return Json(new { data = "Got it!" }, JsonRequestBehavior.AllowGet);
+        }
+
         //public static void UpdateCard(Card model)
         //{
         //    var partial = PartialView("~/Areas/Admin/Views/Shared/EditorTemplates/Card.cshtml", model)
