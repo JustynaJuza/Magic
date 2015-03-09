@@ -35,7 +35,9 @@ $(function () {
             {
                 "aTargets": [-1],
                 "bSearchable": false,
-                "bSortable": false
+                "bSortable": false,
+                "processing": true,
+                "serverSide": true,
             }
         ],
         fnDrawCallback: function () {

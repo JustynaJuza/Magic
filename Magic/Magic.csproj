@@ -228,6 +228,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chat.css" />
+    <Content Include="Content\dialog.css" />
     <Content Include="Content\Images\Cardsicon.jpg" />
     <Content Include="Content\Images\color-1.png" />
     <Content Include="Content\Images\color-2.png" />
@@ -288,6 +289,7 @@
     <Content Include="Scripts\_bootstrap.min.js" />
     <Content Include="Scripts\_chat.js" />
     <Content Include="Scripts\_cms-landing-pages.js" />
+    <Content Include="Scripts\_file-uploader.backup.js" />
     <Content Include="Scripts\_file-uploader.js" />
     <Content Include="Scripts\_game.js" />
     <Content Include="Scripts\_general.js" />
@@ -368,6 +370,7 @@
     <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
     <Content Include="Views\Shared\_UserProfileTooltipPartial.cshtml" />
     <Content Include="Views\Shared\_NavBarPartial.cshtml" />
+    <Content Include="Views\Shared\_UploaderPartial.backup.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\Admin\Models\" />

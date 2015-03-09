@@ -3,6 +3,7 @@ $(function () {
     var $selectedFile = $('#' + selectedFileId);
     var $filePropertyField = $('#uploader-property-id');
     var $fileOverlay = $('#uploader-file-overlay');
+    var $uploaderProgress = $('#uploader-progress');
     var $uploaderProgressBar = $('#uploader-progress-bar');
     var $closeButton = $('.dialog-close-btn');
 
@@ -24,6 +25,7 @@ $(function () {
     };
     uploader.ondrop = function (e) {
         e.preventDefault();
+        $uploaderProgress.hide();
         var file = e.dataTransfer.files[0];
         readyToUpload(file);
     }
@@ -35,10 +37,11 @@ $(function () {
     $closeButton.click(closeFileUploader);
 
     $('#file-uploader-upload-btn').click(function () {
-        
+
     });
 
     $selectedFile.change(function () {
+        $uploaderProgress.hide();
         var file = document.getElementById(selectedFileId).files[0];
         readyToUpload(file);
     });
@@ -56,10 +59,11 @@ $(function () {
     }
 
     function clearFileUploader() {
+        $uploaderProgress.hide();
+        $fileOverlay.addClass('uploader-default')
         $filePropertyField.val('');
         $selectedFile.val('');
         $fileOverlay.text('');
-        $fileOverlay.addClass('uploader-default')
         $fileOverlay.removeClass('disabled');
     }
 
@@ -73,25 +77,34 @@ $(function () {
         $(this).siblings('.upload-controls').toggle();
     }
 
+    function isFileSizeExceeded(size) {
+        return size >= 36700160;
+    }
+
     function readyToUpload(file) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4) {
-                return;
-            }
-
-            if (xhr.status == 200) {
-                var overwrite = confirm('Do you want to overwrite the existing file?');
-                if (!overwrite) {
-                    return clearFileUploader();
+        if (!isFileSizeExceeded(file.size)) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState != 4) {
+                    return;
                 }
-            }
-            sendFile(file);
-            console.log(xhr)
-        };
 
-        xhr.open('HEAD', window.basePath + '/Content'/*/Images'*/ + uploadPath + '/' + file.name, false);
-        return xhr.send();
+                if (xhr.status == 200) {
+                    var overwrite = confirm('Do you want to overwrite the existing file?');
+                    if (!overwrite) {
+                        return clearFileUploader();
+                    }
+                }
+                sendFile(file);
+                console.log(xhr)
+            };
+
+            xhr.open('HEAD', window.basePath + '/Content' /*/Images'*/ + uploadPath + '/' + file.name, false);
+            return xhr.send();
+        }
+
+        $fileOverlay.removeClass('uploader-default');
+        $fileOverlay.text('The file size exceeds the allowed limit of 35MB.');
     }
 
     function sendFile(file) {
@@ -125,25 +138,25 @@ $(function () {
                     //closeFileUploader();
                 } else {
                     // Call returned message.
-
                     $fileOverlay.text(xhr.responseText);
                 }
             }
             else if (xhr.readyState == 4 && xhr.status == 500 && xhr.responseText.match('Maximum request length exceeded')) {
-                //alert('The file exceeds the allowed size limit.')
+                // This should not really happen if the file size check has the size corresponding to the server's limit.
                 $fileOverlay.text('The file exceeds the allowed size limit');
-                //clearFileUploader();
             }
             else if (xhr.readyState == 4) {
                 $fileOverlay.text('There was an unexpected error while uploading this file, it may be a server issue or the file overwritten is currently in use');
-                //alert('There was an unexpected error while uploading this file, it may be a server issue or the file overwritten is currently in use.')
-                clearFileUploader();
             }
+
+            $fileOverlay.removeClass('disabled');
         };
 
         // Initiate a multipart/form-data upload
-        $fileOverlay.removeClass('uploader-default')
+        $fileOverlay.addClass('disabled');
+        $fileOverlay.removeClass('uploader-default');
         $fileOverlay.text('Uploading: 0%');
+        $uploaderProgress.show();
         xhr.open('POST', uri, true);
         xhr.send(fd);
     }
