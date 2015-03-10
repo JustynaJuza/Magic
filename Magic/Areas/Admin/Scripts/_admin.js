@@ -33,6 +33,7 @@ $(function () {
     $('.dataTable').DataTable({
         processing: true,
         serverSide: true,
+        deferRender: true,
         ajax: {
             url: window.basePath + '/Admin/Cards/GetCardData',
             type: 'POST',

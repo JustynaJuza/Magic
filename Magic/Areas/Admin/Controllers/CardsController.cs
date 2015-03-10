@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
+using Magic.Models.Helpers;
 using Microsoft.AspNet.SignalR;
+using RazorEngine;
+using RazorEngine.Templating;
 
 namespace Magic.Areas.Admin.Controllers
 {
@@ -45,7 +50,7 @@ namespace Magic.Areas.Admin.Controllers
             public int draw { get; set; }
             public int recordsTotal { get; set; }
             public int recordsFiltered { get; set; }
-            public IList<Object> data { get; set; }
+            public string data { get; set; }
             public string error { get; set; }
         }
 
@@ -58,12 +63,22 @@ namespace Magic.Areas.Admin.Controllers
     //    totalCount
     //);
             var cards = context.Cards;
+            //var path = HostingEnvironment.MapPath(VirtualPathUtility.ToAbsolute("~/Areas/Admin/Views/Cards/_CardsDisplayPartial.cshtml"));
+            //var response = Engine.Razor.RunCompile(System.IO.File.ReadAllText(path), "cardsDisplay", typeof (IList<Card>), cards);
+            var selectedCards = cards.OrderBy(c => c.SetId).Skip(o.Start).Take(o.Length).ToList();
+            var serializedList = new StringBuilder('[');
+            foreach (var card in selectedCards)
+            {
+                serializedList.Append(Serialize(card)).Append(',');
+            }
+            serializedList.Replace(',', ']', serializedList.Length-1, 1);
+
             return new JsonResult { Data = new DataTablesOutRequest
             {
                 draw = o.Draw,
                 recordsTotal = cards.Count(),
                 recordsFiltered = cards.Count(),
-                data = new[] { "A", "B", "C", "D", "E", "F", "G"}
+                data = serializedList.ToString()
             }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
             //return Json(new { data = "Got it!" }, JsonRequestBehavior.AllowGet);
         }
@@ -172,5 +187,25 @@ namespace Magic.Areas.Admin.Controllers
             base.Dispose(disposing);
         }
         #endregion DISPOSE
+
+        private string Serialize(Card card)
+        {
+            var data = new StringBuilder();
+            data.AppendFormat("[{0}, {1}, {2},",
+                card.SetId, card.Name, card.Rarity.GetDisplayName());
+
+            foreach (var cardType in card.Types)
+            {
+                data.Append(' ').Append(cardType.Name);
+            }
+
+            data.AppendFormat(", {0}, {1}",
+                card.ConvertedManaCost, "x");
+
+            data.Append(", <a href=\"" + Url.Action("Edit", new { id = card.Id }) + "\" class=\"btn btn-primary btn-edit\">Edit</a>");
+            data.Append("| <a href=\"" + Url.Action("Delete", new { id = card.Id }) + "\" class=\"btn btn-danger btn-delete\">Delete</a>]");
+
+            return data.ToString();
+        }
     }
 }

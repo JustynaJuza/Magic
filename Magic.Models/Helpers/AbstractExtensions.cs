@@ -88,9 +88,9 @@ namespace Magic.Models.Helpers
             return str;
         }
 
-        public static string GetDisplayName(this Enum enumValue, Type enumType)
+        public static string GetDisplayName(this Enum enumValue)
         {
-            var display = enumType.GetMember(enumValue.ToString()).First().GetCustomAttribute<DisplayAttribute>();
+            var display = enumValue.GetType().GetMember(enumValue.ToString()).First().GetCustomAttribute<DisplayAttribute>();
             return display != null ? display.Name : enumValue.ToString();
         }
 

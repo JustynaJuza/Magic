@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.Helpers;
 using Magic.Models.DataContext;
 using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
@@ -50,7 +52,7 @@ namespace Magic.Models
             Colors = new List<CardManaCost>();
             Abilities = new List<CardAvailableAbility>();
         }
-
+        
         public Card(JObject jObject)
             : this()
         {
@@ -116,7 +118,6 @@ namespace Magic.Models
                 });
             }
 
-            // Solve: XU
             // Parse rest of the mana code.
             for (var i = colorlessCost.Length; i < manaCode.Length; i++)
             {
@@ -207,64 +208,48 @@ namespace Magic.Models
                 }
             }
 
-            // TODO: Fix this to enable hybrids.
-            //var codes = new[] { "B", "U", "G", "R", "W" };
-
-            //foreach (Match hybrid in Regex.Matches(manaCode, @"(./.)"))
+            //var mana = new List<CardManaCost>
             //{
-            //    var color = hybrid.Value.Substring(0, 1);
-            //    var hybridColor = hybrid.Value.Substring(2, 1);
-            //    mana.Add(new HybridManaCost
+            //    new CardManaCost
             //    {
-            //        Color = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
-            //        HybridColor = context.ManaColors.FirstOrDefault(c => c.Name == Enum.Parse(typeof(Color), color).ToString()),
-            //        Cost = 1
+            //        ColorId = context.ManaColors.First(c => c.Name == "Black").Id,
+            //        Cost = manaCode.Count(c => c == 'B')
+            //    },
+            //    new CardManaCost
+            //    {
+            //        ColorId = context.ManaColors.First(c => c.Name == "Blue").Id,
+            //        Cost = manaCode.Count(c => c == 'U')
+            //    },
+            //    new CardManaCost
+            //    {
+            //        ColorId = context.ManaColors.First(c => c.Name == "Green").Id,
+            //        Cost = manaCode.Count(c => c == 'G')
+            //    },
+            //    new CardManaCost
+            //    {
+            //        ColorId = context.ManaColors.First(c => c.Name == "Red").Id,
+            //        Cost = manaCode.Count(c => c == 'R')
+            //    },
+            //    new CardManaCost
+            //    {
+            //        ColorId = context.ManaColors.First(c => c.Name == "White").Id,
+            //        Cost = manaCode.Count(c => c == 'W')
+            //    }
+            //};
+
+            //int colorless;
+            //if (int.TryParse(Regex.Match(manaCode, "[0-9]*").Value, out colorless))
+            //{
+            //    mana.Add(new CardManaCost
+            //    {
+            //        ColorId = context.ManaColors.First(c => c.Name == "Colorless").Id,
+            //        Cost = colorless
             //    });
             //}
 
+            Colors = manaCost;
 
-            var mana = new List<CardManaCost>
-            {
-                new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "Black").Id,
-                    Cost = manaCode.Count(c => c == 'B')
-                },
-                new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "Blue").Id,
-                    Cost = manaCode.Count(c => c == 'U')
-                },
-                new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "Green").Id,
-                    Cost = manaCode.Count(c => c == 'G')
-                },
-                new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "Red").Id,
-                    Cost = manaCode.Count(c => c == 'R')
-                },
-                new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "White").Id,
-                    Cost = manaCode.Count(c => c == 'W')
-                }
-            };
-
-            int colorless;
-            if (int.TryParse(Regex.Match(manaCode, "[0-9]*").Value, out colorless))
-            {
-                mana.Add(new CardManaCost
-                {
-                    ColorId = context.ManaColors.First(c => c.Name == "Colorless").Id,
-                    Cost = colorless
-                });
-            }
-
-
-
-            Colors = mana.Where(m => m.Cost > 0).ToList();
+            //Colors = mana.Where(m => m.Cost > 0).ToList();
         }
 
         public bool Play()

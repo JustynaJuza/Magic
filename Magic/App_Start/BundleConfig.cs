@@ -1,4 +1,4 @@
-﻿using System.Web;
+using System.Web;
 using System.Web.Optimization;
 
 namespace Magic
@@ -42,13 +42,20 @@ namespace Magic
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/datatables").IncludeDirectory(
+                "~/Scripts/DataTables-1.10.4", "*.js"));
+
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/jquery-ui-{version}.css",
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/twitterBootstrap").Include(
-                      "~/Content/twitter-bootstrap-css)"));
+                      "~/Content/twitter-bootstrap-css"));
+
+            bundles.Add(new StyleBundle("~/Content/datatables").IncludeDirectory(
+                      "~/Content/DataTables-1.10.4/css", "*.css"));
         }
     }
 }

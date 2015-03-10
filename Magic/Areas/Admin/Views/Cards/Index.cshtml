@@ -1,4 +1,3 @@
-@using Magic.Helpers
 @model IEnumerable<Card>
 
 @{
@@ -26,6 +25,14 @@
     </div>
     
 </div>
+
+<script>
+var dataTableVariables =
+{
+    editLink : '@Html.ActionLink("Edit", "Edit", new { id = "itemId" })',
+    deleteLink : '@Html.ActionLink("Delete", "Delete", new { id = "itemId" }, new { id = "delete-itemId" })'
+}
+</script>
 
 <table id="cms_listing" class="dataTable">
     <thead>
