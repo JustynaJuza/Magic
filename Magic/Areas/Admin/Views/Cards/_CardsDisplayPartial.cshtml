@@ -1,0 +1,25 @@
+@using Magic.Helpers
+@model IEnumerable<Magic.Models.Card>
+
+[
+@foreach (var item in Model)
+{
+    @:[
+    @Html.DisplayFor(modelItem => item.SetId)
+    @:,
+    @Html.DisplayFor(modelItem => item.Name)
+    @:,
+    @Html.EnumDisplayFor(modelItem => item.Rarity)
+    @:,
+    @Html.DisplayFor(modelItem => item.Types)
+    @:,
+    @Html.DisplayFor(modelItem => item.ConvertedManaCost)
+    @:,
+    @Html.DisplayFor(modelItem => item.Colors)
+    @:,
+    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+    @:|
+    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { id = "delete-" + item.Id })
+    @:]
+}
+]
