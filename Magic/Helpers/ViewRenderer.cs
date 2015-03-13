@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
@@ -15,6 +15,21 @@ namespace Magic.Helpers
     /// </summary>
     public class ViewRenderer
     {
+        public static string RenderRazorViewToString(ControllerContext controllerContext, String viewName, Object model)
+        {
+            controllerContext.Controller.ViewData.Model = model;
+
+            using (var sw = new StringWriter())
+            {
+                var viewResult = ViewEngines.Engines.FindPartialView(controllerContext, viewName);
+                var viewContext = new ViewContext(controllerContext, viewResult.View, controllerContext.Controller.ViewData, controllerContext.Controller.TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+                viewResult.ViewEngine.ReleaseView(controllerContext, viewResult.View);
+                return sw.GetStringBuilder().ToString();
+            }
+        }
+
+
         /// <summary>
         /// Required Controller Context
         /// </summary>

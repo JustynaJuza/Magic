@@ -1,0 +1,10 @@
+@using Magic.Helpers
+@model Card
+
+    @Html.DisplayFor(m => m.SetId)$$
+    @Html.DisplayFor(m => m.Name)$$
+    @Html.EnumDisplayFor(m => m.Rarity)$$
+    @Html.DisplayFor(m => m.Types)$$
+    @Html.DisplayFor(m => m.ConvertedManaCost)$$
+    @Html.DisplayFor(m => m.Colors)$$
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) | @Html.ActionLink("Delete", "Delete", new { id = Model.Id }, new { id = "delete-" + Model.Id })

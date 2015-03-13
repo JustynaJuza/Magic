@@ -382,7 +382,7 @@
     <Content Include="Areas\Admin\Views\Emails\Index.cshtml" />
     <Content Include="Content\DataTables-1.10.4\css\dataTables.responsive.scss" />
     <Content Include="Content\DataTables-1.10.4\css\dataTables.jqueryui.scss" />
-    <Content Include="Areas\Admin\Views\Cards\_CardsDisplayPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\Cards\_CardDisplayPartial.cshtml" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />

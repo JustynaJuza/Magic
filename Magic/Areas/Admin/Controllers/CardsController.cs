@@ -2,16 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using Magic.Helpers;
 using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
 using Magic.Models.Helpers;
+using Magic.Models.JQueryDataTables;
 using Microsoft.AspNet.SignalR;
 using RazorEngine;
 using RazorEngine.Templating;
@@ -35,52 +39,29 @@ namespace Magic.Areas.Admin.Controllers
         {
             return View(context.Cards.ToList());
         }
-
-        public class DataTablesInRequest{
-            public int Draw { get; set; }
-            public int Start { get; set; }
-            public int Length { get; set; }
-            public string Search { get; set; }
-            public string[] Columns { get; set; }
-            public string[] Order { get; set; }
-        }
-
-        public class DataTablesOutRequest
+        
+        public JsonResult GetCardData(DataTablesRequestIn o)
         {
-            public int draw { get; set; }
-            public int recordsTotal { get; set; }
-            public int recordsFiltered { get; set; }
-            public string data { get; set; }
-            public string error { get; set; }
-        }
+            //IQueryable cards;
+            //if (!string.IsNullOrWhiteSpace(o.Search))
+            //{
+            //    cards = context.Cards.Where(c => c.SetId.Contains(o.Search.Value) || c.Name.Contains(o.Search.Value));
+            //        //|| c.Rarity.GetDisplayName().Contains(o.Search.Value)
+            //}
+            var cards = context.Cards.OrderBy(c => c.SetId);
+            var selectedCards = cards.Skip(o.Start)
+                .Take(o.Length)
+                .ToList();
 
-        public JsonResult GetCardData(DataTablesInRequest o)
-        {
-    //        var dataTablesResult = new DataTablesResult(
-    //    requestParameters.Draw,
-    //    pagedData,
-    //    filteredDataSet.Count(),
-    //    totalCount
-    //);
-            var cards = context.Cards;
-            //var path = HostingEnvironment.MapPath(VirtualPathUtility.ToAbsolute("~/Areas/Admin/Views/Cards/_CardsDisplayPartial.cshtml"));
-            //var response = Engine.Razor.RunCompile(System.IO.File.ReadAllText(path), "cardsDisplay", typeof (IList<Card>), cards);
-            var selectedCards = cards.OrderBy(c => c.SetId).Skip(o.Start).Take(o.Length).ToList();
-            var serializedList = new StringBuilder('[');
-            foreach (var card in selectedCards)
-            {
-                serializedList.Append(Serialize(card)).Append(',');
-            }
-            serializedList.Replace(',', ']', serializedList.Length-1, 1);
+            var serializedCards = selectedCards.Select(RenderCard).ToList();
 
-            return new JsonResult { Data = new DataTablesOutRequest
+            return new JsonResult { Data = new DataTablesRequestOut
             {
                 draw = o.Draw,
-                recordsTotal = cards.Count(),
-                recordsFiltered = cards.Count(),
-                data = serializedList.ToString()
+                recordsTotal = context.Cards.Count(),
+                recordsFiltered = selectedCards.Count(),
+                data = serializedCards
             }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
-            //return Json(new { data = "Got it!" }, JsonRequestBehavior.AllowGet);
         }
 
         //public static void UpdateCard(Card model)
@@ -188,24 +169,49 @@ namespace Magic.Areas.Admin.Controllers
         }
         #endregion DISPOSE
 
-        private string Serialize(Card card)
+        private string[] RenderCard(Card card)
         {
-            var data = new StringBuilder();
-            data.AppendFormat("[{0}, {1}, {2},",
-                card.SetId, card.Name, card.Rarity.GetDisplayName());
+            var stringRender = ViewRenderer.RenderRazorViewToString(ControllerContext, "_CardDisplayPartial", card);
+            var stringArray = stringRender.Replace("\r", "").Replace("\n","").Split(new[] { "$$" }, StringSplitOptions.RemoveEmptyEntries);
+            return stringArray;
 
-            foreach (var cardType in card.Types)
-            {
-                data.Append(' ').Append(cardType.Name);
-            }
+            //var data = new string[7];
+            //data[0] = card.SetId;
+            //data[1] = card.Name;
+            //data[2] = card.Rarity.GetDisplayName();
 
-            data.AppendFormat(", {0}, {1}",
-                card.ConvertedManaCost, "x");
+            //    var cardTypeDisplay = "";
+            //foreach (var cardType in card.Types)
+            //{
+            //    cardTypeDisplay += cardType.Name + ' ';
+            //}
+            //data[3] = cardTypeDisplay;
+            //data[4] = card.ConvertedManaCost.ToString();
+            //data[5] = "x";
+            //data[6] = "<a href=\"" + Url.Action("Edit", new { id = card.Id }) + "\" class=\"btn btn-primary btn-edit\">Edit</a> | " +
+            //          "<a href=\"" + Url.Action("Delete", new { id = card.Id }) + "\" class=\"btn btn-danger btn-delete\">Delete</a>";
 
-            data.Append(", <a href=\"" + Url.Action("Edit", new { id = card.Id }) + "\" class=\"btn btn-primary btn-edit\">Edit</a>");
-            data.Append("| <a href=\"" + Url.Action("Delete", new { id = card.Id }) + "\" class=\"btn btn-danger btn-delete\">Delete</a>]");
-
-            return data.ToString();
+            //return data;
         }
+
+        //private string Serialize(Card card)
+        //{
+        //    var data = new StringBuilder("{");
+        //    data.AppendFormat("SetId:'{0}',Name:'{1}',Rarity:'{2}',CardType:'",
+        //        card.SetId, card.Name, card.Rarity.GetDisplayName());
+
+        //    foreach (var cardType in card.Types)
+        //    {
+        //        data.Append(' ').Append(cardType.Name);
+        //    }
+
+        //    data.AppendFormat("',Mana:'{0}',Colors:'{1}'",
+        //        card.ConvertedManaCost, "x");
+
+        //    data.Append(",Controls:'<a href=\"" + Url.Action("Edit", new { id = card.Id }) + "\" class=\"btn btn-primary btn-edit\">Edit</a>");
+        //    data.Append(" | <a href=\"" + Url.Action("Delete", new { id = card.Id }) + "\" class=\"btn btn-danger btn-delete\">Delete</a>'}");
+
+        //    return data.ToString();
+        //}
     }
 }

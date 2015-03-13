@@ -46,7 +46,15 @@ $(function () {
             { name: 'Types' },
             { name: 'Mana' },
             { name: 'Colors' },
-            { name: '' }
+            { name: 'Controls' }
+            
+            //{ name: 'SetId', data: 'SetId' },
+            //{ name: 'Name', data: 'Name' },
+            //{ name: 'Rarity', data: 'Rarity' },
+            //{ name: 'Types', data: 'Types' },
+            //{ name: 'Mana', data: 'Mana' },
+            //{ name: 'Colors', data: 'Colors' },
+            //{ name: 'Controls', data: 'Controls' }
         ],
         columnDefs: [
             {

@@ -148,6 +148,8 @@
     <Compile Include="Enums\Color.cs" />
     <Compile Include="GamePlayerStatus.cs" />
     <Compile Include="CardManaCost.cs" />
+    <Compile Include="JQueryDataTables\DataTablesRequestOut.cs" />
+    <Compile Include="JQueryDataTables\DataTablesRequestIn.cs" />
     <Compile Include="JsonConverter.cs" />
     <Compile Include="PlayerCardDeck.cs" />
     <Compile Include="PlayerCards.cs" />
