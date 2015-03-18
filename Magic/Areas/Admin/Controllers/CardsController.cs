@@ -48,8 +48,9 @@ namespace Magic.Areas.Admin.Controllers
             //    cards = context.Cards.Where(c => c.SetId.Contains(o.Search.Value) || c.Name.Contains(o.Search.Value));
             //        //|| c.Rarity.GetDisplayName().Contains(o.Search.Value)
             //}
-            var cards = context.Cards.OrderBy(c => c.SetId);
-            var selectedCards = cards.Skip(o.Start)
+            //var sqlParameter = new SqlParameter("@ClientId", 4);
+            var cards = context.Cards.SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns());
+            var selectedCards = cards.OrderBy(c => c.SetId).Skip(o.Start)
                 .Take(o.Length)
                 .ToList();
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Magic.Models.JQueryDataTables
 {
@@ -10,6 +11,11 @@ namespace Magic.Models.JQueryDataTables
         public DataTablesRequestSearch Search { get; set; }
         public IList<DataTablesRequestColumn> Columns { get; set; }
         public IList<DataTablesRequestOrder> Order { get; set; }
+
+        public string SelectedColumns()
+        {
+            return Columns.Aggregate(Columns.ElementAt(0).Name, (s, c) => s + ',' + c.Name);
+        }
     }
 
     public class DataTablesRequestSearch

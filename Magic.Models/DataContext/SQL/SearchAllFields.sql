@@ -58,24 +58,29 @@
 --GO
 
 USE MagicDB
+IF OBJECT_ID ( 'SearchAllFields', 'P' ) IS NOT NULL 
+    DROP PROCEDURE SearchAllFields
+GO
+CREATE PROCEDURE SearchAllFields
+	@tableName NVARCHAR(128),
+	@searchExpression NVARCHAR(50)
+AS
+	DECLARE @sqlQuery VARCHAR(MAX), @tempTableName NVARCHAR(155), @columnName NVARCHAR(128)
 
-	DECLARE @sqlQuery VARCHAR(MAX), @columnName nvarchar(128), @tableName NVARCHAR(128), @searchExpression NVARCHAR(50)
-
+	SET @tempTableName = '##Search-' + CAST(NEWID() AS NVARCHAR(36))
 	SET @tableName = 'ChatRooms'
-	SET @searchExpression = ''
-
-	SET NOCOUNT ON
-	-- CREATE TEMP TABLE
-	SET @sqlQuery = 
-		'SELECT * INTO #Search FROM ' + QUOTENAME(@tableName) + 
-		' WHERE 1 = 2'
-	EXECUTE(@sqlQUery)
-	
-	SELECT DISTINCT * FROM #Search
+	SET @searchExpression = 'All'
 
 	SET @columnName = ''
 	IF OBJECT_ID(QUOTENAME(@tableName), 'U') IS NOT NULL
 	BEGIN
+		-- CREATE TEMP TABLE
+		SET @sqlQuery = 
+			'SELECT * INTO ' + QUOTENAME(@tempTableName) + ' FROM ' + QUOTENAME(@tableName) + 
+			' WHERE 1 = 2'
+		EXECUTE(@sqlQuery)
+		SET NOCOUNT ON
+
 		SET @searchExpression = '%' + @searchExpression + '%'
 
 		WHILE (@columnName IS NOT NULL)
@@ -92,15 +97,13 @@ USE MagicDB
 			IF @columnName IS NOT NULL
 			BEGIN			
 				SET @sqlQuery = 
-					'SELECT * ' + --+ QUOTENAME(@tableName) + '.' + @columnName + 
-					'FROM ' + QUOTENAME(@tableName) + 
+					'INSERT INTO ' + QUOTENAME(@tempTableName) + 
+					' SELECT * FROM ' + QUOTENAME(@tableName) + 
 					' WHERE ' + @columnName + ' LIKE ' + QUOTENAME(@searchExpression, '''')
-
-				INSERT INTO #Search EXECUTE(@sqlQUery)
+				EXECUTE(@sqlQuery)
 			END
 		END
 	END
-
-	SELECT DISTINCT * FROM #Search
-	DROP TABLE #Search
+	SET @sqlQuery = 'SELECT DISTINCT * FROM ' + QUOTENAME(@tempTableName) + ' DROP TABLE ' + QUOTENAME(@tempTableName)
+	EXECUTE(@sqlQuery)
 GO

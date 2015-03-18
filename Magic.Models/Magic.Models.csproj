@@ -140,11 +140,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DataContext\SQL\StringSplit.sql" />
+    <Content Include="DataContext\SQL\SearchAllFields.sql" />
+    <Content Include="DataContext\SQL\SearchAllCards.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CardAvailableAbility.cs" />
     <Compile Include="CardDeckColors.cs" />
+    <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="Enums\Color.cs" />
     <Compile Include="GamePlayerStatus.cs" />
     <Compile Include="CardManaCost.cs" />
@@ -175,7 +179,6 @@
     <Compile Include="CardDeck.cs" />
     <Compile Include="CardType.cs" />
     <Compile Include="Chat\ChatMessage.cs" />
-    <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Helpers\CardFactory.cs" />
     <Compile Include="Interfaces\ICard.cs" />
