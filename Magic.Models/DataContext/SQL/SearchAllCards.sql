@@ -7,6 +7,8 @@ CREATE PROCEDURE SearchAllCards
 	@searchExpression NVARCHAR(50),	
 	@selectedColumns NVARCHAR(500)
 AS
+	IF (@searchExpression IS NOT NULL)
+	BEGIN
 	DECLARE @sqlQuery VARCHAR(MAX), @columnName nvarchar(128)
 
 	SET NOCOUNT ON
@@ -21,8 +23,7 @@ AS
 		SET @columnName = (
 			SELECT MIN(sys.columns.name)
 			FROM sys.columns
-			INNER JOIN sys.types ON sys.columns.system_type_id = sys.types.system_type_id
-			INNER JOIN dbo.SplitString(@selectedColumns, ',') as split on split.splitData = sys.columns.name
+			INNER JOIN dbo.SplitString(@selectedColumns, ',') as split on split.value = sys.columns.name
 			WHERE sys.columns.object_id = object_id('Cards')
 			AND sys.columns.name > @columnName
 		)
@@ -38,4 +39,7 @@ AS
 	END
 
 	SELECT DISTINCT * FROM #Search
+END
+ELSE	
+	SELECT * FROM Cards
 GO

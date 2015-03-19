@@ -50,7 +50,7 @@ namespace Magic.Areas.Admin.Controllers
             //}
             //var sqlParameter = new SqlParameter("@ClientId", 4);
             var cards = context.Cards.SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns());
-            var selectedCards = cards.OrderBy(c => c.SetId).Skip(o.Start)
+            var selectedCards = cards.OrderBy(c => o.Columns[o.Order[0].Column].Name).Skip(o.Start)
                 .Take(o.Length)
                 .ToList();
 
