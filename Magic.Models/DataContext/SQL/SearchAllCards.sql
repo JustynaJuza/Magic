@@ -24,6 +24,7 @@ AS
 			SELECT MIN(sys.columns.name)
 			FROM sys.columns
 			INNER JOIN dbo.SplitString(@selectedColumns, ',') as split on split.value = sys.columns.name
+			--(CASE WHEN sys.columns.object_id = object_id('Cards') AND sys.columns.name = @columnName THEN Data END) + @columnName + ' LIKE ' + QUOTENAME(@searchExpression, '''')
 			WHERE sys.columns.object_id = object_id('Cards')
 			AND sys.columns.name > @columnName
 		)

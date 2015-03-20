@@ -42,25 +42,28 @@ namespace Magic.Areas.Admin.Controllers
         
         public JsonResult GetCardData(DataTablesRequestIn o)
         {
-            //IQueryable cards;
-            //if (!string.IsNullOrWhiteSpace(o.Search))
-            //{
-            //    cards = context.Cards.Where(c => c.SetId.Contains(o.Search.Value) || c.Name.Contains(o.Search.Value));
-            //        //|| c.Rarity.GetDisplayName().Contains(o.Search.Value)
-            //}
-            //var sqlParameter = new SqlParameter("@ClientId", 4);
-            var cards = context.Cards.SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns());
-            var selectedCards = cards.OrderBy(c => o.Columns[o.Order[0].Column].Name).Skip(o.Start)
-                .Take(o.Length)
-                .ToList();
+            IList<Card> cards;
+            if (!string.IsNullOrWhiteSpace(o.Search.Value))
+            {
+                cards = context.Cards.SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns()).ToList();
+                cards = cards.Where(c => c.Rarity.GetDisplayName().Contains(o.Search.Value)).ToList();
+                //|| c.Rarity.GetDisplayName().Contains(o.Search.Value)
+            }
+            else
+            {
+                cards = context.Cards.OrderBy(c => o.Columns[o.Order[0].Column].Name)
+                    .Skip(o.Start)
+                    .Take(o.Length)
+                    .ToList();
+            }
 
-            var serializedCards = selectedCards.Select(RenderCard).ToList();
+            var serializedCards = cards.Select(RenderCard).ToList();
 
             return new JsonResult { Data = new DataTablesRequestOut
             {
                 draw = o.Draw,
                 recordsTotal = context.Cards.Count(),
-                recordsFiltered = selectedCards.Count(),
+                recordsFiltered = cards.Count(),
                 data = serializedCards
             }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
         }

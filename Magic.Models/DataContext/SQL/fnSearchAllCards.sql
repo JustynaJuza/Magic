@@ -8,38 +8,40 @@ CREATE FUNCTION SearchAllCards(
 	@selectedColumns NVARCHAR(500)
 	)
 RETURNS @Cards TABLE
-(    
-  SetId nvarchar(8000),
-  Name nvarchar(8000)   
+(
+	Id nvarchar(128),
+	SetId nvarchar(128),
+	Name nvarchar(MAX),
+	Rarity int,
+	Mana int
 )
 AS
+BEGIN
+	DECLARE @Rarity TABLE
+	(
+	  Id int, 
+	  Name nvarchar(25)
+	)
+	INSERT INTO @Rarity
+	VALUES (1, 'Common'), (2, 'Uncommon'), (3, 'Rare'), (4, 'Mythic Rare')
+
 	IF (@searchExpression IS NOT NULL)
 	BEGIN
-	DECLARE @sqlQuery VARCHAR(MAX), @columnName nvarchar(128)
 
-	SET NOCOUNT ON
-	-- CREATE TEMP TABLE
-	SELECT * INTO #Search FROM Cards WHERE 1 = 2
-
-	SET @columnName = ''
 	SET @searchExpression = '%' + @searchExpression + '%'
 
-	WHILE (@columnName IS NOT NULL)
-	BEGIN
-		SET @columnName = (
-			SELECT MIN(sys.columns.name)
-			FROM sys.columns
-			INNER JOIN sys.types ON sys.columns.system_type_id = sys.types.system_type_id
-			INNER JOIN dbo.SplitString(@selectedColumns, ',') as split on split.value = sys.columns.name
-			WHERE sys.columns.object_id = object_id('Cards')
-			AND sys.columns.name > @columnName
-		)
+	SET NOCOUNT ON
+
+	DECLARE @sqlQuery VARCHAR(MAX)
 	
-		IF @columnName IS NOT NULL
-		BEGIN			
-			SET @sqlQuery = 
-				'SELECT * ' + --+ QUOTENAME(@tableName) + '.' + @columnName + 
-				'FROM Cards WHERE ' + @columnName + ' LIKE ' + QUOTENAME(@searchExpression, '''')
+	INSERT INTO #Search
+	SELECT SetId, Name, Rarity, Mana FROM Cards
+	WHERE SetId LIKE @searchExpression
+	OR Name LIKE @searchExpression
+	OR (CASE Rarity 
+		WHEN 1 THEN 'COMMON' LIKE @searchExpression 
+		END)
+				
 	
 			INSERT INTO #Search EXECUTE(@sqlQUery)
 		END

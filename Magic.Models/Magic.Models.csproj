@@ -141,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataContext\SQL\fnSearchAllCards.sql" />
+    <Content Include="DataContext\SQL\SearchAllCardNames.sql" />
     <Content Include="DataContext\SQL\SplitString.sql" />
     <Content Include="DataContext\SQL\StringSplitWithIndex.sql" />
     <Content Include="DataContext\SQL\StringSplit.sql" />
