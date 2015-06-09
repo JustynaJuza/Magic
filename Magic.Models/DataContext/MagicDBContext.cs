@@ -161,16 +161,15 @@ namespace Magic.Models.DataContext
             return (T)foundItem;
         }
 
-        public object ReadObject(object item)
+        public TEntity Read<TEntity>(TEntity item)
         {
             var collectionType = item.GetType();
             var targetCollection = Set(collectionType);
 
-            var itemKeyInfo = collectionType.GetProperty("Id"); // ?? collectionType.GetProperty("DateCreated");
+            var itemKeyInfo = collectionType.GetProperty("Id");
             var itemKey = itemKeyInfo.GetValue(item);
 
-            var foundItem = targetCollection.Find(itemKey);
-
+            var foundItem = (TEntity) targetCollection.Find(itemKey);
             return foundItem;
         }
 
@@ -197,13 +196,20 @@ namespace Magic.Models.DataContext
             }
         }
 
-        public bool InsertOrUpdate(Object item, bool updateOnly = false)
+        /// <summary>
+        /// Updates an existing entity with the same Id in the context or inserts it as a new entity if none is found with the same Id.
+        /// Enable the updateOnly flag if there is no need for searching for an existing entity (existing entity is already attached to the context).
+        /// </summary>
+        /// <typeparam name="TEntity">Type of the entity to be updated.</typeparam>
+        /// <param name="item">The entity to be updated.</param>
+        /// <param name="updateOnly">Optional flag for applying updates to an existing entity only but without attaching the entity to the context.</param>
+        public bool InsertOrUpdate<TEntity>(TEntity item, bool updateOnly = false) where TEntity : class
         {
             string errorText;
             return InsertOrUpdate(item, out errorText, updateOnly);
         }
 
-        public bool InsertOrUpdate(Object item, out string errorText, bool updateOnly = false)
+        public bool InsertOrUpdate<TEntity>(TEntity item, out string errorText, bool updateOnly = false) where TEntity : class
         {
             errorText = null;
 
@@ -213,7 +219,7 @@ namespace Magic.Models.DataContext
             }
             else
             {
-                var foundItem = ReadObject(item);
+                var foundItem = Read(item);
                 if (foundItem == null)
                 {
                     Entry(item).State = EntityState.Added;
@@ -248,7 +254,7 @@ namespace Magic.Models.DataContext
 
             if (!deleteOnly)
             {
-                foundItem = ReadObject(item);
+                foundItem = Read(item);
                 if (foundItem == null)
                 {
                     return false;
@@ -282,7 +288,7 @@ namespace Magic.Models.DataContext
                 {
                     foreach (var validationError in validationErrors.ValidationErrors)
                     {
-                        errors += "Property: " + validationError.PropertyName + "Error:" + validationError.ErrorMessage + "<br />";
+                        errors += "Property: " + validationError.PropertyName + " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
                     }
                 }
 

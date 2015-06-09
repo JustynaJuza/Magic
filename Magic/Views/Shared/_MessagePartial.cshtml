@@ -1,6 +1,6 @@
 ﻿@if (TempData["Error"] != null)
 {
-    <p><span class="text-danger">SIR! MAY I HAVE YOUR ATTENTION, PLEASE!</span> @TempData["Error"] </p>
+    <p><span class="text-danger">Problems encountered...</span> @Html.Raw(TempData["Error"]) </p>
 }
 
 @if (TempData["Message"] != null)

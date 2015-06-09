@@ -57,7 +57,7 @@ namespace Magic.Areas.Admin.Controllers
             }
             if (e.Error != null)
             {
-                Console.WriteLine("[{0}] {1}", token, e.Error.ToString());
+                Console.WriteLine("[{0}] {1}", token, e.Error);
             }
             else
             {
