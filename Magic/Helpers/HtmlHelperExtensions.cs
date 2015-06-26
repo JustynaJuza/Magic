@@ -42,7 +42,7 @@ namespace Magic.Helpers
             var result = new StringBuilder();
 
             var scriptList = htmlHelper.ViewContext.HttpContext
-              .Items[HtmlHelperExtensions._jSViewDataName] as List<string>;
+              .Items[_jSViewDataName] as List<string>;
             if (scriptList != null)
             {
                 foreach (string script in scriptList)
@@ -59,7 +59,7 @@ namespace Magic.Helpers
         public static void AddStyle(this HtmlHelper htmlHelper, string styleUrl)
         {
             var styleList = htmlHelper.ViewContext.HttpContext
-              .Items[HtmlHelperExtensions._styleViewDataName] as List<string>;
+              .Items[_styleViewDataName] as List<string>;
 
             if (styleList != null)
             {
@@ -70,8 +70,7 @@ namespace Magic.Helpers
             }
             else
             {
-                styleList = new List<string>();
-                styleList.Add(styleUrl);
+                styleList = new List<string> { styleUrl };
                 htmlHelper.ViewContext.HttpContext
                   .Items.Add(HtmlHelperExtensions._styleViewDataName, styleList);
             }
@@ -82,7 +81,7 @@ namespace Magic.Helpers
             var result = new StringBuilder();
 
             var styleList = htmlHelper.ViewContext.HttpContext
-              .Items[HtmlHelperExtensions._styleViewDataName] as List<string>;
+              .Items[_styleViewDataName] as List<string>;
 
             if (styleList != null)
             {
