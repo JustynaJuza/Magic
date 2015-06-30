@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
-using Magic.Hubs;
-using Microsoft.AspNet.SignalR;
+using Elmah;
+using Penna.Messaging.Web.Helpers;
 
-namespace Magic.Areas.Admin.Controllers
+namespace Penna.Messaging.Web.Controllers
 {
     public class FilesController : Controller
     {
+        private readonly IPathProvider _pathProvider;
+
+        public FilesController(IPathProvider pathProvider)
+        {
+            _pathProvider = pathProvider;
+        }
+
         [HttpPost]
         public async Task<string> UploadFile(HttpPostedFileBase file, string uploadPath = "", bool allowImageOnly = true)
         {
@@ -24,31 +29,75 @@ namespace Magic.Areas.Admin.Controllers
             {
                 var isImageFile = Regex.IsMatch(file.ContentType, "image");
                 uploadPath = "/Images" + uploadPath;
-                if (!isImageFile) return "This must be an image file.";
+
+                if (!isImageFile)
+                {
+                    return "This must be an image file";
+                }
+
+                //var image = Image.FromStream(file.InputStream, true, true);
+                //if (image.Size.Width > 600 || image.Size.Height > 200)
+                //{
+                //    return "Your image file must be of the maximum size of 600px x 200px";
+                //}
             }
 
             return await SaveFile(file.InputStream, file.FileName, uploadPath);
         }
 
-        public static async Task<string> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
+        public async Task<string> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
         {
             var path = "/Content" + uploadPath + "/";
-            var absolutePath = VirtualPathUtility.ToAbsolute("~" + path);
-            var serverPath = HostingEnvironment.MapPath(absolutePath);
+            var serverPath = _pathProvider.GetServerPath("~" + path);
+
+            PrepareFileDirectory(serverPath);
+            await SaveFileInBlocksAsync(serverPath + fileName, fileStream);
+
+            return path + fileName;
+        }
+
+        public string GetFileIconAsString(string filePath)
+        {
+            var serverPath = _pathProvider.GetServerPath("~" + filePath);
+            var icon = Icon.ExtractAssociatedIcon(serverPath);
+            var image = icon.ToBitmap();
+            var stream = new MemoryStream();
+            image.Save(stream, ImageFormat.Png);
+            return Convert.ToBase64String(stream.ToArray());
+        }
+
+        public int GetImageWidth(string filePath)
+        {
+            var serverPath = _pathProvider.GetServerPath("~" + filePath);
+            try
+            {
+                var image = Image.FromFile(serverPath);
+                return image.Size.Width;
+            }
+            catch(Exception ex)
+            {
+                ErrorLog.GetDefault(System.Web.HttpContext.Current).Log(new Error(ex));
+                return 0;
+            }
+        }
+
+        private void PrepareFileDirectory(string serverPath)
+        {
             if (!Directory.Exists(serverPath))
             {
                 Directory.CreateDirectory(serverPath);
             }
+        }
 
-            var bytesTotal = fileStream.Length;
+        private Task SaveFileInBlocksAsync(string filePath, Stream fileStream, int blockByteSize = 1048576) // 1048576B = 1MB
+        {
             var bytesTransferred = 0;
-            var buffer = new byte[1048576]; // 1048576B = 1MB
+            var buffer = new byte[blockByteSize];
             var fileSavingOperations = new List<Task>();
+            fileStream.Seek(0, SeekOrigin.Begin);
 
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<AdminHub>();
-
-            using (var file = new FileStream(serverPath + fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous)) 
-                // 4096 is default, async prevents the file from breaking when writing from the middle of the file
+            using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
+            // 4096 is default, async prevents the file from breaking when writing from the middle of the file
             {
                 int currentByteBlockSize;
                 do
@@ -58,33 +107,13 @@ namespace Magic.Areas.Admin.Controllers
                     var fileSaving = file.WriteAsync(buffer, 0, currentByteBlockSize);
 
                     bytesTransferred += currentByteBlockSize;
-                    var percentage = (double)bytesTransferred * 100 / bytesTotal;
 
-                    fileSavingOperations.Add(fileSaving.ContinueWith(
-                        finishedTask =>
-                        {
-                            System.Diagnostics.Debug.WriteLine("In continue " + percentage);
-                            // TODO: update progress in view
-                            hubContext.Clients.All.updateUploadProgress(Math.Floor(percentage));
-                        }));
+                    fileSavingOperations.Add(fileSaving);
                 }
                 while (currentByteBlockSize != 0);
 
-                await Task.WhenAll(fileSavingOperations);
+                return Task.WhenAll(fileSavingOperations);
             }
-
-            return path + fileName;
-        }
-
-        public static string GetFileIconAsString(string filePath)
-        {
-            //var path = VirtualPathUtility.ToAbsolute(System.Web.HttpContext.Current.Request.ApplicationPath + filePath);
-            var path = VirtualPathUtility.ToAbsolute("~" + filePath);
-            var icon = Icon.ExtractAssociatedIcon(HostingEnvironment.MapPath(path));
-            var image = icon.ToBitmap();
-            var stream = new MemoryStream();
-            image.Save(stream, ImageFormat.Png);
-            return Convert.ToBase64String(stream.ToArray());
         }
     }
 }
