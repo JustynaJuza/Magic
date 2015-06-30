@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Web.Hosting;
 using System.Web.Mvc;
-using System.Web.Mvc.Ajax;
 using System.Web.Mvc.Html;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Web;
 
 namespace Magic.Helpers
 {

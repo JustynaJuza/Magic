@@ -7,16 +7,16 @@ namespace Magic.Helpers
 {
     public static class UploaderHelpers
     {
-        private static string placeholderImage = VirtualPathUtility.ToAbsolute("~/Content/Images/placeholder.png");
+        private static readonly string PlaceholderImage = VirtualPathUtility.ToAbsolute("~/Content/placeholder.png");
 
         public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
         {
             return helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(ExpressionHelper.GetExpressionText(expression));
         }
-
+        
         public static string GetPlaceholder(this HtmlHelper helper)
         {
-            return placeholderImage;
+            return PlaceholderImage;
         }
     }
 }

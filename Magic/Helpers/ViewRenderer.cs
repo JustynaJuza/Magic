@@ -29,7 +29,6 @@ namespace Magic.Helpers
             }
         }
 
-
         /// <summary>
         /// Required Controller Context
         /// </summary>
