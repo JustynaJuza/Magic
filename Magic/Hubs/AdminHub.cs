@@ -147,7 +147,7 @@ namespace Magic.Hubs
             //return cards.ToList();
         }
 
-        public static async Task FetchCardImage(int id, string fileName)
+        public async Task FetchCardImage(int id, string fileName)
         {
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");

@@ -6,12 +6,11 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Hosting;
 using System.Web.Mvc;
 using Elmah;
-using Penna.Messaging.Web.Helpers;
+using Magic.Helpers;
 
-namespace Penna.Messaging.Web.Controllers
+namespace Magic.Areas.Admin.Controllers
 {
     public class FilesController : Controller
     {
