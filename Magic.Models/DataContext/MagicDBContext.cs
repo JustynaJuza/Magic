@@ -288,7 +288,8 @@ namespace Magic.Models.DataContext
                 {
                     foreach (var validationError in validationErrors.ValidationErrors)
                     {
-                        errors += "Property: " + validationError.PropertyName + " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
+                        errors += "Property: " + validationError.PropertyName + 
+                            " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
                     }
                 }
 

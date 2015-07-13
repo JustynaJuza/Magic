@@ -2,9 +2,9 @@
 using System.Web;
 using Elmah;
 
-namespace Magic.ErrorHandling
+namespace Magic.Helpers
 {
-    public static class Error
+    public static class ErrorHandler
     {
         public static void Log(Exception error)
         {

@@ -7,7 +7,8 @@ namespace Magic.Helpers
 {
     public static class UploaderHelpers
     {
-        private static readonly string PlaceholderImage = VirtualPathUtility.ToAbsolute("~/Content/placeholder.png");
+        public static readonly string PlaceholderImage = VirtualPathUtility.ToAbsolute("~/Content/placeholder.png");
+        public static readonly string ErrorImage = string.Empty;
 
         public static string GetIdFor<TModel, TValue>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TValue>> expression)
         {

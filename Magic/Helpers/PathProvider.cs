@@ -28,12 +28,18 @@ namespace Magic.Helpers
 
         public string GetAbsolutePath(string relativePath)
         {
+            relativePath = AmendRelativeRootDirectory(relativePath);
             return VirtualPathUtility.ToAbsolute(relativePath);
         }
 
         public string GetServerPath(string relativePath)
         {
             return HostingEnvironment.MapPath(GetAbsolutePath(relativePath));
+        }
+
+        private string AmendRelativeRootDirectory(string filePath)
+        {
+            return filePath[0] == '~' ? filePath : '~' + filePath;
         }
     }
 }
