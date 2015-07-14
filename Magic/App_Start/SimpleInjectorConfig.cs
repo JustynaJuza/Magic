@@ -39,6 +39,7 @@ namespace Penna.Messaging.Web
             // Data Access
             container.Register<MagicDbContext>(new WebRequestLifestyle());
             container.Register<IPathProvider, PathProvider>();
+            container.Register<IFileHandler, FileHandler>();
 
             // MVC
             container.RegisterMvcControllers(Assembly.GetExecutingAssembly());

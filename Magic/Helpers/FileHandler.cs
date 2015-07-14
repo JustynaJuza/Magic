@@ -5,15 +5,17 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Magic.Helpers
 {
     public interface IFileHandler
     {
-        Task<string> SaveFile(Stream fileStream, string fileName, string uploadPath = "");
+        Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "");
+        string GetAppRelativeFilePath(string fileName, string uploadPath = "");
         bool CheckForImageFileTypeConstraint(string fileContentType, bool allowImageOnly);
-        string GetFileIconAsString(string filePath);
         int GetImageWidth(string filePath);
+        string GetFileIconAsString(string filePath);
     }
 
     public class FileHandler : IFileHandler
@@ -24,32 +26,63 @@ namespace Magic.Helpers
         {
             _pathProvider = pathProvider;
         }
+        
+        public async Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
+        {
+            try
+            {
+                var path = GetServerFilePath(fileName, uploadPath);
+                PrepareFileDirectory(path);
+                await SaveFileInBlocksAsync(path, fileStream);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
-        public string GetFileSavePath (string fileName, string uploadPath = "")
+        public string GetAppRelativeFilePath(string fileName, string uploadPath = "")
         {
             var path = "/Content" + uploadPath + "/";
             var serverPath = _pathProvider.GetServerPath(path);
 
-            if (!PrepareFileDirectory(serverPath))
+            var filePath = serverPath + fileName;
+            try
             {
-                // TODO: Decide what should happen here - thowing new exception or passing exception up or else.
-                return string.Empty;
+                // check if full path is accessible
+                Path.GetFullPath(filePath);
+                return path + fileName;
             }
-
-            return path + fileName;
+            catch (Exception ex)
+            {
+                ErrorHandler.Log(ex);
+                throw;
+            }
         }
-
-        public async Task<bool> SaveFile(string path, Stream fileStream)
-        {
-            PrepareFileDirectory(path);
-            return await SaveFileInBlocksAsync(path, fileStream);
-        }
-
+        
         public bool CheckForImageFileTypeConstraint(string fileContentType, bool allowImageOnly)
         {
             return !allowImageOnly || Regex.IsMatch(fileContentType, "image");
         }
-
+        
+        public int GetImageWidth(string filePath)
+        {
+            var serverPath = _pathProvider.GetServerPath("~" + filePath);
+            try
+            {
+                using (var image = Image.FromFile(serverPath))
+                {
+                    return image.Size.Width;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Log(ex);
+                return 0;
+            }
+        }
+        
         public string GetFileIconAsString(string filePath)
         {
             var serverPath = _pathProvider.GetServerPath(filePath);
@@ -67,44 +100,42 @@ namespace Magic.Helpers
                 return Convert.ToBase64String(stream.ToArray());
             }
         }
-
-        public int GetImageWidth(string filePath)
+        
+        private string GetServerFilePath(string fileName, string uploadPath)
         {
-            var serverPath = _pathProvider.GetServerPath("~" + filePath);
+            var path = "/Content" + uploadPath + "/";
+            var serverPath = _pathProvider.GetServerPath(path);
+            var filePath = serverPath + fileName;
             try
             {
-                using (var image = Image.FromFile(serverPath))
+                // check if full path is accessible
+                Path.GetFullPath(filePath);
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Log(ex);
+                throw;
+            }
+        }
+
+        private void PrepareFileDirectory(string serverPath)
+        {
+            if (!Directory.Exists(serverPath))
+            {
+                try
                 {
-                    return image.Size.Width;
+                    Directory.CreateDirectory(serverPath);
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandler.Log(ex);
+                    throw;
                 }
             }
-            catch (Exception ex)
-            {
-                ErrorHandler.Log(ex);
-                return 0;
-            }
         }
 
-        private bool PrepareFileDirectory(string serverPath)
-        {
-            if (Directory.Exists(serverPath))
-            {
-                return true;
-            }
-
-            try
-            {
-                Directory.CreateDirectory(serverPath);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorHandler.Log(ex);
-                return false;
-            }
-        }
-
-        private async Task<bool> SaveFileInBlocksAsync(string serverPath, Stream fileStream, int blockByteSize = 1048576) // 1048576B = 1MB
+        private Task SaveFileInBlocksAsync(string serverPath, Stream fileStream, int blockByteSize = 1048576) // 1048576B = 1MB
         {
             var bytesTransferred = 0;
             var buffer = new byte[blockByteSize];
@@ -128,14 +159,13 @@ namespace Magic.Helpers
                         fileSavingOperations.Add(fileSaving);
                     } while (currentByteBlockSize != 0);
 
-                    await Task.WhenAll(fileSavingOperations);
-                    return true;
+                    return Task.WhenAll(fileSavingOperations);
                 }
             }
             catch (Exception ex)
             {
                 ErrorHandler.Log(ex);
-                return false;
+                throw;
             }
         }
     }

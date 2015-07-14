@@ -94,7 +94,7 @@ namespace Magic.Areas.Admin.Controllers
             var buffer = new byte[blockByteSize];
             var fileSavingOperations = new List<Task>();
             fileStream.Seek(0, SeekOrigin.Begin);
-
+            
             using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
             // 4096 is default, async prevents the file from breaking when writing from the middle of the file
             {

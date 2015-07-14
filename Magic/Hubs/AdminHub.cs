@@ -7,17 +7,26 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using Magic.Areas.Admin.Controllers;
+using Magic.Helpers;
 using Magic.Models;
 using Magic.Models.DataContext;
 using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TaskExtensions = Magic.Helpers.TaskExtensions;
 
 namespace Magic.Hubs
 {
     public class AdminHub : Hub
     {
+        private readonly IFileHandler _fileHandler;
+
+        public AdminHub(IFileHandler fileHandler)
+        {
+            _fileHandler = fileHandler;
+        }
+
         //public void Insert(Card model, bool isUpdate = false)
         //{
         //    model.Id = model.Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", ""); //Guid.NewGuid().ToString();
@@ -147,18 +156,28 @@ namespace Magic.Hubs
             //return cards.ToList();
         }
 
-        public async Task FetchCardImage(int id, string fileName)
+        public async Task<bool> FetchCardImage(int id, string fileName)
         {
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
             var requestHandler = new HttpClient();
+            var imageFetchingOperations = new List<Task>();
 
             try
             {
-                requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
-                requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => FilesController.SaveFile(request.Result, fileName, "/Cards"));
+                var image = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                imageFetchingOperations.Add(image);
+                var imagePreview = requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                imageFetchingOperations.Add(imagePreview);
+
+                await Task.WhenAll(imageFetchingOperations);
+                return true;
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                ErrorHandler.Log(ex);
+                return false;
+            }
         }
 
         private static void DownloadProgressCallback(object sender, DownloadProgressChangedEventArgs e)
