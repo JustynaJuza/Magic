@@ -14,11 +14,11 @@ namespace Magic.Areas.Admin.Controllers
 {
     public class FilesController : Controller
     {
-        private readonly IPathProvider _pathProvider;
+        private readonly IFileHandler _fileHandler;
 
-        public FilesController(IPathProvider pathProvider)
+        public FilesController(IFileHandler fileHandler)
         {
-            _pathProvider = pathProvider;
+            _fileHandler = fileHandler;
         }
 
         [HttpPost]
@@ -26,93 +26,24 @@ namespace Magic.Areas.Admin.Controllers
         {
             if (allowImageOnly)
             {
-                var isImageFile = Regex.IsMatch(file.ContentType, "image");
-                uploadPath = "/Images" + uploadPath;
-
-                if (!isImageFile)
-                {
+                if (!_fileHandler.PassImageFileTypeConstraint(file.ContentType, true))
                     return "This must be an image file";
-                }
 
-                //var image = Image.FromStream(file.InputStream, true, true);
-                //if (image.Size.Width > 600 || image.Size.Height > 200)
-                //{
-                //    return "Your image file must be of the maximum size of 600px x 200px";
-                //}
+                if (!_fileHandler.PassImageSizeConstraint(file.InputStream, 600, 200))
+                    return "Your image file must be of the maximum size of 600px x 200px";
+
+                uploadPath = "/Images" + uploadPath;
             }
-
-            return await SaveFile(file.InputStream, file.FileName, uploadPath);
-        }
-
-        public async Task<string> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
-        {
-            var path = "/Content" + uploadPath + "/";
-            var serverPath = _pathProvider.GetServerPath("~" + path);
-
-            PrepareFileDirectory(serverPath);
-            await SaveFileInBlocksAsync(serverPath + fileName, fileStream);
-
-            return path + fileName;
-        }
-
-        public string GetFileIconAsString(string filePath)
-        {
-            var serverPath = _pathProvider.GetServerPath("~" + filePath);
-            var icon = Icon.ExtractAssociatedIcon(serverPath);
-            var image = icon.ToBitmap();
-            var stream = new MemoryStream();
-            image.Save(stream, ImageFormat.Png);
-            return Convert.ToBase64String(stream.ToArray());
-        }
-
-        public int GetImageWidth(string filePath)
-        {
-            var serverPath = _pathProvider.GetServerPath("~" + filePath);
-            try
-            {
-                var image = Image.FromFile(serverPath);
-                return image.Size.Width;
-            }
-            catch(Exception ex)
-            {
-                ErrorLog.GetDefault(System.Web.HttpContext.Current).Log(new Error(ex));
-                return 0;
-            }
-        }
-
-        private void PrepareFileDirectory(string serverPath)
-        {
-            if (!Directory.Exists(serverPath))
-            {
-                Directory.CreateDirectory(serverPath);
-            }
-        }
-
-        private Task SaveFileInBlocksAsync(string filePath, Stream fileStream, int blockByteSize = 1048576) // 1048576B = 1MB
-        {
-            var bytesTransferred = 0;
-            var buffer = new byte[blockByteSize];
-            var fileSavingOperations = new List<Task>();
-            fileStream.Seek(0, SeekOrigin.Begin);
             
-            using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
-            // 4096 is default, async prevents the file from breaking when writing from the middle of the file
-            {
-                int currentByteBlockSize;
-                do
-                {
-                    currentByteBlockSize = fileStream.Read(buffer, 0, buffer.Length);
-                    file.Seek(bytesTransferred, SeekOrigin.Begin);
-                    var fileSaving = file.WriteAsync(buffer, 0, currentByteBlockSize);
+            var path = _fileHandler.GetAppRelativeFilePath(file.FileName, uploadPath);
 
-                    bytesTransferred += currentByteBlockSize;
-
-                    fileSavingOperations.Add(fileSaving);
-                }
-                while (currentByteBlockSize != 0);
-
-                return Task.WhenAll(fileSavingOperations);
+            if (string.IsNullOrWhiteSpace(path)) {
+                return "The file or directory name is too long";
             }
+
+            var success = await _fileHandler.SaveFile(file.InputStream, file.FileName, uploadPath);
+
+            return success ? path : "The file saving failed due to a disk access restriction";
         }
     }
 }

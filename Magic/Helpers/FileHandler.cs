@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Magic.Helpers
 {
@@ -13,7 +13,8 @@ namespace Magic.Helpers
     {
         Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "");
         string GetAppRelativeFilePath(string fileName, string uploadPath = "");
-        bool CheckForImageFileTypeConstraint(string fileContentType, bool allowImageOnly);
+        bool PassImageFileTypeConstraint(string fileContentType, bool allowImageOnly);
+        bool PassImageSizeConstraint(Stream fileStream, int width, int height);
         int GetImageWidth(string filePath);
         string GetFileIconAsString(string filePath);
     }
@@ -26,7 +27,7 @@ namespace Magic.Helpers
         {
             _pathProvider = pathProvider;
         }
-        
+
         public async Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
         {
             try
@@ -36,8 +37,12 @@ namespace Magic.Helpers
                 await SaveFileInBlocksAsync(path, fileStream);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                if (!ex.HandleException(typeof(IOException), typeof(SecurityException)))
+                {
+                    throw;
+                }
                 return false;
             }
         }
@@ -56,16 +61,19 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandler.Log(ex);
-                throw;
+                if (!ex.HandleException(typeof(PathTooLongException)))
+                {
+                    throw;
+                }
+                return string.Empty;
             }
         }
-        
-        public bool CheckForImageFileTypeConstraint(string fileContentType, bool allowImageOnly)
+
+        public bool PassImageFileTypeConstraint(string fileContentType, bool allowImageOnly)
         {
             return !allowImageOnly || Regex.IsMatch(fileContentType, "image");
         }
-        
+
         public int GetImageWidth(string filePath)
         {
             var serverPath = _pathProvider.GetServerPath("~" + filePath);
@@ -78,11 +86,20 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandler.Log(ex);
+                if (!ex.HandleException(typeof(IOException)))
+                {
+                    throw;
+                }
                 return 0;
             }
         }
-        
+
+        public bool PassImageSizeConstraint(Stream fileStream, int width = int.MaxValue, int height = int.MaxValue)
+        {
+            var image = Image.FromStream(fileStream, true, false);
+            return !(image.Size.Width > width || image.Size.Height > height);
+        }
+
         public string GetFileIconAsString(string filePath)
         {
             var serverPath = _pathProvider.GetServerPath(filePath);
@@ -100,7 +117,7 @@ namespace Magic.Helpers
                 return Convert.ToBase64String(stream.ToArray());
             }
         }
-        
+
         private string GetServerFilePath(string fileName, string uploadPath)
         {
             var path = "/Content" + uploadPath + "/";
@@ -167,6 +184,22 @@ namespace Magic.Helpers
                 ErrorHandler.Log(ex);
                 throw;
             }
+        }
+    }
+
+    public class FileSavingException : Exception
+    {
+        public FileSavingException()
+        {
+            // Add implementation.
+        }
+        public FileSavingException(string message)
+        {
+            // Add implementation.
+        }
+        public FileSavingException(string message, Exception inner)
+        {
+            // Add implementation.
         }
     }
 }
