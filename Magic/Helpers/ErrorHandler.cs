@@ -7,26 +7,28 @@ namespace Magic.Helpers
 {
     public static class ErrorHandler
     {
-        public static void Log(Exception error)
+        public static void LogException(this Exception exception)
         {
-            if (error == null)
-                return;
-            if (HttpContext.Current == null) //In case we run outside of IIS
-                ErrorLog.GetDefault(null).Log(new Elmah.Error(error));
-            ErrorSignal.FromCurrentContext().Raise(error);
+            if (HttpContext.Current == null)
+            {
+                //In case we run outside of IIS
+                ErrorLog.GetDefault(null).Log(new Error(exception));
+            }
+            else
+            {
+                ErrorSignal.FromCurrentContext().Raise(exception);
+            }
         }
 
         public static bool HandleException(this Exception exception, params Type[] exceptionTypes)
         {
-            Log(exception);
-
             if (exceptionTypes == null)
             {
                 return false;
             }
 
             var exceptionType = exception.GetType();
-            return exceptionTypes.Contains(exceptionType);
+            return exceptionTypes.Any(ex => ex.IsAssignableFrom(exceptionType));
         }
     }
 }

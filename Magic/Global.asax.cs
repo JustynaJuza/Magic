@@ -7,6 +7,7 @@ using System.Web.Caching;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Penna.Messaging.Web;
 
 namespace Magic
 {
@@ -21,6 +22,7 @@ namespace Magic
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            SimpleInjectorConfig.RegisterContainer();
 
             // Add ChatLog and stealthy Cache scheduler.
             //this.Application["GeneralChatLog"] = new ChatLog();

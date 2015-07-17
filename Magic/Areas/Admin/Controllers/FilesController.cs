@@ -34,16 +34,17 @@ namespace Magic.Areas.Admin.Controllers
 
                 uploadPath = "/Images" + uploadPath;
             }
-            
-            var path = _fileHandler.GetAppRelativeFilePath(file.FileName, uploadPath);
+
+            var fileName = Path.GetFileName(file.FileName);
+            var path = _fileHandler.GetAppRelativeFilePath(fileName, uploadPath);
 
             if (string.IsNullOrWhiteSpace(path)) {
                 return "The file or directory name is too long";
             }
 
-            var success = await _fileHandler.SaveFile(file.InputStream, file.FileName, uploadPath);
+            var success = await _fileHandler.SaveFile(file.InputStream, fileName, uploadPath);
 
-            return success ? path : "The file saving failed due to a disk access restriction";
+            return success ? path : "File saving failed due to a disk access restriction";
         }
     }
 }

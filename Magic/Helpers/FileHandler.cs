@@ -39,11 +39,11 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                if (!ex.HandleException(typeof(IOException), typeof(SecurityException)))
+                if (ex.HandleException(typeof(IOException), typeof(SecurityException), typeof(UnauthorizedAccessException)))
                 {
-                    throw;
+                    return false;
                 }
-                return false;
+                throw;
             }
         }
 
@@ -61,11 +61,11 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                if (!ex.HandleException(typeof(PathTooLongException)))
+                if (ex.HandleException(typeof(PathTooLongException)))
                 {
-                    throw;
+                    return string.Empty;
                 }
-                return string.Empty;
+                throw;
             }
         }
 
@@ -86,11 +86,11 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                if (!ex.HandleException(typeof(IOException)))
+                if (ex.HandleException(typeof(IOException)))
                 {
-                    throw;
+                    return 0;
                 }
-                return 0;
+                throw;
             }
         }
 
@@ -106,7 +106,7 @@ namespace Magic.Helpers
             var icon = Icon.ExtractAssociatedIcon(serverPath);
             if (icon == null)
             {
-                ErrorHandler.Log(new Exception("A failed attempt was made to extract an icon from '" + serverPath + "'."));
+                new Exception("A failed attempt was made to extract an icon from '" + serverPath + "'.").LogException();
                 return UploaderHelpers.ErrorImage;
             }
 
@@ -131,7 +131,7 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandler.Log(ex);
+                ex.LogException();
                 throw;
             }
         }
@@ -146,7 +146,7 @@ namespace Magic.Helpers
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandler.Log(ex);
+                    ex.LogException();
                     throw;
                 }
             }
@@ -181,7 +181,7 @@ namespace Magic.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandler.Log(ex);
+                ex.LogException();
                 throw;
             }
         }

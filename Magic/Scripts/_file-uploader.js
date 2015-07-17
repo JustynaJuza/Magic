@@ -120,7 +120,11 @@ $(function () {
         xhr.upload.onprogress = function (e) {
             if (e.lengthComputable) {
                 var percentComplete = Math.floor(e.loaded / e.total) * 100;
-                $fileOverlay.text('Uploading: ' + percentComplete + '%');
+                if (percentComplete == 100) {
+                    $fileOverlay.text('Processing on server...')
+                } else {
+                    $fileOverlay.text('Uploading: ' + percentComplete + '%');
+                }
             }
         }
 

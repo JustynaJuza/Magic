@@ -32,7 +32,7 @@ namespace Magic.Hubs
         //    model.Id = model.Name.ToLower().Replace(" ", "_").Replace("[^a-z0-9]*", ""); //Guid.NewGuid().ToString();
         //    InsertOrUpdate(model, isUpdate);
         //}
-        
+
         //public void Update(Card model, bool isUpdate = false) //[Bind(Include = "Id, Name")] 
         //{
         //    InsertOrUpdate(model, isUpdate);
@@ -100,9 +100,9 @@ namespace Magic.Hubs
                 var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
                 requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
                 {
-                        await setProcessing;
-                        ProcessCards(request.Result);
-                    });
+                    await setProcessing;
+                    ProcessCards(request.Result);
+                });
                 //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
                 //    Task.Run(() => cardsHandler.DownloadStringTaskAsync(requestUrl + "/cards/").ContinueWith(request => ProcessCards(request.Result))));
             }
@@ -161,22 +161,22 @@ namespace Magic.Hubs
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
             var requestHandler = new HttpClient();
-            var imageFetchingOperations = new List<Task>();
 
             try
             {
-                var image = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
-                imageFetchingOperations.Add(image);
-                var imagePreview = requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
-                imageFetchingOperations.Add(imagePreview);
+                var imageSaved = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                var imagePreviewSaved = requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
 
-                await Task.WhenAll(imageFetchingOperations);
-                return true;
+                return await imageSaved.Result && await imagePreviewSaved.Result;
             }
             catch (Exception ex)
             {
-                ErrorHandler.Log(ex);
-                return false;
+                ex.LogException();
+                if (ex.HandleException(typeof(ArgumentNullException)))
+                {
+                    return false;
+                }
+                throw;
             }
         }
 
