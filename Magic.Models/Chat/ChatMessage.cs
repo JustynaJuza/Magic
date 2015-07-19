@@ -1,11 +1,9 @@
-﻿using Magic.Models.Helpers;
-using System;
-using System.Linq;
-using System.Web;
+﻿using System;
 using System.Collections.Generic;
+using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
 
-namespace Magic.Models
+namespace Magic.Models.Chat
 {
     public class ChatMessageNotification : AbstractExtensions
     {

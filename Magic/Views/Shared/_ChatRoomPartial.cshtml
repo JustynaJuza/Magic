@@ -1,5 +1,6 @@
-﻿@model ChatRoomViewModel
+﻿@model Magic.Models.Chat.ChatRoomViewModel
 @using Magic.Hubs
+@using Magic.Models.Chat
 
 <div id="room-@Model.Id" class="chat-room">
 
@@ -24,7 +25,7 @@
     }
 
     <div id="room-tab-@Model.Id" class="chat-room-tab" style="@colorStyling">
-        <span class="chat-room-tab-name @(Model.Id == ChatHub.DefaultRoomId || Model.IsGameRoom ? "no-tab-close" : "")">
+        <span class="chat-room-tab-name @(Model.Id == ChatRoom.DefaultRoomId || Model.IsGameRoom ? "no-tab-close" : "")">
             @if (!string.IsNullOrEmpty(Model.Name))
             {
                 @Model.Name
@@ -39,7 +40,7 @@
             }
         </span>
 
-        @if (Model.Id != ChatHub.DefaultRoomId && !Model.IsGameRoom)
+        @if (Model.Id != ChatRoom.DefaultRoomId && !Model.IsGameRoom)
         {
             <span class="chat-room-tab-close-btn">x</span>
         }

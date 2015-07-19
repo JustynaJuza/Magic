@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Magic.Models.Chat;
 using Magic.Models.Helpers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
@@ -16,8 +17,6 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        public const string DefaultRoomId = "default";
-
         #region CHAT SERVICES
         // Returns user's friends and currently online users to populate the available user list when you want to create a chat room with multiple user's.
         public static IList<ChatUserViewModel> GetAvailableUsers(string userId)
@@ -27,7 +26,7 @@ namespace Magic.Hubs
                 var userWithRelations = context.Users.Where(u => u.Id == userId).Include(u => u.Relations.Select(r => r.RelatedUser)).First();
                 var usersFriends = userWithRelations.GetFriendsList().OrderBy(u => u.UserName);
 
-                var defaultChatRoom = context.ChatRooms.Where(r => r.Id == DefaultRoomId).Include(r => r.Connections.Select(u => u.User)).First();
+                var defaultChatRoom = context.ChatRooms.Where(r => r.Id == ChatRoom.DefaultRoomId).Include(r => r.Connections.Select(u => u.User)).First();
                 var activeUsers = defaultChatRoom.GetActiveUserList().OrderBy(u => u.UserName).ToList();
 
                 activeUsers.Remove(activeUsers.First(u => u.Id == userId));
@@ -43,7 +42,7 @@ namespace Magic.Hubs
                 var chatRooms = context.ChatRoomConnections.Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom).ToList();
                 if (exceptDefaultRoom)
                 {
-                    chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == DefaultRoomId));
+                    chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == ChatRoom.DefaultRoomId));
                 }
                 return chatRooms;
             }
@@ -79,7 +78,7 @@ namespace Magic.Hubs
                     var user = context.Users.FirstOrDefault(u => u.UserName == userName);
                     if (user == null)
                     {
-                        Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " was not found!");
+                        Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " was not found!");
                     }
                     else
                     {
@@ -230,7 +229,7 @@ namespace Magic.Hubs
                 if (recipient == null)
                 {
                     // Recipient included but invalid, alert sender.
-                    Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
                         "- no such user found, have you misspelled the name?", recipientName, "#696969");
                     return false;
                 }
@@ -239,7 +238,7 @@ namespace Magic.Hubs
                 if (recipient.Status == UserStatus.Offline)
                 {
                     // Valid recipient but is offline, alert sender.
-                    Clients.Caller.addMessage(DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
+                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
                         "is currently offline and unable to receive messages.", recipient.UserName,
                         recipient.ColorCode);
                     return false;
@@ -297,7 +296,7 @@ namespace Magic.Hubs
 
             await addToGroup;
 
-            if (roomId != DefaultRoomId)
+            if (roomId != ChatRoom.DefaultRoomId)
             {
                 UpdateChatRoomUsers(roomId);
             }
@@ -324,7 +323,7 @@ namespace Magic.Hubs
         {
             using (var context = new MagicDbContext())
             {
-                var activeChatRoomIds = context.ChatRoomConnections.Where(rc => rc.UserId == userId && rc.ChatRoomId != DefaultRoomId).Select(rc => rc.ChatRoomId).Distinct();
+                var activeChatRoomIds = context.ChatRoomConnections.Where(rc => rc.UserId == userId && rc.ChatRoomId != ChatRoom.DefaultRoomId).Select(rc => rc.ChatRoomId).Distinct();
 
                 foreach (var roomId in activeChatRoomIds)
                 {
@@ -466,14 +465,14 @@ namespace Magic.Hubs
                 context.Connections.Add(connection);
                 context.SaveChanges();
 
-                SubscribeChatRoom(DefaultRoomId);
+                SubscribeChatRoom(ChatRoom.DefaultRoomId);
                 if (foundUser.Connections.Count == 1)
                 {
                     // If this is the user's only connection broadcast a chat info.
-                    UserStatusUpdate(userId, UserStatus.Online, DefaultRoomId);
+                    UserStatusUpdate(userId, UserStatus.Online, ChatRoom.DefaultRoomId);
                 }
 
-                UpdateChatRoomUsers(DefaultRoomId);
+                UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
                 foreach (var chatRoom in GetChatRoomsWithUser(userId))
                 {
                     UpdateChatRoomUsers(chatRoom.Id);
@@ -523,7 +522,7 @@ namespace Magic.Hubs
 
                 context.Delete(connection, true);
 
-                UserStatusUpdate(userId, UserStatus.Offline, DefaultRoomId);
+                UserStatusUpdate(userId, UserStatus.Offline, ChatRoom.DefaultRoomId);
                 foreach (var chatRoom in chatRooms)
                 {
                     UpdateChatRoomUsers(chatRoom.Id);

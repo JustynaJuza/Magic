@@ -1,13 +1,10 @@
-﻿using Magic.Models.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Web;
+using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
 
-namespace Magic.Models
+namespace Magic.Models.Chat
 {
     public class ChatLog : AbstractExtensions
     {

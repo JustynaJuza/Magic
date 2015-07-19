@@ -1,4 +1,4 @@
-﻿using Magic.Models;
+﻿using Magic.Models.Chat;
 using Magic.Models.DataContext;
 using Microsoft.AspNet.SignalR;
 using System;

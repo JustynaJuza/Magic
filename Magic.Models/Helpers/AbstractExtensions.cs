@@ -38,11 +38,12 @@ namespace Magic.Models.Helpers
         // Returns a new instance of the related viewModel.
         public IViewModel GetViewModel(params object[] args)
         {
-            var viewModelName = GetType().FullName;
+            var viewModelType = GetType();
+            var viewModelName = viewModelType.FullName;
 
             if (viewModelName.Contains("System.Data.Entity.DynamicProxies"))
             {
-                viewModelName = viewModelName.Remove(viewModelName.LastIndexOf('_')).Replace("System.Data.Entity.DynamicProxies", viewModelNamespace);
+                viewModelName = viewModelName.Remove(viewModelName.LastIndexOf('_')).Replace("System.Data.Entity.DynamicProxies", viewModelType.BaseType.Namespace);
             }
 
             var viewModel = Type.GetType(viewModelName + "ViewModel");

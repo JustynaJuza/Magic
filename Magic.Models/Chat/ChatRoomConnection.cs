@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using Magic.Models.Helpers;
 
-namespace Magic.Models
+namespace Magic.Models.Chat
 {
     public class ChatRoomConnection : AbstractExtensions
     {

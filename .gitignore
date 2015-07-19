@@ -178,5 +178,4 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
-# Exclude App_Data/NotifyMeEmails.txt
-Potato.Dashboard/App_Data/NotifyMeEmails.txt
+connectionStrings.config

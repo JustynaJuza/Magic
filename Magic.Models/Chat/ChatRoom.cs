@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Script.Serialization;
-using Magic.Models.DataContext;
 using Magic.Models.Helpers;
 using Magic.Models.Interfaces;
 
-namespace Magic.Models
+namespace Magic.Models.Chat
 {
     public class ChatRoom : AbstractExtensions
     {
+        public const string DefaultRoomId = "default";
+
         public string Id { get; set; }
         public string Name { get; set; }
         public string TabColorCode { get; set; }

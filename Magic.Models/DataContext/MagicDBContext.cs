@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
+using Magic.Models.Chat;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Magic.Models.DataContext

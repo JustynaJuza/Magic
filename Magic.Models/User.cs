@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Magic.Models.Chat;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
