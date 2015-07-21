@@ -26,6 +26,10 @@ namespace Magic
             bundles.Add(new ScriptBundle("~/bundles/jquerysignalR").Include(
                         "~/Scripts/jquery.signalR-{version}.js"));
             
+            bundles.Add(new ScriptBundle("~/bundles/farbtastic").Include(
+                        "~/Scripts/farbtastic.js",
+                        "~/Scripts/_form-color-picker.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/underscore").Include(
                         "~/Scripts/underscore.js",
                         "~/Scripts/underscore.string.js"));
@@ -42,9 +46,9 @@ namespace Magic
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/datatables").IncludeDirectory(
-                "~/Scripts/DataTables-1.10.4", "*.js"));
-
+            bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
+                      "~/Scripts/jquery.dataTables*",
+                      "~/Scripts/dataTables*"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/jquery-ui-{version}.css",
@@ -53,9 +57,12 @@ namespace Magic
 
             bundles.Add(new StyleBundle("~/Content/twitterBootstrap").Include(
                       "~/Content/twitter-bootstrap-css"));
-
+            
             bundles.Add(new StyleBundle("~/Content/datatables").IncludeDirectory(
-                      "~/Content/DataTables-1.10.4/css", "*.css"));
+                      "~/Content/DataTables/css", "*.css"));
+            
+            bundles.Add(new StyleBundle("~/Content/farbtastic").Include(
+                      "~/Content/farbtastic.css"));
         }
     }
 }

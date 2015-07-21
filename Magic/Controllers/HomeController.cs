@@ -32,9 +32,9 @@ namespace Magic.Controllers
             return View();
         }
 
-        public ActionResult ClearConnections() {
-            Magic.Hubs.ChatHub.RemoveInactiveConnections();
-            return RedirectToAction("Index");
-        }
+        //public ActionResult ClearConnections() {
+        //    Magic.Hubs.ChatHub.RemoveInactiveConnections();
+        //    return RedirectToAction("Index");
+        //}
     }
 }

@@ -15,11 +15,12 @@
     <AssemblyName>Magic</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -186,6 +187,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\SignalRConfig.cs" />
     <Compile Include="App_Start\SimpleInjectorConfig.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -237,62 +239,13 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chat.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.autoFill.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.autoFill.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.bootstrap.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.colReorder.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.colReorder.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.colVis.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.colvis.jqueryui.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.colVis.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.fixedColumns.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.fixedColumns.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.fixedHeader.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.fixedHeader.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.foundation.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.jqueryui.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.keyTable.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.keyTable.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.responsive.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.scroller.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.scroller.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.tableTools.css" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.tableTools.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\jquery.dataTables.css" />
-    <Content Include="Content\DataTables-1.10.4\css\jquery.dataTables.min.css" />
-    <Content Include="Content\DataTables-1.10.4\css\jquery.dataTables_themeroller.css" />
-    <Content Include="Content\DataTables-1.10.4\images\background.png" />
-    <Content Include="Content\DataTables-1.10.4\images\back_disabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\back_enabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\back_enabled_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\collection.png" />
-    <Content Include="Content\DataTables-1.10.4\images\collection_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\copy.png" />
-    <Content Include="Content\DataTables-1.10.4\images\copy_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\csv.png" />
-    <Content Include="Content\DataTables-1.10.4\images\csv_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\details_close.png" />
-    <Content Include="Content\DataTables-1.10.4\images\details_open.png" />
-    <Content Include="Content\DataTables-1.10.4\images\filler.png" />
-    <Content Include="Content\DataTables-1.10.4\images\forward_disabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\forward_enabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\forward_enabled_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\insert.png" />
-    <Content Include="Content\DataTables-1.10.4\images\loading-background.png" />
-    <Content Include="Content\DataTables-1.10.4\images\pdf.png" />
-    <Content Include="Content\DataTables-1.10.4\images\pdf_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\print.png" />
-    <Content Include="Content\DataTables-1.10.4\images\print_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\images\sort_asc.png" />
-    <Content Include="Content\DataTables-1.10.4\images\sort_asc_disabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\sort_both.png" />
-    <Content Include="Content\DataTables-1.10.4\images\sort_desc.png" />
-    <Content Include="Content\DataTables-1.10.4\images\sort_desc_disabled.png" />
-    <Content Include="Content\DataTables-1.10.4\images\xls.png" />
-    <Content Include="Content\DataTables-1.10.4\images\xls_hover.png" />
-    <Content Include="Content\DataTables-1.10.4\swf\copy_csv_xls.swf" />
-    <Content Include="Content\DataTables-1.10.4\swf\copy_csv_xls_pdf.swf" />
-    <Content Include="Content\dialog.css" />
+    <Content Include="Content\DataTables\css\dataTables.bootstrap.css" />
+    <Content Include="Content\DataTables\images\favicon.ico" />
+    <Content Include="Content\DataTables\images\sort_asc.png" />
+    <Content Include="Content\DataTables\images\sort_asc_disabled.png" />
+    <Content Include="Content\DataTables\images\sort_both.png" />
+    <Content Include="Content\DataTables\images\sort_desc.png" />
+    <Content Include="Content\DataTables\images\sort_desc_disabled.png" />
     <Content Include="Content\farbtastic.css" />
     <Content Include="Content\Images\Cardsicon.jpg" />
     <Content Include="Content\Images\color-1.png" />
@@ -319,35 +272,15 @@
     <Content Include="Content\twitter-bootstrap-css\bootstrap.css" />
     <Content Include="Content\twitter-bootstrap-css\bootstrap.min.css" />
     <Content Include="Content\wheel.png" />
+    <Content Include="Content\_upload-dialog.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.autoFill.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.autoFill.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.bootstrap.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.colReorder.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.colReorder.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.colVis.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.colVis.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.fixedColumns.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.fixedColumns.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.fixedHeader.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.fixedHeader.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.foundation.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.jqueryui.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.keyTable.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.keyTable.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.responsive.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.responsive.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.scroller.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.scroller.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.tableTools.js" />
-    <Content Include="Scripts\DataTables-1.10.4\dataTables.tableTools.min.js" />
-    <Content Include="Scripts\DataTables-1.10.4\jquery.dataTables.js" />
-    <Content Include="Scripts\DataTables-1.10.4\jquery.dataTables.min.js" />
+    <Content Include="Scripts\dataTables.bootstrap.js" />
+    <Content Include="Scripts\dataTables.bootstrap.min.js" />
     <Content Include="Scripts\farbtastic.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -358,6 +291,8 @@
     <Content Include="Scripts\jquery.color-2.1.2.min.js" />
     <Content Include="Scripts\jquery.color.svg-names-2.1.2.js" />
     <Content Include="Scripts\jquery.color.svg-names-2.1.2.min.js" />
+    <Content Include="Scripts\jquery.dataTables.js" />
+    <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.signalR-2.0.3.js" />
     <Content Include="Scripts\jquery.signalR-2.0.3.min.js" />
     <Content Include="Scripts\jquery.tooltipster.js" />
@@ -394,10 +329,9 @@
     <Content Include="Areas\Admin\Views\Shared\DisplayTemplates\CardType.cshtml" />
     <Content Include="Areas\Admin\Views\Emails\Registration.cshtml" />
     <Content Include="Areas\Admin\Views\Emails\Index.cshtml" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.responsive.scss" />
-    <Content Include="Content\DataTables-1.10.4\css\dataTables.jqueryui.scss" />
     <Content Include="Areas\Admin\Views\Cards\_CardDisplayPartial.cshtml" />
     <Content Include="connectionStrings.config" />
+    <Content Include="Content\DataTables\images\Sorting icons.psd" />
     <None Include="Scripts\_references.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
@@ -498,15 +432,14 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>64343</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:51904/</IISUrl>
+          <IISUrl>http://localhost:49814/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
-          <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://magic.local</CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>

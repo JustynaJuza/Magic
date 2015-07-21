@@ -1,16 +1,13 @@
 using Magic.Helpers;
+using Magic.Hubs;
 using Magic.Models.DataContext;
-using RazorEngine.Templating;
 using SimpleInjector;
-using SimpleInjector.Extensions;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
-using System;
 using System.Reflection;
-using System.Web;
 using System.Web.Mvc;
 
-namespace Penna.Messaging.Web
+namespace Magic
 {
     public class SimpleInjectorConfig
     {
@@ -29,17 +26,21 @@ namespace Penna.Messaging.Web
         //    }
         //}
 
-        public static void RegisterContainer()
+        public static Container ConfigureDependencyInjectionContainer()
         {
             var container = new Container();
 
             //container.Register<IUserStore<ApplicationUser>>(() => new UserStore<ApplicationUser>(new ApplicationDbContext()));
             //container.Register<ApplicationUserManager, ApplicationUserManager>();
-
+            
             // Data Access
             container.Register<MagicDbContext>(new WebRequestLifestyle());
             container.Register<IPathProvider, PathProvider>();
             container.Register<IFileHandler, FileHandler>();
+
+            // Hubs
+            container.Register(() => new ChatHub(new MagicDbContext()));
+            container.Register(() => new AdminHub(new FileHandler(new PathProvider())));
 
             // MVC
             container.RegisterMvcControllers(Assembly.GetExecutingAssembly());
@@ -48,6 +49,8 @@ namespace Penna.Messaging.Web
             container.Verify();
 
             DependencyResolver.SetResolver(new SimpleInjectorDependencyResolver(container));
+
+            return container;
         }
     }
 }

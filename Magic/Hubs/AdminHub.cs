@@ -81,7 +81,7 @@ namespace Magic.Hubs
         //    return cards.FirstOrDefault();
         //}
 
-        public async Task FetchSetWithCards(string id)
+        public void FetchSetWithCards(string id)
         {
             FetchSet(id, true);
         }

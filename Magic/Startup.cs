@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using Microsoft.AspNet.SignalR;
+using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(Magic.Startup))]
@@ -8,8 +9,10 @@ namespace Magic
     {
         public void Configuration(IAppBuilder app)
         {
+            var container = SimpleInjectorConfig.ConfigureDependencyInjectionContainer();
+            SignalRConfig.ConfigureSignalR(app, container);
+
             ConfigureAuth(app);
-            app.MapSignalR();
         }
     }
 }

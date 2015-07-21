@@ -1,28 +1,6 @@
 @model string
 @using Magic.Helpers
 
-<style>
-    .upload {
-        position: relative;
-        display: inline-block;
-        min-width: 200px;
-        min-height: 34px;
-    }
-    .upload-controls {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: auto;
-        height: auto;
-        align-content: center;
-    }
-
-    .upload-controls .btn {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-</style>
-
 <div class="upload image-upload">
     <img src="@(String.IsNullOrWhiteSpace(Model) ? Html.GetPlaceholder() : Url.Content(Model))" alt="" id="img-@Html.GetIdFor(m => m)" />
 

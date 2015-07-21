@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Elmah;
 using Magic.Helpers;
 
 namespace Magic.Areas.Admin.Controllers
