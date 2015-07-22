@@ -50,18 +50,21 @@ namespace Magic.Models.DataContext
         bool Delete<TEntity>(TEntity entity, out string errorText, bool deleteOnly = false)
             where TEntity : class;
 
-        //DbSet Set() where TEntity : class;
+        DbSet<TEntity> Query<TEntity>()
+            where TEntity : class;
+
+        DbSet<TEntity> Set<TEntity>() where TEntity : class;
         DbSet Set(Type entityType);
         int SaveChanges();
         Task<int> SaveChangesAsync();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
         IEnumerable<DbEntityValidationResult> GetValidationErrors();
-        //DbEntityEntry Entry(TEntity entity) where TEntity : class;
+        DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
         DbEntityEntry Entry(object entity);
-        void Dispose();
-        string ToString();
-        bool Equals(object obj);
-        int GetHashCode();
+        //void Dispose();
+        //string ToString();
+        //bool Equals(object obj);
+        //int GetHashCode();
         Type GetType();
         Database Database { get; }
     }
@@ -238,6 +241,12 @@ namespace Magic.Models.DataContext
                 errorText = ShowErrorMessage(ex);
                 return false;
             }
+        }
+
+        public DbSet<TEntity> Query<TEntity>()
+            where TEntity : class
+        {
+            return Set<TEntity>();
         }
 
         public static string ShowErrorMessage(Exception ex)

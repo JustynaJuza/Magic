@@ -16,10 +16,12 @@ namespace Magic.Hubs
     public class AdminHub : Hub
     {
         private readonly IFileHandler _fileHandler;
+        private readonly IDbContext _context;
 
-        public AdminHub(IFileHandler fileHandler)
+        public AdminHub(IFileHandler fileHandler, IDbContext context)
         {
             _fileHandler = fileHandler;
+            _context = context;
         }
 
         //public void Insert(Card model, bool isUpdate = false)

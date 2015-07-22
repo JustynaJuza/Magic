@@ -38,11 +38,7 @@ namespace Magic
             container.Register<IDbContext, MagicDbContext>();
             container.Register<IPathProvider, PathProvider>();
             container.Register<IFileHandler, FileHandler>();
-
-            // Hubs
-            container.Register(() => new ChatHub(new MagicDbContext()));
-            container.Register(() => new AdminHub(new FileHandler(new PathProvider())));
-
+            
             // MVC
             container.RegisterMvcControllers(Assembly.GetExecutingAssembly());
             container.RegisterMvcIntegratedFilterProvider();

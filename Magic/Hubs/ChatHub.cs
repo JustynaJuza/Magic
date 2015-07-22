@@ -16,9 +16,9 @@ namespace Magic.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private readonly MagicDbContext _context;
+        private readonly IDbContext _context;
 
-        public ChatHub(MagicDbContext context)
+        public ChatHub(IDbContext context)
         {
             _context = context;
         }
@@ -27,10 +27,10 @@ namespace Magic.Hubs
         // Returns user's friends and currently online users to populate the available user list when you want to create a chat room with multiple user's.
         public IList<ChatUserViewModel> GetAvailableUsers(string userId)
         {
-            var userWithRelations = _context.Users.Where(u => u.Id == userId).Include(u => u.Relations.Select(r => r.RelatedUser)).First();
+            var userWithRelations = _context.Query<User>().Where(u => u.Id == userId).Include(u => u.Relations.Select(r => r.RelatedUser)).First();
             var usersFriends = userWithRelations.GetFriendsList().OrderBy(u => u.UserName);
 
-            var defaultChatRoom = _context.ChatRooms.Where(r => r.Id == ChatRoom.DefaultRoomId).Include(r => r.Connections.Select(u => u.User)).First();
+            var defaultChatRoom = _context.Query<ChatRoom>().Where(r => r.Id == ChatRoom.DefaultRoomId).Include(r => r.Connections.Select(u => u.User)).First();
             var activeUsers = defaultChatRoom.GetActiveUserList().OrderBy(u => u.UserName).ToList();
 
             activeUsers.Remove(activeUsers.First(u => u.Id == userId));
@@ -41,7 +41,7 @@ namespace Magic.Hubs
         // Returns non-game chat rooms the user has any connections subscribed to to open them on page load.
         public IList<ChatRoom> GetUserChatRooms(string userId, bool exceptDefaultRoom = false)
         {
-            var chatRooms = _context.ChatRoomConnections.Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom).ToList();
+            var chatRooms = _context.Query<ChatRoomConnection>().Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom).ToList();
             if (exceptDefaultRoom)
             {
                 chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == ChatRoom.DefaultRoomId));
@@ -52,14 +52,14 @@ namespace Magic.Hubs
         // Returns chat rooms in which user's online visibility is listed.
         public IList<ChatRoom> GetChatRoomsWithUser(string userId)
         {
-            var chatRooms = _context.ChatRoomUsers.Where(ru => ru.UserId == userId).Select(rc => rc.ChatRoom).ToList();
+            var chatRooms = _context.Query<ChatRoomUser>().Where(ru => ru.UserId == userId).Select(rc => rc.ChatRoom).ToList();
             return chatRooms;
         }
 
         // Returns game chat rooms the user has any connections subscribed to to open them on page load.
         public IList<ChatRoom> GetUserGameRooms(string userId, bool exceptDefaultRoom = false)
         {
-            return _context.ChatRoomConnections.Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => r.IsGameRoom).ToList();
+            return _context.Query<ChatRoomConnection>().Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => r.IsGameRoom).ToList();
         }
 
         // Returns the chat room's id if a private chat room exists for given users only.
@@ -68,7 +68,7 @@ namespace Magic.Hubs
             var recipients = new List<User>();
             foreach (var userName in recipientNames.Distinct())
             {
-                var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
+                var user = _context.Query<User>().FirstOrDefault(u => u.UserName == userName);
                 if (user == null)
                 {
                     Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " was not found!");
@@ -80,7 +80,7 @@ namespace Magic.Hubs
             }
 
             var recipientIds = recipients.Select(r => r.Id);
-            var chatRoom = _context.ChatRooms.Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
+            var chatRoom = _context.Query<ChatRoom>().Where(r => r.IsPrivate).ToList().FirstOrDefault(r => r.OnlySpecifiedUsersInRoom(recipientIds));
 
             return chatRoom == null ? String.Empty : chatRoom.Id;
         }
@@ -100,7 +100,7 @@ namespace Magic.Hubs
             if (!isPrivate) return;
 
             // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
-            var recipients = recipientNames.Distinct().Select(userName => _context.Users.FirstOrDefault(u => u.UserName == userName)).ToList();
+            var recipients = recipientNames.Distinct().Select(userName => _context.Query<User>().FirstOrDefault(u => u.UserName == userName)).ToList();
 
             foreach (var user in recipients)
             {
@@ -111,7 +111,7 @@ namespace Magic.Hubs
 
         public void UpdateChatRoomUsers(string roomId)
         {
-            var chatRoom = _context.ChatRooms.Find(roomId);
+            var chatRoom = _context.Query<ChatRoom>().Find(roomId);
 
             List<ChatUserViewModel> chatUsers;
             if (chatRoom.IsPrivate)
@@ -441,14 +441,14 @@ namespace Magic.Hubs
         public override Task OnConnected()
         {
             var userId = Context.User.Identity.GetUserId();
-            var foundUser = _context.Users.Find(userId);
+            var foundUser = _context.Query<User>().Find(userId);
 
             var connection = new UserConnection
             {
                 Id = Context.ConnectionId,
                 UserId = userId
             };
-            _context.Connections.Add(connection);
+            _context.Query<UserConnection>().Add(connection);
             _context.SaveChanges();
 
             SubscribeChatRoom(ChatRoom.DefaultRoomId);
@@ -483,7 +483,7 @@ namespace Magic.Hubs
         {
             await Task.Delay(1500);
 
-            var connection = _context.Connections.FirstOrDefault(c => c.Id == Context.ConnectionId);
+            var connection = _context.Query<UserConnection>().FirstOrDefault(c => c.Id == Context.ConnectionId);
             if (connection == null) return;
 
             if (!string.IsNullOrWhiteSpace(connection.GameId))
@@ -544,7 +544,7 @@ namespace Magic.Hubs
         #region REMOVE INACTIVE USERS
         public void RemoveInactiveConnections()
         {
-            foreach (var connection in _context.Connections)
+            foreach (var connection in _context.Query<UserConnection>())
             {
                 _context.Delete(connection);
             }

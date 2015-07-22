@@ -20,19 +20,24 @@ namespace Magic.Areas.Admin.Controllers
         {
             if (allowImageOnly)
             {
-                if (!_fileHandler.PassImageFileTypeConstraint(file.ContentType, true))
+                if (!_fileHandler.PassImageFileTypeConstraint(file.ContentType, allowImageOnly: true))
                     return "This must be an image file";
 
-                if (!_fileHandler.PassImageSizeConstraint(file.InputStream, 600, 200))
+                if (!_fileHandler.PassImageSizeConstraint(file.InputStream, width: 600, height: 200))
                     return "Your image file must be of the maximum size of 600px x 200px";
 
                 uploadPath = "/Images" + uploadPath;
             }
 
             var fileName = Path.GetFileName(file.FileName);
-            var path = _fileHandler.GetAppRelativeFilePath(fileName, uploadPath);
 
-            if (string.IsNullOrWhiteSpace(path)) {
+            string path;
+            try
+            {
+                path = _fileHandler.GetAppRelativeFilePath(fileName, uploadPath);
+            }
+            catch (PathTooLongException)
+            {
                 return "The file or directory name is too long";
             }
 

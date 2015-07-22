@@ -34,7 +34,7 @@ namespace Magic.Helpers
             try
             {
                 var path = GetServerFilePath(fileName, uploadPath);
-                PrepareFileDirectory(path);
+                PrepareFileDirectory(Path.GetDirectoryName(path));
                 await SaveFileInBlocksAsync(path, fileStream);
                 return true;
             }
@@ -56,16 +56,13 @@ namespace Magic.Helpers
             var filePath = serverPath + fileName;
             try
             {
-                // check if full path is accessible
+                // check if full path is accessible, will throw if not
                 Path.GetFullPath(filePath);
                 return path + fileName;
             }
             catch (Exception ex)
             {
-                if (ex.HandleException(typeof(PathTooLongException)))
-                {
-                    return string.Empty;
-                }
+                ex.LogException();
                 throw;
             }
         }
@@ -185,22 +182,6 @@ namespace Magic.Helpers
                 ex.LogException();
                 throw;
             }
-        }
-    }
-
-    public class FileSavingException : Exception
-    {
-        public FileSavingException()
-        {
-            // Add implementation.
-        }
-        public FileSavingException(string message)
-        {
-            // Add implementation.
-        }
-        public FileSavingException(string message, Exception inner)
-        {
-            // Add implementation.
         }
     }
 }
