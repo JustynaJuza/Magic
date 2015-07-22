@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 
 namespace Magic.Models
 {

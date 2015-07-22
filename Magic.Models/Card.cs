@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Helpers;
 using Magic.Models.DataContext;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;

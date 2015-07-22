@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Magic.Models.DataContext;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Magic.Models.Interfaces;
 
 namespace Magic.Models.Chat

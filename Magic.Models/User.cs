@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using Magic.Models.Chat;
+using Magic.Models.Extensions;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Magic.Models.Helpers;
 
 namespace Magic.Models
 {

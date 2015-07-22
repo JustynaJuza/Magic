@@ -1,16 +1,13 @@
 using System.Threading;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Threading.Tasks;
 using Magic.Models.DataContext;
 using Magic.Models;
-using Magic.Controllers;
-using System.Data.Entity;
 
 namespace Magic.Hubs
 {

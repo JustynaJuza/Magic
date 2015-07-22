@@ -1,28 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.Helpers;
-using System.Web.Hosting;
 using System.Web.Mvc;
 using Magic.Helpers;
-using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Magic.Models.JQueryDataTables;
-using Microsoft.AspNet.SignalR;
-using RazorEngine;
-using RazorEngine.Templating;
 
 namespace Magic.Areas.Admin.Controllers
 {
-    [System.Web.Mvc.Authorize]
+    [Authorize]
     public class CardsController : Controller
     {
         private MagicDbContext context = new MagicDbContext();

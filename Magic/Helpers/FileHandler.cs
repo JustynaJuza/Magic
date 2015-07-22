@@ -6,6 +6,7 @@ using System.IO;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Magic.Models.Extensions;
 
 namespace Magic.Helpers
 {

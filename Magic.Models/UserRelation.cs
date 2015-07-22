@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 
 namespace Magic.Models
 {

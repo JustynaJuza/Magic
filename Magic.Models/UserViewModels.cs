@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Magic.Models.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;

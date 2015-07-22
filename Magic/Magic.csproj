@@ -210,18 +210,14 @@
     <Compile Include="Areas\Admin\Controllers\FilesController.cs" />
     <Compile Include="Areas\Admin\Controllers\PlayersController.cs" />
     <Compile Include="Controllers\TestController.cs" />
-    <Compile Include="Helpers\ErrorHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\FileHandler.cs" />
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
-    <Compile Include="Helpers\ListExtensions.cs" />
     <Compile Include="Helpers\PathProvider.cs" />
     <Compile Include="Helpers\RazorEngineEmailHelper.cs" />
-    <Compile Include="Helpers\StringExtensions.cs" />
-    <Compile Include="Helpers\TaskExtensions.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
     <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\AdminHub.cs" />

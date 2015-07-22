@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 
 namespace Magic.Models.Chat
 {

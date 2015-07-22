@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Magic.Models.Chat;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
 using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
 using System.Web.Helpers;
-using Magic.Controllers;
 
 namespace Magic.Hubs
 {

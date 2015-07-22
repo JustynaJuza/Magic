@@ -35,6 +35,7 @@ namespace Magic
             
             // Data Access
             container.Register<MagicDbContext>(new WebRequestLifestyle());
+            container.Register<IDbContext, MagicDbContext>();
             container.Register<IPathProvider, PathProvider>();
             container.Register<IFileHandler, FileHandler>();
 

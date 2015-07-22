@@ -1,20 +1,15 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
-using Magic.Areas.Admin.Controllers;
 using Magic.Helpers;
 using Magic.Models;
 using Magic.Models.DataContext;
-using Microsoft.Ajax.Utilities;
+using Magic.Models.Extensions;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TaskExtensions = Magic.Helpers.TaskExtensions;
 
 namespace Magic.Hubs
 {
@@ -81,35 +76,48 @@ namespace Magic.Hubs
         //    return cards.FirstOrDefault();
         //}
 
-        public void FetchSetWithCards(string id)
+        public async Task FetchSetWithCards(string id)
         {
-            FetchSet(id, true);
+            await FetchSet(id, true);
         }
 
-        public async Task FetchSet(string id, bool includeCards)
+        public Task FetchSet(string id, bool includeCards)
         {
             //Task<IList<Card>> cardProcessing = null;
             //var adminHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
             //adminHubContext.Clients.Caller.updateRequestProgress("Request in progress...");
             var requestUrl = new Uri("http://api.mtgdb.info/sets/" + id);
-            var requestHandler = new HttpClient();
-            //setHandler.DownloadProgressChanged += DownloadProgressCallback; 
-            //cardsHandler.DownloadProgressChanged += DownloadProgressCallback;
-            try
-            {
-                var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
-                requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
-                {
-                    await setProcessing;
-                    ProcessCards(request.Result);
-                });
-                //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
-                //    Task.Run(() => cardsHandler.DownloadStringTaskAsync(requestUrl + "/cards/").ContinueWith(request => ProcessCards(request.Result))));
-            }
-            catch (Exception ex) { }
 
-            //return cardProcessing.Result ?? new List<Card>();
-            //return new List<Card>();
+            using (var requestHandler = new HttpClient())
+            {
+                try
+                {
+                    var fetchSet = requestHandler.GetStringAsync(requestUrl);
+                    var fetchCards = requestHandler.GetStringAsync(requestUrl + "/cards/");
+
+                    var setProcessed = fetchSet.ContinueWith(request => ProcessSet(request.Result));
+                    var cardsProcessed = fetchCards.ContinueWith(async request => {
+                        await setProcessed;
+                        ProcessCards(request.Result);
+                    });
+
+                    return Task.WhenAll(setProcessed, cardsProcessed);
+
+                    //var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
+                    //return requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
+                    //{
+                    //    await setProcessing;
+                    //    ProcessCards(request.Result);
+                    //}).Unwrap();
+                    //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
+                    //    Task.Run(() => cardsHandler.DownloadStringTaskAsync(requestUrl + "/cards/").ContinueWith(request => ProcessCards(request.Result))));
+                }
+                catch (Exception ex)
+                {
+                    ex.LogException();
+                    throw;
+                }
+            }
         }
 
         private void ProcessSet(string response)
@@ -160,23 +168,29 @@ namespace Magic.Hubs
         {
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
-            var requestHandler = new HttpClient();
-
-            try
+            
+            using (var requestHandler = new HttpClient())
             {
-                var imageSaved = requestHandler.GetStreamAsync(imageUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
-                var imagePreviewSaved = requestHandler.GetStreamAsync(imagePreviewUrl).ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
-
-                return await imageSaved.Result && await imagePreviewSaved.Result;
-            }
-            catch (Exception ex)
-            {
-                ex.LogException();
-                if (ex.HandleException(typeof(ArgumentNullException)))
+                try
                 {
-                    return false;
+                    var imageSaved =
+                        requestHandler.GetStreamAsync(imageUrl)
+                            .ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                    var imagePreviewSaved =
+                        requestHandler.GetStreamAsync(imagePreviewUrl)
+                            .ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+
+                    return await imageSaved.Result && await imagePreviewSaved.Result;
                 }
-                throw;
+                catch (Exception ex)
+                {
+                    ex.LogException();
+                    if (ex.HandleException(typeof (ArgumentNullException)))
+                    {
+                        return false;
+                    }
+                    throw;
+                }
             }
         }
 

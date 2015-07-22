@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Magic.Models.DataContext;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 
 namespace Magic.Models
 {

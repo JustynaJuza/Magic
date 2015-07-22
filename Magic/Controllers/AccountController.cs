@@ -1,19 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Magic.Models.Helpers;
+using Magic.Models.Extensions;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using Magic.Models;
 using Magic.Models.DataContext;
-using System.Data.Entity;
-using Magic.Hubs;
-using System.IO;
 
 namespace Magic.Controllers
 {

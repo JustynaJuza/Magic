@@ -38,6 +38,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Elmah, Version=1.2.13605.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\elmah.corelibrary.1.2\lib\Elmah.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -158,12 +162,16 @@
   <ItemGroup>
     <Compile Include="CardAvailableAbility.cs" />
     <Compile Include="CardDeckColors.cs" />
+    <Compile Include="DataContext\EntityConfig.cs" />
     <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="Enums\Color.cs" />
+    <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="GamePlayerStatus.cs" />
     <Compile Include="CardManaCost.cs" />
-    <Compile Include="Helpers\StringExtensions.cs" />
-    <Compile Include="Helpers\ModelStateExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\ModelStateExtensions.cs" />
     <Compile Include="JQueryDataTables\DataTablesRequestOut.cs" />
     <Compile Include="JQueryDataTables\DataTablesRequestIn.cs" />
     <Compile Include="JsonConverter.cs" />
@@ -187,7 +195,7 @@
     <Compile Include="Enums\GameStatus.cs" />
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="Helpers\AbstractExtensions.cs" />
+    <Compile Include="Extensions\AbstractExtensions.cs" />
     <Compile Include="UserRelation.cs" />
     <Compile Include="Enums\UserRelationship.cs" />
     <Compile Include="UserViewModels.cs" />
@@ -198,7 +206,7 @@
     <Compile Include="CardType.cs" />
     <Compile Include="Chat\ChatMessage.cs" />
     <Compile Include="User.cs" />
-    <Compile Include="Helpers\CardFactory.cs" />
+    <Compile Include="Extensions\CardFactory.cs" />
     <Compile Include="Interfaces\ICard.cs" />
     <Compile Include="Interfaces\IViewModel.cs" />
     <Compile Include="Player.cs" />
