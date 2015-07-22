@@ -1,9 +1,8 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Web.Helpers;
-using Magic.Models.DataContext;
 using Magic.Models.Extensions;
 using Magic.Models.Interfaces;
 using System;
@@ -16,8 +15,10 @@ namespace Magic.Models
 {
     public class Card : AbstractExtensions
     {
-        private IEnumerable<string> typeNames;
-        private string manaCode;
+        [NotMapped]
+        public IEnumerable<string> TypeNames { get; set; }
+        [NotMapped]
+        public string ManaCode { get; set; }
 
         public string Id { get; set; }
         public int MultiverseId { get; set; }
@@ -72,184 +73,8 @@ namespace Magic.Models
             Id = Name.ToLower().Replace("\\s+", "_").Replace("[^a-z0-9]*", "");
 
             var types = jObject.Value<string>("type").Replace("Summon", "Creature").Replace("Interrupt", "Instant").Split(' ');
-            typeNames = jObject.Property("subType").Value.HasValues ? jObject.Value<string>("subType").Split(' ').Concat(types) : types;
-            manaCode = jObject.Value<string>("manaCost");
-        }
-
-        public void AssignTypes(MagicDbContext context)
-        {
-            foreach (var typeName in typeNames)
-            {
-                var type = context.CardTypes.FirstOrDefault(t => t.Name == typeName);
-                if (type != null)
-                {
-                    Types.Add(type);
-                }
-                //else if (CardType.IsSuperType(typeName))
-                //{
-                //    types.Add(new CardSuperType { Name = typeName });
-                //}
-                else if (CardType.IsMainType(typeName))
-                {
-                    // Possibly old card with obsolete type, replace with newest value.
-                    var name = Enum.Parse(typeof(MainType), typeName).ToString();
-                    type = context.CardTypes.FirstOrDefault(t => t.Name == name);
-                    Types.Add(type ?? new CardMainType { Name = typeName });
-                }
-                else
-                {
-                    Types.Add(new CardSubType { Name = typeName });
-                }
-            }
-        }
-
-        public void DecodeManaCost(MagicDbContext context)
-        {
-            var manaCost = new List<CardManaCost>();
-
-            // Check for initial colorless mana cost.
-            var colorlessCost = Regex.Match(manaCode, "^[0-9]+").Value;
-            if (!string.IsNullOrWhiteSpace(colorlessCost))
-            {
-                manaCost.Add(new CardManaCost
-                {
-                    ColorId = 1,
-                    Cost = int.Parse(colorlessCost)
-                });
-            }
-
-            // Parse rest of the mana code.
-            for (var i = colorlessCost.Length; i < manaCode.Length; i++)
-            {
-                var character = manaCode[i].ToString();
-                if (character == "X")
-                {
-                    i += 1;
-                    character = manaCode[i].ToString();
-
-                    var colorId = Enum.IsDefined(typeof(Color), character)
-                        ? (int)Enum.Parse(typeof(Color), character)
-                        : 0;
-
-                    if (colorId == 0)
-                    {
-                        throw new InvalidCastException(
-                            "The Color enum for mana colors does not define a color with the alias " + character);
-                    }
-
-                    manaCost.Add(new CardManaCost
-                    {
-                        ColorId = colorId,
-                        HasVariableCost = true
-                    });
-                }
-                else if (character != "{")
-                {
-                    var colorId = Enum.IsDefined(typeof (Color), character)
-                        ? (int) Enum.Parse(typeof (Color), character)
-                        : 0;
-
-                    if (colorId == 0)
-                    {
-                        throw new InvalidCastException(
-                            "The Color enum for mana colors does not define a color with the alias " + character);
-                    }
-
-                    var existingManaColor = manaCost.FirstOrDefault(c => c.ColorId == colorId && !c.IsHybrid);
-                    if (existingManaColor != null)
-                    {
-                        existingManaColor.Cost += 1;
-                    }
-                    else
-                    {
-                        manaCost.Add(new CardManaCost
-                        {
-                            ColorId = colorId,
-                            Cost = 1
-                        });
-                    }
-                }
-                else
-                {
-                    character = manaCode[i + 1].ToString();
-                    var hybridCharacter = manaCode[i + 3].ToString();
-                    i += 4;
-
-                    var colorId = Enum.IsDefined(typeof (Color), character)
-                        ? (int) Enum.Parse(typeof (Color), character)
-                        : 0;
-
-                    var hybridColorId = Enum.IsDefined(typeof (Color), hybridCharacter)
-                        ? (int) Enum.Parse(typeof (Color), hybridCharacter)
-                        : 0;
-
-                    if (colorId == 0 || hybridColorId == 0)
-                    {
-                        throw new InvalidCastException(
-                            "The Color enum for mana colors does not define a color with the alias " + character);
-                    }
-
-                    var existingManaColor =
-                        manaCost.FirstOrDefault(
-                            c => c.IsHybrid && ((HybridManaCost) c).HasColors(colorId, hybridColorId));
-                    if (existingManaColor != null)
-                    {
-                        existingManaColor.Cost += 1;
-                    }
-                    else
-                    {
-                        manaCost.Add(new HybridManaCost()
-                        {
-                            ColorId = colorId,
-                            HybridColorId = hybridColorId,
-                            Cost = 1
-                        });
-                    }
-                }
-            }
-
-            //var mana = new List<CardManaCost>
-            //{
-            //    new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "Black").Id,
-            //        Cost = manaCode.Count(c => c == 'B')
-            //    },
-            //    new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "Blue").Id,
-            //        Cost = manaCode.Count(c => c == 'U')
-            //    },
-            //    new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "Green").Id,
-            //        Cost = manaCode.Count(c => c == 'G')
-            //    },
-            //    new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "Red").Id,
-            //        Cost = manaCode.Count(c => c == 'R')
-            //    },
-            //    new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "White").Id,
-            //        Cost = manaCode.Count(c => c == 'W')
-            //    }
-            //};
-
-            //int colorless;
-            //if (int.TryParse(Regex.Match(manaCode, "[0-9]*").Value, out colorless))
-            //{
-            //    mana.Add(new CardManaCost
-            //    {
-            //        ColorId = context.ManaColors.First(c => c.Name == "Colorless").Id,
-            //        Cost = colorless
-            //    });
-            //}
-
-            Colors = manaCost;
-
-            //Colors = mana.Where(m => m.Cost > 0).ToList();
+            TypeNames = jObject.Property("subType").Value.HasValues ? jObject.Value<string>("subType").Split(' ').Concat(types) : types;
+            ManaCode = jObject.Value<string>("manaCost");
         }
 
         public bool Play()

@@ -98,7 +98,8 @@ namespace Magic.Hubs
                     var fetchCards = requestHandler.GetStringAsync(requestUrl + "/cards/");
 
                     var setProcessed = fetchSet.ContinueWith(request => ProcessSet(request.Result));
-                    var cardsProcessed = fetchCards.ContinueWith(async request => {
+                    var cardsProcessed = fetchCards.ContinueWith(async request =>
+                    {
                         await setProcessed;
                         ProcessCards(request.Result);
                     });
@@ -126,10 +127,7 @@ namespace Magic.Hubs
         {
             Clients.Caller.updateRequestProgress("Processing set data...");
             var set = JsonConvert.DeserializeObject<CardSet>(response, new CardSetConverter());
-            using (var context = new MagicDbContext())
-            {
-                context.InsertOrUpdate(set);
-            }
+            _context.InsertOrUpdate(set);
 
             Clients.Caller.updateRequestProgress("Set data saved!");
             Clients.Caller.updateCardsInSet(set.Total);
@@ -146,14 +144,11 @@ namespace Magic.Hubs
                 var path = FetchCardImage(card.MultiverseId, card.Id);
                 try
                 {
-                    using (var context = new MagicDbContext())
-                    {
                         card.AssignTypes(context);
                         card.DecodeManaCost(context);
                         card.Image = "/Content/Images/Cards/" + card.Id;
                         card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
-                        context.InsertOrUpdate(card);
-                    }
+                        _context.InsertOrUpdate(card);
                 }
                 catch (Exception ex)
                 {
@@ -170,7 +165,7 @@ namespace Magic.Hubs
         {
             var imagePreviewUrl = new Uri("http://api.mtgdb.info/content/card_images/" + id + ".jpeg");
             var imageUrl = new Uri("http://api.mtgdb.info/content/hi_res_card_images/" + id + ".jpg");
-            
+
             using (var requestHandler = new HttpClient())
             {
                 try
@@ -187,7 +182,7 @@ namespace Magic.Hubs
                 catch (Exception ex)
                 {
                     ex.LogException();
-                    if (ex.HandleException(typeof (ArgumentNullException)))
+                    if (ex.HandleException(typeof(ArgumentNullException)))
                     {
                         return false;
                     }
