@@ -15,13 +15,15 @@ namespace Magic.Hubs
 {
     public class AdminHub : Hub
     {
-        private readonly IFileHandler _fileHandler;
         private readonly IDbContext _context;
+        private readonly IFileHandler _fileHandler;
+        private readonly ICardService _cardService;
 
-        public AdminHub(IFileHandler fileHandler, IDbContext context)
+        public AdminHub(IDbContext context, IFileHandler fileHandler, ICardService cardService)
         {
-            _fileHandler = fileHandler;
             _context = context;
+            _fileHandler = fileHandler;
+            _cardService = cardService;
         }
 
         //public void Insert(Card model, bool isUpdate = false)
@@ -81,6 +83,7 @@ namespace Magic.Hubs
         public async Task FetchSetWithCards(string id)
         {
             await FetchSet(id, true);
+            _context.SaveChanges();
         }
 
         public Task FetchSet(string id, bool includeCards)
@@ -97,23 +100,12 @@ namespace Magic.Hubs
                     var fetchSet = requestHandler.GetStringAsync(requestUrl);
                     var fetchCards = requestHandler.GetStringAsync(requestUrl + "/cards/");
 
-                    var setProcessed = fetchSet.ContinueWith(request => ProcessSet(request.Result));
-                    var cardsProcessed = fetchCards.ContinueWith(async request =>
-                    {
-                        await setProcessed;
-                        ProcessCards(request.Result);
-                    });
-
-                    return Task.WhenAll(setProcessed, cardsProcessed);
-
-                    //var setProcessing = requestHandler.GetStringAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result));
-                    //return requestHandler.GetStringAsync(requestUrl + "/cards/").ContinueWith(async request =>
-                    //{
-                    //    await setProcessing;
-                    //    ProcessCards(request.Result);
-                    //}).Unwrap();
-                    //    Task.Factory.StartNew(() => setHandler.DownloadStringTaskAsync(requestUrl).ContinueWith(request => ProcessSet(request.Result)));
-                    //    Task.Run(() => cardsHandler.DownloadStringTaskAsync(requestUrl + "/cards/").ContinueWith(request => ProcessCards(request.Result))));
+                    var processSet = fetchSet
+                        .ContinueWith(_ => ProcessSet(fetchSet.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+                    var processCards = Task.WhenAll(processSet, fetchCards)
+                        .ContinueWith(_ => ProcessCards(fetchCards.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+                    
+                    return processCards;                    
                 }
                 catch (Exception ex)
                 {
@@ -141,19 +133,21 @@ namespace Magic.Hubs
 
             foreach (var card in cards)
             {
-                var path = FetchCardImage(card.MultiverseId, card.Id);
+                var fetchCardImage = FetchCardImage(card.MultiverseId, card.Id);
                 try
                 {
-                        card.AssignTypes(context);
-                        card.DecodeManaCost(context);
+                        _cardService.AssignTypes(card);
+                        _cardService.DecodeManaCost(card);
                         card.Image = "/Content/Images/Cards/" + card.Id;
                         card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
                         _context.InsertOrUpdate(card);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Clients.Caller.updateRequestProgress("There was an error when processing this card: " + card.ToString());
                 }
+
+                await fetchCardImage;
                 Clients.Caller.updateCardsProcessed();
             }
 
@@ -172,10 +166,10 @@ namespace Magic.Hubs
                 {
                     var imageSaved =
                         requestHandler.GetStreamAsync(imageUrl)
-                            .ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                            .ContinueWith(request => _fileHandler.SaveFileAsync(request.Result, fileName + ".jpg", "/Cards"));
                     var imagePreviewSaved =
                         requestHandler.GetStreamAsync(imagePreviewUrl)
-                            .ContinueWith(request => _fileHandler.SaveFile(request.Result, fileName, "/Cards"));
+                            .ContinueWith(request => _fileHandler.SaveFileAsync(request.Result, fileName + ".jpeg", "/Cards"));
 
                     return await imageSaved.Result && await imagePreviewSaved.Result;
                 }

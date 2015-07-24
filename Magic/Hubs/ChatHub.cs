@@ -39,14 +39,17 @@ namespace Magic.Hubs
         }
 
         // Returns non-game chat rooms the user has any connections subscribed to to open them on page load.
-        public IList<ChatRoom> GetUserChatRooms(string userId, bool exceptDefaultRoom = false)
+        public static IList<ChatRoom> GetUserChatRooms(string userId, bool exceptDefaultRoom = false)
         {
-            var chatRooms = _context.Query<ChatRoomConnection>().Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom).ToList();
-            if (exceptDefaultRoom)
+            using (var context = new MagicDbContext())
             {
-                chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == ChatRoom.DefaultRoomId));
+                var chatRooms = context.Query<ChatRoomConnection>().Where(rc => rc.UserId == userId).Select(rc => rc.ChatRoom).Distinct().Where(r => !r.IsGameRoom).ToList();
+                if (exceptDefaultRoom)
+                {
+                    chatRooms.Remove(chatRooms.FirstOrDefault(r => r.Id == ChatRoom.DefaultRoomId));
+                }
+                return chatRooms;
             }
-            return chatRooms;
         }
 
         // Returns chat rooms in which user's online visibility is listed.
@@ -289,7 +292,7 @@ namespace Magic.Hubs
             }
         }
 
-        public void UnsubscribeChatRoom(string roomId)
+        public async Task<Task> UnsubscribeChatRoom(string roomId)
         {
             using (var _context = new MagicDbContext())
             {
@@ -302,7 +305,10 @@ namespace Magic.Hubs
                 _context.ChatRoomConnections.RemoveRange(userConnections);
                 _context.SaveChanges();
 
-                Task.WhenAll(userConnectionIds.Select(connectionId => Groups.Remove(connectionId, roomId)).ToArray());
+                var unsubscribeUser =
+                    userConnectionIds.Select(connectionId => Groups.Remove(connectionId, roomId)).ToArray();
+
+                return Task.WhenAll(unsubscribeUser);
             }
         }
 
@@ -421,7 +427,6 @@ namespace Magic.Hubs
                 var connection = _context.Connections.Find(Context.ConnectionId, userId);
 
                 var hasOtherGameConnections = _context.Connections.Count(c => c.GameId == connection.GameId && c.UserId == userId) > 1;
-
                 if (hasOtherGameConnections) return;
 
                 GameHub.LeaveGame(connection);

@@ -40,7 +40,7 @@ namespace Magic.Areas.Admin.Controllers
                 emailService.SendAsync(message, model.Email);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

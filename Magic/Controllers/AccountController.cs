@@ -23,7 +23,8 @@ namespace Magic.Controllers
             UserManager = new UserManager<User>(new UserStore<User>(new MagicDbContext()));
         }
 
-        public ActionResult Profile(string id) {
+        [ActionName("Profile")]
+        public ActionResult UserProfile(string id) {
             var user = UserManager.FindByName(id);
             var viewModel = user.GetProfileViewModel();
 

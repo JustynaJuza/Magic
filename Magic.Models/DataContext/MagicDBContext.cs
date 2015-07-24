@@ -25,10 +25,13 @@ namespace Magic.Models.DataContext
         TEntity Read<TEntity>(TEntity entity)
             where TEntity : class;
 
-        bool Insert<TEntity>(TEntity entity)
+        bool Insert<TEntity>(TEntity entity, bool withSave = false)
             where TEntity : class;
 
-        bool Insert<TEntity>(TEntity entity, out string errorText)
+        bool Insert<TEntity>(TEntity entity, out string errorText, bool withSave = false)
+            where TEntity : class;
+
+        bool InsertWithSave<TEntity>(TEntity entity)
             where TEntity : class;
 
         /// <summary>
@@ -38,16 +41,22 @@ namespace Magic.Models.DataContext
         /// <typeparam name="TEntity">Type of the entity to be updated.</typeparam>
         /// <param name="item">The entity to be updated.</param>
         /// <param name="updateOnly">Optional flag for applying updates to an existing entity only but without attaching the entity to the context.</param>
-        bool InsertOrUpdate<TEntity>(TEntity entity, bool updateOnly = false)
+        bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
             where TEntity : class;
 
-        bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool updateOnly = false)
+        bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
             where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, bool deleteOnly = false)
+        bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
             where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, out string errorText, bool deleteOnly = false)
+        bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
+            where TEntity : class;
+
+        bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
+            where TEntity : class;
+
+        bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
             where TEntity : class;
 
         DbSet<TEntity> Query<TEntity>()
@@ -144,19 +153,24 @@ namespace Magic.Models.DataContext
             return foundEntity;
         }
 
-        public bool Insert<TEntity>(TEntity entity)
+        public bool Insert<TEntity>(TEntity entity, bool withSave = false)
             where TEntity : class
         {
             string errorText;
             return Insert(entity, out errorText);
         }
 
-        public bool Insert<TEntity>(TEntity entity, out string errorText)
+        public bool Insert<TEntity>(TEntity entity, out string errorText, bool withSave = false)
             where TEntity : class
         {
             errorText = null;
 
             Entry(entity).State = EntityState.Added;
+
+            if (!withSave)
+            {
+                return true;
+            }
 
             try
             {
@@ -169,14 +183,20 @@ namespace Magic.Models.DataContext
             }
         }
 
-        public bool InsertOrUpdate<TEntity>(TEntity entity, bool updateOnly = false)
+        public bool InsertWithSave<TEntity>(TEntity entity)
+            where TEntity : class
+        {
+            return Insert(entity, withSave: true);
+        }
+
+        public bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
             where TEntity : class
         {
             string errorText;
             return InsertOrUpdate(entity, out errorText, updateOnly);
         }
 
-        public bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool updateOnly = false)
+        public bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
             where TEntity : class
         {
             errorText = null;
@@ -198,6 +218,11 @@ namespace Magic.Models.DataContext
                 }
             }
 
+            if (!withSave)
+            {
+                return true;
+            }
+
             try
             {
                 return SaveChanges() > 0;
@@ -208,15 +233,21 @@ namespace Magic.Models.DataContext
                 return false;
             }
         }
+        
+        public bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
+            where TEntity : class
+        {
+            return InsertOrUpdate(entity, withSave: true, updateOnly: updateOnly);
+        }
 
-        public bool Delete<TEntity>(TEntity entity, bool deleteOnly = false)
+        public bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
             where TEntity : class
         {
             string errorText;
             return Delete(entity, out errorText, deleteOnly);
         }
 
-        public bool Delete<TEntity>(TEntity entity, out string errorText, bool deleteOnly = false)
+        public bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
             where TEntity : class
         {
             errorText = null;
@@ -232,15 +263,26 @@ namespace Magic.Models.DataContext
 
             Entry(entity).State = EntityState.Deleted;
 
+            if (!withSave)
+            {
+                return true;
+            }
+
             try
-            {
-                return SaveChanges() > 0;
-            }
-            catch (Exception ex)
-            {
-                errorText = ShowErrorMessage(ex);
-                return false;
-            }
+                {
+                    return SaveChanges() > 0;
+                }
+                catch (Exception ex)
+                {
+                    errorText = ShowErrorMessage(ex);
+                    return false;
+                }             
+        }
+
+        public bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
+            where TEntity : class
+        {
+            return Delete(entity, withSave: true, deleteOnly: deleteOnly);
         }
 
         public DbSet<TEntity> Query<TEntity>()

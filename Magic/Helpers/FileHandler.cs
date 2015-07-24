@@ -12,7 +12,7 @@ namespace Magic.Helpers
 {
     public interface IFileHandler
     {
-        Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "");
+        Task<bool> SaveFileAsync(Stream fileStream, string fileName, string uploadPath = "");
         string GetAppRelativeFilePath(string fileName, string uploadPath = "");
         bool PassImageFileTypeConstraint(string fileContentType, bool allowImageOnly);
         bool PassImageSizeConstraint(Stream fileStream, int width, int height);
@@ -29,13 +29,21 @@ namespace Magic.Helpers
             _pathProvider = pathProvider;
         }
 
-        public async Task<bool> SaveFile(Stream fileStream, string fileName, string uploadPath = "")
+        public async Task<bool> SaveFileAsync(Stream fileStream, string fileName, string uploadPath = "")
         {
             try
             {
                 var path = GetServerFilePath(fileName, uploadPath);
                 PrepareFileDirectory(Path.GetDirectoryName(path));
-                await SaveFileInBlocksAsync(path, fileStream);
+
+                if (fileStream.CanSeek)
+                {
+                    await SaveFileInBlocksAsync(path, fileStream);
+                }
+                else
+                {
+                    await SaveFileAsync(path, fileStream);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -147,6 +155,24 @@ namespace Magic.Helpers
                     ex.LogException();
                     throw;
                 }
+            }
+        }
+
+        private Task SaveFileAsync(string serverPath, Stream fileStream, int blockByteSize = 1048576) // 1048576B = 1MB
+        {
+            var buffer = new byte[blockByteSize];
+
+            try
+            {
+                using (var file = new FileStream(serverPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                {
+                    return file.WriteAsync(buffer, 0, buffer.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.LogException();
+                throw;
             }
         }
 

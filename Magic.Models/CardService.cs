@@ -6,13 +6,19 @@ using Magic.Models.DataContext;
 
 namespace Magic.Models
 {
-    public class CardService
+    public interface ICardService
+    {
+        void AssignTypes(Card card);
+        void DecodeManaCost(Card card);
+    }
+
+    public class CardService : ICardService
     {
         private readonly IDbContext _context;
 
-        public CardService(IDbContext _context)
+        public CardService(IDbContext context)
         {
-            _context = _context;
+            _context = context;
         }
 
         public void AssignTypes(Card card)
@@ -186,7 +192,7 @@ namespace Magic.Models
             //    });
             //}
 
-            Colors = manaCost;
+            card.Colors = manaCost;
 
             //Colors = mana.Where(m => m.Cost > 0).ToList();
         }

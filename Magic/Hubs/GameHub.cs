@@ -163,13 +163,14 @@ namespace Magic.Hubs
             var joinGame = gameHubContext.Groups.Add(Context.ConnectionId, gameId);
             DisplayUserJoined(userName, gameId, isPlayer);
 
+            var addPlayerToGame = Models.Extensions.TaskExtensions.CompletedTask;
             if (isPlayer)
             {
-                gameHubContext.Groups.Add(Context.ConnectionId, gameId + "_players");
+                addPlayerToGame = gameHubContext.Groups.Add(Context.ConnectionId, gameId + "_players");
                 ResetReadyStatus(gameId);
             }
 
-            await joinGame;
+            await Task.WhenAll(joinGame, addPlayerToGame);
         }
 
         public async static Task LeaveGame(UserConnection connection)

@@ -41,7 +41,7 @@ namespace Magic.Areas.Admin.Controllers
                 return "The file or directory name is too long";
             }
 
-            var success = await _fileHandler.SaveFile(file.InputStream, fileName, uploadPath);
+            var success = await _fileHandler.SaveFileAsync(file.InputStream, fileName, uploadPath);
 
             return success ? path : "File saving failed due to a disk access restriction";
         }

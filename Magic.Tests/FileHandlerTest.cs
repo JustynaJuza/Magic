@@ -11,13 +11,13 @@ namespace Magic.Tests
     public class FileHandlerTest
     {
         [Fact]
-        public void PathTooLongException_IsCaptured_OnSave()
+        public void File_NotSavedOn_PathTooLongException_ButExceptionHandled()
         {
             var fileHandler = new FileHandler(Substitute.For<IPathProvider>());
             var fileStream = Substitute.For<Stream>();
             var fileName = new string('f', 255);
 
-            var result = fileHandler.SaveFile(fileStream, fileName);
+            var result = fileHandler.SaveFileAsync(fileStream, fileName);
             Assert.Equal(false, result.Result);
         }
     }

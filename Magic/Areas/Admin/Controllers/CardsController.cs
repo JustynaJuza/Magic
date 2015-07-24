@@ -39,10 +39,10 @@ namespace Magic.Areas.Admin.Controllers
             }
             else
             {
-                cards = context.Cards.OrderBy(c => o.Columns[o.Order[0].Column].Name)
+                var sortColumnName = o.Columns[o.Order[0].Column].Name;
+                cards = context.Cards.OrderBy(c => c.Name)//.OrderBy(c => sortColumnName).ToList()                    
                     .Skip(o.Start)
-                    .Take(o.Length)
-                    .ToList();
+                    .Take(o.Length).ToList();
             }
 
             var serializedCards = cards.Select(RenderCard).ToList();
@@ -87,7 +87,6 @@ namespace Magic.Areas.Admin.Controllers
         {
             if (id != null)
             {
-                string errorText;
                 // TODO: Fix this or discard?
                 //var model = context.Read<Card, string>((string) id, out errorText);
                 //TempData["Error"] = errorText;
