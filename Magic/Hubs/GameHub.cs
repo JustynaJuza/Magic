@@ -1,4 +1,5 @@
 using System.Threading;
+using Magic.Models.Chat;
 using Magic.Models.Extensions;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.Identity;
@@ -14,36 +15,36 @@ namespace Magic.Hubs
     [Authorize]
     public class GameHub : Hub
     {
+        private readonly IDbContext _context;
+
+        public GameHub(IDbContext context)
+        {
+            _context = context;
+        }
+
         public List<string> GetPlayerGameConnections(string gameId)
         {
             var userId = Context.User.Identity.GetUserId();
-            using (var context = new MagicDbContext())
-            {
-                return context.Connections.Where(c => c.UserId == userId && c.GameId == gameId).Select(c => c.Id).ToList();
-            }
+            return _context.Query<UserConnection>().Where(c => c.UserId == userId && c.GameId == gameId).Select(c => c.Id).ToList();
         }
 
         public void TogglePlayerReady(string gameId, bool isReady)
         {
             var userId = Context.User.Identity.GetUserId();
 
-            using (var context = new MagicDbContext())
-            {
-                var player = context.Players.Find(userId, gameId);
-                //DisplayPlayerReady(player.User, gameId, isReady);
-                player.Status = isReady ? PlayerStatus.Ready : PlayerStatus.Unready;
-                context.InsertOrUpdate(player, true);
-                Clients.Group(gameId).togglePlayerReady(player.User.UserName, (isReady ? player.User.ColorCode : ""));
+            var player = _context.Query<Player>().Find(userId, gameId);
+            //DisplayPlayerReady(player.User, gameId, isReady);
+            player.Status = isReady ? PlayerStatus.Ready : PlayerStatus.Unready;
+            _context.InsertOrUpdate(player, withSave: true, updateOnly: true);
+            Clients.Group(gameId).togglePlayerReady(player.User.UserName, (isReady ? player.User.ColorCode : ""));
 
-                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), player.User.UserName, player.User.ColorCode,
-                    (isReady ? " is ready for action." : " seems to be not prepared!"));
+            var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), player.User.UserName, player.User.ColorCode,
+                (isReady ? " is ready for action." : " seems to be not prepared!"));
 
-                if (!isReady || (player.Game.Players.Count(p => p.Player.Status == PlayerStatus.Ready) != player.Game.PlayerCapacity)) return;
+            if (!isReady || (player.Game.Players.Count(p => p.Player.Status == PlayerStatus.Ready) != player.Game.PlayerCapacity)) return;
 
-                StartGame(gameId);
-            }
-
+            StartGame(gameId);
         }
 
         #region GAME DISPLAY UPDATES
@@ -85,7 +86,7 @@ namespace Magic.Hubs
             gameHubContext.Clients.Group(gameId).userLeft(userName);
         }
 
-        public static async Task PauseGame(User user, string gameId, DateTime dateSuspended, CancellationToken token)
+        public async Task PauseGame(User user, string gameId, DateTime dateSuspended, CancellationToken token)
         {
             using (var context = new MagicDbContext())
             {
@@ -93,11 +94,11 @@ namespace Magic.Hubs
                 gameHubContext.Clients.Group(gameId).pauseGame("has paused the game.", user.UserName, user.ColorCode);
                 var pause = Task.Delay(10000, token);
 
-                var chatRoom = context.ChatRooms.Find(gameId);
+                //var chatRoom = _context.Query<ChatRoom>().Find(gameId);
                 var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                 chatHubContext.Clients.Group(gameId).addMessage(gameId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, "has paused the game.");
 
-                var game = context.Games.Find(gameId);
+                var game = _context.Query<Game>().Find(gameId);
                 game.UpdateTimePlayed(dateSuspended);
 
                 try
@@ -133,23 +134,20 @@ namespace Magic.Hubs
                 {
                     player.Status = GameStatus.InProgress;
                 }
-                context.InsertOrUpdate(game, true);
+                _context.InsertOrUpdate(game, withSave: true, updateOnly: true);
 
                 Clients.Group(gameId).activateGame();
             }
         }
 
-        public static void ResetReadyStatus(string gameId)
+        public void ResetReadyStatus(string gameId)
         {
-            using (var context = new MagicDbContext())
+            var game = _context.Query<Game>().Find(gameId);
+            foreach (var player in game.Players.Select(p => p.Player))
             {
-                var game = context.Games.Find(gameId);
-                foreach (var player in game.Players.Select(p => p.Player))
-                {
-                    player.Status = PlayerStatus.Unready;
-                }
-                context.InsertOrUpdate(game, true);
+                player.Status = PlayerStatus.Unready;
             }
+            _context.InsertOrUpdate(game, withSave: true, updateOnly: true);
 
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             gameHubContext.Clients.Group(gameId).resetReadyStatus();
@@ -173,45 +171,42 @@ namespace Magic.Hubs
             await Task.WhenAll(joinGame, addPlayerToGame);
         }
 
-        public async static Task LeaveGame(UserConnection connection)
+        public async Task LeaveGame(UserConnection connection)
         {
             var dateSuspended = DateTime.Now;
             var gameHubContext = GlobalHost.ConnectionManager.GetHubContext<GameHub>();
             gameHubContext.Groups.Remove(connection.Id, connection.GameId);
             gameHubContext.Clients.Group(connection.GameId).userLeft(connection.User.UserName);
 
-            using (var context = new MagicDbContext())
+            var game = _context.Query<Game>().Find(connection.GameId);
+            if (game.Players.All(p => p.UserId != connection.UserId))
             {
-                var game = context.Games.Find(connection.GameId);
-                if (game.Players.All(p => p.UserId != connection.UserId))
-                {
-                    // Remove observer who left.
-                    game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
-                    return;
-                }
+                // Remove observer who left.
+                game.Observers.Remove(game.Observers.First(o => o.Id == connection.UserId));
+                return;
+            }
 
-                if (game.DateStarted.HasValue && !game.DateEnded.HasValue)
-                {
-                    // TODO: STOP THE GAME, A PLAYER IS MISSING! Ask players to start game timeout?
-                    game.UpdateTimePlayed(dateSuspended);
-                    game.DateResumed = null;
-                    gameHubContext.Clients.Group(connection.GameId).pauseGame("has fled the battle!", connection.User.UserName, connection.User.ColorCode);
+            if (game.DateStarted.HasValue && !game.DateEnded.HasValue)
+            {
+                // TODO: STOP THE GAME, A PLAYER IS MISSING! Ask players to start game timeout?
+                game.UpdateTimePlayed(dateSuspended);
+                game.DateResumed = null;
+                gameHubContext.Clients.Group(connection.GameId).pauseGame("has fled the battle!", connection.User.UserName, connection.User.ColorCode);
 
-                    var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                    chatHubContext.Clients.Group(connection.GameId).addMessage(connection.GameId, DateTime.Now.ToString("HH:mm:ss"), connection.User.UserName, connection.User.ColorCode,
-                        "has fled the battle, the game will be interrupted.");
+                var chatHubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+                chatHubContext.Clients.Group(connection.GameId).addMessage(connection.GameId, DateTime.Now.ToString("HH:mm:ss"), connection.User.UserName, connection.User.ColorCode,
+                    "has fled the battle, the game will be interrupted.");
 
-                    var playerStatus = game.Players.First(ps => ps.UserId == connection.UserId);
-                    playerStatus.Status = GameStatus.Unfinished;
-                    playerStatus.Player.Status = PlayerStatus.Missing;
-                    context.InsertOrUpdate(game, true);
-                }
-                else
-                {
-                    var playerStatus = context.GameStatuses.Find(connection.UserId, connection.GameId);
-                    context.Delete(playerStatus, true);
-                    ResetReadyStatus(game.Id);
-                }
+                var playerStatus = game.Players.First(ps => ps.UserId == connection.UserId);
+                playerStatus.Status = GameStatus.Unfinished;
+                playerStatus.Player.Status = PlayerStatus.Missing;
+                _context.InsertOrUpdate(game, withSave: true, updateOnly: true);
+            }
+            else
+            {
+                var playerStatus = _context.Query<GamePlayerStatus>().Find(connection.UserId, connection.GameId);
+                _context.Delete(game, withSave: true, deleteOnly: true);
+                ResetReadyStatus(game.Id);
             }
         }
         #endregion MANAGE GAME GROUPS

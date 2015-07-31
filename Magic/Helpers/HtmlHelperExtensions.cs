@@ -18,7 +18,7 @@ namespace Magic.Helpers
         public static void AddJavaScript(this HtmlHelper htmlHelper, string scriptUrl)
         {
             var scriptList = htmlHelper.ViewContext.HttpContext
-              .Items[HtmlHelperExtensions._jSViewDataName] as List<string>;
+              .Items[_jSViewDataName] as List<string>;
             if (scriptList != null)
             {
                 if (!scriptList.Contains(scriptUrl))
@@ -30,7 +30,7 @@ namespace Magic.Helpers
             {
                 scriptList = new List<string> { scriptUrl };
                 htmlHelper.ViewContext.HttpContext
-                  .Items.Add(HtmlHelperExtensions._jSViewDataName, scriptList);
+                  .Items.Add(_jSViewDataName, scriptList);
             }
         }
 
@@ -69,7 +69,7 @@ namespace Magic.Helpers
             {
                 styleList = new List<string> { styleUrl };
                 htmlHelper.ViewContext.HttpContext
-                  .Items.Add(HtmlHelperExtensions._styleViewDataName, styleList);
+                  .Items.Add(_styleViewDataName, styleList);
             }
         }
 

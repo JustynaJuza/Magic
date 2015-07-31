@@ -1,5 +1,4 @@
 using Magic.Helpers;
-using Magic.Hubs;
 using Magic.Models;
 using Magic.Models.DataContext;
 using SimpleInjector;

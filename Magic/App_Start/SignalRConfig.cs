@@ -53,11 +53,19 @@ namespace Magic
             GlobalHost.Configuration.KeepAlive = TimeSpan.FromSeconds(2);
         }
 
-        public static void ConfigureSignalR(IAppBuilder app, Container container)
+        public static void ConfigureSignalR(IAppBuilder app)
         {
-            var config = new HubConfiguration { Resolver = new SignalRDependencyResolver(container) };
+            var config = new HubConfiguration
+            {
+                EnableDetailedErrors = true
+            };
             AdjustConnectionTimeouts();
             app.MapSignalR(config);
+        }
+
+        public static void ConfigureSignalRDependencyResolver(Container container)
+        {
+            GlobalHost.DependencyResolver = new SignalRDependencyResolver(container);
         }
     }
 }

@@ -23,6 +23,9 @@ namespace Magic
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             
+            var container = SimpleInjectorConfig.ConfigureDependencyInjectionContainer();
+            SignalRConfig.ConfigureSignalRDependencyResolver(container);
+
             // Enable automatic migrations.
             //var migrator = new System.Data.Entity.Migrations.DbMigrator(new Migrations.Configuration());
             //migrator.Update();
@@ -30,7 +33,7 @@ namespace Magic
             // Add ChatLog and stealthy Cache scheduler.
             //this.Application["GeneralChatLog"] = new ChatLog();
             //RecurringTask("SaveChatLog", 3);
-            
+
             // Clears WebFormsViewEngine (no longer searching for .aspx files).
             //ViewEngines.Engines.Clear();
             // Registers only Razor C# specific view engine.
