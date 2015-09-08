@@ -62,17 +62,9 @@ namespace Magic.Helpers
             var serverPath = _pathProvider.GetServerPath(path);
 
             var filePath = serverPath + fileName;
-            try
-            {
-                // check if full path is accessible, will throw if not
-                Path.GetFullPath(filePath);
-                return path + fileName;
-            }
-            catch (Exception ex)
-            {
-                ex.LogException();
-                throw;
-            }
+            // check if full path is accessible, will throw if not
+            Path.GetFullPath(filePath);
+            return path + fileName;
         }
 
         public bool PassImageFileTypeConstraint(string fileContentType, bool allowImageOnly)
@@ -129,32 +121,16 @@ namespace Magic.Helpers
             var path = "/Content" + uploadPath + "/";
             var serverPath = _pathProvider.GetServerPath(path);
             var filePath = serverPath + fileName;
-            try
-            {
-                // check if full path is accessible
-                Path.GetFullPath(filePath);
-                return filePath;
-            }
-            catch (Exception ex)
-            {
-                ex.LogException();
-                throw;
-            }
+            // check if full path is accessible
+            Path.GetFullPath(filePath);
+            return filePath;
         }
 
         private void PrepareFileDirectory(string serverPath)
         {
             if (!Directory.Exists(serverPath))
             {
-                try
-                {
-                    Directory.CreateDirectory(serverPath);
-                }
-                catch (Exception ex)
-                {
-                    ex.LogException();
-                    throw;
-                }
+                Directory.CreateDirectory(serverPath);
             }
         }
 
@@ -162,17 +138,9 @@ namespace Magic.Helpers
         {
             var buffer = new byte[blockByteSize];
 
-            try
+            using (var file = new FileStream(serverPath, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                using (var file = new FileStream(serverPath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                {
-                    return file.WriteAsync(buffer, 0, buffer.Length);
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.LogException();
-                throw;
+                return file.WriteAsync(buffer, 0, buffer.Length);
             }
         }
 
@@ -183,30 +151,22 @@ namespace Magic.Helpers
             var fileSavingOperations = new List<Task>();
             fileStream.Seek(0, SeekOrigin.Begin);
 
-            try
+            using (var file = new FileStream(serverPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
+            // 4096 is default, async prevents the file from breaking when writing from the middle of the file
             {
-                using (var file = new FileStream(serverPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
-                // 4096 is default, async prevents the file from breaking when writing from the middle of the file
+                int currentByteBlockSize;
+                do
                 {
-                    int currentByteBlockSize;
-                    do
-                    {
-                        currentByteBlockSize = fileStream.Read(buffer, 0, buffer.Length);
-                        file.Seek(bytesTransferred, SeekOrigin.Begin);
-                        var fileSaving = file.WriteAsync(buffer, 0, currentByteBlockSize);
+                    currentByteBlockSize = fileStream.Read(buffer, 0, buffer.Length);
+                    file.Seek(bytesTransferred, SeekOrigin.Begin);
+                    var fileSaving = file.WriteAsync(buffer, 0, currentByteBlockSize);
 
-                        bytesTransferred += currentByteBlockSize;
+                    bytesTransferred += currentByteBlockSize;
 
-                        fileSavingOperations.Add(fileSaving);
-                    } while (currentByteBlockSize != 0);
+                    fileSavingOperations.Add(fileSaving);
+                } while (currentByteBlockSize != 0);
 
-                    return Task.WhenAll(fileSavingOperations);
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.LogException();
-                throw;
+                return Task.WhenAll(fileSavingOperations);
             }
         }
     }
