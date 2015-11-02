@@ -95,23 +95,15 @@ namespace Magic.Hubs
 
             using (var requestHandler = new HttpClient())
             {
-                try
-                {
-                    var fetchSet = requestHandler.GetStringAsync(requestUrl);
-                    var fetchCards = requestHandler.GetStringAsync(requestUrl + "/cards/");
+                var fetchSet = requestHandler.GetStringAsync(requestUrl);
+                var fetchCards = requestHandler.GetStringAsync(requestUrl + "/cards/");
 
-                    var processSet = fetchSet
-                        .ContinueWith(_ => ProcessSet(fetchSet.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
-                    var processCards = Task.WhenAll(processSet, fetchCards)
-                        .ContinueWith(_ => ProcessCards(fetchCards.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
-                    
-                    return processCards;                    
-                }
-                catch (Exception ex)
-                {
-                    ex.LogException();
-                    throw;
-                }
+                var processSet = fetchSet
+                    .ContinueWith(_ => ProcessSet(fetchSet.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+                var processCards = Task.WhenAll(processSet, fetchCards)
+                    .ContinueWith(_ => ProcessCards(fetchCards.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+
+                return processCards;
             }
         }
 
@@ -136,11 +128,11 @@ namespace Magic.Hubs
                 var fetchCardImage = FetchCardImage(card.MultiverseId, card.Id);
                 try
                 {
-                        _cardService.AssignTypes(card);
-                        _cardService.DecodeManaCost(card);
-                        card.Image = "/Content/Images/Cards/" + card.Id;
-                        card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
-                        _context.InsertOrUpdate(card);
+                    _cardService.AssignTypes(card);
+                    _cardService.DecodeManaCost(card);
+                    card.Image = "/Content/Images/Cards/" + card.Id;
+                    card.ImagePreview = card.Image.Replace(".jpg", ".jpeg");
+                    _context.InsertOrUpdate(card);
                 }
                 catch (Exception)
                 {

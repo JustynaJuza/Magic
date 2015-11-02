@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+</head>
+<body>
+<style>
+     html, body, #background {
+         width: 100%;
+         height: 100%;
+     }
+
+     #background-sizer{
+         position: absolute;
+         top: 20px;
+         left: 20px;
+     }
+
+</style>
+
+<div id="background">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+            </pattern>
+            <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                <rect width="80" height="80" fill="url(#smallGrid)"/>
+                <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+            </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+</div>
+
+<div id="background-sizer">
+    <input id="background-width" type="number" placeholder="WIDTH" />
+    <input id="background-height" type="number" placeholder="HEIGHT"/>
+</div>
+
+
+
+</body>
+</html>
+
+<script src="script.js"></script>
