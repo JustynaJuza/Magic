@@ -218,6 +218,7 @@
     <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\FileHandler.cs" />
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
+    <Compile Include="Helpers\JsonCamelCaseResult.cs" />
     <Compile Include="Helpers\PathProvider.cs" />
     <Compile Include="Helpers\RazorEngineEmailHelper.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
