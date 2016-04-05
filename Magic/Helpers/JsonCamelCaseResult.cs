@@ -30,7 +30,7 @@ namespace Magic.Helpers
         {
             if (context == null)
             {
-                throw new ArgumentNullException(nameof(context));
+                throw new ArgumentNullException("context");
             }
             if (JsonRequestBehavior == JsonRequestBehavior.DenyGet && string.Equals(context.HttpContext.Request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
             {

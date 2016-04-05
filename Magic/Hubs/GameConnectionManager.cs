@@ -23,15 +23,15 @@ namespace Magic.Hubs
         private readonly IDbContext _context;
         private readonly IGameNotificationManager _gameNotificationManager;
         private readonly IChatNotificationManager _chatNotificationManager;
-        private readonly IGameHub _gameHub;
-        private readonly IChatHub _chatHub;
+        private readonly IHubContext _gameHub;
+        private readonly IHubContext<ChatHub> _chatHub;
 
         public GameConnectionManager(
             IDbContext context,
             IGameNotificationManager gameNotificationManager,
             IChatNotificationManager chatNotificationManager,
-            IGameHub gameHub,
-            IChatHub chatHub)
+            IHubContext<IGameHub> gameHub,
+            IHubContext<ChatHub> chatHub)
         {
             _context = context;
             _gameNotificationManager = gameNotificationManager;

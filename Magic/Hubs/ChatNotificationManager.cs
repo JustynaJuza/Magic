@@ -1,6 +1,7 @@
 using System;
-using Microsoft.AspNet.SignalR;
 using Magic.Models;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace Magic.Hubs
 {
@@ -11,11 +12,12 @@ namespace Magic.Hubs
 
     public class ChatNotificationManager : IChatNotificationManager
     {
-        private readonly IChatHub _chatHub;
+        private readonly IHubContext<ChatHub> _chatHub;
 
-        public ChatNotificationManager(IChatHub chatHub)
+        public ChatNotificationManager(IHubContext<ChatHub> chatHub)
         {
             _chatHub = chatHub;
+            _chatHubContext = chatHubContext;
         }
 
 

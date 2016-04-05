@@ -16,31 +16,13 @@ namespace Magic.Hubs
 {
     public interface IChatHub
     {
-        IList<ChatUserViewModel> GetAvailableUsers(string userId);
-        IList<ChatRoom> GetChatRoomsWithUser(string userId);
-        IList<ChatRoom> GetUserGameRooms(string userId, bool exceptDefaultRoom = false);
-        string GetExistingChatRoomIdForUsers(string[] recipientNames);
-        void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null);
-        void UpdateChatRoomUsers(string roomId);
-        void Send(string messageText, string roomId);
-        void SubscribeChatRoom(string roomId);
-        Task<Task> UnsubscribeChatRoom(string roomId);
-        void SubscribeActiveChatRooms(string connectionId, string userId);
-        void SetAsGameConnection(string gameId);
-        bool SubscribeGameChat(string roomId);
-        void UnsubscribeGameChat();
-        Task OnConnected();
-        void RemoveInactiveConnections();
-        Task OnDisconnected(bool stopCalled);
-        Task OnReconnected();
-        void Dispose();
-        IHubCallerConnectionContext<dynamic> Clients { get; set; }
-        HubCallerContext Context { get; set; }
-        IGroupManager Groups { get; set; }
+        void addMessage (string roomId, string time, string sender, string senderColor, string message, bool activateTabAfterwards = false);
+        void closeChatRoom(string roomId);
+        void updateChatRoomUsers (string chatUsersList, string roomId);
     }
 
     [Authorize]
-    public class ChatHub : Hub, IChatHub
+    public class ChatHub : Hub<IChatHub>
     {
         private readonly IDbContext _context;
         private readonly IGameConnectionManager _gameConnectionManager;
@@ -248,8 +230,8 @@ namespace Magic.Hubs
                 if (recipient == null)
                 {
                     // Recipient included but invalid, alert sender.
-                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                        "- no such user found, have you misspelled the name?", recipientName, "#696969");
+                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo",
+                        "#000000", "- no such user found, have you misspelled the name?"); //, recipientName, "#696969");
                     return false;
                 }
 
@@ -257,9 +239,8 @@ namespace Magic.Hubs
                 if (recipient.Status == UserStatus.Offline)
                 {
                     // Valid recipient but is offline, alert sender.
-                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000",
-                        "is currently offline and unable to receive messages.", recipient.UserName,
-                        recipient.ColorCode);
+                    Clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo",
+                        "#000000", "is currently offline and unable to receive messages."); //, recipient.UserName, recipient.ColorCode);
                     return false;
                 }
 
