@@ -242,6 +242,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\chat.css" />
+    <Content Include="Content\checkboxWithDescription.css" />
     <Content Include="Content\DataTables\css\dataTables.bootstrap.css" />
     <Content Include="Content\DataTables\images\favicon.ico" />
     <Content Include="Content\DataTables\images\sort_asc.png" />
@@ -276,10 +277,14 @@
     <Content Include="Content\twitter-bootstrap-css\bootstrap.min.css" />
     <Content Include="Content\wheel.png" />
     <Content Include="Content\_upload-dialog.css" />
+    <Content Include="d3.js" />
+    <Content Include="d3.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="html.html" />
+    <Content Include="script.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\dataTables.bootstrap.js" />
@@ -323,6 +328,8 @@
     <Content Include="Scripts\_file-uploader.js" />
     <Content Include="Scripts\_game.js" />
     <Content Include="Scripts\_general.js" />
+    <Content Include="Scripts\_hashNavigation.js" />
+    <Content Include="Scripts\_helperFunctions.js" />
     <Content Include="Scripts\_helpers.js" />
     <Content Include="Scripts\_hub-start.js" />
     <Content Include="Content\_chat.less" />
@@ -336,6 +343,7 @@
     <Content Include="connectionStrings.config" />
     <Content Include="Content\DataTables\images\Sorting icons.psd" />
     <None Include="Scripts\_references.js" />
+    <Content Include="Scripts\_selectList.js" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />

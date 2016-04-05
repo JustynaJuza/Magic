@@ -10,23 +10,65 @@
     var $backgroundHeight = $('#background-height');
 
     function randomizeSize() {
-        var width = getRandomIntInclusive(400, 900);
-        var height = getRandomIntInclusive(300, 750);
+        var width = getRandomIntInclusive(100, 400);
+        var height = getRandomIntInclusive(100, 450);
         $backgroundWidth.val(width);
         $background.css({ width: width });
         $backgroundHeight.val(height);
         $background.css({ height: height });
     }
 
-    $backgroundWidth.change(function () {
-        $background.css({ width: $backgroundWidth.val() });
-    });
+    $backgroundWidth.change(() => $background.css({ width: $backgroundWidth.val() }));
+    $backgroundHeight.change(() => $background.css({ height: $backgroundHeight.val() }));
 
-    $backgroundHeight.change(function () {
-        $background.css({ height: $backgroundHeight.val() });
-    });
+    randomizeSize();
 
-    randomizeSize()
+    window.singleFieldWidth = 10;
+
+    var $singleFieldWidth = $('#single-field-width');
+    $singleFieldWidth.change(updateFieldSize);
+
+    window.rows = [4, 5, 12, 3, 8, 9, 14];
+
+    window.fieldCoords = [
+        [0, 0],
+        [0, window.singleFieldWidth],
+        [window.singleFieldWidth, window.singleFieldWidth],
+        [window.singleFieldWidth, 0]];
+
+    var svg = d3.select('#some-container')
+        .append('svg:svg')
+        .attr('height', $backgroundHeight.val())
+        .attr('width', $backgroundWidth.val());
+
+    var drawLine = d3.svg.line()
+                    .x(function (d) { return d[0]; })
+                    .y(function (d) { return d[1]; })
+                    .interpolate('linear');
+
+    function render() {
+        svg.data(window.rows).enter()
+            .append('svg:path')
+            .attr('d', drawLine(window.fieldCoords) + 'Z')
+            .style('stroke-width', 1)
+            .style('stroke', '#FFFF00');
+    }
+
+    function updateFieldSize() {
+        window.singleFieldWidth = $singleFieldWidth.val();
+
+        window.fieldCoords = [
+            [0, 0],
+            [0, window.singleFieldWidth],
+            [window.singleFieldWidth, window.singleFieldWidth],
+            [window.singleFieldWidth, 0]];
+
+        svg.selectAll('*').remove();
+        render();
+    }
+
+    render();
+
 
     //function Shape(x, y, w, h, fill) {
     //    // This is a very simple and unsafe constructor. 

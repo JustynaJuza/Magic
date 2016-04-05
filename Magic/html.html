@@ -3,44 +3,93 @@
 <head>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="d3.min.js"></script>
 </head>
 <body>
-<style>
-     html, body, #background {
-         width: 100%;
-         height: 100%;
-     }
+    <style>
+        html, body, #background {
+            width: 100%;
+            height: 100%;
+        }
 
-     #background-sizer{
-         position: absolute;
-         top: 20px;
-         left: 20px;
-     }
+        #background-sizer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
 
-</style>
+        #field-sizer {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+        }
 
-<div id="background">
-    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-                <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
-            </pattern>
-            <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-                <rect width="80" height="80" fill="url(#smallGrid)"/>
-                <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
-            </pattern>
-        </defs>
+        svg path:hover,
+        use.smallBox:hover {
+            fill: red !important;
+        }
+    </style>
 
-        <rect width="100%" height="100%" fill="url(#grid)"/>
-    </svg>
+    <div id="background">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5" />
+                </pattern>
+                <pattern id="biggerGrid" width="80" height="80" patternUnits="userSpaceOnUse">
+                    <rect width="80" height="80" fill="url(#smallGrid)" />
+                    <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1" />
+                </pattern>
+                <pattern id="grid" width="12" height="12" patternUnits="userSpaceOnUse">
+                    <path d="M 12 0 L 0 0 0 12" fill="none" stroke="black" stroke-width="0.5" />
+                </pattern>
+            </defs>
+
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+
+    </div>
+
+    <div>
+        <svg>
+            <path id="smallBox" d="M 0 0 H 8 V 8 H -8 Z" fill="none" stroke="gray" stroke-width="0.5" />
+        </svg>
+    </div>
+
+
+<div id="some-container">
+
 </div>
+
 
 <div id="background-sizer">
-    <input id="background-width" type="number" placeholder="WIDTH" />
-    <input id="background-height" type="number" placeholder="HEIGHT"/>
-</div>
+        <input id="background-width" type="number" placeholder="WIDTH" />
+        <input id="background-height" type="number" placeholder="HEIGHT" />
+    </div>
 
+    <div id="field-sizer">
+        <input id="single-field-width" type="number" placeholder="SINGLE FIELD SIZE" />
+    </div>
 
+    <!--<div id="element1" style=" display:inline-block; width:250px; height:250px; border:solid thin #ccc; padding:0px; border-radius:4px; background-color:#ffd;">
+            <svg style="width:100%; height:100%; " version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="340.156px" height="340.152px" viewBox="0 0 340.156 340.152" enable-background="new 0 0 340.156 340.152" xml:space="preserve">
+            <path id="path_1" fill="#74C750" d="M340.156,170.078c0,93.926-76.146,170.074-170.077,170.074C76.146,340.152,0,264.004,0,170.078
+        C0,76.146,76.147,0,170.079,0C264.011,0,340.156,76.146,340.156,170.078z" />
+            <path id="path_2" fill="#FFFFFF" d="M54.432,147.366c-12.547,0-22.712,10.166-22.712,22.712c0,12.54,10.165,22.705,22.712,22.705
+        c12.54,0,22.705-10.165,22.705-22.705C77.137,157.532,66.972,147.366,54.432,147.366z M216.56,250.57
+        c-10.86,6.273-14.585,20.153-8.312,31.008c6.266,10.861,20.146,14.584,31.007,8.313c10.86-6.268,14.584-20.146,8.312-31.01
+        C241.3,248.027,227.412,244.304,216.56,250.57z M103.754,170.078c0-22.438,11.146-42.265,28.201-54.27l-16.602-27.807
+        c-19.867,13.28-34.648,33.573-40.792,57.342c7.168,5.849,11.756,14.753,11.756,24.732c0,9.977-4.588,18.879-11.756,24.729
+        c6.135,23.772,20.917,44.066,40.792,57.348l16.602-27.813C114.901,212.344,103.754,192.519,103.754,170.078z M170.079,103.746
+        c34.649,0,63.078,26.567,66.063,60.448l32.355-0.479c-1.593-25.013-12.52-47.468-29.31-63.979
+        c-8.635,3.262-18.606,2.763-27.228-2.206c-8.635-4.983-14.049-13.389-15.528-22.514c-8.393-2.316-17.225-3.584-26.354-3.584
+        c-15.697,0-30.538,3.687-43.716,10.209l15.777,28.272C150.628,105.966,160.097,103.746,170.079,103.746z M170.079,236.403
+        c-9.982,0-19.451-2.221-27.938-6.17l-15.778,28.271c13.178,6.53,28.019,10.22,43.717,10.22c9.131,0,17.963-1.271,26.354-3.594
+        c1.479-9.125,6.896-17.521,15.528-22.515c8.626-4.977,18.593-5.467,27.228-2.205c16.79-16.512,27.717-38.967,29.31-63.979
+        l-32.364-0.479C233.157,209.845,204.731,236.403,170.079,236.403z M216.551,89.572c10.861,6.272,24.742,2.557,31.009-8.304
+        c6.272-10.861,2.559-24.742-8.305-31.018c-10.86-6.266-24.74-2.543-31.017,8.318C201.975,69.425,205.698,83.306,216.551,89.572z" />
+        </svg>
+        </div>-->
 
 </body>
 </html>
