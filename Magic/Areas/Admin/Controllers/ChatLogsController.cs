@@ -13,12 +13,12 @@ namespace Magic.Areas.Admin.Controllers
 		[HttpGet]
         public ActionResult Index()
         {
-            return View(context.ChatLogs.ToList());
+            return View(context.Set<ChatLog>().ToList());
         }
 
         public ActionResult Messages(string id)
         {
-            var model = context.ChatLogs.Find(id);
+            var model = context.Read<ChatLog>().FindOrFetchEntity(id);
             if (model != null) return View(model.Messages);
 
             TempData["Error"] = MagicDbContext.ShowErrorMessage(new ArgumentNullException());

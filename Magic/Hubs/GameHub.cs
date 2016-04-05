@@ -9,11 +9,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Magic.Models.DataContext;
 using Magic.Models;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace Magic.Hubs
 {
+    public interface IGameHub
+    {
+        List<string> GetPlayerGameConnections(string gameId);
+        void TogglePlayerReady(string gameId, bool isReady);
+        Task PauseGame(User user, string gameId, DateTime dateSuspended, CancellationToken token);
+        void StartGame(string gameId);
+        void ResetReadyStatus(string gameId);
+        Task JoinGame(string gameId, string userName, bool isPlayer);
+        Task LeaveGame(UserConnection connection);
+        Task OnDisconnected(bool stopCalled);
+        Task OnConnected();
+        Task OnReconnected();
+        void Dispose();
+        IHubCallerConnectionContext<dynamic> Clients { get; set; }
+        HubCallerContext Context { get; set; }
+        IGroupManager Groups { get; set; }
+    }
+
     [Authorize]
-    public class GameHub : Hub
+    public class GameHub : Hub, IGameHub
     {
         private readonly IDbContext _context;
 
@@ -120,7 +139,7 @@ namespace Magic.Hubs
             System.Diagnostics.Debug.WriteLine("LET THE GAMES BEGIN!");
             using (var context = new MagicDbContext())
             {
-                var game = context.Games.Find(gameId);
+                var game = context.Read<Game>().FindOrFetchEntity(gameId);
                 if (game.DateStarted.HasValue)
                 {
                     game.DateResumed = DateTime.Now;

@@ -2,23 +2,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using Magic.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Magic.Models.DataContext;
 using Magic.Hubs;
-using Microsoft.AspNet.SignalR;
 
 namespace Magic.Controllers
 {
-    [System.Web.Mvc.Authorize]
+    [Authorize]
     public class GameController : Controller
     {
+        private readonly IDbContext _context;
+        private readonly IGameConnectionManager _gameConnectionManager;
         public static int DefaultPlayerHealth = 20;
-        private MagicDbContext context = new MagicDbContext();
+
+        public GameController(IDbContext context,
+            IGameConnectionManager gameConnectionManager)
+        {
+            _context = context;
+            _gameConnectionManager = gameConnectionManager;
+        }
+
         // Constructor with predefined player list.
         //public GameController(IList<string> playerIdList = null)
         //{
@@ -26,7 +31,7 @@ namespace Magic.Controllers
         //    {
         //        foreach (var playerId in playerIdList)
         //        {
-        //            var foundPlayer = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == playerId);
+        //            var foundPlayer = _context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == playerId);
         //            players.Add(new Player(foundPlayer));
         //        }
         //    }
@@ -35,7 +40,8 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Index(string gameId)
         {
-            var game = context.Games.Find(gameId);
+            var game = _context.Read<Game>().Include(x => x.Players).Include(x => x.Observers).FindOrFetchEntity(gameId);
+                //.Games.Find(gameId);
             if (game == null)
             {
                 TempData["Error"] = "The game you were looking for is no longer in progress. Maybe it finished without you or timed out.";
@@ -58,7 +64,7 @@ namespace Magic.Controllers
             }
 
             Session["GameId"] = gameId;
-            var user = context.Users.Find(userId);
+            var user = _context.Read<User>().FindOrFetchEntity(userId);
 
             lock (game.Players)
             {
@@ -70,7 +76,7 @@ namespace Magic.Controllers
                         UserId = userId,
                         User = user
                     }));
-                    context.InsertOrUpdate(game);
+                    _context.InsertOrUpdate(game);
 
                     ViewBag.IsPlayer = true;
                     return View((GameViewModel)game.GetViewModel());
@@ -109,7 +115,7 @@ namespace Magic.Controllers
         //public ActionResult SelectDeck(CardDeckViewModel model)
         //{
         //    var userId = User.Identity.GetUserId();
-        //    var currentUser = context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
+        //    var currentUser = _context.Set<User>().AsNoTracking().FirstOrDefault(u => u.Id == userId);
 
         //    var player = new Player(currentUser);
         //    player.SelectDeck(model);
@@ -117,9 +123,9 @@ namespace Magic.Controllers
         //    var selectedDeck = currentUser.DeckCollection.FirstOrDefault(d => d.Id == model.Id);
         //    if (selectedDeck == null)
         //    {
-        //        selectedDeck = context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
+        //        selectedDeck = _context.Set<CardDeck>().AsNoTracking().FirstOrDefault(d => d.Id == model.Id);
         //        currentUser.DeckCollection.Insert(0, selectedDeck);
-        //        context.InsertOrUpdate(currentUser);
+        //        _context.InsertOrUpdate(currentUser);
         //    }
         //    else
         //    {
@@ -152,10 +158,10 @@ namespace Magic.Controllers
             {
                 var dateSuspended = DateTime.Now;
                 HttpContext.Application[gameId] = new CancellationTokenSource();
-                var user = context.Users.Find(User.Identity.GetUserId());
+                var user = _context.Read<User>().FindOrFetchEntity(User.Identity.GetUserId());
                 try
                 {
-                    await GameHub.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource) HttpContext.Application[gameId]).Token);
+                    await _gameConnectionManager.PauseGame(user, gameId, dateSuspended, ((CancellationTokenSource) HttpContext.Application[gameId]).Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -176,9 +182,9 @@ namespace Magic.Controllers
             {
                 foreach (var observer in game.Observers)
                 {
-                    var user = context.Users.Find(observer.Id);
+                    var user = _context.Read<User>().FindOrFetchEntity(observer.Id);
                     user.Status = UserStatus.Observing;
-                    context.InsertOrUpdate(user, true);
+                    _context.InsertOrUpdate(user, true);
                 }
             }
             foreach (var player in game.Players)
@@ -191,7 +197,7 @@ namespace Magic.Controllers
                     User = player.User,
                     Status = GameStatus.InProgress
                 });
-                context.InsertOrUpdate(player.User);
+                _context.InsertOrUpdate(player.User);
             }
         }
         #endregion HELPERS

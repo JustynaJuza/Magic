@@ -70,10 +70,10 @@ namespace Magic.Models.DataContext
         IEnumerable<DbEntityValidationResult> GetValidationErrors();
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
         DbEntityEntry Entry(object entity);
-        //void Dispose();
-        //string ToString();
-        //bool Equals(object obj);
-        //int GetHashCode();
+        void Dispose();
+        string ToString();
+        bool Equals(object obj);
+        int GetHashCode();
         Type GetType();
         Database Database { get; }
     }

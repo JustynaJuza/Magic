@@ -24,7 +24,7 @@ namespace Magic.Controllers
 
             if (!string.IsNullOrEmpty(roomId))
             {
-                var chatRoom = context.ChatRooms.Find(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
+                var chatRoom = context.Read<ChatRoom>().FindOrFetchEntity(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
                 if (!chatRoom.IsPrivate)
                 {
                     context.Entry(chatRoom).Collection(r => r.Connections).Query().Include(c => c.User).Load();
@@ -83,7 +83,7 @@ namespace Magic.Controllers
         public string AddOrRemoveFriend(string id)
         {
             var userId = User.Identity.GetUserId();
-            var relation = context.UserRelations.Find(userId, id);
+            var relation = context.Read<UserRelation>().FindOrFetchEntity(userId, id);
 
             if (relation != null)
             {

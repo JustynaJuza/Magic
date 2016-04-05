@@ -1,6 +1,5 @@
 using System.Web;
 using System.Web.Hosting;
-using Microsoft.Ajax.Utilities;
 
 namespace Magic.Helpers
 {

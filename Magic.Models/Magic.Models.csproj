@@ -140,10 +140,16 @@
     <Compile Include="CardAvailableAbility.cs" />
     <Compile Include="CardDeckColors.cs" />
     <Compile Include="CardService.cs" />
+    <Compile Include="DataContext\EntityExtensions.cs" />
     <Compile Include="DataContext\EntityConfig.cs" />
+    <Compile Include="DataContext\ContextExtensions.cs" />
+    <Compile Include="DataContext\EntityLookup.cs" />
+    <Compile Include="DataContext\EntityManagement.cs" />
     <Compile Include="DataContext\MagicDbContext.cs" />
+    <Compile Include="DataContext\PredicateExtensions.cs" />
     <Compile Include="Enums\Color.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Extensions\UtilityExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="GamePlayerStatus.cs" />

@@ -81,7 +81,7 @@ namespace Magic.Models
         {
             using (var context = new MagicDbContext())
             {
-                var card = context.Cards.Find(cardId);
+                var card = context.Read<Card>().FindOrFetchEntity(cardId);
                 Cards.Add(new PlayerCard
                 {
                     Card = card,

@@ -23,7 +23,7 @@ namespace Magic.Models.Migrations
             context.Database.ExecuteSqlCommand("ALTER TABLE [dbo].[UserConnections] ADD CONSTRAINT [FK_dbo.UserConnections_dbo.Games_GameId] " +
                                                "FOREIGN KEY ([GameId]) REFERENCES [dbo].[Games] ([Id]) ON UPDATE NO ACTION ON DELETE SET NULL");
 
-            context.ChatRooms.AddOrUpdate(new ChatRoom
+            context.Set<ChatRoom>().AddOrUpdate(new ChatRoom
             {
                 Id = ChatRoom.DefaultRoomId,
                 Name = "All",
@@ -34,22 +34,22 @@ namespace Magic.Models.Migrations
             foreach (var color in Enum.GetNames(typeof(Color)))
             {
                 var colorId = (int)Enum.Parse(typeof(Color), color);
-                var existingColor = context.ManaColors.Find(colorId);
+                var existingColor = context.Set<ManaColor>().Find(colorId);
                 if (existingColor == null)
                 {
-                    context.ManaColors.AddOrUpdate(new ManaColor { Name = color });
+                    context.Set<ManaColor>().AddOrUpdate(new ManaColor { Name = color });
                     context.SaveChanges(); // Needs to be called to actually find entities added in this foreach
                 }
                 else
                 {
                     existingColor.Alias = color;
-                    context.ManaColors.AddOrUpdate(existingColor);
+                    context.Set<ManaColor>().AddOrUpdate(existingColor);
                 }
             }
 
             foreach (var type in Enum.GetValues(typeof(SuperType)).Cast<SuperType>())
             {
-                context.CardTypes.AddOrUpdate(new CardSuperType
+                context.Set<CardType>().AddOrUpdate(new CardSuperType
                 {
                     Id = (int)type,
                     Name = type.ToString()
@@ -58,7 +58,7 @@ namespace Magic.Models.Migrations
 
             foreach (var type in Enum.GetValues(typeof(MainType)).Cast<MainType>())
             {
-                context.CardTypes.AddOrUpdate(new CardMainType
+                context.Set<CardType>().AddOrUpdate(new CardMainType
                 {
                     Id = (int)type,
                     Name = type.ToString()

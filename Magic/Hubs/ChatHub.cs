@@ -10,17 +10,46 @@ using Magic.Models;
 using Magic.Models.DataContext;
 using System.Threading.Tasks;
 using System.Web.Helpers;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace Magic.Hubs
 {
+    public interface IChatHub
+    {
+        IList<ChatUserViewModel> GetAvailableUsers(string userId);
+        IList<ChatRoom> GetChatRoomsWithUser(string userId);
+        IList<ChatRoom> GetUserGameRooms(string userId, bool exceptDefaultRoom = false);
+        string GetExistingChatRoomIdForUsers(string[] recipientNames);
+        void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null);
+        void UpdateChatRoomUsers(string roomId);
+        void Send(string messageText, string roomId);
+        void SubscribeChatRoom(string roomId);
+        Task<Task> UnsubscribeChatRoom(string roomId);
+        void SubscribeActiveChatRooms(string connectionId, string userId);
+        void SetAsGameConnection(string gameId);
+        bool SubscribeGameChat(string roomId);
+        void UnsubscribeGameChat();
+        Task OnConnected();
+        void RemoveInactiveConnections();
+        Task OnDisconnected(bool stopCalled);
+        Task OnReconnected();
+        void Dispose();
+        IHubCallerConnectionContext<dynamic> Clients { get; set; }
+        HubCallerContext Context { get; set; }
+        IGroupManager Groups { get; set; }
+    }
+
     [Authorize]
-    public class ChatHub : Hub
+    public class ChatHub : Hub, IChatHub
     {
         private readonly IDbContext _context;
+        private readonly IGameConnectionManager _gameConnectionManager;
 
-        public ChatHub(IDbContext context)
+        public ChatHub(IDbContext context,
+            IGameConnectionManager gameConnectionManager)
         {
             _context = context;
+            _gameConnectionManager = gameConnectionManager;
         }
 
         #region CHAT SERVICES
@@ -147,7 +176,7 @@ namespace Magic.Hubs
                     Message = messageText
                 };
 
-                var chatRoom = _context.ChatRooms.Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId);
+                var chatRoom = _context.Set<ChatRoom>().Include(r => r.Users.Select(u => u.User)).First(r => r.Id == roomId);
                 foreach (var user in chatRoom.Users)
                 {
                     SubscribeActiveConnections(chatRoom.Id, user.UserId);
@@ -298,11 +327,11 @@ namespace Magic.Hubs
             {
                 var userId = Context.User.Identity.GetUserId();
 
-                var userConnections = _context.ChatRoomConnections.Where(c => c.ChatRoomId == roomId && c.UserId == userId);
+                var userConnections = _context.Set<ChatRoomConnection>().Where(c => c.ChatRoomId == roomId && c.UserId == userId);
                 var userConnectionIds = userConnections.Select(c => c.ConnectionId).ToList();
                 Clients.Clients(userConnectionIds).closeChatRoom(roomId);
 
-                _context.ChatRoomConnections.RemoveRange(userConnections);
+                _context.Set<ChatRoomConnection>().RemoveRange(userConnections);
                 _context.SaveChanges();
 
                 var unsubscribeUser =
@@ -316,7 +345,7 @@ namespace Magic.Hubs
         {
             using (var _context = new MagicDbContext())
             {
-                var activeChatRoomIds = _context.ChatRoomConnections.Where(rc => rc.UserId == userId && rc.ChatRoomId != ChatRoom.DefaultRoomId).Select(rc => rc.ChatRoomId).Distinct();
+                var activeChatRoomIds = _context.Set<ChatRoomConnection>().Where(rc => rc.UserId == userId && rc.ChatRoomId != ChatRoom.DefaultRoomId).Select(rc => rc.ChatRoomId).Distinct();
 
                 foreach (var roomId in activeChatRoomIds)
                 {
@@ -337,8 +366,8 @@ namespace Magic.Hubs
         {
             using (var _context = new MagicDbContext())
             {
-                var activeConnectionIds = _context.Connections.Where(c => c.UserId == userId).Select(c => c.Id);
-                var subscribedConnectionIds = _context.ChatRoomConnections.Where(crc => crc.UserId == userId && crc.ChatRoomId == roomId).Select(crc => crc.ConnectionId);
+                var activeConnectionIds = _context.Set<UserConnection>().Where(c => c.UserId == userId).Select(c => c.Id);
+                var subscribedConnectionIds = _context.Set<ChatRoomConnection>().Where(crc => crc.UserId == userId && crc.ChatRoomId == roomId).Select(crc => crc.ConnectionId);
                 var unsubscribedConnectionIds = activeConnectionIds.Except(subscribedConnectionIds);
 
                 if (!unsubscribedConnectionIds.Any()) return;
@@ -367,7 +396,7 @@ namespace Magic.Hubs
             var userId = Context.User.Identity.GetUserId();
             using (var _context = new MagicDbContext())
             {
-                var connection = _context.Connections.Find(Context.ConnectionId, userId);
+                var connection = _context.Set<UserConnection>().Find(Context.ConnectionId, userId);
                 connection.GameId = gameId;
                 _context.InsertOrUpdate(connection, true);
             }
@@ -377,13 +406,13 @@ namespace Magic.Hubs
         {
             using (var _context = new MagicDbContext())
             {
-                var chatRoom = _context.ChatRooms.Find(roomId);
+                var chatRoom = _context.Set<ChatRoom>().Find(roomId);
                 var userId = Context.User.Identity.GetUserId();
                 bool isExistingUser = false;
 
                 if (chatRoom == null)
                 {
-                    var game = _context.Games.Find(roomId);
+                    var game = _context.Read<Game>().Include(x => x.Players).FindOrFetchEntity(roomId);
                     CreateChatRoom(roomId, true, game.IsPrivate, game.Players.Select(p => p.User.UserName).ToList());
                     //AddUserToRoom(roomId, userId);
                 }
@@ -424,12 +453,12 @@ namespace Magic.Hubs
             using (var _context = new MagicDbContext())
             {
                 var userId = Context.User.Identity.GetUserId();
-                var connection = _context.Connections.Find(Context.ConnectionId, userId);
+                var connection = _context.Read<UserConnection>().FindOrFetchEntity(Context.ConnectionId, userId);
 
-                var hasOtherGameConnections = _context.Connections.Count(c => c.GameId == connection.GameId && c.UserId == userId) > 1;
+                var hasOtherGameConnections = _context.Set<UserConnection>().Count(c => c.GameId == connection.GameId && c.UserId == userId) > 1;
                 if (hasOtherGameConnections) return;
 
-                GameHub.LeaveGame(connection);
+                _gameConnectionManager.LeaveGame(connection);
 
                 var roomId = connection.GameId;
                 UnsubscribeChatRoom(roomId);
@@ -478,10 +507,10 @@ namespace Magic.Hubs
             return base.OnConnected();
         }
 
-        public override Task OnDisconnected()
+        public override Task OnDisconnected(bool stopCalled)
         {
             DeleteConnection();
-            return base.OnDisconnected();
+            return base.OnDisconnected(stopCalled);
         }
 
         private async void DeleteConnection()
