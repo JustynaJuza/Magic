@@ -225,6 +225,10 @@
     <Compile Include="Helpers\ViewRenderer.cs" />
     <Compile Include="Hubs\AdminHub.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Hubs\ChatConnectionManager.cs" />
+    <Compile Include="Hubs\ChatNotificationManager.cs" />
+    <Compile Include="Hubs\GameNotificationManager.cs" />
+    <Compile Include="Hubs\GameConnectionManager.cs" />
     <Compile Include="Hubs\GameHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

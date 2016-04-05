@@ -42,7 +42,7 @@ namespace Magic.Models
         {
             using (var context = new MagicDbContext())
             {
-                var player = context.Players.Find(target.CasterId, gameId);
+                var player = context.Read<Player>().FindOrFetchEntity(target.CasterId, gameId);
                 //player.Deck.
             }
         }

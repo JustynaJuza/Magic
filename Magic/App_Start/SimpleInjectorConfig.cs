@@ -1,3 +1,4 @@
+using System.Linq;
 using Magic.Helpers;
 using Magic.Models;
 using Magic.Models.DataContext;
@@ -6,6 +7,9 @@ using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
 using System.Reflection;
 using System.Web.Mvc;
+using Magic.Hubs;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace Magic
 {
@@ -61,6 +65,8 @@ namespace Magic
             // Data Access
             container.Register<MagicDbContext>(new WebRequestLifestyle());
             container.Register<IDbContext, MagicDbContext>();
+            container.Register(() => GlobalHost.ConnectionManager.GetHubContext<GameHub, IGameHub>(), Lifestyle.Singleton);
+            container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
             container.Register<IPathProvider, PathProvider>();
             container.Register<IFileHandler, FileHandler>();
             container.Register<ICardService, CardService>();
@@ -74,6 +80,11 @@ namespace Magic
             DependencyResolver.SetResolver(new SimpleInjectorDependencyResolver(container));
 
             return container;
+        }
+
+        private void RegisterHubs()
+        {
+            var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof (Hub)));
         }
     }
 }

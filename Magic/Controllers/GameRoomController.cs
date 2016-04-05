@@ -20,7 +20,7 @@ namespace Magic.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            var activeGames = context.Games.Include(g => g.Players.Select(p => p.User)).Where(g => g.DateEnded.HasValue == false).ToList();
+            var activeGames = context.Set<Game>().Include(g => g.Players.Select(p => p.User)).Where(g => g.DateEnded.HasValue == false).ToList();
 
             return View(activeGames);
         }
@@ -35,7 +35,7 @@ namespace Magic.Controllers
 
         public ActionResult Join(string id)
         {
-            var game = context.Games.Find(id);
+            var game = context.Read<Game>().FindOrFetchEntity(id);
             if (game == null)
             {
                 TempData["Error"] = "This game has already finished or is no longer available.";

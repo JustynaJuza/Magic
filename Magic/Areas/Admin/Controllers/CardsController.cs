@@ -25,7 +25,7 @@ namespace Magic.Areas.Admin.Controllers
         [HttpPost]
         public ViewResult Index(IList<string> ids)
         {
-            return View(context.Cards.ToList());
+            return View(context.Set<Card>().ToList());
         }
         
         public JsonResult GetCardData(DataTablesRequestIn o)
@@ -33,14 +33,14 @@ namespace Magic.Areas.Admin.Controllers
             IList<Card> cards;
             if (!string.IsNullOrWhiteSpace(o.Search.Value))
             {
-                cards = context.Cards.SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns()).ToList();
+                cards = context.Set<Card>().SqlQuery("SearchAllCards @p0, @p1", o.Search.Value, o.SelectedColumns()).ToList();
                 cards = cards.Where(c => c.Rarity.GetDisplayName().Contains(o.Search.Value)).ToList();
                 //|| c.Rarity.GetDisplayName().Contains(o.Search.Value)
             }
             else
             {
                 var sortColumnName = o.Columns[o.Order[0].Column].Name;
-                cards = context.Cards.OrderBy(c => c.Name)//.OrderBy(c => sortColumnName).ToList()                    
+                cards = context.Set<Card>().OrderBy(c => c.Name)//.OrderBy(c => sortColumnName).ToList()                    
                     .Skip(o.Start)
                     .Take(o.Length).ToList();
             }
@@ -49,10 +49,10 @@ namespace Magic.Areas.Admin.Controllers
 
             return new JsonResult { Data = new DataTablesRequestOut
             {
-                draw = o.Draw,
-                recordsTotal = context.Cards.Count(),
-                recordsFiltered = cards.Count(),
-                data = serializedCards
+                Draw = o.Draw,
+                RecordsTotal = context.Set<Card>().Count(),
+                RecordsFiltered = cards.Count(),
+                Data = serializedCards
             }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
         }
 
@@ -90,7 +90,7 @@ namespace Magic.Areas.Admin.Controllers
                 // TODO: Fix this or discard?
                 //var model = context.Read<Card, string>((string) id, out errorText);
                 //TempData["Error"] = errorText;
-                var model = context.Cards.Find(id);
+                var model = context.Read<Card>().FindOrFetchEntity(id);
                 if (model != null)
                 {
                     ViewBag.IsUpdate = true;
