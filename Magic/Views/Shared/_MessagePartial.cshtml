@@ -1,9 +1,0 @@
-﻿@if (TempData["Error"] != null)
-{
-    <p><span class="text-danger">Problems encountered...</span> @Html.Raw(TempData["Error"]) </p>
-}
-
-@if (TempData["Message"] != null)
-{
-    <p class="text-success">@TempData["Message"]</p>
-}
