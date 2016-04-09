@@ -86,7 +86,6 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Readme\Elmah.txt" />
     <Content Include="DataContext\SQL\DropConstraintsAffectingTable.sql" />
     <Content Include="DataContext\SQL\fnSearchAllCards.sql" />
     <Content Include="DataContext\SQL\SearchAllCards.sql" />
@@ -129,6 +128,9 @@
     <Compile Include="DataContext\EntityManagement.cs" />
     <Compile Include="DataContext\MagicDBContext.cs" />
     <Compile Include="DataContext\PredicateExtensions.cs" />
+    <Compile Include="Entities\UserClaim.cs" />
+    <Compile Include="Entities\UserLogin.cs" />
+    <Compile Include="Entities\UserRole.cs" />
     <Compile Include="Enums\Color.cs" />
     <Compile Include="Enums\GameStatus.cs" />
     <Compile Include="Enums\PlayerStatus.cs" />
