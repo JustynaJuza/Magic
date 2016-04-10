@@ -6,8 +6,8 @@ using System.Data.Entity.Validation;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Juza.Magic.Models.Chat;
 using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Extensions;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -79,7 +79,7 @@ namespace Juza.Magic.Models.DataContext
         Database Database { get; }
     }
 
-    public class MagicDbContext : IdentityDbContext<User>, IDbContext
+    public class MagicDbContext : IdentityDbContext<User, Role, int, UserLogin, UserRole, UserClaim>, IDbContext
     {
         public DbSet<UserConnection> Connections { get; set; }
         public DbSet<UserRelation> UserRelations { get; set; }

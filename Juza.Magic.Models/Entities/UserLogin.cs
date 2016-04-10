@@ -1,6 +1,6 @@
 using Microsoft.AspNet.Identity.EntityFramework;
 
-namespace Penna.Assessment.Models.Entities
+namespace Juza.Magic.Models.Entities
 {
     public class UserLogin : IdentityUserLogin<int> { }
 }

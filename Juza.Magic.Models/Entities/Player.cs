@@ -12,7 +12,7 @@ namespace Juza.Magic.Models.Entities
         private int defaultHealth = 20;
 
         public string GameId { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public virtual Game Game { get; set; }
         public virtual User User { get; set; }
 
@@ -27,7 +27,7 @@ namespace Juza.Magic.Models.Entities
             HealthCurrent = defaultHealth;
         }
 
-        public Player(string gameId, string userId) : this()
+        public Player(string gameId, int userId) : this()
         {
             GameId = gameId;
             UserId = userId;

@@ -9,7 +9,7 @@ namespace Juza.Magic.Models.Entities
 {
     public class ProfileViewModel : AbstractExtensions, IViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string UserName { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? LastLoginDate { get; set; }
@@ -46,7 +46,7 @@ namespace Juza.Magic.Models.Entities
 
     public class UserViewModel : AbstractExtensions, IViewModel
     {
-        public string Id { get; private set; }
+        public int Id { get; private set; }
 
         [StringLength(30, ErrorMessage = "Player name can only be between 3-30 characters long.", MinimumLength = 3)]
         [RegularExpression("^([a-zA-Z]+[a-zA-Z0-9]*(-|\\.|_)?[a-zA-Z0-9]+)$", ErrorMessage = "A Player name can only start with letters, may contain numbers and a few selected special characters.")]
@@ -54,11 +54,21 @@ namespace Juza.Magic.Models.Entities
         public string UserName { get; private set; }
 
         public string Title { get; set; }
-
+        
         [EmailAddress(ErrorMessage = "The email doesn't seem valid...")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string Email { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The text entered is too long, consider using your initials instead.")]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last name")]
+        [StringLength(100, ErrorMessage = "The text entered is too long.")]
+        public string LastName { get; set; }
 
         [BirthDateRange(ErrorMessage = "The date doesn't seem valid...")]
         [DataType(DataType.Date, ErrorMessage = "You need to enter a date in format similar to 31/12/2000.")]
@@ -89,7 +99,7 @@ namespace Juza.Magic.Models.Entities
 
     public class ChatUserViewModel : IViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string UserName { get; set; }
         public string ColorCode { get; set; }
         public UserStatus Status { get; set; }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Web.Script.Serialization;
 using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
@@ -16,7 +15,7 @@ namespace Juza.Magic.Models.Entities
         [NotMapped]
         public string ManaCode { get; set; }
 
-        public string Id { get; set; }
+        public int Id { get; set; }
         public int MultiverseId { get; set; }
         [Required(ErrorMessage = "The card must have a name.")]
         public string Name { get; set; }

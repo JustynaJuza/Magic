@@ -112,22 +112,23 @@
     <Compile Include="Entities\CardDeck.cs" />
     <Compile Include="Entities\CardDeckColors.cs" />
     <Compile Include="Entities\CardManaCost.cs" />
-    <Compile Include="Entities\CardService.cs" />
+    <Compile Include="CardService.cs" />
     <Compile Include="Entities\CardSet.cs" />
     <Compile Include="Entities\CardType.cs" />
-    <Compile Include="Chat\ChatLog.cs" />
-    <Compile Include="Chat\ChatMessage.cs" />
-    <Compile Include="Chat\ChatRoom.cs" />
-    <Compile Include="Chat\ChatRoomConnection.cs" />
-    <Compile Include="Chat\ChatRoomUser.cs" />
+    <Compile Include="Entities\Chat\ChatLog.cs" />
+    <Compile Include="Entities\Chat\ChatMessage.cs" />
+    <Compile Include="Entities\Chat\ChatRoom.cs" />
+    <Compile Include="Entities\Chat\ChatRoomConnection.cs" />
+    <Compile Include="Entities\Chat\ChatRoomUser.cs" />
     <Compile Include="DataContext\ContextExtensions.cs" />
     <Compile Include="DataContext\DatabaseContextHelper.cs" />
     <Compile Include="DataContext\EntityConfig.cs" />
     <Compile Include="DataContext\EntityExtensions.cs" />
     <Compile Include="DataContext\EntityLookup.cs" />
     <Compile Include="DataContext\EntityManagement.cs" />
-    <Compile Include="DataContext\MagicDBContext.cs" />
+    <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="DataContext\PredicateExtensions.cs" />
+    <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\UserClaim.cs" />
     <Compile Include="Entities\UserLogin.cs" />
     <Compile Include="Entities\UserRole.cs" />
@@ -153,26 +154,17 @@
     <Compile Include="JQueryDataTables\DataTablesRequestIn.cs" />
     <Compile Include="JQueryDataTables\DataTablesRequestOut.cs" />
     <Compile Include="Entities\ManaColor.cs" />
-    <Compile Include="Migrations\201507191346103_Initial.cs" />
-    <Compile Include="Migrations\201507191346103_Initial.Designer.cs">
-      <DependentUpon>201507191346103_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerCardDeck.cs" />
-    <Compile Include="Entities\PlayerCards.cs" />
+    <Compile Include="Entities\PlayerCard.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\UserConnection.cs" />
     <Compile Include="Entities\UserRelation.cs" />
-    <Compile Include="Entities\UserViewModels.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201507191346103_Initial.resx">
-      <DependentUpon>201507191346103_Initial.cs</DependentUpon>
-    </EmbeddedResource>
+    <Compile Include="UserViewModels.cs" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

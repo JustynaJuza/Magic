@@ -4,7 +4,7 @@ using System.Linq;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
 
-namespace Juza.Magic.Models.Chat
+namespace Juza.Magic.Models.Entities.Chat
 {
     public class ChatLog : AbstractExtensions
     {
@@ -29,7 +29,7 @@ namespace Juza.Magic.Models.Chat
             Messages.AddRange(tempLog);
         }
 
-        public IList<ChatMessageViewModel> GetUserMessages(string userId)
+        public IList<ChatMessageViewModel> GetUserMessages(int userId)
         {
             return Messages.Select(m => new ChatMessageViewModel(m)
             {
@@ -53,9 +53,9 @@ namespace Juza.Magic.Models.Chat
         {
             Id = log.Id;
             DateCreated = log.DateCreated;
-            Messages = log.GetUserMessages(null);
+            Messages = log.GetUserMessages(default(int));
         }
-        public ChatLogViewModel(ChatLog log, string userId) : this()
+        public ChatLogViewModel(ChatLog log, int userId) : this()
         {
             Messages = log.GetUserMessages(userId);
         }

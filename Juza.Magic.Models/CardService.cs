@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Juza.Magic.Models.DataContext;
+using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Enums;
 
-namespace Juza.Magic.Models.Entities
+namespace Juza.Magic.Models
 {
     public interface ICardService
     {

@@ -1,7 +1,6 @@
-using Juza.Magic.Models.Entities;
 using Microsoft.AspNet.Identity.EntityFramework;
 
-namespace Penna.Assessment.Models.Entities
+namespace Juza.Magic.Models.Entities
 {
     public class UserRole : IdentityUserRole<int> {
 

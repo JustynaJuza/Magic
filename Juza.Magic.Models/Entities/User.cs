@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Juza.Magic.Models.Chat;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
 using Microsoft.AspNet.Identity;
@@ -10,7 +13,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Juza.Magic.Models.Entities
 {
-    public enum Role
+    public enum SystemRole
     {
         Developer,
         Admin
@@ -18,18 +21,16 @@ namespace Juza.Magic.Models.Entities
 
     public class User : IdentityUser<int, UserLogin, UserRole, UserClaim>
     {
-        public int Id { get; }
-        public string UserName { get; set; }
         public DateTime DateCreated { get; set; }
 
         [DisplayFormat(NullDisplayText = "Never connected")]
         public DateTime? LastLoginDate { get; set; }
 
         public string Title { get; set; }
-        public UserStatus Status { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
+        public UserStatus Status { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
@@ -80,8 +81,18 @@ namespace Juza.Magic.Models.Entities
         }
 
         #endregion HELPERS
-    }
 
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<User, int> manager)
+        {
+            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+
+            //if (CorporateClientId.HasValue)
+            //    userIdentity.AddClaim(new Claim(ClaimType.CorporateClientId, CorporateClientId.ToString()));
+
+            return userIdentity;
+        }
+    }
 
     public static class UserQueryExtensions
     {

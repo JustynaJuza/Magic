@@ -1,6 +1,6 @@
 ﻿using System.Web.Optimization;
 
-namespace Penna.Assessment
+namespace Juza.Magic
 {
     public class BundleConfig
     {

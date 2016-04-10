@@ -9,7 +9,7 @@ namespace Juza.Magic.Models.Entities
     public class PlayerCardDeck : AbstractExtensions
     {
         public int DeckId { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public string GameId { get; set; }
         //public int CardsTotal { get; set; }
         public int CardsPlayed { get; set; }

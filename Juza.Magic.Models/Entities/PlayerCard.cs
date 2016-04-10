@@ -13,9 +13,9 @@ namespace Juza.Magic.Models.Entities
 
     public class PlayerCard : AbstractExtensions
     {
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public string GameId { get; set; }
-        public string CardId { get; set; }
+        public int CardId { get; set; }
         public int DeckId { get; set; }
         public int Index { get; set; }
         public PlayerCardLocation Location { get; set; }

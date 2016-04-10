@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
 
-namespace Juza.Magic.Models.Chat
+namespace Juza.Magic.Models.Entities.Chat
 {
     public class ChatRoom : AbstractExtensions
     {
@@ -44,12 +43,12 @@ namespace Juza.Magic.Models.Chat
             Log.Messages.Add(message);
         }
 
-        public bool IsUserInRoom(string userId)
+        public bool IsUserInRoom(int userId)
         {
             return Connections.Any(c => c.UserId == userId);
         }
 
-        public bool IsUserAllowedToJoin(string userId)
+        public bool IsUserAllowedToJoin(int userId)
         {
             return IsPrivate == false || Users.Any(u => u.UserId == userId);
         }
@@ -71,7 +70,7 @@ namespace Juza.Magic.Models.Chat
             return users.Select(user => new ChatUserViewModel(user)).ToList();
         }
 
-        public bool OnlySpecifiedUsersInRoom(IEnumerable<string> userIds)
+        public bool OnlySpecifiedUsersInRoom(IEnumerable<int> userIds)
         {
             var allowedUserIds = Users.Select(u => u.UserId);
             return !allowedUserIds.Except(userIds).Union(userIds.Except(allowedUserIds)).Any(); ;

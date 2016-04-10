@@ -6,7 +6,7 @@ namespace Juza.Magic.Models.Entities
     public class UserConnection : AbstractExtensions
     {
         public string Id { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public virtual User User { get; set; }
         //public virtual IList<ChatRoom> ChatRooms { get; set; }
         public string GameId { get; set; }

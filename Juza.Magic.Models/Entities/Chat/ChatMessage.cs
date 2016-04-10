@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
 
-namespace Juza.Magic.Models.Chat
+namespace Juza.Magic.Models.Entities.Chat
 {
     public class ChatMessageNotification : AbstractExtensions
     {
@@ -12,7 +11,7 @@ namespace Juza.Magic.Models.Chat
 
         public int MessageId { get; set; }
         public string LogId { get; set; }
-        public string RecipientId { get; set; }
+        public int RecipientId { get; set; }
         public ChatMessage Message { get; set; }
         public User Recipient { get; set; }
 

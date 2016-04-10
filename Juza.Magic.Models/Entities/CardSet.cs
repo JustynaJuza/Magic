@@ -6,7 +6,7 @@ namespace Juza.Magic.Models.Entities
 {
     public class CardSet
     {
-        private IEnumerable<int> cardIds;
+        //private IEnumerable<int> cardIds;
  
         public string Id { get; set; }
         public string Name { get; set; }

@@ -1,9 +1,9 @@
 using System;
 using System.Data.Entity.Migrations;
 using System.Linq;
-using Juza.Magic.Models.Chat;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -73,7 +73,7 @@ namespace Juza.Magic.Models.Migrations
                 var existingRole = context.Roles.FirstOrDefault(r => r.Name == roleName);
                 if (existingRole == null)
                 {
-                    context.Roles.AddOrUpdate(new IdentityRole
+                    context.Roles.AddOrUpdate(new Role
                     {
                         Name = role.ToString()
                     });

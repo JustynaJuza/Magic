@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Extensions;
 
-namespace Juza.Magic.Models.Chat
+namespace Juza.Magic.Models.Entities.Chat
 {
     public class ChatRoomConnection : AbstractExtensions
     {
         public string ChatRoomId { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public string ConnectionId { get; set; }
 
         public ChatRoom ChatRoom { get; set; }

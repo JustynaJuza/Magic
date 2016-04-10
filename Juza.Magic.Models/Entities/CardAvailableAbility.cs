@@ -4,7 +4,7 @@ namespace Juza.Magic.Models.Entities
 {
     public class CardAvailableAbility : AbstractExtensions
     {
-        public string CardId { get; set; }
+        public int CardId { get; set; }
         public int AbilityId { get; set; }
 
         public CardAbility Ability { get; set; }

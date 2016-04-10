@@ -2,7 +2,7 @@ namespace Juza.Magic.Models.Entities
 {
     public class CardManaCost
     {
-        public string CardId { get; set; }
+        public int CardId { get; set; }
         public int ColorId { get; set; }
 
         public Card Card { get; set; }
