@@ -15,10 +15,10 @@ namespace Juza.Magic.Areas.Admin
         public override void RegisterArea(AreaRegistrationContext context) 
         {
             context.MapRoute(
-                "Admin_default",
-                "Admin/{controller}/{action}/{id}",
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional },
-                new[] { "Magic.Areas.Admin.Controllers" }
+                name: "Admin_default",
+                url: "Admin/{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "Juza.Magic.Areas.Admin.Controllers" }
             );
         }
     }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
-using Juza.Magic;
+using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Microsoft.AspNet.Identity;
@@ -13,8 +13,6 @@ using SimpleInjector;
 using SimpleInjector.Advanced;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
-
-[assembly: WebActivator.PostApplicationStartMethod(typeof(SimpleInjectorInitializer), "Initialize")]
 
 namespace Juza.Magic
 {
@@ -39,7 +37,16 @@ namespace Juza.Magic
             container.Options.DefaultScopedLifestyle = new WebRequestLifestyle();
 
             container.RegisterSingleton(app);
-            container.RegisterPerWebRequest<IDbContext, MagicDbContext>();
+
+            // Data Access
+            container.Register<MagicDbContext>(new WebRequestLifestyle());
+            container.RegisterPerWebRequest<IDbContext>(() => container.GetInstance<MagicDbContext>());
+
+            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<GameHub, IGameHub>(), Lifestyle.Singleton);
+            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
+            //container.Register<IPathProvider, PathProvider>();
+            //container.Register<IFileHandler, FileHandler>();
+            container.Register<ICardService, CardService>();
 
             // ASP.Net Identity
             container.RegisterPerWebRequest<IRoleStore<Role, int>>(() => new RoleStore<Role, int, UserRole>(container.GetInstance<MagicDbContext>()));
@@ -83,5 +90,9 @@ namespace Juza.Magic
 
             return container;
         }
+        //private void RegisterHubs()
+        //{
+        //    var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof(Hub)));
+        //}
     }
 }
