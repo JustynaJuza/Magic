@@ -14,50 +14,50 @@ namespace Magic.Models.DataContext
 {
     public interface IDbContext
     {
-        TEntity Read<TEntity, TKey>(TKey id)
-            where TEntity : class
-            where TKey : struct;
+        //TEntity Read<TEntity, TKey>(TKey id)
+        //    where TEntity : class
+        //    where TKey : struct;
 
-        TEntity Read<TEntity, TKey>(TKey id, out string errorText)
-            where TEntity : class
-            where TKey : struct;
+        //TEntity Read<TEntity, TKey>(TKey id, out string errorText)
+        //    where TEntity : class
+        //    where TKey : struct;
 
-        TEntity Read<TEntity>(TEntity entity)
-            where TEntity : class;
+        //TEntity Read<TEntity>(TEntity entity)
+        //    where TEntity : class;
 
-        bool Insert<TEntity>(TEntity entity, bool withSave = false)
-            where TEntity : class;
+        //bool Insert<TEntity>(TEntity entity, bool withSave = false)
+        //    where TEntity : class;
 
-        bool Insert<TEntity>(TEntity entity, out string errorText, bool withSave = false)
-            where TEntity : class;
+        //bool Insert<TEntity>(TEntity entity, out string errorText, bool withSave = false)
+        //    where TEntity : class;
 
-        bool InsertWithSave<TEntity>(TEntity entity)
-            where TEntity : class;
+        //bool InsertWithSave<TEntity>(TEntity entity)
+        //    where TEntity : class;
 
-        /// <summary>
-        /// Updates an existing entity with the same Id in the context or inserts it as a new entity if none is found with the same Id.
-        /// Enable the updateOnly flag if there is no need for searching for an existing entity (existing entity is already attached to the context).
-        /// </summary>
-        /// <typeparam name="TEntity">Type of the entity to be updated.</typeparam>
-        /// <param name="item">The entity to be updated.</param>
-        /// <param name="updateOnly">Optional flag for applying updates to an existing entity only but without attaching the entity to the context.</param>
-        bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
-            where TEntity : class;
+        ///// <summary>
+        ///// Updates an existing entity with the same Id in the context or inserts it as a new entity if none is found with the same Id.
+        ///// Enable the updateOnly flag if there is no need for searching for an existing entity (existing entity is already attached to the context).
+        ///// </summary>
+        ///// <typeparam name="TEntity">Type of the entity to be updated.</typeparam>
+        ///// <param name="item">The entity to be updated.</param>
+        ///// <param name="updateOnly">Optional flag for applying updates to an existing entity only but without attaching the entity to the context.</param>
+        //bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
-            where TEntity : class;
+        //bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
-            where TEntity : class;
+        //bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class;
+        //bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class;
+        //bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class;
 
-        bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
-            where TEntity : class;
+        //bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
+        //    where TEntity : class;
 
         DbSet<TEntity> Query<TEntity>()
             where TEntity : class;
