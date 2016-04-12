@@ -202,9 +202,17 @@
     <Compile Include="App_Start\SignalRConfig.cs" />
     <Compile Include="App_Start\SimpleInjectorInitializer.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\CardsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ChatLogsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
+    <Compile Include="Areas\Admin\Controllers\PlayersController.cs" />
+    <Compile Include="Areas\Admin\Controllers\SuccessResult.cs" />
+    <Compile Include="Areas\Admin\Models\UserViewModels.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -213,6 +221,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Admin\Scripts\_admin.js" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -229,6 +238,30 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Areas\Admin\Views\Cards\CreateOrEdit.cshtml" />
+    <Content Include="Areas\Admin\Views\Cards\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Cards\_CardDisplayPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\ChatLogs\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\ChatLogs\Messages.cshtml" />
+    <Content Include="Areas\Admin\Views\Emails\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Emails\Registration.cshtml" />
+    <Content Include="Areas\Admin\Views\Home\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\DisplayTemplates\CardManaCost.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\DisplayTemplates\CardType.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\AnimationFrame.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\Card.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\FormPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\ImageUpload.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\IntroPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\PicturePanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\PictureTile.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\Relation_Friend.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\RemoveCross.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\SimpleTile.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\EditorTemplates\VideoPanel.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\Admin\Views\web.config" />
+    <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
     <None Include="Scripts\jquery-2.2.2.intellisense.js" />
     <Content Include="Config\connectionStrings.config">
       <SubType>Designer</SubType>

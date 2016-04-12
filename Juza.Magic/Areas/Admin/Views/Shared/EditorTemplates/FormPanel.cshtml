@@ -1,0 +1,103 @@
+﻿@model Autographer.Models.LandingPages.FormPanel
+
+<div class="alternativePanel2">
+    <div class="narrow-container">
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.Type)
+
+        <header class="with_A_divider">
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.Title)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.Title)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(x => x.Title, new { @class = "textarea" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.Description)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.Description)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(x => x.Description, new { @class = "textarea" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.Description)
+            </div>
+        </header>
+        
+        <div style="border:solid black 1px; margin-bottom: 10px">
+
+            <label class="form-label">Sign Up</label>
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.InterestCode)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.InterestCode)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.InterestCode, new { placeholder = "Interest Code" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.InterestCode)
+            </div>
+
+            <div class="property-editor">
+                <div class="display-default">
+                    @Html.LabelFor(m => m.CampaignCode)
+                </div>
+                <div class="display-field">
+                    @Html.DisplayFor(m => m.CampaignCode)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.CampaignCode, new { placeholder = "Campaign Code" })
+                    <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                </div>
+                @Html.ValidationMessageFor(m => m.CampaignCode)
+            </div>
+        </div>
+
+            <div style="border:solid black 1px">
+                <label class="form-label">Send To Friend</label>
+                <strong>
+                    <div class="property-editor">
+                        <div class="display-default">
+                            @Html.LabelFor(m => m.SendToFriendSubject)
+                        </div>
+                        <div class="display-field">
+                            @Html.DisplayFor(m => m.SendToFriendSubject)
+                        </div>
+                        <div class="editor-field">
+                            @Html.TextBoxFor(m => m.SendToFriendSubject, new { placeholder = "Email share: Subject" })
+                            <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                        </div>
+                        @Html.ValidationMessageFor(m => m.SendToFriendSubject)
+                    </div>
+                </strong>
+
+                <div class="property-editor">
+                    <div class="display-default">
+                        @Html.LabelFor(m => m.SendToFriendBody)
+                    </div>
+                    <div class="display-field">
+                        @Html.DisplayFor(m => m.SendToFriendBody)
+                    </div>
+                    <div class="editor-field">
+                        @Html.TextBoxFor(m => m.SendToFriendBody, new { placeholder = "Email share: Text" })
+                        <input type="button" class="confirm-edit btn btn-info" value="OK!" />
+                    </div>
+                    @Html.ValidationMessageFor(m => m.SendToFriendBody)
+                </div>
+            </div>
+        </div>
+</div>

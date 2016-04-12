@@ -1,0 +1,6 @@
+@model CardManaCost
+
+@for (var i = 0; i < Model.Cost; i++)
+{
+    <img src="@Url.Content("~/Content/Images/color-" + Model.ColorId + ".png")" style="margin: 1px; border: 1px solid #000" />
+}

@@ -1,0 +1,95 @@
+@model IEnumerable<Card>
+
+@{
+    ViewBag.ModelTypeName = ViewData.ModelMetadata.ModelType.GenericTypeArguments[0].Name.ToLower();
+    ViewBag.Title = "All your " + ViewBag.ModelTypeName + "s";
+}
+
+<style>
+    #info-cards {
+        display: none;
+    }
+</style>
+
+
+
+<div>
+    @Html.ActionLink("Add new " + (string)ViewBag.ModelTypeName, "Create", null, new { @class = "btn btn-primary" })
+
+    <input type="text" id="fetch-set-name" placeholder="Type set id..." />
+    <input type="button" id="fetch-set-submit" class="btn btn-default" value="Fetch selected set (external request)" />
+    <div id="fetch-set-info">
+        <p id="info-cards">
+            Cards processed: <span id="info-cards-processed">0</span>/<span id="info-cards-total">0</span>
+        </p>
+    </div>
+    
+</div>
+
+<script>
+var dataTableVariables =
+{
+    editLink : '@Html.ActionLink("Edit", "Edit", new { id = "itemId" })',
+    deleteLink : '@Html.ActionLink("Delete", "Delete", new { id = "itemId" }, new { id = "delete-itemId" })'
+}
+</script>
+
+<table id="cms_listing" class="dataTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(m => m.SetId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Rarity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Types)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.ConvertedManaCost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Colors)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @*@foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SetId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.EnumDisplayFor(modelItem => item.Rarity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Types)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConvertedManaCost)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Colors)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { id = "delete-" + item.Id })
+                </td>
+            </tr>
+        }*@
+    </tbody>
+    <tfoot></tfoot>
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/Areas/Admin/Scripts/_admin.js")
+}

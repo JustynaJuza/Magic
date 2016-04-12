@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Magic.Models.Chat.ChatMessage>
+
+@{
+    ViewBag.Title = "View messages";
+}
+
+<h2>Message Log</h2>
+@Html.Partial("_MessagePartial")
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Date")
+            </th>
+            <th>
+                @Html.DisplayName("Sender")
+            </th>
+            <th>
+                @Html.DisplayName("Message")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimeSend)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sender.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Message)
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "ChatMessageDelete", item)
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot></tfoot>
+</table>
