@@ -10,18 +10,17 @@ namespace Juza.Magic.Models.DataContext
     {
         internal static void ConfigureModelBuilder(System.Data.Entity.DbModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<IdentityUser>().ToTable("Users");
-            //modelBuilder.Entity<User>().ToTable("Users");
-            //modelBuilder.Entity<IdentityUserRole>().ToTable("UserRoles");
-            //modelBuilder.Entity<IdentityUserLogin>().ToTable("UserLogins");
-            //modelBuilder.Entity<IdentityUserClaim>().ToTable("UserClaims");
-            //modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<UserRole>().ToTable("UserRoles");
+            modelBuilder.Entity<UserLogin>().ToTable("UserLogins");
+            modelBuilder.Entity<UserClaim>().ToTable("UserClaims");
+            modelBuilder.Entity<Role>().ToTable("Roles");
 
             modelBuilder.Entity<Card>().Property(c => c.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<User>().Property(u => u.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<ChatLog>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             modelBuilder.Entity<UserRelation>().Property(r => r.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-            modelBuilder.Entity<ChatMessage>().Property(m => m.TimeSend).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+            modelBuilder.Entity<ChatMessage>().Property(m => m.TimeSent).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             //modelBuilder.Entity<User>().HasRequired(u => u.Creator).WithMany();
 

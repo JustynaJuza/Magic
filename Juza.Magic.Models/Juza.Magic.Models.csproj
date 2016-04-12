@@ -105,7 +105,9 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountViewModels.cs" />
     <Compile Include="Attributes\NumberOfElementsAttribute.cs" />
+    <Compile Include="Attributes\BirthDateRangeAttribute.cs" />
     <Compile Include="Entities\Card.cs" />
     <Compile Include="Entities\CardAbility.cs" />
     <Compile Include="Entities\CardAvailableAbility.cs" />
@@ -157,6 +159,10 @@
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerCardDeck.cs" />
     <Compile Include="Entities\PlayerCard.cs" />
+    <Compile Include="Migrations\201604102259087_CreateDb.cs" />
+    <Compile Include="Migrations\201604102259087_CreateDb.Designer.cs">
+      <DependentUpon>201604102259087_CreateDb.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -165,6 +171,11 @@
     <Compile Include="Entities\UserConnection.cs" />
     <Compile Include="Entities\UserRelation.cs" />
     <Compile Include="UserViewModels.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201604102259087_CreateDb.resx">
+      <DependentUpon>201604102259087_CreateDb.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

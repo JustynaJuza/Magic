@@ -29,7 +29,7 @@ namespace Juza.Magic.Models.Entities.Chat
         public int Id { get; set; }
         public string LogId { get; set; }
         public string SenderId { get; set; }
-        public DateTime TimeSend { get; set; }
+        public DateTime TimeSent { get; set; }
         public string Message { get; set; }
         public virtual User Sender { get; set; }
         public virtual ChatLog Log { get; set; }
@@ -38,7 +38,6 @@ namespace Juza.Magic.Models.Entities.Chat
         // Constructor.
         public ChatMessage()
         {
-            TimeSend = DateTime.Now;
             Recipients = new List<ChatMessageNotification>();
         }
 
@@ -51,7 +50,7 @@ namespace Juza.Magic.Models.Entities.Chat
 
     public class ChatMessageViewModel : AbstractExtensions, IViewModel
     {
-        public DateTime? TimeSend { get; set; }
+        public DateTime? TimeSent { get; set; }
         public string Message { get; set; }
         public string SenderName { get; set; }
         public bool IsRead { get; set; }
@@ -60,7 +59,7 @@ namespace Juza.Magic.Models.Entities.Chat
         public ChatMessageViewModel() { }
         public ChatMessageViewModel(ChatMessage message)
         {
-            TimeSend = message.TimeSend;
+            TimeSent = message.TimeSent;
             Message = message.Message;
             SenderName = message.Sender.UserName;
         }
