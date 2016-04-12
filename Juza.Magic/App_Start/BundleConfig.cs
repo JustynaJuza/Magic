@@ -22,10 +22,9 @@ namespace Juza.Magic
                         "~/Scripts/_ajax-loading.js"));
             
             bundles.Add(new ScriptBundle("~/bundles/jquerydatatables").Include(
-                      "~/Scripts/jquery.datatables/jquery.dataTables*",
-                      "~/Scripts/jquery.datatables/dataTables.bootstrap*",
-                      "~/Scripts/jquery.datatables/dataTables.jqueryui*",
-                      "~/Scripts/jquery.datatables/_datatables-init.js"));
+                      "~/Scripts/DataTables/jquery.dataTables*",
+                      "~/Scripts/DataTables/dataTables.bootstrap*",
+                      "~/Scripts/DataTables/dataTables.jqueryui*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js",
@@ -41,10 +40,10 @@ namespace Juza.Magic
                       "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/jquerydatatables").IncludeDirectory(
-                      "~/Content/jquery.datatables", "*.css"));
+                      "~/Content/DataTables/css", "*.css"));
 
             bundles.Add(new StyleBundle("~/Content/jqueryui").IncludeDirectory(
-                        "~/Content/jquery.ui", "*.css"));
+                        "~/Content/themes/base", "*.css"));
         }
     }
 }
