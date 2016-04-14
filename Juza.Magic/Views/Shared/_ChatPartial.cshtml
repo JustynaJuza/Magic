@@ -1,0 +1,50 @@
+﻿@using Magic.Hubs;
+@using Magic.Models.Chat
+@using Microsoft.AspNet.Identity
+
+<div id="chat-header-bar">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
+    }
+    <h3 id="chat-header">
+        Hello@{ if (User.Identity.IsAuthenticated)
+         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+    </h3>
+</div>
+
+<div class="chat container">
+    <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />
+
+    <div id="chat-rooms-container">
+        @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId, isPrivate = false });}
+        @foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
+        {
+            Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
+        }
+
+        <div id="user-profile-tooltip-container"></div>
+    </div>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="chat-message-new-container container">
+            <input id="chat-message-new" class="form-control" type="text" />
+            <input id="chat-message-send-btn" class="btn btn-primary" type="button" value="Send" />
+        </div>
+    }
+</div>
+
+@*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
+<script>
+    window.basePath = '@VirtualPathUtility.ToAbsolute("~/")';
+</script>
+@Scripts.Render("~/Scripts/_chat.js")
+@*@section additionalHeaderScriptsAndStyles
+    {
+        @Scripts.Render("~/bundles/jquerysignalR")
+        @Scripts.Render("~/signalr/hubs")
+        @Scripts.Render("~/Scripts/_hub-start.js")
+        @Scripts.Render("~/Scripts/_chat.js")
+    }*@
+

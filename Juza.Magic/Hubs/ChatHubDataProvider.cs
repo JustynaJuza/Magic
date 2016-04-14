@@ -4,7 +4,6 @@ using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
-using Magic.Hubs;
 using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
