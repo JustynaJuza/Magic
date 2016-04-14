@@ -1,8 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Juza.Magic.Models.Entities;
+﻿using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
-using Microsoft.AspNet.Identity.EntityFramework;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Juza.Magic.Models.DataContext
 {
@@ -99,11 +98,12 @@ namespace Juza.Magic.Models.DataContext
 
             modelBuilder.Entity<ChatMessage>().HasKey(m => new { m.Id, m.LogId });
             modelBuilder.Entity<ChatMessage>().Property(m => m.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            modelBuilder.Entity<ChatMessage>().HasRequired(m => m.Sender).WithMany().HasForeignKey(m => m.SenderId);
             modelBuilder.Entity<ChatMessage>().HasRequired(m => m.Log).WithMany(l => l.Messages).HasForeignKey(m => m.LogId);
 
             modelBuilder.Entity<ChatMessageNotification>().HasKey(mn => new { mn.MessageId, mn.LogId, mn.RecipientId });
             modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(mn => mn.RecipientId);
-            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Message).WithMany(m => m.Recipients).HasForeignKey(mn => new { mn.MessageId, mn.LogId });
+            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Message).WithMany(m => m.Recipients).HasForeignKey(mn => new { mn.MessageId, mn.LogId }).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<ChatRoom>().HasOptional(r => r.Log).WithOptionalDependent();
         }

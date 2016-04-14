@@ -172,7 +172,7 @@ namespace Juza.Magic.Models.Migrations
                         IsRead = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => new { t.MessageId, t.LogId, t.RecipientId })
-                .ForeignKey("dbo.ChatMessages", t => new { t.MessageId, t.LogId }, cascadeDelete: true)
+                .ForeignKey("dbo.ChatMessages", t => new { t.MessageId, t.LogId })
                 .ForeignKey("dbo.Users", t => t.RecipientId, cascadeDelete: true)
                 .Index(t => new { t.MessageId, t.LogId })
                 .Index(t => t.RecipientId);
@@ -183,15 +183,15 @@ namespace Juza.Magic.Models.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         LogId = c.String(nullable: false, maxLength: 128),
-                        SenderId = c.String(),
+                        SenderId = c.Int(nullable: false),
                         TimeSent = c.DateTime(nullable: false),
                         Message = c.String(),
                     })
                 .PrimaryKey(t => new { t.Id, t.LogId })
                 .ForeignKey("dbo.ChatLogs", t => t.LogId, cascadeDelete: true)
-                .ForeignKey("dbo.Users", t => t.Id, cascadeDelete: true)
-                .Index(t => t.Id)
-                .Index(t => t.LogId);
+                .ForeignKey("dbo.Users", t => t.SenderId, cascadeDelete: true)
+                .Index(t => t.LogId)
+                .Index(t => t.SenderId);
             
             CreateTable(
                 "dbo.ChatLogs",
@@ -243,7 +243,7 @@ namespace Juza.Magic.Models.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.GamePlayerStatuseses",
+                "dbo.GamePlayerStatus",
                 c => new
                     {
                         UserId = c.Int(nullable: false),
@@ -269,7 +269,7 @@ namespace Juza.Magic.Models.Migrations
                 .PrimaryKey(t => new { t.UserId, t.GameId })
                 .ForeignKey("dbo.Games", t => t.GameId)
                 .ForeignKey("dbo.Users", t => t.UserId)
-                .ForeignKey("dbo.GamePlayerStatuseses", t => new { t.UserId, t.GameId }, cascadeDelete: true)
+                .ForeignKey("dbo.GamePlayerStatus", t => new { t.UserId, t.GameId }, cascadeDelete: true)
                 .Index(t => t.UserId)
                 .Index(t => new { t.UserId, t.GameId })
                 .Index(t => t.GameId);
@@ -502,8 +502,8 @@ namespace Juza.Magic.Models.Migrations
             DropForeignKey("dbo.UserLogins", "UserId", "dbo.Users");
             DropForeignKey("dbo.UserConnections", "UserId", "dbo.Users");
             DropForeignKey("dbo.UserConnections", "GameId", "dbo.Games");
-            DropForeignKey("dbo.GamePlayerStatuses", "UserId", "dbo.Users");
-            DropForeignKey("dbo.Players", new[] { "UserId", "GameId" }, "dbo.GamePlayerStatuses");
+            DropForeignKey("dbo.GamePlayerStatus", "UserId", "dbo.Users");
+            DropForeignKey("dbo.Players", new[] { "UserId", "GameId" }, "dbo.GamePlayerStatus");
             DropForeignKey("dbo.Players", "UserId", "dbo.Users");
             DropForeignKey("dbo.Players", "GameId", "dbo.Games");
             DropForeignKey("dbo.PlayerCardDecks", new[] { "Player_UserId", "Player_GameId" }, "dbo.Players");
@@ -511,11 +511,11 @@ namespace Juza.Magic.Models.Migrations
             DropForeignKey("dbo.PlayerCards", new[] { "UserId", "GameId" }, "dbo.Players");
             DropForeignKey("dbo.PlayerCards", new[] { "DeckId", "UserId", "GameId" }, "dbo.PlayerCardDecks");
             DropForeignKey("dbo.PlayerCards", "CardId", "dbo.Cards");
-            DropForeignKey("dbo.GamePlayerStatuses", "GameId", "dbo.Games");
+            DropForeignKey("dbo.GamePlayerStatus", "GameId", "dbo.Games");
             DropForeignKey("dbo.UserClaims", "UserId", "dbo.Users");
             DropForeignKey("dbo.ChatMessageNotifications", "RecipientId", "dbo.Users");
             DropForeignKey("dbo.ChatMessageNotifications", new[] { "MessageId", "LogId" }, "dbo.ChatMessages");
-            DropForeignKey("dbo.ChatMessages", "Id", "dbo.Users");
+            DropForeignKey("dbo.ChatMessages", "SenderId", "dbo.Users");
             DropForeignKey("dbo.ChatMessages", "LogId", "dbo.ChatLogs");
             DropForeignKey("dbo.CardDeckManaColors", "ManaColor_Id", "dbo.ManaColors");
             DropForeignKey("dbo.CardDeckManaColors", "CardDeck_Id", "dbo.CardDecks");
@@ -563,13 +563,13 @@ namespace Juza.Magic.Models.Migrations
             DropIndex("dbo.Players", new[] { "GameId" });
             DropIndex("dbo.Players", new[] { "UserId", "GameId" });
             DropIndex("dbo.Players", new[] { "UserId" });
-            DropIndex("dbo.GamePlayerStatuses", new[] { "GameId" });
-            DropIndex("dbo.GamePlayerStatuses", new[] { "UserId" });
+            DropIndex("dbo.GamePlayerStatus", new[] { "GameId" });
+            DropIndex("dbo.GamePlayerStatus", new[] { "UserId" });
             DropIndex("dbo.UserConnections", new[] { "GameId" });
             DropIndex("dbo.UserConnections", new[] { "UserId" });
             DropIndex("dbo.UserClaims", new[] { "UserId" });
+            DropIndex("dbo.ChatMessages", new[] { "SenderId" });
             DropIndex("dbo.ChatMessages", new[] { "LogId" });
-            DropIndex("dbo.ChatMessages", new[] { "Id" });
             DropIndex("dbo.ChatMessageNotifications", new[] { "RecipientId" });
             DropIndex("dbo.ChatMessageNotifications", new[] { "MessageId", "LogId" });
             DropIndex("dbo.Users", "UserNameIndex");
@@ -596,7 +596,7 @@ namespace Juza.Magic.Models.Migrations
             DropTable("dbo.PlayerCards");
             DropTable("dbo.PlayerCardDecks");
             DropTable("dbo.Players");
-            DropTable("dbo.GamePlayerStatuses");
+            DropTable("dbo.GamePlayerStatus");
             DropTable("dbo.Games");
             DropTable("dbo.UserConnections");
             DropTable("dbo.UserClaims");

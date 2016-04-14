@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Juza.Magic.Models.Extensions;
+﻿using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace Juza.Magic.Models.Entities.Chat
 {
@@ -15,7 +15,8 @@ namespace Juza.Magic.Models.Entities.Chat
         public ChatMessage Message { get; set; }
         public User Recipient { get; set; }
 
-        public ChatMessageNotification() {
+        public ChatMessageNotification()
+        {
             IsRead = false;
         }
         public ChatMessageNotification(bool isRead)
@@ -28,7 +29,7 @@ namespace Juza.Magic.Models.Entities.Chat
     {
         public int Id { get; set; }
         public string LogId { get; set; }
-        public string SenderId { get; set; }
+        public int SenderId { get; set; }
         public DateTime TimeSent { get; set; }
         public string Message { get; set; }
         public virtual User Sender { get; set; }

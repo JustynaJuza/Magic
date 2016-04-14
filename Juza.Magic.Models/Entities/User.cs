@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using Juza.Magic.Models.Entities.Chat;
+﻿using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Juza.Magic.Models.Entities
 {
-    public enum SystemRole
+    public enum InternalRole
     {
         Developer,
         Admin

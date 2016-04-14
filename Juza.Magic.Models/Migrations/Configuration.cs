@@ -1,11 +1,10 @@
-using System;
-using System.Data.Entity.Migrations;
-using System.Linq;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
-using Microsoft.AspNet.Identity.EntityFramework;
+using System;
+using System.Data.Entity.Migrations;
+using System.Linq;
 
 namespace Juza.Magic.Models.Migrations
 {
@@ -67,7 +66,7 @@ namespace Juza.Magic.Models.Migrations
                 });
             }
 
-            foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            foreach (var role in Enum.GetValues(typeof(InternalRole)).Cast<InternalRole>())
             {
                 var roleName = role.ToString();
                 var existingRole = context.Roles.FirstOrDefault(r => r.Name == roleName);
