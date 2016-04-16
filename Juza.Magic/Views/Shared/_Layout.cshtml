@@ -14,8 +14,8 @@
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquerysignalR")
     @*@Scripts.Render("~/Scripts/underscore.js")*@
-    @Scripts.Render("~/Scripts/_helpers.js")
-    @Scripts.Render("~/signalr/hubs")
+    @*@Scripts.Render("~/Scripts/_helpers.js")
+    @Scripts.Render("~/signalr/hubs")*@
 
     @RenderSection("additionalHeaderScriptsAndStyles", required: false)
 
@@ -40,10 +40,9 @@
     @{ Html.RenderPartial("_NavBarPartial"); }
 
 <div class="container body-content">
-    <script>
-        window.basePath = '@PathHelper.GetAppBaseUrl()';
-    </script>
+    
     @RenderBody()
+
     <hr/>
     <div class="row">
         <div class="col-md-10">
@@ -54,7 +53,14 @@
         <p>&copy; @DateTime.Now.Year Justyna</p>
     </footer>
 </div>
-    @Scripts.Render("~/Scripts/_hub-start.js")
+
+<script src="~/Scripts/require.js"></script>
+<script>
+    window.basePath = '@PathHelper.GetAppBaseUrl()';
+    @Html.RequireScriptsForCurrentRoute();
+</script>
+
+    @*@Scripts.Render("~/Scripts/_hub-start.js")*@
     @RenderSection("scripts", required: false)
 </body>
 </html>

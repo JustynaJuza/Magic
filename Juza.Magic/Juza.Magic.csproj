@@ -216,6 +216,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\RequireJsHelpers.cs" />
     <Compile Include="Helpers\FileHandler.cs" />
     <Compile Include="Helpers\PathProvider.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
@@ -412,6 +413,8 @@
     </Content>
     <Content Include="Content\DataTables\css\mixins.scss" />
     <Content Include="Content\DataTables\css\common.scss" />
+    <Content Include="Scripts\requireConfig.js" />
+    <Content Include="Scripts\views\home\index.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.js" />
