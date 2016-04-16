@@ -1,0 +1,38 @@
+@using Magic.Helpers
+
+@Styles.Render("~/Content/_upload-dialog.css")
+
+<div id="uploader-overlay" class="overlay"></div>
+
+<div id="uploader" class="dialog">
+
+    <div class="dialog-title">
+        <span class="dialog-name"></span>
+        <div>
+            <span class="dialog-control dialog-close-btn uploader-close-btn">x</span>
+            @*<span class="dialog-control dialog-close-btn uploader-close-btn">_</span>*@
+        </div>
+    </div>
+
+    <div class="dialog-content">
+
+        <span id="uploader-file-overlay" class="uploader-default btn"></span>
+        <input type="file" id="uploader-file" class="hidden" />
+        <input type="hidden" id="uploader-property-id" value="" />
+
+        <div id="uploader-progress">
+            <div id="uploader-progress-bar"></div>
+        </div>
+
+        <input type="button" class="dialog-close-btn uploader-close-btn" value="Cancel" />
+        <input type="button" class="dialog-close-btn uploader-close-btn" value="Ok" />
+
+    </div>
+</div>
+
+<script>
+    var uploadPath = '@ViewData["uploadPath"]';
+    var placeholderImage = '@Html.GetPlaceholder()';
+</script>
+
+@Scripts.Render("~/Scripts/_file-uploader.js")

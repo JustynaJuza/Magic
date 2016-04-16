@@ -1,5 +1,5 @@
+@using Juza.Magic.Helpers
 @model string
-@using Magic.Helpers
 
 <div class="upload image-upload">
     <img src="@(String.IsNullOrWhiteSpace(Model) ? Html.GetPlaceholder() : Url.Content(Model))" alt="" id="img-@Html.GetIdFor(m => m)" />

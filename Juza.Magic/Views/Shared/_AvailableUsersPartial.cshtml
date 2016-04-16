@@ -1,0 +1,91 @@
+﻿@using Magic.Hubs
+@using Microsoft.AspNet.Identity
+
+<style>
+    .dialog {
+        width: 200px;
+        height: auto;
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: #ffffff;
+        z-index: 100;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+    }
+
+    .overlay {
+        position: fixed;
+        z-index: 99;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: #000000;
+        overflow: hidden;
+        -moz-filter: alpha(opacity=10);
+        -o-filter: alpha(opacity=10);
+        -webkit-filter: alpha(opacity=10);
+        -ms-opacity: 0.1;
+        filter: alpha(opacity=10);
+        opacity: 0.1;
+        display: none;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin: 2px 5px 0 0;
+    }
+
+    .available-chat-user {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        height: 25px;
+        padding: 0 0 0 5px;
+        cursor: pointer
+    }
+
+    .toggle {
+        background-color: #fbfbfb;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+    }
+
+    #available-chat-users {
+        text-overflow: ellipsis;
+        margin: 10px 10px;
+        text-align: left;
+        padding: 10px 0 0 0;
+    }
+
+    #available-users {
+        overflow-x: hidden;
+        overflow-y: auto;
+        white-space: nowrap;
+    }
+
+    .zero-size {
+        width: 0;
+        height: 0;
+    }
+</style>
+
+<div id="available-users-overlay" class="overlay"></div>
+
+<div id="available-users" class="dialog zero-size">
+    @*<span id="available-users-close-btn" class="close-btn">X</span>*@
+    <ul id="available-chat-users" class="chat-room-users">
+        @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
+        {
+            <li class="available-chat-user display-name" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
+        }
+    </ul>
+    <span id="available-users-confirm-btn" class="btn btn-default">Create group</span>
+</div>
