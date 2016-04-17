@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Juza.Magic.Models
 {
@@ -67,6 +63,11 @@ namespace Juza.Magic.Models
 
     public class RegisterViewModel
     {
+        [Required]
+        [StringLength(25, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]
+        [Display(Name = "Player")]
+        public string UserName { get; set; }
+
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
