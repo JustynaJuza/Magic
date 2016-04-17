@@ -20,7 +20,10 @@ namespace Juza.Magic
             bundles.Add(new ScriptBundle("~/bundles/jqueryajax").Include(
                         "~/Scripts/jquery.unobtrusive-ajax*",
                         "~/Scripts/_ajax-loading.js"));
-            
+
+            bundles.Add(new ScriptBundle("~/bundles/jquerysignalr").Include(
+                        "~/Scripts/jquery.signalR-{version}.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jquerydatatables").Include(
                       "~/Scripts/DataTables/jquery.dataTables*",
                       "~/Scripts/DataTables/dataTables.bootstrap*",

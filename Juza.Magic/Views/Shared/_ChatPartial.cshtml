@@ -9,7 +9,7 @@
     }
     <h3 id="chat-header">
         Hello@{ if (User.Identity.IsAuthenticated)
-         { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+            { <span id=user-name>@User.Identity.GetUserName()</span>} }!
     </h3>
 </div>
 
@@ -19,9 +19,9 @@
     <div id="chat-rooms-container">
         @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId, isPrivate = false });}
         @*@foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
-        {
-            Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
-        }*@
+            {
+                Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
+            }*@
 
         <div id="user-profile-tooltip-container"></div>
     </div>
@@ -39,15 +39,12 @@
 <script>
     window.basePath = '@VirtualPathUtility.ToAbsolute("~/")';
 </script>
-@Scripts.Render("~/bundles/jquerysignalR")
+
 @Scripts.Render("~/signalr/hubs")
-@Scripts.Render("~/Scripts/_hub-start.js")
-@Scripts.Render("~/Scripts/_chat.js")
-@*@section additionalHeaderScriptsAndStyles
-    {
-        @Scripts.Render("~/bundles/jquerysignalR")
-        @Scripts.Render("~/signalr/hubs")
-        @Scripts.Render("~/Scripts/_hub-start.js")
-        @Scripts.Render("~/Scripts/_chat.js")
-    }*@
+@Scripts.Render("~/Scripts/global/hub-start.js")
+@Scripts.Render("~/Scripts/global/chat.js")
+
+@section additionalHeaderScriptsAndStyles
+{
+}
 

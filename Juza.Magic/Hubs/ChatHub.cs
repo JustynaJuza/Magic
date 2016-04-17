@@ -19,7 +19,7 @@ namespace Juza.Magic.Hubs
         void updateChatRoomUsers(string chatUsersList, string roomId);
     }
 
-    [Authorize]
+    //[Authorize]
     public class ChatHub : Hub<IChatHub>
     {
         private readonly IDbContext _context;

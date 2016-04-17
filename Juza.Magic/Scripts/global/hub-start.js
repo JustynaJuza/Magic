@@ -1,6 +1,6 @@
 ﻿$(function () {
     // Start the hub connection if it's not running already.
-    if ($.connection.hub && $.connection.hub.state == 4) {
+    if ($.connection.hub && $.connection.hub.state === 4) {
         $.connection.hub.start().done(function () {
                 // If hub handling provided by previously loaded hub script, call initialization functions.
                 if (typeof window.chat != 'undefined') {
