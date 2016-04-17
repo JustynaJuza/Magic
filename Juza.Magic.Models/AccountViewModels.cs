@@ -48,9 +48,8 @@ namespace Juza.Magic.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Display(Name = "Player name")]
+        public string UserName { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -65,7 +64,7 @@ namespace Juza.Magic.Models
     {
         [Required]
         [StringLength(25, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]
-        [Display(Name = "Player")]
+        [Display(Name = "Player name")]
         public string UserName { get; set; }
 
         [Required]
