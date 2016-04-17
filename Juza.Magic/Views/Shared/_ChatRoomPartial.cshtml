@@ -1,6 +1,6 @@
-﻿@model Magic.Models.Chat.ChatRoomViewModel
-@using Magic.Hubs
-@using Magic.Models.Chat
+﻿@model ChatRoomViewModel
+@using Juza.Magic.Models.Entities.Chat
+@using Juza.Magic.Models.Enums
 
 <div id="room-@Model.Id" class="chat-room">
 
@@ -10,7 +10,7 @@
 
         if (colorIsUndefined)
         {
-            var gradientChangeSpacing = 100 / Model.Users.Count;
+            var gradientChangeSpacing = 100 / Model.Users.Count();
             var colorCodes = Model.Users.ElementAt(0).ColorCode + " " + (gradientChangeSpacing / 2) + "%";
             for (var i = 1; i < Model.Users.Count(); i++)
             {
@@ -67,7 +67,7 @@
                 @foreach (var message in Model.Log.Messages)
                 {
                     <li class="chat-message">
-                        @message.TimeSend.Value.ToString("HH:mm:ss")
+                        @message.TimeSent.Value.ToString("HH:mm:ss")
                         <span class="chat-message-sender display-name">@message.SenderName</span>
                         @message.Message
                     </li>

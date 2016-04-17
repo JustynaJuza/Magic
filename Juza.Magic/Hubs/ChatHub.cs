@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Helpers;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Helpers;
 
 namespace Juza.Magic.Hubs
 {
@@ -23,10 +23,10 @@ namespace Juza.Magic.Hubs
     public class ChatHub : Hub<IChatHub>
     {
         private readonly IDbContext _context;
-        private readonly IChatHubDataProvider _chatUserProvider;
+        private readonly IChatDataProvider _chatUserProvider;
 
         public ChatHub(IDbContext context,
-            IChatHubDataProvider chatUserProvider)
+            IChatDataProvider chatUserProvider)
         {
             _context = context;
             _chatUserProvider = chatUserProvider;

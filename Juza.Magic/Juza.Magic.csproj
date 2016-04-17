@@ -210,6 +210,7 @@
     <Compile Include="Areas\Admin\Controllers\SuccessResult.cs" />
     <Compile Include="Areas\Admin\Models\UserViewModels.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Areas\Admin\Controllers\UsersController.cs" />
@@ -221,12 +222,16 @@
     <Compile Include="Helpers\PathProvider.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
-    <Compile Include="Hubs\ChatHubDataProvider.cs" />
+    <Compile Include="Hubs\ChatDataProvider.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\DB.mdf" />
+    <Content Include="App_Data\DB_log.ldf">
+      <DependentUpon>DB.mdf</DependentUpon>
+    </Content>
     <Content Include="Areas\Admin\Scripts\_admin.js" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -504,13 +509,13 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
-    <Content Include="Scripts\_chat.js" />
-    <Content Include="Scripts\utilities\_file-uploader.js" />
-    <Content Include="Scripts\utilities\_hashNavigation.js" />
-    <Content Include="Scripts\_game.js" />
-    <Content Include="Scripts\_hub-start.js" />
+    <Content Include="Scripts\global\chat.js" />
+    <Content Include="Scripts\utilities\file-uploader.js" />
+    <Content Include="Scripts\utilities\hashNavigation.js" />
+    <Content Include="Scripts\global\game.js" />
+    <Content Include="Scripts\global\hub-start.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Scripts\utilities\_selectList.js" />
+    <Content Include="Scripts\utilities\selectList.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -546,10 +551,11 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_NavBarPartial.cshtml" />
+    <Content Include="Views\Shared\_ChatPartial.cshtml" />
+    <Content Include="Views\Shared\_AvailableUsersPartial.cshtml" />
+    <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />

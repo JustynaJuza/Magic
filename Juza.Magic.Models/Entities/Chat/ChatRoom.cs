@@ -60,7 +60,7 @@ namespace Juza.Magic.Models.Entities.Chat
 
         public IList<ChatUserViewModel> GetUserList()
         {
-            return IsPrivate ? Users.Select(u => new ChatUserViewModel(u.User)).ToList() 
+            return IsPrivate ? Users.Select(u => new ChatUserViewModel(u.User)).ToList()
                 : Connections.Distinct(new ChatRoomConnection_UserComparer()).Select(u => new ChatUserViewModel(u.User)).ToList();
         }
 
@@ -84,7 +84,7 @@ namespace Juza.Magic.Models.Entities.Chat
         public string TabColorCode { get; set; }
         public bool IsGameRoom { get; set; }
         public bool IsPrivate { get; set; }
-        public IList<ChatUserViewModel> Users { get; set; }
+        public IEnumerable<ChatUserViewModel> Users { get; set; }
         public ChatLogViewModel Log { get; set; }
 
         public ChatRoomViewModel()
@@ -94,14 +94,15 @@ namespace Juza.Magic.Models.Entities.Chat
             Users = new List<ChatUserViewModel>();
             Log = new ChatLogViewModel();
         }
-        public ChatRoomViewModel(ChatRoom room) {
+        public ChatRoomViewModel(ChatRoom room)
+        {
             Id = room.Id;
             Name = room.Name;
             IsGameRoom = room.IsGameRoom;
             IsPrivate = room.IsPrivate;
             TabColorCode = room.TabColorCode;
             Users = room.GetUserList();
-            Log = (room.Log != null ? (ChatLogViewModel) room.Log.GetViewModel() : new ChatLogViewModel());
+            Log = (room.Log != null ? (ChatLogViewModel)room.Log.GetViewModel() : new ChatLogViewModel());
         }
         public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
         {

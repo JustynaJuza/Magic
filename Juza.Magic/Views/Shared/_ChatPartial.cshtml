@@ -1,5 +1,5 @@
-﻿@using Magic.Hubs;
-@using Magic.Models.Chat
+﻿@using Juza.Magic.Hubs
+@using Juza.Magic.Models.Entities.Chat
 @using Microsoft.AspNet.Identity
 
 <div id="chat-header-bar">
@@ -18,10 +18,10 @@
 
     <div id="chat-rooms-container">
         @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId, isPrivate = false });}
-        @foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
+        @*@foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
         {
             Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
-        }
+        }*@
 
         <div id="user-profile-tooltip-container"></div>
     </div>
@@ -39,6 +39,9 @@
 <script>
     window.basePath = '@VirtualPathUtility.ToAbsolute("~/")';
 </script>
+@Scripts.Render("~/bundles/jquerysignalR")
+@Scripts.Render("~/signalr/hubs")
+@Scripts.Render("~/Scripts/_hub-start.js")
 @Scripts.Render("~/Scripts/_chat.js")
 @*@section additionalHeaderScriptsAndStyles
     {
