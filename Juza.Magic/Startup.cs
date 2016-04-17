@@ -9,6 +9,7 @@ namespace Juza.Magic
         public void Configuration(IAppBuilder app)
         {
             var container = SimpleInjectorInitializer.Initialize(app);
+            SignalRConfig.ConfigureSignalR(app, container);
             ConfigureAuth(app, container);
         }
     }

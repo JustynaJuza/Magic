@@ -1,38 +1,25 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 using Owin;
 using SimpleInjector;
 
-namespace Magic
+namespace Juza.Magic
 {
     public class SignalRConfig
     {
-        private class SignalRDependencyResolver : DefaultDependencyResolver
+        private class SimpleInjectorHubActivator : IHubActivator
         {
             private readonly Container _container;
 
-            public SignalRDependencyResolver(Container container)
+            public SimpleInjectorHubActivator(Container container)
             {
                 _container = container;
             }
 
-            public override object GetService(Type serviceType)
+            public IHub Create(HubDescriptor descriptor)
             {
-                try
-                {
-                    return _container.GetInstance(serviceType);
-                }
-                catch (ActivationException)
-                {
-                    return base.GetService(serviceType);
-                }
-            }
-
-            public override IEnumerable<object> GetServices(Type serviceType)
-            {
-                return _container.GetAllInstances(serviceType).Concat(base.GetServices(serviceType));
+                return (IHub)_container.GetInstance(descriptor.HubType);
             }
         }
 
@@ -53,19 +40,19 @@ namespace Magic
             GlobalHost.Configuration.KeepAlive = TimeSpan.FromSeconds(2);
         }
 
-        public static void ConfigureSignalR(IAppBuilder app)
+        public static void ConfigureSignalR(IAppBuilder app, Container container)
         {
             var config = new HubConfiguration
             {
                 EnableDetailedErrors = true
             };
-            AdjustConnectionTimeouts();
-            app.MapSignalR(config);
-        }
 
-        public static void ConfigureSignalRDependencyResolver(Container container)
-        {
-            GlobalHost.DependencyResolver = new SignalRDependencyResolver(container);
+            AdjustConnectionTimeouts();
+
+            app.MapSignalR(config);
+
+            var activator = new SimpleInjectorHubActivator(container);
+            GlobalHost.DependencyResolver.Register(typeof(IHubActivator), () => activator);
         }
     }
 }
