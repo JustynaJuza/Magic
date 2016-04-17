@@ -15,7 +15,7 @@ namespace Juza.Magic.Models.DataContext
         {
             return context.Set<TEntity>().Find(keyValues);
         }
-        
+
         public static IEntityLookup<TEntity> Read<TEntity>(this IDbContext context)
            where TEntity : class
         {
@@ -23,14 +23,17 @@ namespace Juza.Magic.Models.DataContext
             return entityLookup;
         }
 
-        private static TEntity FindOrFetchEntity<TEntity>(this IDbContext context, IEntityLookup<TEntity> entityLookup, params object[] keyValues)
+        private static TEntity FindOrFetchEntity<TEntity>(this IDbContext context, IEntityLookup<TEntity> entityLookup, params object[] keyValue)
            where TEntity : class
         {
-            if (context.Exists<TEntity>(keyValues))
+            // entity is already loaded in the context
+            if (context.Exists<TEntity>(keyValue))
             {
-                var localEntity = context.Set<TEntity>().Find(keyValues);
+                // get the entity's context entry
+                var localEntity = context.Set<TEntity>().Find(keyValue);
                 var contextEntry = context.Entry(localEntity);
 
+                // check if all includes are loaded and skip db call if everything required is already present
                 if (entityLookup.CollectionExpressions.All(memberExpression => contextEntry.Collection(memberExpression).IsLoaded)
                     && entityLookup.ReferenceExpressions.All(memberExpression => contextEntry.Reference(memberExpression).IsLoaded))
                 {
@@ -39,9 +42,18 @@ namespace Juza.Magic.Models.DataContext
 
             }
 
-            return entityLookup.CollectionExpressions.Aggregate(context.Set<TEntity>().AsQueryable(), (set, memberExpression) => set.Include(memberExpression))
-                .Concat(entityLookup.CollectionExpressions.Aggregate(context.Set<TEntity>().AsQueryable(), (set, memberExpression) => set.Include(memberExpression)))
-                .FirstOrDefault(EntityExtensions.MatchKey<TEntity>(keyValues));
+            var collectionsQuery = entityLookup.CollectionExpressions.Aggregate(
+                context.Set<TEntity>().AsQueryable(),
+                (set, memberExpression) => set.Include(memberExpression));
+            var referencesQuery = entityLookup.CollectionExpressions.Aggregate(
+                context.Set<TEntity>().AsQueryable(),
+                (set, memberExpression) => set.Include(memberExpression));
+
+            var keyPropertyNames = context.GetEntityKeyNames<TEntity>();
+
+            // if entity is not present in context or includes are missing make a new db call with everything included
+            return collectionsQuery.Concat(referencesQuery)
+                .FirstOrDefault(EntityExtensions.MatchKey<TEntity>(keyPropertyNames, keyValue));
         }
 
         //public static TEntity ReadWithIncluded<TEntity>(this IDbContext context, int id, params Expression<Func<TEntity, object>>[] includes)
