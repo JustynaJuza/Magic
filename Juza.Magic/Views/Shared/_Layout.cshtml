@@ -8,16 +8,7 @@
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/chat.css")
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryui")
-    @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/modernizr")
-    @Scripts.Render("~/bundles/jquerysignalR")
-    @*@Scripts.Render("~/Scripts/underscore.js")*@
-    @*@Scripts.Render("~/Scripts/_helpers.js")
-    @Scripts.Render("~/signalr/hubs")*@
-
-    @RenderSection("additionalHeaderScriptsAndStyles", required: false)
+    @*@Scripts.Render("~/bundles/modernizr")*@
 
 </head>
 <body>
@@ -39,28 +30,27 @@
 
     @{ Html.RenderPartial("_NavBarPartial"); }
 
-<div class="container body-content">
-    
-    @RenderBody()
+    <div class="container body-content">
 
-    <hr/>
-    <div class="row">
-        <div class="col-md-10">
-            @{Html.RenderPartial("_ChatPartial");}
+        @RenderBody()
+
+        <hr />
+        <div class="row">
+            <div class="col-md-10">
+                @{Html.RenderPartial("_ChatPartial");}
+            </div>
         </div>
+        <footer>
+            <p>&copy; @DateTime.Now.Year Justyna</p>
+        </footer>
     </div>
-    <footer>
-        <p>&copy; @DateTime.Now.Year Justyna</p>
-    </footer>
-</div>
 
-<script src="~/Scripts/require.js"></script>
+    <script src="~/Scripts/require.js"></script>
 <script>
     window.basePath = '@PathHelper.GetAppBaseUrl()';
     @Html.RequireScriptsForCurrentRoute()
 </script>
 
-    @*@Scripts.Render("~/Scripts/_hub-start.js")*@
     @RenderSection("scripts", required: false)
 </body>
 </html>

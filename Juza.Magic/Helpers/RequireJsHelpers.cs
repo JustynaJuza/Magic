@@ -5,7 +5,7 @@ namespace Juza.Magic.Helpers
 {
     public static class RequireJsHelpers
     {
-        public static MvcHtmlString Require(this HtmlHelper helper, string config, string module)
+        public static MvcHtmlString RequireScriptModule(this HtmlHelper helper, string module)
         {
             var scriptsPath = "/Scripts/";
             var requireConfigFile = "requireConfig.js";
@@ -30,7 +30,7 @@ namespace Juza.Magic.Helpers
             var action = helper.ViewContext.RouteData.Values["action"];
             var controller = helper.ViewContext.RouteData.Values["controller"];
 
-            return helper.Require("config.js", string.Format("views/{0}/{1}", controller, action));
+            return helper.RequireScriptModule(string.Format("views/{0}/{1}", controller, action));
         }
     }
 }

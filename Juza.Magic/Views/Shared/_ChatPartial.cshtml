@@ -1,4 +1,4 @@
-﻿@using Juza.Magic.Hubs
+﻿@using Juza.Magic.Helpers
 @using Juza.Magic.Models.Entities.Chat
 @using Microsoft.AspNet.Identity
 
@@ -36,15 +36,5 @@
 </div>
 
 @*----------------------------------------------------- SCRIPT -----------------------------------------------------*@
-<script>
-    window.basePath = '@VirtualPathUtility.ToAbsolute("~/")';
-</script>
-
-@Scripts.Render("~/signalr/hubs")
-@Scripts.Render("~/Scripts/global/hub-start.js")
-@Scripts.Render("~/Scripts/global/chat.js")
-
-@section additionalHeaderScriptsAndStyles
-{
-}
+@Html.RequireScriptModule("chat")
 
