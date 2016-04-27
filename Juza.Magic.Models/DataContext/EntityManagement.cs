@@ -1,10 +1,10 @@
+using Juza.Magic.Models.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.DataContext
 {
@@ -45,7 +45,7 @@ namespace Juza.Magic.Models.DataContext
             var collectionsQuery = entityLookup.CollectionExpressions.Aggregate(
                 context.Set<TEntity>().AsQueryable(),
                 (set, memberExpression) => set.Include(memberExpression));
-            var referencesQuery = entityLookup.CollectionExpressions.Aggregate(
+            var referencesQuery = entityLookup.ReferenceExpressions.Aggregate(
                 context.Set<TEntity>().AsQueryable(),
                 (set, memberExpression) => set.Include(memberExpression));
 
