@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Reflection;
-using System.Web;
-using System.Web.Mvc;
+using Juza.Magic.Hubs;
 using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
@@ -13,6 +10,10 @@ using SimpleInjector;
 using SimpleInjector.Advanced;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Web;
+using System.Web.Mvc;
 
 namespace Juza.Magic
 {
@@ -42,8 +43,9 @@ namespace Juza.Magic
             container.Register<MagicDbContext>(new WebRequestLifestyle());
             container.RegisterPerWebRequest<IDbContext>(() => container.GetInstance<MagicDbContext>());
 
-            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<GameHub, IGameHub>(), Lifestyle.Singleton);
-            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
+            // Hubs
+            RegisterHubs(container);
+
             //container.Register<IPathProvider, PathProvider>();
             //container.Register<IFileHandler, FileHandler>();
             container.Register<ICardService, CardService>();
@@ -90,9 +92,13 @@ namespace Juza.Magic
 
             return container;
         }
-        //private void RegisterHubs()
-        //{
-        //    var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof(Hub)));
-        //}
+
+        private static void RegisterHubs(Container container)
+        {
+            container.Register<IChatDataProvider, ChatDataProvider>();
+            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<GameHub, IGameHub>(), Lifestyle.Singleton);
+            //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
+            //var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof(Hub)));
+        }
     }
 }
