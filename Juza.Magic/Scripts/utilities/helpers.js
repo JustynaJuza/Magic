@@ -1,11 +1,4 @@
-﻿function htmlEncode(value) {
-    return (value ? jQuery('<div />').text(value).html() : '');
-}
-
-function htmlDecode(value) {
-    return (value ? $('<div />').html(value).text() : '');
-}
-
+﻿
 Array.prototype.equals = function (array) {
     if (!array)
         return false;
@@ -27,62 +20,76 @@ Array.prototype.equals = function (array) {
     return true;
 }
 
-function moveToScroll(element) {
-    var top = $(window).scrollTop() - $(element).offset().top;
-    //var left = 0.5 * $(document).outerWidth() - offset.left;
-    $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
-}
 
-function attachToThis(element, otherElement) {
-    var box = $(element)[0].getBoundingClientRect();
-    var left = box.left;
-    //var left = 0.5 * $(document).outerWidth() - offset.left;
-    var width = $(otherElement).outerWidth();
-    var x = left - 0.5 * width;
-    $(otherElement).css({ 'left': x + 'px' }); //, {'left': left + 'px'});
-}
+(function (helpers, $, undefined) {
 
-function animateScrollLeft(element) {
-    var overflow = element.scrollWidth - element.offsetWidth + 2;
-    $(element).animate({ scrollLeft: overflow }, 1625);
-}
+    helpers.htmlEncode = function (value) {
+        return (value ? jQuery('<div />').text(value).html() : '');
+    }
 
-function animateScrollRight(element) {
-    $(element).animate({ scrollLeft: 0 }, 1625);
-}
+    helpers.htmlDecode = function (value) {
+        return (value ? $('<div />').html(value).text() : '');
+    }
 
-function blink(element) {
-    $(element).fadeTo(500, 0.75);
-    $(element).fadeTo(500, 1);
-}
 
-//$(document).popover({
-//    selector: '.chat-user',
-//    container: '.chat',
-//    trigger: 'manual',
-//    html: true,
-//    content: function () {
-//        var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
-//        jQuery.ajaxSetup({
-//            async: false,
-//            traditional: true
-//        });
-//        $.get(url, { userName: $(this).text() }, function (htmlContent) {
-//            return htmlContent;
-//        });
-//    },
-//    title: function () {
-//        return 'Test';
-//    },
-//    placement: function (tip, element) {
-//        var offset = $(element).offset();
-//        height = $(document).outerHeight();
-//        width = $(document).outerWidth();
-//        vert = 0.5 * height - offset.top;
-//        vertPlacement = vert > 0 ? 'bottom' : 'top';
-//        horiz = 0.5 * width - offset.left;
-//        horizPlacement = horiz > 0 ? 'right' : 'left';
-//        placement = Math.abs(horiz) > Math.abs(vert) ? horizPlacement : vertPlacement;
-//        return placement;
-//    }
-//});
+    helpers.moveToScroll = function (element) {
+        var top = $(window).scrollTop() - $(element).offset().top;
+        //var left = 0.5 * $(document).outerWidth() - offset.left;
+        $(element).css({ 'top': top + 'px' }); //, {'left': left + 'px'});
+    }
+
+    helpers.attachToThis = function (element, otherElement) {
+        var box = $(element)[0].getBoundingClientRect();
+        var left = box.left;
+        //var left = 0.5 * $(document).outerWidth() - offset.left;
+        var width = $(otherElement).outerWidth();
+        var x = left - 0.5 * width;
+        $(otherElement).css({ 'left': x + 'px' }); //, {'left': left + 'px'});
+    }
+
+    helpers.animateScrollLeft = function (element) {
+        var overflow = element.scrollWidth - element.offsetWidth + 2;
+        $(element).animate({ scrollLeft: overflow }, 1625);
+    }
+
+    helpers.animateScrollRight = function (element) {
+        $(element).animate({ scrollLeft: 0 }, 1625);
+    }
+
+    helpers.blink = function (element) {
+        $(element).fadeTo(500, 0.75);
+        $(element).fadeTo(500, 1);
+    }
+
+    //$(document).popover({
+    //    selector: '.chat-user',
+    //    container: '.chat',
+    //    trigger: 'manual',
+    //    html: true,
+    //    content: function () {
+    //        var url = window.basePath + 'Chat/GetUserProfileTooltipPartial/';
+    //        jQuery.ajaxSetup({
+    //            async: false,
+    //            traditional: true
+    //        });
+    //        $.get(url, { userName: $(this).text() }, function (htmlContent) {
+    //            return htmlContent;
+    //        });
+    //    },
+    //    title: function () {
+    //        return 'Test';
+    //    },
+    //    placement: function (tip, element) {
+    //        var offset = $(element).offset();
+    //        height = $(document).outerHeight();
+    //        width = $(document).outerWidth();
+    //        vert = 0.5 * height - offset.top;
+    //        vertPlacement = vert > 0 ? 'bottom' : 'top';
+    //        horiz = 0.5 * width - offset.left;
+    //        horizPlacement = horiz > 0 ? 'right' : 'left';
+    //        placement = Math.abs(horiz) > Math.abs(vert) ? horizPlacement : vertPlacement;
+    //        return placement;
+    //    }
+    //});
+
+}(window.helpers = window.helpers || {}, jQuery));

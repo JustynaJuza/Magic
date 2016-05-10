@@ -1,4 +1,7 @@
 ﻿require.config({
+    // for development, prevent caching:
+    urlArgs: "refresh=" + (new Date()).getTime(),
+    
     baseUrl: '/Scripts/',
     paths: {
         jquery: 'jquery-2.2.3',
@@ -8,16 +11,30 @@
         moment: 'moment',
         lodash: 'lodash',
         signalr: 'jquery.signalR-2.2.0',
-        'signalr-hubs': '/signalr/hubs?',
-        'hub-start': 'global/hub-start',
-        chat: 'global/chat'
+        signalrHubs: '/signalr/hubs?',
+
+        helpers: 'utilities/helpers',
+
+        chat: 'global/chat/chat',
+        chatVariables: 'global/chat/chat.variables',
+        chatFunctionality: 'global/chat/chat.functionality',
+        chatHub: 'global/chat/chat.hub',
+        chatDisplay: 'global/chat/chat.display',
+        chatInteraction: 'global/chat/chat.interaction',
+
+        hubStart: 'global/hub-start'
     },
     shim: {
         jqueryValidate: ['jquery'],
         jqueryValidateUnobtrusive: ['jquery', 'jqueryValidate'],
         signalr: ['jquery'],
-        'signalr-hubs': ['signalr'],
-        chat: ['signalr-hubs', 'lodash'],
-        'hub-start': ['chat']
+        signalrHubs: ['signalr'],
+        chatVariables: ['jquery'],
+        chatHub: ['chatVariables', 'signalrHubs'],
+        chatInteraction: ['chatVariables', 'helpers'],
+        chatDisplay: ['chatVariables'],
+        chatFunctionality: ['chatVariables'],
+        chat: ['signalrHubs', 'lodash', 'chatVariables', 'chatFunctionality', 'chatHub', 'chatDisplay', 'chatInteraction'],
+        hubStart: ['signalrHubs', 'chat']
     }
 });

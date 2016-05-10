@@ -30,6 +30,8 @@
 
     @{ Html.RenderPartial("_NavBarPartial"); }
 
+    <script src="~/Scripts/require.js"></script>
+
     <div class="container body-content">
 
         @RenderBody()
@@ -44,12 +46,10 @@
             <p>&copy; @DateTime.Now.Year Justyna</p>
         </footer>
     </div>
-
-    <script src="~/Scripts/require.js"></script>
-<script>
-    window.basePath = '@PathHelper.GetAppBaseUrl()';
-    @Html.RequireScriptsForCurrentRoute()
-</script>
+    <script>
+        window.basePath = '@PathHelper.GetAppBaseUrl()';
+        @Html.RequireScriptsForCurrentRoute()
+    </script>
 
     @RenderSection("scripts", required: false)
 </body>

@@ -10,17 +10,17 @@ namespace Juza.Magic.Helpers
             var scriptsPath = "/Scripts/";
             var requireConfigFile = "requireConfig.js";
 
-            var isValidModule = File.Exists(
-                helper.ViewContext.HttpContext.Server.MapPath(Path.Combine(scriptsPath, module + ".js")));
+            //var isValidModule = File.Exists(
+            //    helper.ViewContext.HttpContext.Server.MapPath(Path.Combine(scriptsPath, module + ".js")));
 
-            var requireScript = isValidModule
-                    ? string.Format(@"require([""{0}{1}"" ], function() {{
+            var requireScript = //isValidModule
+                string.Format(@"require([""{0}{1}"" ], function() {{
                                         require([ ""{2}"" ]);
                                     }});",
-                                    scriptsPath,
-                                    requireConfigFile,
-                                    module)
-                    : string.Empty;
+                    scriptsPath,
+                    requireConfigFile,
+                    module);
+                    //: string.Empty;
 
             return new MvcHtmlString(requireScript);
         }
