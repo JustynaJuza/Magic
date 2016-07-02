@@ -43,6 +43,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=5.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.5.0.0\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Elmah, Version=1.2.14706.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\elmah.corelibrary.1.2.2\lib\Elmah.dll</HintPath>
       <Private>True</Private>
@@ -157,6 +161,13 @@
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerCardDeck.cs" />
     <Compile Include="Entities\PlayerCard.cs" />
+    <Compile Include="Mappings\ChatRoomProjections.cs" />
+    <Compile Include="Projections\AutoMapping.cs" />
+    <Compile Include="Projections\IMapping.cs" />
+    <Compile Include="Projections\MappingFactory.cs" />
+    <Compile Include="Projections\SingleMapping.cs" />
+    <Compile Include="Projections\TwoPartMapping.cs" />
+    <Compile Include="Extensions\ProjectionExtensions.cs" />
     <Compile Include="Migrations\201604102259087_CreateDb.cs" />
     <Compile Include="Migrations\201604102259087_CreateDb.Designer.cs">
       <DependentUpon>201604102259087_CreateDb.cs</DependentUpon>

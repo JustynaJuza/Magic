@@ -2,6 +2,7 @@ using Juza.Magic.Hubs;
 using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
@@ -40,8 +41,10 @@ namespace Juza.Magic
             container.RegisterSingleton(app);
 
             // Data Access
-            container.Register<MagicDbContext>(new WebRequestLifestyle());
+            container.RegisterPerWebRequest<MagicDbContext>();
             container.RegisterPerWebRequest<IDbContext>(() => container.GetInstance<MagicDbContext>());
+
+            RegisterMappings(container);
 
             // Hubs
             RegisterHubs(container);
@@ -100,5 +103,37 @@ namespace Juza.Magic
             //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
             //var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof(Hub)));
         }
+
+        private static void RegisterMappings(Container container)
+        {
+            //var mappingTypes = new[] { typeof(IMapping<,>), typeof(IQueryMapping<,>) };
+            //var mappingMethods = typeof(MappingFactory).GetMethods(BindingFlags.Static | BindingFlags.Public);
+
+            //var factoryMethods = mappingMethods
+            //    .Where(method => method.ReturnType.IsGenericType
+            //        && mappingTypes.Contains(method.ReturnType.GetGenericTypeDefinition()))
+            //    .Select(method => new
+            //    {
+            //        ServiceTypes = method.ReturnType.GetInterfaces().Concat(new[] { method.ReturnType }),
+            //        Method = new Func<object>(() => method.Invoke(null, null))
+            //    });
+
+            //foreach (var factoryMethod in factoryMethods)
+            //{
+            //    foreach (var serviceType in factoryMethod.ServiceTypes)
+            //    {
+            //        container.Register(serviceType, factoryMethod.Method);
+            //    }
+            //}
+
+            var assembliesWithMappings = new[] { typeof(MappingFactory).Assembly };
+            container.Register(typeof(IQueryMapping<,>), assembliesWithMappings);
+            container.Register(typeof(IMapping<,>), assembliesWithMappings);
+
+            // Let AutoMapper act as the default mapper
+            container.RegisterConditional(typeof(IQueryMapping<,>), typeof(DefaultAutoMapping<,>), x => !x.Handled);
+            container.RegisterConditional(typeof(IMapping<,>), typeof(DefaultAutoMapping<,>), x => !x.Handled);
+        }
+
     }
 }

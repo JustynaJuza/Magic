@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Juza.Magic.Models.DataContext;
+using Juza.Magic.Models.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
-using Juza.Magic.Models;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Entities;
 using SimpleInjector;
+using System;
 
 namespace Juza.Magic
 {
@@ -37,7 +36,7 @@ namespace Juza.Magic
                         regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
                         getUserIdCallback: claimsIdentity => claimsIdentity.GetUserId<int>())
                 }
-            });            
+            });
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.

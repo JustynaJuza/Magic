@@ -1,8 +1,8 @@
-using System;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Owin;
 using SimpleInjector;
+using System;
 
 namespace Juza.Magic
 {
@@ -19,7 +19,7 @@ namespace Juza.Magic
 
             public IHub Create(HubDescriptor descriptor)
             {
-                return (IHub)_container.GetInstance(descriptor.HubType);
+                return (IHub) _container.GetInstance(descriptor.HubType);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Juza.Magic
             GlobalHost.Configuration.KeepAlive = TimeSpan.FromSeconds(2);
         }
 
-        public static void ConfigureSignalR(IAppBuilder app, Container container)
+        public static void Configure(IAppBuilder app, Container container)
         {
             var config = new HubConfiguration
             {
