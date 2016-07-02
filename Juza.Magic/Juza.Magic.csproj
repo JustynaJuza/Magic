@@ -586,6 +586,7 @@
     <Content Include="Views\Shared\_ChatRoomPartial.cshtml" />
     <Content Include="Views\Shared\_UserProfileTooltipPartial.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Image.cshtml" />
+    <Content Include="Views\Shared\_ChatRoomListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

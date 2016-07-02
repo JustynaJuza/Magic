@@ -1,22 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using Juza.Magic.Models;
+﻿using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
+using Juza.Magic.Models.Extensions;
+using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace Juza.Magic.Controllers
 {
     public class ChatController : Controller
     {
         private readonly IDbContext _context;
+        private readonly IQueryMapping<ChatRoom, ChatRoomViewModel> _mapping;
 
-        public ChatController(IDbContext context)
+        public ChatController(IDbContext context,
+            IQueryMapping<ChatRoom, ChatRoomViewModel> mapping)
         {
             _context = context;
+            _mapping = mapping;
         }
 
         public ActionResult GetChatRoomPartial(string roomId = null, bool isPrivate = true, IEnumerable<string> recipientNames = null, bool createHidden = false)
@@ -29,26 +34,34 @@ namespace Juza.Magic.Controllers
                 var chatRoom = _context.Read<ChatRoom>().Include(x => x.Connections.Select(y => y.User)).FindOrFetchEntity(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
                 if (!chatRoom.IsPrivate)
                 {
-                    roomViewModel = (ChatRoomViewModel)chatRoom.GetViewModel();
+                    roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
                     return PartialView("_ChatRoomPartial", roomViewModel);
                 }
 
                 var userId = User.Identity.GetUserId();
-                roomViewModel = (ChatRoomViewModel)chatRoom.GetViewModel(userId);
+                roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>(userId);
 
                 //ChatHub.SubscribeActiveConnections(roomId, userId);
             }
             else if (recipientNames != null)
             {
                 var currentUserName = User.Identity.GetUserName();
-                var users = _context.Set<User>().Where(x => recipientNames.Contains(x.UserName)).OrderBy(x => x.UserName == currentUserName);
-                var chatUsers = users.Select(x => new ChatUserViewModel(x));
+                var users = _context.Set<User>()
+                    .Where(x => recipientNames.Contains(x.UserName))
+                    .OrderBy(x => x.UserName == currentUserName)
+                    .Select(x => new ChatUserViewModel
+                    {
+                        Id = x.Id,
+                        UserName = x.UserName,
+                        ColorCode = x.ColorCode,
+                        Status = x.Status
+                    });
 
                 roomViewModel = new ChatRoomViewModel()
                 {
                     Id = Guid.NewGuid().ToString(),
                     IsPrivate = true,
-                    Users = chatUsers
+                    Users = users
                 };
             }
 
@@ -67,6 +80,7 @@ namespace Juza.Magic.Controllers
 
         public ActionResult GetAvailableUsersPartial()
         {
+            //this.RenderRazorViewToString();
             return PartialView("_AvailableUsersPartial");
         }
 
@@ -102,6 +116,25 @@ namespace Juza.Magic.Controllers
             };
             _context.Insert(relation);
             return "Remove from friends";
+        }
+
+        public ActionResult GetUserChatRooms(bool exceptDefaultRoom = false)
+        {
+            var userId = User.Identity.GetUserId<int>();
+
+            var chatRooms = _context.Query<ChatRoomConnection>()
+                .Where(x => x.UserId == userId)
+                .Select(rc => rc.ChatRoom).Distinct()
+                .Where(r => !r.IsGameRoom)
+                .ToViewModel<ChatRoom, ChatRoomViewModel>();
+
+            if (exceptDefaultRoom)
+            {
+                chatRooms = chatRooms.Where(x => x.Id == ChatRoom.DefaultRoomId);
+            }
+
+            return PartialView("_ChatRoomListPartial", chatRooms); //.Select(x => new ChatRoomViewModel(x)));
+            //x.ToViewModel<ChatRoom, ChatRoomViewModel>()));
         }
     }
 }

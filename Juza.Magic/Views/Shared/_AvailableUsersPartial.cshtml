@@ -79,12 +79,12 @@
 <div id="available-users-overlay" class="overlay"></div>
 
 <div id="available-users" class="dialog zero-size">
-    @*<span id="available-users-close-btn" class="close-btn">X</span>*@
+    <span id="available-users-close-btn" class="close-btn">X</span>
     <ul id="available-chat-users" class="chat-room-users">
-        @foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
-        {
-            <li class="available-chat-user display-name" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
-        }
+        @*@foreach (var user in ChatHub.GetAvailableUsers(User.Identity.GetUserId()))
+    {
+        <li class="available-chat-user display-name" style="color:@user.ColorCode; @(user.Status == UserStatus.Offline ? "font-weight:normal" : "")">@user.UserName</li>
+    }*@
     </ul>
     <span id="available-users-confirm-btn" class="btn btn-default">Create group</span>
 </div>

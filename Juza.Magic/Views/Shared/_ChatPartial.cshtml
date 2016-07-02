@@ -8,9 +8,15 @@
         <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
     }
     <h3 id="chat-header">
-        Hello@{ if (User.Identity.IsAuthenticated)
-            { <span id=user-name>@User.Identity.GetUserName()</span>} }!
+        Hello
+        @{ if (User.Identity.IsAuthenticated)
+            {
+                <span id=user-name>@User.Identity.GetUserName()</span>
+            }
+        }!
     </h3>
+
+
 </div>
 
 <div class="chat container">
@@ -18,10 +24,7 @@
 
     <div id="chat-rooms-container">
         @{Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId, isPrivate = false });}
-        @*@foreach (var chatRoom in ChatHub.GetUserChatRooms(User.Identity.GetUserId(), true))
-            {
-                Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
-            }*@
+        @{Html.RenderAction("GetUserChatRooms", "Chat");}
 
         <div id="user-profile-tooltip-container"></div>
     </div>

@@ -1,0 +1,6 @@
+﻿@model IEnumerable<Juza.Magic.Models.Entities.Chat.ChatRoomViewModel>
+
+@foreach (var chatRoom in Model)
+{
+    Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = chatRoom.Id, isPrivate = chatRoom.IsPrivate, createHidden = true });
+}
