@@ -1,103 +1,33 @@
 using System;
-using System.IO;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
 using System.Web.Routing;
 
-namespace Juza.Magic.Helpers
+namespace Magic.Helpers
 {
+    /// <summary>
+    /// Class that renders MVC views to a string using the
+    /// standard MVC View Engine to render the view. 
+    /// 
+    /// Requires that ASP.NET HttpContext is present to
+    /// work, but works outside of the context of MVC
+    /// </summary>
     public class ViewRenderer
     {
-        private static string RenderViewToString(ControllerContext context, string viewPath, object model = null)
+        public static string RenderRazorViewToString(ControllerContext controllerContext, String viewName, Object model)
         {
-            var viewResult = ViewEngines.Engines.FindPartialView(context, viewPath)
-                             ?? ViewEngines.Engines.FindView(context, viewPath, null);
+            controllerContext.Controller.ViewData.Model = model;
 
-            if (viewResult == null)
+            using (var sw = new StringWriter())
             {
-                throw new FileNotFoundException(string.Format("Cannot find view: {0}.", viewPath));
-            }
-
-            var view = viewResult.View;
-            context.Controller.ViewData.Model = model;
-
-            using (var writer = new StringWriter())
-            {
-                var viewContext = new ViewContext(context, view, context.Controller.ViewData,
-                    context.Controller.TempData, writer);
-
-                viewResult.View.Render(viewContext, writer);
-                viewResult.ViewEngine.ReleaseView(context, viewResult.View);
-
-                return writer.ToString();
+                var viewResult = ViewEngines.Engines.FindPartialView(controllerContext, viewName);
+                var viewContext = new ViewContext(controllerContext, viewResult.View, controllerContext.Controller.ViewData, controllerContext.Controller.TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+                viewResult.ViewEngine.ReleaseView(controllerContext, viewResult.View);
+                return sw.GetStringBuilder().ToString();
             }
         }
-
-        public static T CreateController<T>(RouteData routeData = null)
-            where T : Controller, new()
-        {
-            T controller = new T();
-
-            HttpContextBase contextWrapper;
-            if (HttpContext.Current != null)
-            {
-                contextWrapper = new HttpContextWrapper(HttpContext.Current);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "Can't create Controller Context if no active HttpContext instance is available.");
-            }
-
-            if (routeData == null)
-            {
-                routeData = new RouteData();
-            }
-
-            // add the controller routing if not existing
-            if (!routeData.Values.ContainsKey("controller") && !routeData.Values.ContainsKey("Controller"))
-            {
-                routeData.Values.Add(
-                    "controller",
-                    controller.GetType().Name.ToLower().Replace("controller", ""));
-            }
-
-            controller.ControllerContext = new ControllerContext(contextWrapper, routeData, controller);
-            return controller;
-        }
-
-        //public class ErrorModule : ApplicationErrorModule
-        //{
-
-        //    protected override void OnDisplayError(
-        //                               WebErrorHandler errorHandler,
-        //                               ErrorViewModel model)
-        //    {
-        //        var response = HttpContext.Current.Response;
-
-        //        // Create an arbitrary controller instance
-        //        var controller =
-        //            ViewRenderer.CreateController<GenericController>();
-
-        //        string html = ViewRenderer.RenderPartialView(
-        //                                    "~/views/shared/Error.cshtml",
-        //                                    model,
-        //                                    controller.ControllerContext);
-
-        //        HttpContext.Current.Server.ClearError();
-        //        response.TrySkipIisCustomErrors = true;
-        //        response.ClearContent();
-
-        //        response.StatusCode = 500;
-        //        response.Write(html);
-        //    }
-        //}
-
-        // *any* controller class will do for the template
-        public class GenericController : Controller
-        {
-        }
-
 
         /// <summary>
         /// Required Controller Context
@@ -172,7 +102,7 @@ namespace Juza.Magic.Helpers
         /// <param name="controllerContext">Active Controller context</param>
         /// <returns>String of the rendered view or null on error</returns>
         public static string RenderView(string viewPath, object model = null,
-            ControllerContext controllerContext = null)
+                                        ControllerContext controllerContext = null)
         {
             ViewRenderer renderer = new ViewRenderer(controllerContext);
             return renderer.RenderViewToString(viewPath, model);
@@ -193,7 +123,7 @@ namespace Juza.Magic.Helpers
         /// <param name="controllerContext">Active controller context</param>
         /// <returns>String of the rendered view or null on error</returns>
         public static string RenderPartialView(string viewPath, object model = null,
-            ControllerContext controllerContext = null)
+                                               ControllerContext controllerContext = null)
         {
             ViewRenderer renderer = new ViewRenderer(controllerContext);
             return renderer.RenderPartialViewToString(viewPath, model);
@@ -212,7 +142,7 @@ namespace Juza.Magic.Helpers
         /// <param name="partial">Determines whether to render a full or partial view</param>
         /// <returns>String of the rendered view</returns>
         private string RenderViewToStringInternal(string viewPath, object model,
-            bool partial = false)
+                                                    bool partial = false)
         {
             // first find the ViewEngine for this view
             ViewEngineResult viewEngineResult = null;
@@ -233,9 +163,9 @@ namespace Juza.Magic.Helpers
             using (var sw = new StringWriter())
             {
                 var ctx = new ViewContext(Context, view,
-                    Context.Controller.ViewData,
-                    Context.Controller.TempData,
-                    sw);
+                                          Context.Controller.ViewData,
+                                          Context.Controller.TempData,
+                                          sw);
                 view.Render(ctx, sw);
                 result = sw.ToString();
             }
@@ -243,13 +173,49 @@ namespace Juza.Magic.Helpers
             return result;
         }
 
+
         /// <summary>
-        /// Empty MVC Controller instance used to 
-        /// instantiate and provide a new ControllerContext
-        /// for the ViewRenderer
+        /// Creates an instance of an MVC controller from scratch 
+        /// when no existing ControllerContext is present       
         /// </summary>
-        public class EmptyController : Controller
+        /// <typeparam name="T">Type of the controller to create</typeparam>
+        /// <returns>Controller Context for T</returns>
+        /// <exception cref="InvalidOperationException">thrown if HttpContext not available</exception>
+        public static T CreateController<T>(RouteData routeData = null)
+                    where T : Controller, new()
         {
+            // create a disconnected controller instance
+            T controller = new T();
+
+            // get context wrapper from HttpContext if available
+            HttpContextBase wrapper = null;
+            if (HttpContext.Current != null)
+                wrapper = new HttpContextWrapper(System.Web.HttpContext.Current);
+            else
+                throw new InvalidOperationException(
+                    "Can't create Controller Context if no active HttpContext instance is available.");
+
+            if (routeData == null)
+                routeData = new RouteData();
+
+            // add the controller routing if not existing
+            if (!routeData.Values.ContainsKey("controller") && !routeData.Values.ContainsKey("Controller"))
+                routeData.Values.Add("controller", controller.GetType().Name
+                                                            .ToLower()
+                                                            .Replace("controller", ""));
+
+            controller.ControllerContext = new ControllerContext(wrapper, routeData, controller);
+            return controller;
         }
+
+    }
+
+    /// <summary>
+    /// Empty MVC Controller instance used to 
+    /// instantiate and provide a new ControllerContext
+    /// for the ViewRenderer
+    /// </summary>
+    public class EmptyController : Controller
+    {
     }
 }

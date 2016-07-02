@@ -217,6 +217,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ControllerExtensions.cs" />
     <Compile Include="Helpers\RequireJsHelpers.cs" />
     <Compile Include="Helpers\FileHandler.cs" />
     <Compile Include="Helpers\PathProvider.cs" />

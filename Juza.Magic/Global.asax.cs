@@ -18,5 +18,13 @@ namespace Juza.Magic
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        public void Application_End()
+        {
+            using (var context = new MagicDbContext())
+            {
+                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [UserConnections];");
+            }
+        }
     }
 }
