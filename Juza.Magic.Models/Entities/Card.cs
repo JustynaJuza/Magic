@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Juza.Magic.Models.Enums;
+using Juza.Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Juza.Magic.Models.Enums;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class Card : AbstractExtensions
+    public class Card
     {
         [NotMapped]
         public IEnumerable<string> TypeNames { get; set; }
@@ -32,7 +31,7 @@ namespace Juza.Magic.Models.Entities
         public bool IsPermanent { get; set; }
         public bool IsTapped { get; set; }
         public Rarity Rarity { get; set; }
-        [Display(Name="Mana")]
+        [Display(Name = "Mana")]
         public int ConvertedManaCost { get; set; }
         public string Description { get; set; }
         public string Flavor { get; set; }
@@ -116,7 +115,7 @@ namespace Juza.Magic.Models.Entities
         //}
     }
 
-    public class CardViewModel : AbstractExtensions, ICard, IViewModel
+    public class CardViewModel : ICard, IViewModel<Card>
     {
         public string Id { get { return this.Id; } }
         public string CasterId { get; set; }

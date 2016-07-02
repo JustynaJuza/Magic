@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Juza.Magic.Models.Enums;
+﻿using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class Player : AbstractExtensions
+    public class Player
     {
         private int defaultHealth = 20;
 
@@ -40,7 +40,7 @@ namespace Juza.Magic.Models.Entities
         }
     }
 
-    public class PlayerViewModel : AbstractExtensions, IViewModel
+    public class PlayerViewModel : IViewModel<Player>
     {
         public UserViewModel User { get; set; }
         public CardDeckViewModel Deck { get; set; }
@@ -72,18 +72,18 @@ namespace Juza.Magic.Models.Entities
         // Constructor with deck.
         public PlayerViewModel(CardDeck deck)
         {
-            Deck = (CardDeckViewModel) deck.GetViewModel();
+            Deck = deck.ToViewModel<CardDeck, CardDeckViewModel>();
 
-            SelectDeck((CardDeckViewModel) deck.GetViewModel());
+            SelectDeck(deck);
             DrawHand();
         }
 
         #region DECK MANAGEMENT
-        public void SelectDeck(CardDeckViewModel deck)
+        public void SelectDeck(CardDeck deck)
         {
-            Deck = (CardDeckViewModel) deck.GetViewModel();
+            Deck = deck.ToViewModel<CardDeck, CardDeckViewModel>();
             foreach (var card in Deck.Cards)
-                Library.Add((CardViewModel) card.GetViewModel());
+                Library.Add(card.ToViewModel<Card, CardViewModel>());
             CardsInLibraryTotal = Library.Count;
         }
 

@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Enums;
+using Juza.Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Juza.Magic.Models.Entities;
-using Juza.Magic.Models.Enums;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models
 {
-    public class ProfileViewModel : AbstractExtensions, IViewModel
+    public class ProfileViewModel : IViewModel<User>
     {
         public int Id { get; set; }
         public string UserName { get; set; }
@@ -26,7 +25,8 @@ namespace Juza.Magic.Models
         public bool IsFriend { get; set; }
         public bool IsCurrentUser { get; set; }
 
-        public ProfileViewModel() {
+        public ProfileViewModel()
+        {
             IsCurrentUser = false;
             IsFriend = false;
         }
@@ -45,7 +45,7 @@ namespace Juza.Magic.Models
         }
     }
 
-    public class UserViewModel : AbstractExtensions, IViewModel
+    public class UserViewModel : IViewModel<User>
     {
         public int Id { get; private set; }
 
@@ -55,7 +55,7 @@ namespace Juza.Magic.Models
         public string UserName { get; private set; }
 
         public string Title { get; set; }
-        
+
         [EmailAddress(ErrorMessage = "The email doesn't seem valid...")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
@@ -84,7 +84,7 @@ namespace Juza.Magic.Models
         public string ColorCode { get; private set; }
 
         // Constructor.
-        public UserViewModel(){ }
+        public UserViewModel() { }
         // Constructor.
         public UserViewModel(User user)
         {
@@ -98,12 +98,14 @@ namespace Juza.Magic.Models
         }
     }
 
-    public class ChatUserViewModel : IViewModel
+    public class ChatUserViewModel : IViewModel<User>
     {
         public int Id { get; set; }
         public string UserName { get; set; }
         public string ColorCode { get; set; }
         public UserStatus Status { get; set; }
+
+        public ChatUserViewModel() { }
 
         public ChatUserViewModel(User user)
         {
@@ -127,7 +129,7 @@ namespace Juza.Magic.Models
         }
     }
 
-    public class ManagePasswordViewModel : AbstractExtensions, IViewModel
+    public class ManagePasswordViewModel : IViewModel<User>
     {
         [Required]
         [DataType(DataType.Password)]

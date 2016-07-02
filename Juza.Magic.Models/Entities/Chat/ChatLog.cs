@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Juza.Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models.Entities.Chat
 {
-    public class ChatLog : AbstractExtensions
+    public class ChatLog
     {
         public string Id { get; set; }
         public DateTime DateCreated { get; set; }
@@ -33,20 +32,21 @@ namespace Juza.Magic.Models.Entities.Chat
         {
             return Messages.Select(m => new ChatMessageViewModel(m)
             {
-                IsRead = m.Recipients.Any(r => r.RecipientId == userId) 
-            
+                IsRead = m.Recipients.Any(r => r.RecipientId == userId)
+
             }).ToList();
         }
     }
 
-    public class ChatLogViewModel : AbstractExtensions, IViewModel
+    public class ChatLogViewModel : IViewModel<ChatLog>
     {
         public string Id { get; set; }
         public DateTime DateCreated { get; set; }
-        public virtual IList<ChatMessageViewModel> Messages { get; set; }
+        public IEnumerable<ChatMessageViewModel> Messages { get; set; }
 
         // Constructor.
-        public ChatLogViewModel() {
+        public ChatLogViewModel()
+        {
             Messages = new List<ChatMessageViewModel>();
         }
         public ChatLogViewModel(ChatLog log) : this()

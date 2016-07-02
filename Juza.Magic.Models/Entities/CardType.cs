@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Juza.Magic.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.Enums;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
@@ -62,12 +61,12 @@ namespace Juza.Magic.Models.Entities
         }
     }
 
-    public abstract class CardType : AbstractExtensions
+    public abstract class CardType
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public IList<Card> Cards { get; set; }
-        
+
         public static bool IsSuperType(string typeName)
         {
             return Enum.IsDefined(typeof(SuperType), typeName);

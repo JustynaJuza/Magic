@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Juza.Magic.Models.DataContext;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class PlayerCardDeck : AbstractExtensions
+    public class PlayerCardDeck
     {
         public int DeckId { get; set; }
         public int UserId { get; set; }

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Juza.Magic.Models.Extensions;
+using Juza.Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class Game : AbstractExtensions
+    public class Game
     {
         public string Id { get; set; }
         public bool IsPrivate { get; set; }
@@ -49,11 +49,11 @@ namespace Juza.Magic.Models.Entities
 
         public void UpdateTimePlayed(DateTime dateSuspended)
         {
-            TimePlayed += (dateSuspended - (DateTime)(DateResumed.HasValue ? DateResumed : DateStarted));
+            TimePlayed += (dateSuspended - (DateTime) (DateResumed.HasValue ? DateResumed : DateStarted));
         }
     }
 
-    public class GameViewModel : AbstractExtensions, IViewModel
+    public class GameViewModel : IViewModel<Game>
     {
         public string Id { get; set; }
         public bool IsPrivate { get; set; }
@@ -61,8 +61,8 @@ namespace Juza.Magic.Models.Entities
         public string TimePlayed { get; set; }
         public DateTime? DateStarted { get; set; }
         public DateTime? DateEnded { get; set; }
-        public virtual List<PlayerViewModel> Players { get; set; }
-        public virtual List<UserViewModel> Observers { get; set; }
+        public List<PlayerViewModel> Players { get; set; }
+        public List<UserViewModel> Observers { get; set; }
 
         // Constructor.
         public GameViewModel()
@@ -83,7 +83,7 @@ namespace Juza.Magic.Models.Entities
             Players = new List<PlayerViewModel>();
             foreach (var player in game.Players)
             {
-                Players.Add((PlayerViewModel)player.Player.GetViewModel());
+                Players.Add(player.Player.ToViewModel<Player, PlayerViewModel>());
             }
             Observers = game.Observers.ToList();
         }

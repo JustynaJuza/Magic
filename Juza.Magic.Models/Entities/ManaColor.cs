@@ -1,8 +1,6 @@
-using Juza.Magic.Models.Extensions;
-
 namespace Juza.Magic.Models.Entities
-{    
-    public class ManaColor : AbstractExtensions
+{
+    public class ManaColor
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -1,11 +1,10 @@
+using Juza.Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class CardDeck : AbstractExtensions
+    public class CardDeck
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -17,7 +16,7 @@ namespace Juza.Magic.Models.Entities
         public virtual IList<User> UsedByUsers { get; set; }
     }
 
-    public class CardDeckViewModel : AbstractExtensions, IViewModel
+    public class CardDeckViewModel : IViewModel<CardDeck>
     {
         public int Id { get; private set; }
         public string Name { get; set; }

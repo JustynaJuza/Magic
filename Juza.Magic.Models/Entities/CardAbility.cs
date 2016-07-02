@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Juza.Magic.Models.DataContext;
+using System;
 using System.Collections.Generic;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class CardAbility : AbstractExtensions
+    public class CardAbility
     {
         private delegate int Callback();
         private Callback callback;
@@ -43,7 +42,7 @@ namespace Juza.Magic.Models.Entities
             }
         }
     }
-    
+
     public class ActiveAbility : CardAbility
     {
         public bool RequiresTap { get; set; }

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class UserConnection : AbstractExtensions
+    public class UserConnection
     {
         public string Id { get; set; }
         public int UserId { get; set; }
@@ -12,7 +11,7 @@ namespace Juza.Magic.Models.Entities
         public string GameId { get; set; }
         public virtual Game Game { get; set; }
     }
-    
+
     public class UserConnection_UserComparer : IEqualityComparer<UserConnection>
     {
         public bool Equals(UserConnection x, UserConnection y)

@@ -1,9 +1,8 @@
 using Juza.Magic.Models.Enums;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
-    public class GamePlayerStatus : AbstractExtensions
+    public class GamePlayerStatus
     {
         public int UserId { get; set; }
         public string GameId { get; set; }

@@ -1,6 +1,4 @@
-﻿using Juza.Magic.Models.Extensions;
-
-namespace Juza.Magic.Models.Entities
+﻿namespace Juza.Magic.Models.Entities
 {
     public enum PlayerCardLocation
     {
@@ -11,7 +9,7 @@ namespace Juza.Magic.Models.Entities
         Exiled
     }
 
-    public class PlayerCard : AbstractExtensions
+    public class PlayerCard
     {
         public int UserId { get; set; }
         public string GameId { get; set; }
@@ -31,7 +29,7 @@ namespace Juza.Magic.Models.Entities
             Location = PlayerCardLocation.Library;
         }
     }
-    
+
     public class PlayerCardBattlefield : PlayerCard
     {
 

@@ -1,9 +1,8 @@
 ﻿using System;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.Entities
 {
-    public abstract class UserRelation : AbstractExtensions
+    public abstract class UserRelation
     {
         public int UserId { get; set; }
         public int RelatedUserId { get; set; }
@@ -13,8 +12,8 @@ namespace Juza.Magic.Models.Entities
     }
 
     public class UserRelationFriend : UserRelation
-    { 
-    
+    {
+
     }
 
     public class UserRelationIgnored : UserRelation

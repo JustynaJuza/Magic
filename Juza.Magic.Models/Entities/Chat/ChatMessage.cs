@@ -1,11 +1,10 @@
-﻿using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
+﻿using Juza.Magic.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace Juza.Magic.Models.Entities.Chat
 {
-    public class ChatMessageNotification : AbstractExtensions
+    public class ChatMessageNotification
     {
         public bool IsRead { get; set; }
 
@@ -25,7 +24,7 @@ namespace Juza.Magic.Models.Entities.Chat
         }
     }
 
-    public class ChatMessage : AbstractExtensions
+    public class ChatMessage
     {
         public int Id { get; set; }
         public string LogId { get; set; }
@@ -49,9 +48,9 @@ namespace Juza.Magic.Models.Entities.Chat
         }
     }
 
-    public class ChatMessageViewModel : AbstractExtensions, IViewModel
+    public class ChatMessageViewModel : IViewModel<ChatMessage>
     {
-        public DateTime? TimeSent { get; set; }
+        public DateTime TimeSent { get; set; }
         public string Message { get; set; }
         public string SenderName { get; set; }
         public bool IsRead { get; set; }

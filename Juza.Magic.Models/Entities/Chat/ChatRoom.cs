@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Juza.Magic.Models.Extensions;
+using Juza.Magic.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Interfaces;
 
 namespace Juza.Magic.Models.Entities.Chat
 {
-    public class ChatRoom : AbstractExtensions
+    public class ChatRoom
     {
         public const string DefaultRoomId = "default";
 
@@ -77,7 +77,7 @@ namespace Juza.Magic.Models.Entities.Chat
         }
     }
 
-    public class ChatRoomViewModel : AbstractExtensions, IViewModel
+    public class ChatRoomViewModel : IViewModel<ChatRoom>
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -102,11 +102,11 @@ namespace Juza.Magic.Models.Entities.Chat
             IsPrivate = room.IsPrivate;
             TabColorCode = room.TabColorCode;
             Users = room.GetUserList();
-            Log = (room.Log != null ? (ChatLogViewModel)room.Log.GetViewModel() : new ChatLogViewModel());
+            Log = (room.Log != null ? room.Log.ToViewModel<ChatLog, ChatLogViewModel>() : new ChatLogViewModel());
         }
         public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
         {
-            Log = (room.Log != null ? (ChatLogViewModel)room.Log.GetViewModel(userId) : new ChatLogViewModel());
+            Log = (room.Log != null ? room.Log.ToViewModel<ChatLog, ChatLogViewModel>(userId) : new ChatLogViewModel());
         }
     }
 }
