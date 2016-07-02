@@ -35,6 +35,6 @@
         chatDisplay: ['chatVariables'],
         chatFunctionality: ['chatVariables'],
         chat: ['signalrHubs', 'lodash', 'chatVariables', 'chatFunctionality', 'chatHub', 'chatDisplay', 'chatInteraction'],
-        hubStart: ['signalrHubs', 'chat']
+        hubStart: ['signalrHubs']
     }
 });

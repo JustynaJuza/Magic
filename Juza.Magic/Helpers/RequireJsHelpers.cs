@@ -1,26 +1,45 @@
-﻿using System.IO;
+﻿using System;
 using System.Web.Mvc;
 
 namespace Juza.Magic.Helpers
 {
     public static class RequireJsHelpers
     {
-        public static MvcHtmlString RequireScriptModule(this HtmlHelper helper, string module)
+        private static readonly string scriptsPath = "/Scripts/";
+        private static readonly string requireConfigFile = "requireConfig.js";
+
+        public static MvcHtmlString RequireScriptModule(this HtmlHelper helper, params string[] modules)
         {
-            var scriptsPath = "/Scripts/";
-            var requireConfigFile = "requireConfig.js";
+            if (modules.Length == 0)
+            {
+                throw new ArgumentException("No parameters passed. This function should be called with at least one parameter.");
+            }
 
-            //var isValidModule = File.Exists(
-            //    helper.ViewContext.HttpContext.Server.MapPath(Path.Combine(scriptsPath, module + ".js")));
+            var requireScript = string.Format(
+                @"require(['{0}{1}'], function() {{
+                      require(['{2}']);
+                  }});",
+                scriptsPath,
+                requireConfigFile,
+                string.Join("','", modules));
 
-            var requireScript = //isValidModule
-                string.Format(@"require([""{0}{1}"" ], function() {{
-                                        require([ ""{2}"" ]);
-                                    }});",
-                    scriptsPath,
-                    requireConfigFile,
-                    module);
-                    //: string.Empty;
+            return new MvcHtmlString(requireScript);
+        }
+
+        public static MvcHtmlString RequireConditionalScriptModule(this HtmlHelper helper, string module, string dependency)
+        {
+            var requireScript = string.Format(
+                @"if (require.specified('{2}')) {{
+                      require(['{0}{1}'], function() {{
+                          require(['{2}'], function () {{
+                              require(['{3}']);
+                          }});
+                      }});
+                  }}",
+                scriptsPath,
+                requireConfigFile,
+                dependency,
+                module);
 
             return new MvcHtmlString(requireScript);
         }

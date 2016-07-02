@@ -49,6 +49,9 @@
     <script>
         window.basePath = '@PathHelper.GetAppBaseUrl()';
         @Html.RequireScriptsForCurrentRoute()
+
+        @Html.RequireConditionalScriptModule("hubStart", "chat")
+        @Html.RequireConditionalScriptModule("hubStart", "game")
     </script>
 
     @RenderSection("scripts", required: false)
