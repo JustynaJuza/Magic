@@ -5,6 +5,7 @@ using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.SignalR;
 using Microsoft.Owin;
 using Owin;
 using SimpleInjector;
