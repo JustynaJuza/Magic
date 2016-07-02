@@ -66,7 +66,7 @@
                 $('#room-content-' + roomId).hide();
             }
 
-            scrollContainerToBottom('#room-messages-container-' + roomId);
+            chat.display.scrollContainerToBottom('#room-messages-container-' + roomId);
             chat.chatRoomRequestInProgress[roomId] = false;
         }
 

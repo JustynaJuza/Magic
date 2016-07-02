@@ -1,44 +1,63 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
 using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Enums;
 using Juza.Magic.Models.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 
 namespace Juza.Magic.Hubs
 {
     public interface IChatDataProvider
     {
         User GetUser(int userId);
+        void AddUserConnection(int userId, string connectionId);
+        int GetUserConnectionCount(int userId);
         IList<ChatUserViewModel> GetAvailableUsers(int userId);
         IList<ChatRoom> GetUserChatRooms(int userId, bool exceptDefaultRoom = false);
         IList<ChatRoom> GetChatRoomsWithUser(int userId);
         IList<ChatRoom> GetUserGameRooms(int userId, bool exceptDefaultRoom = false);
         string GetExistingChatRoomIdForUsers(string[] recipientNames);
-        void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IEnumerable<string> recipientNames = null);
+        void CreateChatRoom(string roomId, bool isGameRoom, bool isPrivate, IEnumerable<string> recipientNames);
         IEnumerable<ChatUserViewModel> GetChatRoomUsers(string roomId);
         void SaveMessage(int userId, string roomId, string messageText, DateTime timeSent);
         void UserStatusUpdate(int userId, UserStatus status);
         void AddUserToRoom(string roomId, int userId);
         void SubscribeChatRoom(string roomId, string connectionId, int userId);
         List<string> UnsubscribeChatRoom(int userId, string roomId);
-        IEnumerable<string> SubscribeActiveChatRooms(string connectionId, int userId);
+        IEnumerable<string> SubscribeActiveChatRooms(int userId, string connectionId);
         IEnumerable<string> SubscribeActiveConnections(string roomId, int userId);
         IEnumerable<string> SubscribeGameChat(int userId, string connectionId, string roomId);
         bool UnsubscribeGameChat(int userId, string connectionId, string roomId);
-        int OnConnected(int userId, string connectionId);
+        //int OnConnected(int userId, string connectionId);
         void DeleteConnection(string connectionId);
         void RemoveInactiveConnections();
         ChatRoom GetChatRoom(string roomId);
+        void SaveAll();
     }
 
     public class ChatDataProvider : IChatDataProvider
     {
         private readonly IDbContext _context;
+
+        public void AddUserConnection(int userId, string connectionId)
+        {
+            _context.Insert(new UserConnection
+            {
+                Id = connectionId,
+                UserId = userId
+            });
+        }
+
+        public int GetUserConnectionCount(int userId)
+        {
+            return _context.Set<UserConnection>()
+                .Count(x => x.UserId == userId);
+        }
+
 
         public ChatDataProvider(IDbContext context)
         {
@@ -96,18 +115,20 @@ namespace Juza.Magic.Hubs
         public IList<ChatRoom> GetChatRoomsWithUser(int userId)
         {
             return _context.Set<ChatRoomUser>()
-                .Where(ru => ru.UserId == userId)
-                .Select(rc => rc.ChatRoom).ToList();
+                .Where(x => x.UserId == userId)
+                .Select(x => x.ChatRoom)
+                .ToList();
         }
 
         // Returns game chat rooms the user has any connections subscribed to to open them on page load.
         public IList<ChatRoom> GetUserGameRooms(int userId, bool exceptDefaultRoom = false)
         {
             return _context.Set<ChatRoomConnection>()
-                .Where(rc => rc.UserId == userId)
-                .Select(rc => rc.ChatRoom)
+                .Where(x => x.UserId == userId)
+                .Select(x => x.ChatRoom)
+                .Where(r => r.IsGameRoom)
                 .Distinct()
-                .Where(r => r.IsGameRoom).ToList();
+                .ToList();
         }
 
         // Returns the chat room's id if a private chat room exists for given users only.
@@ -129,7 +150,7 @@ namespace Juza.Magic.Hubs
         }
 
         // Create new chat room with given settings and for specific users only if it's private.
-        public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IEnumerable<string> recipientNames = null)
+        public void CreateChatRoom(string roomId, bool isGameRoom, bool isPrivate, IEnumerable<string> recipientNames)
         {
             var chatRoom = new ChatRoom(roomId)
             {
@@ -157,7 +178,7 @@ namespace Juza.Magic.Hubs
         {
             var chatRoom = _context.Read<ChatRoom>()
                 .Include(x => x.Users.Select(y => y.User))
-                .Include(x => x.Connections)
+                .Include(x => x.Connections.Select(y => y.User))
                 .FindOrFetchEntity(roomId);
 
             return chatRoom.IsPrivate ? chatRoom.GetUserList() : chatRoom.GetActiveUserList();
@@ -197,7 +218,6 @@ namespace Juza.Magic.Hubs
         {
             var user = _context.Read<User>().FindOrFetchEntity(userId);
             user.Status = status;
-            _context.SaveChanges();
         }
 
         private string DecodeRecipient(string messageText, out User recipient)
@@ -227,14 +247,12 @@ namespace Juza.Magic.Hubs
 
         public void SubscribeChatRoom(string roomId, string connectionId, int userId)
         {
-            var chatRoomConnection = new ChatRoomConnection
+            _context.Insert(new ChatRoomConnection
             {
                 ChatRoomId = roomId,
                 ConnectionId = connectionId,
                 UserId = userId
-            };
-            _context.Insert(chatRoomConnection);
-            _context.SaveChanges();
+            });
         }
 
         public List<string> UnsubscribeChatRoom(int userId, string roomId)
@@ -249,7 +267,7 @@ namespace Juza.Magic.Hubs
             return userConnections.Select(c => c.ConnectionId).ToList();
         }
 
-        public IEnumerable<string> SubscribeActiveChatRooms(string connectionId, int userId)
+        public IEnumerable<string> SubscribeActiveChatRooms(int userId, string connectionId)
         {
             var activeChatRoomIds = _context.Set<ChatRoomConnection>()
                 .Where(rc => rc.UserId == userId)
@@ -269,7 +287,6 @@ namespace Juza.Magic.Hubs
                 _context.Insert(chatRoomConnection);
             }
 
-            _context.SaveChanges();
             return activeChatRoomIds;
         }
 
@@ -354,31 +371,34 @@ namespace Juza.Magic.Hubs
             return true;
         }
 
-        public int OnConnected(int userId, string connectionId)
-        {
-            var foundUser = _context.Read<User>().Include(x => x.Connections).FindOrFetchEntity(userId);
+        //public int OnConnected(int userId, string connectionId)
+        //{
+        //    var foundUser = _context.Read<User>().Include(x => x.Connections).FindOrFetchEntity(userId);
 
-            var connection = new UserConnection
-            {
-                Id = connectionId,
-                UserId = userId
-            };
-            _context.Query<UserConnection>().Add(connection);
-            _context.SaveChanges();
+        //    if (foundUser.Connections.All(x => x.Id != connectionId))
+        //    {
+        //        var connection = new UserConnection
+        //        {
+        //            Id = connectionId,
+        //            UserId = userId
+        //        };
+        //        _context.Query<UserConnection>().Add(connection);
+        //        _context.SaveChanges();
+        //    }
 
-            SubscribeChatRoom(ChatRoom.DefaultRoomId, connectionId, userId);
+        //    SubscribeChatRoom(ChatRoom.DefaultRoomId, connectionId, userId);
 
-            //UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
-            //foreach (var chatRoom in GetChatRoomsWithUser(userId))
-            //{
-            //    UpdateChatRoomUsers(chatRoom.Id);
-            //}
+        //    //UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
+        //    //foreach (var chatRoom in GetChatRoomsWithUser(userId))
+        //    //{
+        //    //    UpdateChatRoomUsers(chatRoom.Id);
+        //    //}
 
-            SubscribeActiveChatRooms(connectionId, userId);
-            // TODO: What when: user disconnects, other user has private chat tab open, user connects again - chat tab is unsubscribed, typing message does not notify receiving user?
-            // Solution: use message notifications for that - partially implemented.
-            return foundUser.Connections.Count;
-        }
+        //    SubscribeActiveChatRooms(connectionId, userId);
+        //    // TODO: What when: user disconnects, other user has private chat tab open, user connects again - chat tab is unsubscribed, typing message does not notify receiving user?
+        //    // Solution: use message notifications for that - partially implemented.
+        //    return foundUser.Connections.Count;
+        //}
 
 
         public void DeleteConnection(string connectionId)
@@ -419,6 +439,11 @@ namespace Juza.Magic.Hubs
             //    //GameHub.DisplayUserLeft(connection.User.UserName, connection.ChatRoomId);
             //    GameHub.LeaveGame((ApplicationUserGameConnection) connection);
             //}
+        }
+
+        public void SaveAll()
+        {
+            _context.SaveChanges();
         }
 
         #region CHATLOG HANDLING

@@ -1,14 +1,13 @@
+using Juza.Magic.Models.DataContext;
+using Juza.Magic.Models.Entities.Chat;
+using Juza.Magic.Models.Enums;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Helpers;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Entities;
-using Juza.Magic.Models.Entities.Chat;
-using Juza.Magic.Models.Enums;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.SignalR;
 
 namespace Juza.Magic.Hubs
 {
@@ -51,19 +50,11 @@ namespace Juza.Magic.Hubs
 
         public void UserStatusUpdate(int userId, UserStatus status, string roomId)
         {
-            var user = _chatUserProvider.GetUser(Context.User.Identity.GetUserId<int>());
+            var user = _chatUserProvider.GetUser(userId);
             _chatUserProvider.UserStatusUpdate(userId, status);
 
-            if (roomId.Length > 0)
-            {
-                Clients.Group(roomId)
-                    .addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, UserStatusBroadcastMessage(status));
-            }
-            else
-            {
-                Clients.All
-                    .addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, UserStatusBroadcastMessage(status));
-            }
+            Clients.Group(roomId)
+                .addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, UserStatusBroadcastMessage(status));
         }
 
         private string UserStatusBroadcastMessage(UserStatus status)
@@ -113,16 +104,17 @@ namespace Juza.Magic.Hubs
         //    }
         //}
 
-        public async void SubscribeChatRoom(string roomId)
+        public async void SubscribeChatRoom(int userId, string roomId)
         {
             var addToGroup = Groups.Add(Context.ConnectionId, roomId);
-            _chatUserProvider.SubscribeChatRoom(roomId, Context.ConnectionId, Context.User.Identity.GetUserId<int>());
-            await addToGroup;
+            _chatUserProvider.SubscribeChatRoom(roomId, Context.ConnectionId, userId);
 
             if (roomId != ChatRoom.DefaultRoomId)
             {
                 UpdateChatRoomUsers(roomId);
             }
+
+            await addToGroup;
         }
 
         public Task UnsubscribeChatRoom(string roomId)
@@ -136,13 +128,12 @@ namespace Juza.Magic.Hubs
             return Task.WhenAll(unsubscribeUser);
         }
 
-        public Task SubscribeActiveChatRooms(string connectionId, int userId)
+        public Task SubscribeActiveChatRooms(int userId, string connectionId)
         {
-            var activeChatRooms = _chatUserProvider.SubscribeActiveChatRooms(connectionId, userId);
+            var activeChatRooms = _chatUserProvider.SubscribeActiveChatRooms(userId, connectionId);
 
-            var subscribeUser = activeChatRooms.Select(roomId => Groups.Add(connectionId, roomId));
-
-            return Task.WhenAll(subscribeUser);
+            var subscribeRooms = activeChatRooms.Select(roomId => Groups.Add(connectionId, roomId));
+            return Task.WhenAll(subscribeRooms);
         }
 
         public Task SubscribeActiveConnections(IEnumerable<string> connections, string roomId)
@@ -175,8 +166,7 @@ namespace Juza.Magic.Hubs
 
         public void UnsubscribeGameChat(string roomId)
         {
-            var userId = Context.User.Identity.GetUserId<int>();
-            _chatUserProvider.UnsubscribeGameChat(userId, Context.ConnectionId, roomId);
+            _chatUserProvider.UnsubscribeGameChat(Context.User.Identity.GetUserId<int>(), Context.ConnectionId, roomId);
             //TODO
             //_gameConnectionManager.LeaveGame(connection);
 
@@ -184,7 +174,7 @@ namespace Juza.Magic.Hubs
             System.Diagnostics.Debug.WriteLine("Unsubscribing " + roomId);
 
             // Sent info message on leaving group.
-            var user = _chatUserProvider.GetUser(userId);
+            var user = _chatUserProvider.GetUser(Context.User.Identity.GetUserId<int>());
             Clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, (" left the game."), true);
 
         }
@@ -192,27 +182,28 @@ namespace Juza.Magic.Hubs
         public override Task OnConnected()
         {
             var userId = Context.User.Identity.GetUserId<int>();
+            _chatUserProvider.AddUserConnection(userId, Context.ConnectionId);
 
-            var connectionCount = _chatUserProvider.OnConnected(userId, Context.ConnectionId);
+            SubscribeChatRoom(userId, ChatRoom.DefaultRoomId);
+            //UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
 
-            SubscribeChatRoom(ChatRoom.DefaultRoomId);
-            if (connectionCount == 1)
-            {
-                // If this is the user's only connection broadcast a chat info.
-                UserStatusUpdate(userId, UserStatus.Online, ChatRoom.DefaultRoomId);
-            }
-
-            UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
             foreach (var chatRoom in _chatUserProvider.GetChatRoomsWithUser(userId))
             {
                 UpdateChatRoomUsers(chatRoom.Id);
             }
 
-            SubscribeActiveChatRooms(Context.ConnectionId, userId);
+            var connectionCount = _chatUserProvider.GetUserConnectionCount(userId);
+            if (connectionCount == 1)
+            {
+                UserStatusUpdate(userId, UserStatus.Online, ChatRoom.DefaultRoomId);
+            }
+
+            SubscribeActiveChatRooms(userId, Context.ConnectionId);
+
             // TODO: What when: user disconnects, other user has private chat tab open, user connects again - chat tab is unsubscribed, typing message does not notify receiving user?
             // Solution: use message notifications for that - partially implemented.
 
-
+            _chatUserProvider.SaveAll();
             System.Diagnostics.Debug.WriteLine("Connected: " + Context.ConnectionId);
             return base.OnConnected();
         }
@@ -221,7 +212,7 @@ namespace Juza.Magic.Hubs
         {
             var userId = Context.User.Identity.GetUserId<int>();
             UserStatusUpdate(userId, UserStatus.Offline, ChatRoom.DefaultRoomId);
-            var chatRooms = _chatUserProvider.GetUserChatRooms(userId);
+            var chatRooms = _chatUserProvider.GetUserChatRooms(Context.User.Identity.GetUserId<int>());
 
             foreach (var chatRoom in chatRooms)
             {
@@ -253,15 +244,25 @@ namespace Juza.Magic.Hubs
         //}
         #endregion CHATLOG HANDLING
 
-        #region REMOVE INACTIVE USERS
-        public void RemoveInactiveConnections()
+        public string GetExistingChatRoomIdForUsers(string[] recipientNames)
         {
-            foreach (var connection in _context.Query<UserConnection>())
-            {
-                _context.Delete(connection);
-            }
-            //_context.Database.ExecuteSqlCommand("TRUNCATE TABLE [AspNetUserConnections]");
+            return _chatUserProvider.GetExistingChatRoomIdForUsers(recipientNames);
         }
-        #endregion REMOVE INACTIVE USERS
+
+        //public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)
+        //{
+        //    _chatUserProvider.CreateChatRoom(roomId, isGameRoom, isPrivate, recipientNames);
+
+        //    if (!isPrivate) return;
+
+        //    // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
+        //    var recipients = recipientNames.Distinct().Select(userName => _context.Query<User>().FirstOrDefault(u => u.UserName == userName)).ToList();
+
+        //    foreach (var user in recipients)
+        //    {
+        //        AddUserToRoom(chatRoom.Id, user.Id);
+        //        SubscribeActiveConnections(chatRoom.Id, user.Id);
+        //    }
+        //}
     }
 }

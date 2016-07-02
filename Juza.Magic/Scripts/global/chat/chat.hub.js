@@ -4,13 +4,12 @@
 
         // Hub callback delivering new messages.
         chatClient.addMessage = function (roomId, time, sender, senderColor, message, activateTabAfterwards) {
-            console.log('adding')
             if (!$('#room-' + roomId).length && !chatRoomRequestInProgress[roomId]) {
                 chat.addRoomTab(sender, roomId, false, activateTabAfterwards);
             }
 
             $('#room-messages-' + roomId).append(
-                _.string.format(
+                String.format(
                 '<li class="chat-message">{0}' +
                     '<span class="chat-message-sender" style="color:{1}">' +
                         '{2}' +
@@ -26,7 +25,7 @@
                 var tabBlinkerProcess = setInterval(blink, 1000, '#room-tab-' + roomId);
                 tabBlinkingTracker[roomId] = tabBlinkerProcess;
             } else {
-                scrollContainerToBottom('#room-messages-container-' + roomId);
+                chat.scrollContainerToBottom('#room-messages-container-' + roomId);
             }
         };
 
