@@ -9,20 +9,20 @@ namespace Juza.Magic.Models.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime DateCreated { get; set; }
-        public IList<int> CardsPerTypeNumber { get; set; }
-        public virtual IList<ManaColor> Colors { get; set; }
-        public virtual IList<Card> Cards { get; set; }
+        public ICollection<int> CardsPerTypeNumber { get; set; }
+        public virtual ICollection<ManaColor> Colors { get; set; }
+        public virtual ICollection<Card> Cards { get; set; }
         public virtual User Creator { get; set; }
-        public virtual IList<User> UsedByUsers { get; set; }
+        public virtual ICollection<User> UsedByUsers { get; set; }
     }
 
     public class CardDeckViewModel : IViewModel<CardDeck>
     {
         public int Id { get; private set; }
         public string Name { get; set; }
-        public IList<int> CardsPerTypeNumber { get; set; }
-        public virtual IList<ManaColor> Colors { get; set; }
-        public virtual IList<Card> Cards { get; set; }
+        public ICollection<int> CardsPerTypeNumber { get; set; }
+        public virtual ICollection<ManaColor> Colors { get; set; }
+        public virtual ICollection<Card> Cards { get; set; }
         public virtual UserViewModel Creator { get; set; }
 
         public CardDeckViewModel(CardDeck deck)

@@ -15,8 +15,8 @@ namespace Juza.Magic.Models.Entities
         public DateTime? DateStarted { get; set; }
         public DateTime? DateResumed { get; set; }
         public DateTime? DateEnded { get; set; }
-        public IList<UserViewModel> Observers { get; set; }
-        public virtual IList<GamePlayerStatus> Players { get; set; }
+        public virtual ICollection<UserViewModel> Observers { get; set; }
+        public virtual ICollection<GamePlayerStatus> Players { get; set; }
 
         public Game()
         {
@@ -33,7 +33,7 @@ namespace Juza.Magic.Models.Entities
             IsPrivate = isPrivate;
         }
 
-        public Game(IList<Player> players) : this(true)
+        public Game(ICollection<Player> players) : this(true)
         {
             PlayerCapacity = players.Count;
             Players = new List<GamePlayerStatus>();

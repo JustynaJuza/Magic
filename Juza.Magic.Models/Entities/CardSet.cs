@@ -7,14 +7,14 @@ namespace Juza.Magic.Models.Entities
     public class CardSet
     {
         //private IEnumerable<int> cardIds;
- 
+
         public string Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string Block { get; set; }
         public string Description { get; set; }
         public DateTime DateReleased { get; set; }
-        public IList<Card> Cards { get; set; }
+        public ICollection<Card> Cards { get; set; }
 
         [NotMapped]
         public int Total { get; set; }

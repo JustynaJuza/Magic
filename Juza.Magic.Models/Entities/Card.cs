@@ -35,9 +35,9 @@ namespace Juza.Magic.Models.Entities
         public int ConvertedManaCost { get; set; }
         public string Description { get; set; }
         public string Flavor { get; set; }
-        public virtual IList<CardType> Types { get; set; }
-        public virtual IList<CardManaCost> Colors { get; set; }
-        public virtual IList<CardAvailableAbility> Abilities { get; set; }
+        public virtual ICollection<CardType> Types { get; set; }
+        public virtual ICollection<CardManaCost> Colors { get; set; }
+        public virtual ICollection<CardAvailableAbility> Abilities { get; set; }
 
         public Card()
         {
@@ -123,9 +123,9 @@ namespace Juza.Magic.Models.Entities
         public bool Tapped { get; set; }
         public bool Permanent { get; set; }
         public PlayerCardLocation Location { get; set; }
-        public IList<int> CostPerColor { get; set; }
-        public virtual IList<ManaColor> Colors { get; set; }
-        public virtual IList<CardAbility> Abilities { get; set; }
+        public ICollection<int> CostPerColor { get; set; }
+        public virtual ICollection<ManaColor> Colors { get; set; }
+        public virtual ICollection<CardAbility> Abilities { get; set; }
 
         public void Tap()
         {

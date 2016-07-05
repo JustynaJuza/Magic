@@ -16,8 +16,8 @@ namespace Juza.Magic.Models.Entities.Chat
         public bool IsGameRoom { get; set; }
         public bool IsPrivate { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual IList<ChatRoomUser> Users { get; set; }
-        public virtual IList<ChatRoomConnection> Connections { get; set; }
+        public virtual ICollection<ChatRoomUser> Users { get; set; }
+        public virtual ICollection<ChatRoomConnection> Connections { get; set; }
 
         public ChatRoom()
         {
@@ -28,16 +28,14 @@ namespace Juza.Magic.Models.Entities.Chat
             Connections = new List<ChatRoomConnection>();
         }
 
-        public ChatRoom(string roomId) : this()
-        {
-            Id = roomId ?? Guid.NewGuid().ToString();
-        }
-
         public void AddMessageToLog(ChatMessage message)
         {
             if (Log == null)
             {
-                Log = new ChatLog(Id);
+                Log = new ChatLog
+                {
+                    Id = Id
+                };
             }
 
             Log.Messages.Add(message);

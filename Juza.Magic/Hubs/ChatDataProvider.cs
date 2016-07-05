@@ -152,8 +152,9 @@ namespace Juza.Magic.Hubs
         // Create new chat room with given settings and for specific users only if it's private.
         public void CreateChatRoom(string roomId, bool isGameRoom, bool isPrivate, IEnumerable<string> recipientNames)
         {
-            var chatRoom = new ChatRoom(roomId)
+            var chatRoom = new ChatRoom
             {
+                Id = roomId ?? Guid.NewGuid().ToString(),
                 IsGameRoom = isGameRoom,
                 IsPrivate = isPrivate,
                 Name = (isGameRoom ? "Game" : null),
@@ -193,7 +194,7 @@ namespace Juza.Magic.Hubs
             }
 
             var sender = chatRoom.Users.First(x => x.UserId == userId).User;
-            var message = new ChatMessage(messageText)
+            var message = new ChatMessage
             {
                 Sender = sender,
                 Message = messageText,

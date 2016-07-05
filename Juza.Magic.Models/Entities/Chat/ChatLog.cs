@@ -9,26 +9,15 @@ namespace Juza.Magic.Models.Entities.Chat
     {
         public string Id { get; set; }
         public DateTime DateCreated { get; set; }
-        public virtual List<ChatMessage> Messages { get; set; }
+        public virtual ICollection<ChatMessage> Messages { get; set; }
 
-        // Constructor.
         public ChatLog()
         {
             DateCreated = DateTime.Today;
             Messages = new List<ChatMessage>();
         }
 
-        public ChatLog(string id) : this()
-        {
-            Id = id;
-        }
-
-        public void AppendMessages(List<ChatMessage> tempLog)
-        {
-            Messages.AddRange(tempLog);
-        }
-
-        public IList<ChatMessageViewModel> GetUserMessages(int userId)
+        public IEnumerable<ChatMessageViewModel> GetUserMessages(int userId)
         {
             return Messages.Select(m => new ChatMessageViewModel(m)
             {

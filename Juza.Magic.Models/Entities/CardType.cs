@@ -7,7 +7,7 @@ namespace Juza.Magic.Models.Entities
 {
     public class CardTypeFactory
     {
-        public static IList<CardType> AssignTypes(IList<string> typeNames)
+        public static ICollection<CardType> AssignTypes(IList<string> typeNames)
         {
             var types = new List<CardType>();
 
@@ -65,7 +65,7 @@ namespace Juza.Magic.Models.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public IList<Card> Cards { get; set; }
+        public ICollection<Card> Cards { get; set; }
 
         public static bool IsSuperType(string typeName)
         {

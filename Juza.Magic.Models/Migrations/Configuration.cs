@@ -29,12 +29,15 @@ namespace Juza.Magic.Models.Migrations
                 Id = ChatRoom.DefaultRoomId,
                 Name = "All",
                 TabColorCode = "#445566",
-                Log = new ChatLog(ChatRoom.DefaultRoomId)
+                Log = new ChatLog
+                {
+                    Id = ChatRoom.DefaultRoomId
+                }
             });
 
             foreach (var color in Enum.GetNames(typeof(Color)))
             {
-                var colorId = (int)Enum.Parse(typeof(Color), color);
+                var colorId = (int) Enum.Parse(typeof(Color), color);
                 var existingColor = context.Set<ManaColor>().Find(colorId);
                 if (existingColor == null)
                 {
@@ -52,7 +55,7 @@ namespace Juza.Magic.Models.Migrations
             {
                 context.Set<CardType>().AddOrUpdate(new CardSuperType
                 {
-                    Id = (int)type,
+                    Id = (int) type,
                     Name = type.ToString()
                 });
             }
@@ -61,7 +64,7 @@ namespace Juza.Magic.Models.Migrations
             {
                 context.Set<CardType>().AddOrUpdate(new CardMainType
                 {
-                    Id = (int)type,
+                    Id = (int) type,
                     Name = type.ToString()
                 });
             }

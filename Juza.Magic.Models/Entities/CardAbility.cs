@@ -12,9 +12,9 @@ namespace Juza.Magic.Models.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public string Reminder { get; set; }
-        public IList<string> EffectNames { get; set; }
+        public ICollection<string> EffectNames { get; set; }
         public string CallbackName { get; set; }
-        public IList<CardAvailableAbility> Cards { get; set; }
+        public ICollection<CardAvailableAbility> Cards { get; set; }
 
         //[NotMapped]
         //public virtual Card Target { get; set; }
@@ -46,14 +46,14 @@ namespace Juza.Magic.Models.Entities
     public class ActiveAbility : CardAbility
     {
         public bool RequiresTap { get; set; }
-        public IList<CardManaCost> Costs { get; set; }
+        public ICollection<CardManaCost> Costs { get; set; }
     }
 
     public class TargetAbility : ActiveAbility
     {
         public int PlayerTargets { get; set; }
         public int CardTargets { get; set; }
-        public IList<CardType> CardTypesRequired { get; set; }
+        public ICollection<CardType> CardTypesRequired { get; set; }
         public int TargetsRequired { get; set; }
     }
 }
