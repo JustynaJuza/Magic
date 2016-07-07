@@ -5,11 +5,11 @@ using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.SignalR;
 using Microsoft.Owin;
 using Owin;
 using SimpleInjector;
 using SimpleInjector.Advanced;
+using SimpleInjector.Extensions.ExecutionContextScoping;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
 using System.Collections.Generic;
@@ -24,9 +24,15 @@ namespace Juza.Magic
     // from http://simpleinjector.codeplex.com/discussions/564822
     public static class SimpleInjectorInitializer
     {
+        private static ScopedLifestyle _hybridLifestyle;
+
         public static Container Initialize(IAppBuilder app)
         {
-            var container = GetInitializeContainer(app);
+            var container = new Container();
+
+            SetDefaultHybridLifestyle(container);
+            InitializeContainer(container, app);
+
             container.Verify();
 
             DependencyResolver.SetResolver(new SimpleInjectorDependencyResolver(container));
@@ -34,16 +40,23 @@ namespace Juza.Magic
             return container;
         }
 
-        public static Container GetInitializeContainer(IAppBuilder app)
+        public static void SetDefaultHybridLifestyle(Container container)
         {
-            var container = new Container();
-            container.Options.DefaultScopedLifestyle = new WebRequestLifestyle();
+            _hybridLifestyle = Lifestyle.CreateHybrid(
+                () => container.GetCurrentExecutionContextScope() != null,
+                new ExecutionContextScopeLifestyle(),
+                new WebRequestLifestyle());
 
+            container.Options.DefaultScopedLifestyle = _hybridLifestyle;
+        }
+
+        public static void InitializeContainer(Container container, IAppBuilder app)
+        {
             container.RegisterSingleton(app);
 
             // Data Access
-            container.RegisterPerWebRequest<MagicDbContext>();
-            container.RegisterPerWebRequest<IDbContext>(() => container.GetInstance<MagicDbContext>());
+            container.Register<MagicDbContext>(_hybridLifestyle);
+            container.Register<IDbContext>(container.GetInstance<MagicDbContext>, _hybridLifestyle);
 
             RegisterMappings(container);
 
@@ -93,13 +106,16 @@ namespace Juza.Magic
             //container.Register(typeof(IAuthorizationInterceptor<>), typeof(CorporateClientListAuthorizationInterceptor<>));
             //container.RegisterConditional(typeof(IAuthorizationInterceptor<>), typeof(NullAuthorizationInterceptor<>), x => !x.Handled);
             //container.Register<IAppUserProvider, AppUserProvider>();
-
-            return container;
         }
 
         private static void RegisterHubs(Container container)
         {
-            container.Register<IChatDataProvider, ChatDataProvider>();
+            container.Register<IChatDataProvider, ChatDataProvider>(_hybridLifestyle);
+            container.Register<IChatService, ChatService>(_hybridLifestyle);
+            container.Register<ChatHub, ChatHub>(_hybridLifestyle);
+
+            //container.Register<GameHub, GameHub>(HybridLifestyle);
+
             //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<GameHub, IGameHub>(), Lifestyle.Singleton);
             //container.Register(() => GlobalHost.ConnectionManager.GetHubContext<ChatHub, IChatHub>(), Lifestyle.Singleton);
             //var hubs = Assembly.GetExecutingAssembly().GetExportedTypes().Where(x => x.IsAssignableFrom(typeof(Hub)));

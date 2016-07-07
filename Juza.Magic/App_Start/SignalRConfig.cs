@@ -6,23 +6,8 @@ using System;
 
 namespace Juza.Magic
 {
-    public class SignalRConfig
+    public partial class SignalRConfig
     {
-        private class SimpleInjectorHubActivator : IHubActivator
-        {
-            private readonly Container _container;
-
-            public SimpleInjectorHubActivator(Container container)
-            {
-                _container = container;
-            }
-
-            public IHub Create(HubDescriptor descriptor)
-            {
-                return (IHub) _container.GetInstance(descriptor.HubType);
-            }
-        }
-
         public static void AdjustConnectionTimeouts()
         {
             // Make long polling connections wait a maximum of 110 seconds for a
@@ -49,10 +34,10 @@ namespace Juza.Magic
 
             AdjustConnectionTimeouts();
 
-            app.MapSignalR(config);
-
-            var activator = new SimpleInjectorHubActivator(container);
+            var activator = new SimpleInjectorScopedHubActivator(container);
             GlobalHost.DependencyResolver.Register(typeof(IHubActivator), () => activator);
+
+            app.MapSignalR(config);
         }
     }
 }

@@ -111,6 +111,20 @@
             <exception cref="T:System.ArgumentNullException">Thrown when either <paramref name="container"/> or
             <paramref name="key"/> is a null reference (Nothing in VB).</exception>
         </member>
+        <member name="M:SimpleInjector.Advanced.AdvancedExtensions.GetOrSetItem``1(SimpleInjector.Container,System.Object,System.Func{SimpleInjector.Container,System.Object,``0})">
+            <summary>
+            Adds an item by the given <paramref name="key"/> in the container by using the specified function,
+            if the key does not already exist. This operation is atomic.
+            </summary>
+            <typeparam name="T">The Type of the item to create.</typeparam>
+            <param name="container">The container.</param>
+            <param name="key">The key of the item to insert or override.</param>
+            <param name="valueFactory">The function used to generate a value for the given key. The supplied
+            value of <paramref name="key"/> will be supplied to the function when called.</param>
+            <returns>The stored item or the item from the <paramref name="valueFactory"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when either <paramref name="container"/>,
+            <paramref name="key"/> or <paramref name="valueFactory"/> is a null reference (Nothing in VB).</exception>
+        </member>
         <member name="M:SimpleInjector.Advanced.AdvancedExtensions.AppendToCollection(SimpleInjector.Container,System.Type,SimpleInjector.Registration)">
             <summary>
             Allows appending new registrations to existing registrations made using one of the
@@ -2829,6 +2843,14 @@
             </summary>
             <value>The value indicating whether the container will return an empty collection.</value>
         </member>
+        <member name="P:SimpleInjector.ContainerOptions.UseFullyQualifiedTypeNames">
+            <summary>
+            Gets or sets a value indicating whether all the containers in the current AppDomain should throw
+            exceptions that contain fully qualified type name. The default is <c>false</c> which means
+            the type's namespace is omitted.
+            </summary>
+            <value>The value indicating whether exception message should emit full type names.</value>
+        </member>
         <member name="P:SimpleInjector.ContainerOptions.ConstructorResolutionBehavior">
             <summary>
             Gets or sets the constructor resolution behavior. By default, the container only supports types
@@ -4482,6 +4504,27 @@
             cached instances might not be thread-safe.
             </remarks>
         </member>
+        <member name="M:SimpleInjector.Scope.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:SimpleInjector.Scope"/> class.</summary>
+        </member>
+        <member name="M:SimpleInjector.Scope.#ctor(SimpleInjector.Container)">
+            <summary>Initializes a new instance of the <see cref="T:SimpleInjector.Scope"/> class.</summary>
+            <param name="container">The container instance that the scope belongs to.</param>
+        </member>
+        <member name="P:SimpleInjector.Scope.Container">
+            <summary>Gets the container instance that this scope belongs to.</summary>
+            <value>The <see cref="P:SimpleInjector.Scope.Container"/> instance.</value>
+        </member>
+        <member name="M:SimpleInjector.Scope.GetInstance``1">
+            <summary>Gets an instance of the given <typeparamref name="TService"/> for the current scope.</summary>
+            <typeparam name="TService">The type of the service to resolve.</typeparam>
+            <returns>An instance of the given service type.</returns>
+        </member>
+        <member name="M:SimpleInjector.Scope.GetInstance(System.Type)">
+            <summary>Gets an instance of the given <paramref name="serviceType" /> for the current scope.</summary>
+            <param name="serviceType">The type of the service to resolve.</param>
+            <returns>An instance of the given service type.</returns>
+        </member>
         <member name="M:SimpleInjector.Scope.WhenScopeEnds(System.Action)">
             <summary>
             Allows registering an <paramref name="action"/> delegate that will be called when the scope ends,
@@ -4516,6 +4559,31 @@
             <exception cref="T:System.ArgumentNullException">Thrown when one of the arguments is a null reference
             (Nothing in VB).</exception>
             <exception cref="T:System.ObjectDisposedException">Thrown when the scope has been disposed.</exception>
+        </member>
+        <member name="M:SimpleInjector.Scope.GetItem(System.Object)">
+            <summary>
+            Retrieves an item from the scope stored by the given <paramref name="key"/> or null when no
+            item is stored by that key.
+            </summary>
+            <remarks>
+            <b>Thread-safety:</b> Calls to this method are thread-safe, but users should take proper
+            percussions when they call both <b>GetItem</b> and <see cref="M:SimpleInjector.Scope.SetItem(System.Object,System.Object)"/>.
+            </remarks>
+            <param name="key">The key of the item to retrieve.</param>
+            <returns>The stored item or null (Nothing in VB).</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when one of the supplied arguments is a null
+            reference (Nothing in VB).</exception>
+        </member>
+        <member name="M:SimpleInjector.Scope.SetItem(System.Object,System.Object)">
+            <summary>Stores an item by the given <paramref name="key"/> in the scope.</summary>
+            <remarks>
+            <b>Thread-safety:</b> Calls to this method are thread-safe, but users should take proper
+            percussions when they call both <see cref="M:SimpleInjector.Scope.GetItem(System.Object)"/> and <b>SetItem</b>.
+            </remarks>
+            <param name="key">The key of the item to insert or override.</param>
+            <param name="item">The actual item. May be null.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when paramref name="key"/> is a null reference 
+            (Nothing in VB).</exception>
         </member>
         <member name="M:SimpleInjector.Scope.Dispose">
             <summary>Releases all instances that are cached by the <see cref="T:SimpleInjector.Scope"/> object.</summary>
