@@ -1,5 +1,4 @@
 using Juza.Magic.Models.Interfaces;
-using Juza.Magic.Models.Mappings;
 using Juza.Magic.Models.Projections;
 using System;
 using System.Collections.Generic;
@@ -28,9 +27,6 @@ namespace Juza.Magic.Models.Extensions
             where TViewModel : IViewModel<TModel>
         {
             var projectionType = typeof(IQueryMapping<TModel, TViewModel>);
-            var x = typeof(ChatRoomToChatRoomViewModelProjection);
-            var y = x.GetInterfaces().Any(i => i == projectionType);
-
 
             // Get mapping type defined in projection assembly (should be in Mappings directory)
             // If no type is defined use auto mapping.
