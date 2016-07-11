@@ -7,6 +7,7 @@ using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -31,7 +32,11 @@ namespace Juza.Magic.Controllers
 
             if (!string.IsNullOrEmpty(roomId))
             {
-                var chatRoom = _context.Read<ChatRoom>().Include(x => x.Connections.Select(y => y.User)).FindOrFetchEntity(roomId); //context.ChatRooms.Include(r => r.Users.Select(c => c.User)).First(r => r.Id == roomId);
+                var chatRoom = _context.Set<ChatRoom>().Include(x => x.Connections.Select(y => y.User)).First(x => x.Id == roomId);
+                //_context.Read<ChatRoom>()
+                //.Include(x => x.Connections.Select(y => y.User))
+                //.FindOrFetchEntity(roomId);
+
                 if (!chatRoom.IsPrivate)
                 {
                     roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
@@ -105,7 +110,7 @@ namespace Juza.Magic.Controllers
 
             if (relation != null)
             {
-                _context.Delete(relation, true);
+                _context.Delete(relation);
                 return "Add to friends";
             }
 
@@ -122,7 +127,7 @@ namespace Juza.Magic.Controllers
         {
             var userId = User.Identity.GetUserId<int>();
 
-            var chatRooms = _context.Query<ChatRoomConnection>()
+            var chatRooms = _context.Set<ChatRoomConnection>()
                 .Where(x => x.UserId == userId)
                 .Select(rc => rc.ChatRoom).Distinct()
                 .Where(r => !r.IsGameRoom)

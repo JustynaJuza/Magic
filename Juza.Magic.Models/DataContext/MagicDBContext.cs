@@ -1,3 +1,7 @@
+using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Entities.Chat;
+using Juza.Magic.Models.Extensions;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -6,10 +10,6 @@ using System.Data.Entity.Validation;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Juza.Magic.Models.Entities;
-using Juza.Magic.Models.Entities.Chat;
-using Juza.Magic.Models.Extensions;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Juza.Magic.Models.DataContext
 {
@@ -42,26 +42,23 @@ namespace Juza.Magic.Models.DataContext
         /// <typeparam name="TEntity">Type of the entity to be updated.</typeparam>
         /// <param name="item">The entity to be updated.</param>
         /// <param name="updateOnly">Optional flag for applying updates to an existing entity only but without attaching the entity to the context.</param>
-        bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
-            where TEntity : class;
+        //bool InsertOrUpdate<TEntity>(TEntity entity, bool withSave = false, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
-            where TEntity : class;
+        //bool InsertOrUpdate<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
-            where TEntity : class;
+        //bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
+        //    where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class;
+        //bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class;
 
-        bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class;
+        //bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class;
 
-        bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
-            where TEntity : class;
-
-        DbSet<TEntity> Query<TEntity>()
-            where TEntity : class;
+        //bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
+        //    where TEntity : class;
 
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
         DbSet Set(Type entityType);
@@ -138,7 +135,7 @@ namespace Juza.Magic.Models.DataContext
         {
             var collectionType = entity.GetType();
             var itemKeyInfo = collectionType.GetProperty("Id") ?? collectionType.GetProperty(collectionType.Name + "Id");
-            
+
             if (itemKeyInfo == null)
             {
                 var entityException = new TargetException("The entity could not be read, " +
@@ -234,63 +231,57 @@ namespace Juza.Magic.Models.DataContext
                 return false;
             }
         }
-        
+
         public bool InsertOrUpdateWithSave<TEntity>(TEntity entity, bool updateOnly = false)
             where TEntity : class
         {
             return InsertOrUpdate(entity, withSave: true, updateOnly: updateOnly);
         }
 
-        public bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class
-        {
-            string errorText;
-            return Delete(entity, out errorText, deleteOnly);
-        }
+        //public bool Delete<TEntity>(TEntity entity, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class
+        //{
+        //    string errorText;
+        //    return Delete(entity, out errorText, deleteOnly);
+        //}
 
-        public bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
-            where TEntity : class
-        {
-            errorText = null;
+        //public bool Delete<TEntity>(TEntity entity, out string errorText, bool withSave = false, bool deleteOnly = false)
+        //    where TEntity : class
+        //{
+        //    errorText = null;
 
-            if (!deleteOnly)
-            {
-                entity = Read(entity);
-                if (entity == null)
-                {
-                    return false;
-                }
-            }
+        //    if (!deleteOnly)
+        //    {
+        //        entity = Read(entity);
+        //        if (entity == null)
+        //        {
+        //            return false;
+        //        }
+        //    }
 
-            Entry(entity).State = EntityState.Deleted;
+        //    Entry(entity).State = EntityState.Deleted;
 
-            if (!withSave)
-            {
-                return true;
-            }
+        //    if (!withSave)
+        //    {
+        //        return true;
+        //    }
 
-            try
-                {
-                    return SaveChanges() > 0;
-                }
-                catch (Exception ex)
-                {
-                    errorText = ShowErrorMessage(ex);
-                    return false;
-                }             
-        }
+        //    try
+        //        {
+        //            return SaveChanges() > 0;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            errorText = ShowErrorMessage(ex);
+        //            return false;
+        //        }             
+        //}
 
-        public bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
-            where TEntity : class
-        {
-            return Delete(entity, withSave: true, deleteOnly: deleteOnly);
-        }
-
-        public DbSet<TEntity> Query<TEntity>()
-            where TEntity : class
-        {
-            return Set<TEntity>();
-        }
+        //public bool DeleteAndSave<TEntity>(TEntity entity, bool deleteOnly = false)
+        //    where TEntity : class
+        //{
+        //    return Delete(entity, withSave: true, deleteOnly: deleteOnly);
+        //}
 
         public static string ShowErrorMessage(Exception ex)
         {
@@ -302,11 +293,11 @@ namespace Juza.Magic.Models.DataContext
             if (ex is DbEntityValidationException)
             {
                 var errors = string.Empty;
-                foreach (var validationErrors in ((DbEntityValidationException)ex).EntityValidationErrors)
+                foreach (var validationErrors in ((DbEntityValidationException) ex).EntityValidationErrors)
                 {
                     foreach (var validationError in validationErrors.ValidationErrors)
                     {
-                        errors += "Property: " + validationError.PropertyName + 
+                        errors += "Property: " + validationError.PropertyName +
                             " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
                     }
                 }

@@ -1,10 +1,10 @@
+using Juza.Magic.Models.DataContext;
+using Juza.Magic.Models.Entities;
+using Juza.Magic.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Entities;
-using Juza.Magic.Models.Enums;
 
 namespace Juza.Magic.Models
 {
@@ -27,20 +27,20 @@ namespace Juza.Magic.Models
         {
             foreach (var typeName in card.TypeNames)
             {
-                var type = _context.Query<CardType>().FirstOrDefault(t => t.Name == typeName);
+                var type = _context.Set<CardType>().FirstOrDefault(t => t.Name == typeName);
                 if (type != null)
                 {
                     card.Types.Add(type);
                 }
-                    //else if (CardType.IsSuperType(typeName))
-                    //{
-                    //    types.Add(new CardSuperType { Name = typeName });
-                    //}
+                //else if (CardType.IsSuperType(typeName))
+                //{
+                //    types.Add(new CardSuperType { Name = typeName });
+                //}
                 else if (CardType.IsMainType(typeName))
                 {
                     // Possibly old card with obsolete type, replace with newest value.
                     var name = Enum.Parse(typeof(MainType), typeName).ToString();
-                    type = _context.Query<CardType>().FirstOrDefault(t => t.Name == name);
+                    type = _context.Set<CardType>().FirstOrDefault(t => t.Name == name);
                     card.Types.Add(type ?? new CardMainType { Name = typeName });
                 }
                 else
@@ -75,7 +75,7 @@ namespace Juza.Magic.Models
                     character = card.ManaCode[i].ToString();
 
                     var colorId = Enum.IsDefined(typeof(Color), character)
-                        ? (int)Enum.Parse(typeof(Color), character)
+                        ? (int) Enum.Parse(typeof(Color), character)
                         : 0;
 
                     if (colorId == 0)
@@ -93,7 +93,7 @@ namespace Juza.Magic.Models
                 else if (character != "{")
                 {
                     var colorId = Enum.IsDefined(typeof(Color), character)
-                        ? (int)Enum.Parse(typeof(Color), character)
+                        ? (int) Enum.Parse(typeof(Color), character)
                         : 0;
 
                     if (colorId == 0)
@@ -123,11 +123,11 @@ namespace Juza.Magic.Models
                     i += 4;
 
                     var colorId = Enum.IsDefined(typeof(Color), character)
-                        ? (int)Enum.Parse(typeof(Color), character)
+                        ? (int) Enum.Parse(typeof(Color), character)
                         : 0;
 
                     var hybridColorId = Enum.IsDefined(typeof(Color), hybridCharacter)
-                        ? (int)Enum.Parse(typeof(Color), hybridCharacter)
+                        ? (int) Enum.Parse(typeof(Color), hybridCharacter)
                         : 0;
 
                     if (colorId == 0 || hybridColorId == 0)
@@ -138,7 +138,7 @@ namespace Juza.Magic.Models
 
                     var existingManaColor =
                         manaCost.FirstOrDefault(
-                            c => c.IsHybrid && ((HybridManaCost)c).HasColors(colorId, hybridColorId));
+                            c => c.IsHybrid && ((HybridManaCost) c).HasColors(colorId, hybridColorId));
                     if (existingManaColor != null)
                     {
                         existingManaColor.Cost += 1;

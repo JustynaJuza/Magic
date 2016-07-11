@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Extensions;
 using Juza.Magic.Models.JQueryDataTables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace Juza.Magic.Areas.Admin.Controllers
 {
@@ -26,7 +26,7 @@ namespace Juza.Magic.Areas.Admin.Controllers
         {
             return View(context.Set<Card>().ToList());
         }
-        
+
         public JsonResult GetCardData(DataTablesRequestIn o)
         {
             IList<Card> cards;
@@ -46,13 +46,17 @@ namespace Juza.Magic.Areas.Admin.Controllers
 
             //var serializedCards = cards.Select(RenderCard).ToList();
 
-            return new JsonResult { Data = new DataTablesRequestOut
+            return new JsonResult
             {
-                Draw = o.Draw,
-                RecordsTotal = context.Set<Card>().Count(),
-                RecordsFiltered = cards.Count(),
-                //Data = serializedCards
-            }, JsonRequestBehavior = JsonRequestBehavior.AllowGet};
+                Data = new DataTablesRequestOut
+                {
+                    Draw = o.Draw,
+                    RecordsTotal = context.Set<Card>().Count(),
+                    RecordsFiltered = cards.Count(),
+                    //Data = serializedCards
+                },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
         }
 
         //public static void UpdateCard(Card model)
@@ -140,12 +144,12 @@ namespace Juza.Magic.Areas.Admin.Controllers
         #endregion CREATE/EDIT
 
         #region DELETE
-        public ActionResult Delete(Card model)
-        {
-            string errorText;
-            TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
-            return RedirectToAction("Index");
-        }
+        //public ActionResult Delete(Card model)
+        //{
+        //    string errorText;
+        //    TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
+        //    return RedirectToAction("Index");
+        //}
         #endregion DELETE
 
         #region DISPOSE

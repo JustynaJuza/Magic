@@ -247,7 +247,7 @@ namespace Juza.Magic.Hubs
             if (!isPrivate) return;
 
             // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
-            var recipients = recipientNames.Distinct().Select(userName => _context.Query<User>().FirstOrDefault(u => u.UserName == userName)).ToList();
+            var recipients = recipientNames.Distinct().Select(userName => _context.Set<User>().FirstOrDefault(u => u.UserName == userName)).ToList();
 
             foreach (var user in recipients)
             {
@@ -533,7 +533,7 @@ namespace Juza.Magic.Hubs
         #region REMOVE INACTIVE USERS
         public void RemoveInactiveConnections()
         {
-            foreach (var connection in _context.Query<UserConnection>())
+            foreach (var connection in _context.Set<UserConnection>())
             {
                 _context.Delete(connection);
             }

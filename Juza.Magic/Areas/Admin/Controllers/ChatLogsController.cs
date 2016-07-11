@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Juza.Magic.Models.DataContext;
+using Juza.Magic.Models.Entities.Chat;
+using System;
 using System.Linq;
 using System.Web.Mvc;
-using Juza.Magic.Models.DataContext;
-using Juza.Magic.Models.Entities.Chat;
 
 namespace Juza.Magic.Areas.Admin.Controllers
 {
@@ -10,7 +10,7 @@ namespace Juza.Magic.Areas.Admin.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-		[HttpGet]
+        [HttpGet]
         public ActionResult Index()
         {
             return View(context.Set<ChatLog>().ToList());
@@ -25,24 +25,24 @@ namespace Juza.Magic.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-		#region DELETE
-        [ActionName("ChatLogDelete")]
-        public ActionResult Delete(ChatLog model)
-        {
-            string errorText;
-            TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
-            return RedirectToAction("Index");
-        }
-        [ActionName("ChatMessageDelete")]
-        public ActionResult Delete(ChatMessage model)
-        {
-            string errorText;
-            TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
-            return RedirectToAction("Messages", new { id = model.LogId });
-        }
-		#endregion DELETE
+        //#region DELETE
+        //[ActionName("ChatLogDelete")]
+        //public ActionResult Delete(ChatLog model)
+        //{
+        //    string errorText;
+        //    TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
+        //    return RedirectToAction("Index");
+        //}
+        //[ActionName("ChatMessageDelete")]
+        //public ActionResult Delete(ChatMessage model)
+        //{
+        //    string errorText;
+        //    TempData["Error"] = context.Delete(model, out errorText) ? null : errorText;
+        //    return RedirectToAction("Messages", new { id = model.LogId });
+        //}
+        //#endregion DELETE
 
-		#region DISPOSE
+        #region DISPOSE
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -51,6 +51,6 @@ namespace Juza.Magic.Areas.Admin.Controllers
             }
             base.Dispose(disposing);
         }
-		#endregion DISPOSE
+        #endregion DISPOSE
     }
 }
