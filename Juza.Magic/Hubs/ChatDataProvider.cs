@@ -455,16 +455,14 @@ namespace Juza.Magic.Hubs
         public void DeleteConnection(int userId, string connectionId, out bool isLastConnection)
         {
             var connection = _context.Read<UserConnection>().Include(x => x.User.Connections).FindOrFetchEntity(connectionId, userId);
-            _context.Delete(connection);
+            isLastConnection = !connection.User.Connections.Any();
 
             //if (!string.IsNullOrWhiteSpace(connection.GameId))
             //{
             //    UnsubscribeGameChat(connection.UserId, connection.Id, connection.GameId);
             //}
 
-            isLastConnection = !connection.User.Connections.Any();
-
-            System.Diagnostics.Debug.WriteLine("Disconnected: " + connection.Id);
+            _context.Delete(connection);
         }
 
         public void DeleteConnection(string connectionId)

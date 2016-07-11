@@ -111,7 +111,7 @@ namespace Juza.Magic
         private static void RegisterHubs(Container container)
         {
             container.Register<IChatDataProvider, ChatDataProvider>(_hybridLifestyle);
-            container.Register<IChatService, ChatService>(_hybridLifestyle);
+            container.Register<IChatServiceFactory, ChatServiceFactory>(_hybridLifestyle);
             container.Register<ChatHub, ChatHub>(_hybridLifestyle);
 
             //container.Register<GameHub, GameHub>(HybridLifestyle);
