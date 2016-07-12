@@ -37,7 +37,7 @@ namespace Juza.Magic.Models.Entities
         {
             using (var context = new MagicDbContext())
             {
-                var player = context.Read<Player>().FindOrFetchEntity(target.CasterId, gameId);
+                var player = context.Read<Player>().Find(target.CasterId, gameId);
                 //player.Deck.
             }
         }

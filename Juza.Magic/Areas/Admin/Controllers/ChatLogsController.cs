@@ -18,7 +18,7 @@ namespace Juza.Magic.Areas.Admin.Controllers
 
         public ActionResult Messages(string id)
         {
-            var model = context.Read<ChatLog>().FindOrFetchEntity(id);
+            var model = context.Read<ChatLog>().Find(id);
             if (model != null) return View(model.Messages);
 
             TempData["Error"] = MagicDbContext.ShowErrorMessage(new ArgumentNullException());

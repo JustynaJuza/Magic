@@ -35,7 +35,7 @@ namespace Juza.Magic.Controllers
                 var chatRoom = _context.Set<ChatRoom>().Include(x => x.Connections.Select(y => y.User)).First(x => x.Id == roomId);
                 //_context.Read<ChatRoom>()
                 //.Include(x => x.Connections.Select(y => y.User))
-                //.FindOrFetchEntity(roomId);
+                //.Find(roomId);
 
                 if (!chatRoom.IsPrivate)
                 {
@@ -106,7 +106,7 @@ namespace Juza.Magic.Controllers
         public string AddOrRemoveFriend(int id)
         {
             var userId = User.Identity.GetUserId<int>();
-            var relation = _context.Read<UserRelation>().FindOrFetchEntity(userId, id);
+            var relation = _context.Read<UserRelation>().Find(userId, id);
 
             if (relation != null)
             {

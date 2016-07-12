@@ -9,19 +9,23 @@ namespace Juza.Magic.Models.DataContext
     {
         IList<Expression<Func<TEntity, ICollection<object>>>> CollectionExpressions { get; set; }
         IList<Expression<Func<TEntity, object>>> ReferenceExpressions { get; set; }
+        bool SkipLocalContextCheck { get; set; }
 
         IEntityLookup<TEntity> Include(Expression<Func<TEntity, object>> memberExpression);
         IEntityLookup<TEntity> Include(Expression<Func<TEntity, ICollection<object>>> memberExpression);
-        TEntity FindOrFetchEntity(params object[] keyValues);
+        TEntity Find(params object[] keyValues);
     }
 
     public class EntityLookup<TEntity> : IEntityLookup<TEntity>
     {
+        private readonly Callback _findOrFetchEntity;
+
         public delegate TEntity Callback(IEntityLookup<TEntity> entityLookup, params object[] keyValues);
 
-        private readonly Callback _findOrFetchEntity;
         public IList<Expression<Func<TEntity, ICollection<object>>>> CollectionExpressions { get; set; }
         public IList<Expression<Func<TEntity, object>>> ReferenceExpressions { get; set; }
+
+        public bool SkipLocalContextCheck { get; set; }
 
         public EntityLookup(Callback findOrFetchEntity)
         {
@@ -78,6 +82,9 @@ namespace Juza.Magic.Models.DataContext
             {
                 AddNavigationProperty(memberExpression);
             }
+
+            // local context checking is not able to handle nested navigation properties in current version
+            SkipLocalContextCheck = true;
 
             var methodCallExpression = expression as MethodCallExpression;
             if (methodCallExpression != null)
@@ -143,49 +150,9 @@ namespace Juza.Magic.Models.DataContext
 
             // include further entities in nested selects
             IncludeEntities((LambdaExpression) expression.Arguments[1]);
-
-            //var navigationProperty = (MemberExpression) expression.Arguments[0];
-            //var navigationPropertyInfo = ((PropertyInfo) navigationProperty.Member);
-            //var navigationPropertyType = navigationPropertyInfo.PropertyType;
-
-            //var isCollectionProperty = navigationPropertyType.IsGenericType
-            //    && navigationPropertyType.GetGenericTypeDefinition() == typeof(ICollection<>);
-
-            //var entityParam = Expression.Parameter(typeof(TEntity));
-            //if (isCollectionProperty)
-            //{
-            //    var actualMemberExpression = Expression.Property(entityParam, navigationPropertyInfo);
-            //    var collectionMember = Expression.Lambda<Func<TEntity, ICollection<object>>>(actualMemberExpression, entityParam);
-            //    CollectionExpressions.Add(collectionMember);
-            //}
-            //else
-            //{
-            //    var referenceMember = Expression.Lambda<Func<TEntity, object>>(navigationProperty, entityParam);
-            //    ReferenceExpressions.Add(referenceMember);
-            //}
-
-            // process rest of expression
-
-            //// parse first argument
-            //var navigationProperty = expression.Arguments[0];
-            //var isCollectionProperty = navigationProperty.GetType().IsAssignableFrom(typeof(ICollection<object>));
-
-            //var entityParam = Expression.Parameter(typeof(TEntity), "x");
-            //if (isCollectionProperty)
-            //{
-            //    var collectionMember = Expression.Lambda<Func<TEntity, ICollection<object>>>(navigationProperty, entityParam);
-            //    CollectionExpressions.Add(collectionMember);
-            //}
-            //else
-            //{
-            //    var referenceMember = Expression.Lambda<Func<TEntity, object>>(navigationProperty, entityParam);
-            //    ReferenceExpressions.Add(referenceMember);
-            //}
-
-            //// process rest of expression
         }
 
-        public TEntity FindOrFetchEntity(params object[] keyValues)
+        public TEntity Find(params object[] keyValues)
         {
             return _findOrFetchEntity(this, keyValues);
         }

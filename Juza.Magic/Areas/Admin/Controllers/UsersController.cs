@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Net.Mail;
-using System.Web.Mvc;
-using Juza.Magic.Areas.Admin.Models;
+﻿using Juza.Magic.Areas.Admin.Models;
 using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Net.Mail;
+using System.Web.Mvc;
 
 namespace Juza.Magic.Areas.Admin.Controllers
 {
@@ -150,7 +150,7 @@ namespace Juza.Magic.Areas.Admin.Controllers
         {
             try
             {
-                _context.FindAndDeleteAndSave<User, int>(id);
+                _context.FindAndDeleteAndSave<User>(id);
                 return new JsonResult { Data = new SuccessResult { Success = true } };
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ namespace Juza.Magic.Areas.Admin.Controllers
 
             var code = _userManager.GeneratePasswordResetToken(user.Id);
             var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-            
+
             var isSent = SendEmail(user.Email, callbackUrl);
 
             return new JsonResult

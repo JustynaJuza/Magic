@@ -126,12 +126,12 @@
     <Compile Include="Entities\Chat\ChatRoom.cs" />
     <Compile Include="Entities\Chat\ChatRoomConnection.cs" />
     <Compile Include="Entities\Chat\ChatRoomUser.cs" />
-    <Compile Include="DataContext\ContextExtensions.cs" />
+    <Compile Include="DataContext\ContextExtensions.EntityLookup.cs" />
     <Compile Include="DataContext\DatabaseContextHelper.cs" />
     <Compile Include="DataContext\EntityConfig.cs" />
     <Compile Include="DataContext\EntityExtensions.cs" />
     <Compile Include="DataContext\EntityLookup.cs" />
-    <Compile Include="DataContext\EntityManagement.cs" />
+    <Compile Include="DataContext\ContextExtensions.EntityManagement.cs" />
     <Compile Include="DataContext\MagicDbContext.cs" />
     <Compile Include="DataContext\PredicateExtensions.cs" />
     <Compile Include="Entities\Role.cs" />
