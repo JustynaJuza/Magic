@@ -163,6 +163,7 @@
     <Compile Include="Entities\PlayerCard.cs" />
     <Compile Include="Mappings\UserProjections.cs" />
     <Compile Include="Mappings\ChatRoomProjections.cs" />
+    <Compile Include="CardPlayerService.cs" />
     <Compile Include="Projections\AutoMapping.cs" />
     <Compile Include="Projections\IMapping.cs" />
     <Compile Include="Projections\MappingFactory.cs" />

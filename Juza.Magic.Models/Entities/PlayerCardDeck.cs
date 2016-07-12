@@ -25,73 +25,73 @@ namespace Juza.Magic.Models.Entities
 
         #region DECK MANAGEMENT
 
-        public void Shuffle(Random rng)
-        {
-            for (var i = Cards.Count - 1; i >= 0; i--)
-            {
-                var swapIndex = rng.Next(i + 1);
-                Cards.ElementAt(i).Index = swapIndex;
-                Cards.ElementAt(swapIndex).Index = i;
-            }
+        //public void Shuffle(Random rng)
+        //{
+        //    for (var i = Cards.Count - 1; i >= 0; i--)
+        //    {
+        //        var swapIndex = rng.Next(i + 1);
+        //        Cards.ElementAt(i).Index = swapIndex;
+        //        Cards.ElementAt(swapIndex).Index = i;
+        //    }
 
-            Cards = Cards.OrderBy(c => c.Index).ToList();
-        }
+        //    Cards = Cards.OrderBy(c => c.Index).ToList();
+        //}
 
-        public void DrawHand(int cards = 7)
-        {
-            using (var context = new MagicDbContext())
-            {
-                Shuffle(new Random());
+        //public void DrawHand(int cards = 7)
+        //{
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        Shuffle(new Random());
 
-                for (var i = 0; i < cards; i++)
-                {
-                    Cards.ElementAt(i).Location = PlayerCardLocation.Hand;
-                }
-                context.InsertOrUpdate(this);
-            }
-        }
+        //        for (var i = 0; i < cards; i++)
+        //        {
+        //            Cards.ElementAt(i).Location = PlayerCardLocation.Hand;
+        //        }
+        //        context.InsertOrUpdate(this);
+        //    }
+        //}
 
-        public PlayerCard DrawCard()
-        {
-            return Cards.FirstOrDefault(c => c.Location == PlayerCardLocation.Library);
-        }
+        //public PlayerCard DrawCard()
+        //{
+        //    return Cards.FirstOrDefault(c => c.Location == PlayerCardLocation.Library);
+        //}
 
-        public PlayerCard GetCard(int index)
-        {
-            var card = Cards.ElementAt(index);
-            return card.Location == PlayerCardLocation.Library ? card : null;
-        }
+        //public PlayerCard GetCard(int index)
+        //{
+        //    var card = Cards.ElementAt(index);
+        //    return card.Location == PlayerCardLocation.Library ? card : null;
+        //}
 
-        public bool PlayCard(int index)
-        {
-            return Cards.ElementAt(index).Card.Play();
-        }
+        //public bool PlayCard(int index)
+        //{
+        //    return Cards.ElementAt(index).Card.Play();
+        //}
 
-        public void PutCardToGraveyard(int index)
-        {
-            using (var context = new MagicDbContext())
-            {
-                Cards.ElementAt(index).Location = PlayerCardLocation.Graveyard;
-                context.InsertOrUpdate(this);
-            }
-        }
+        //public void PutCardToGraveyard(int index)
+        //{
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        Cards.ElementAt(index).Location = PlayerCardLocation.Graveyard;
+        //        context.InsertOrUpdate(this);
+        //    }
+        //}
 
-        public void AddCard(string cardId, PlayerCardLocation location)
-        {
-            using (var context = new MagicDbContext())
-            {
-                var card = context.Read<Card>().FindOrFetchEntity(cardId);
-                Cards.Add(new PlayerCard
-                {
-                    Card = card,
-                    GameId = GameId,
-                    UserId = UserId,
-                    Index = Cards.Count + 1,
-                    Location = location,
-                });
-                context.InsertOrUpdate(this);
-            }
-        }
+        //public void AddCard(string cardId, PlayerCardLocation location)
+        //{
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        var card = context.Read<Card>().Find(cardId);
+        //        Cards.Add(new PlayerCard
+        //        {
+        //            Card = card,
+        //            GameId = GameId,
+        //            UserId = UserId,
+        //            Index = Cards.Count + 1,
+        //            Location = location,
+        //        });
+        //        context.InsertOrUpdate(this);
+        //    }
+        //}
 
         //public bool RestoreCardFromGraveyard(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
         //{
@@ -107,14 +107,14 @@ namespace Juza.Magic.Models.Entities
         //    return false;
         //}
 
-        public void ExileCard(int index)
-        {
-            using (var context = new MagicDbContext())
-            {
-                Cards.ElementAt(index).Location = PlayerCardLocation.Exiled;
-                context.InsertOrUpdate(this);
-            }
-        }
+        //public void ExileCard(int index)
+        //{
+        //    using (var context = new MagicDbContext())
+        //    {
+        //        Cards.ElementAt(index).Location = PlayerCardLocation.Exiled;
+        //        context.InsertOrUpdate(this);
+        //    }
+        //}
 
         //public bool RestoreCardFromExile(CardViewModel card, List<CardViewModel> targetCollection, bool copy = false)
         //{
