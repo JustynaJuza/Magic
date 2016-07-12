@@ -43,6 +43,8 @@ namespace Juza.Magic.Hubs
     {
         void OnConnected();
         void OnDisconnected();
+        void SendMessage(string messageText, string roomId);
+        void JoinChatRoomWithUserNames(IList<string> userNames);
     }
 
     public class ChatService : IChatService
@@ -115,13 +117,14 @@ namespace Juza.Magic.Hubs
             _clients.Group(roomId).updateChatRoomUsers(Json.Encode(chatRoomUsers), roomId);
         }
 
-        public void Send(string messageText, string roomId)
+        public void SendMessage(string messageText, string roomId)
         {
             var sender = _chatUserProvider.GetUser(_userId);
             var timeSent = DateTime.Now;
-            _clients.Group(roomId).addMessage(roomId, timeSent.ToString("HH:mm:ss"), sender.UserName, sender.ColorCode, messageText);
 
-            _chatUserProvider.SaveMessage(_userId, roomId, messageText, timeSent);
+            _chatUserProvider.SaveMessage(sender, roomId, messageText, timeSent);
+
+            _clients.Group(roomId).addMessage(roomId, timeSent.ToString("HH:mm:ss"), sender.UserName, sender.ColorCode, messageText);
         }
 
         public void UserStatusUpdate(UserStatus status, string roomId)
@@ -244,26 +247,26 @@ namespace Juza.Magic.Hubs
             return Task.WhenAll(subscribeUser);
         }
 
-        public async Task SubscribeGameChat(string roomId)
-        {
-            var activeUnsubscribedConnections = _chatUserProvider.SubscribeGameChat(_userId, _connectionId, roomId).ToList();
+        //public async Task SubscribeGameChat(string roomId)
+        //{
+        //    var activeUnsubscribedConnections = _chatUserProvider.SubscribeGameChat(_userId, _connectionId, roomId).ToList();
 
-            // Send info message on joining group - also opens the chat tab for joining user.
-            if (activeUnsubscribedConnections.Any())
-            {
-                var subscribe = SubscribeActiveConnections(activeUnsubscribedConnections, roomId);
+        //    // Send info message on joining group - also opens the chat tab for joining user.
+        //    if (activeUnsubscribedConnections.Any())
+        //    {
+        //        var subscribe = SubscribeActiveConnections(activeUnsubscribedConnections, roomId);
 
-                var chatRoom = _chatUserProvider.GetChatRoom(roomId);
-                _clients.Caller.addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " Welcome back!", true);
+        //        var chatRoom = _chatUserProvider.GetChatRoom(roomId);
+        //        _clients.Caller.addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), chatRoom.Name, chatRoom.TabColorCode, " Welcome back!", true);
 
-                await subscribe;
-            }
-            else
-            {
-                var user = _chatUserProvider.GetUser(_userId);
-                _clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, " entered the game.", true);
-            }
-        }
+        //        await subscribe;
+        //    }
+        //    else
+        //    {
+        //        var user = _chatUserProvider.GetUser(_userId);
+        //        _clients.Group(roomId).addMessage(roomId, DateTime.Now.ToString("HH:mm:ss"), user.UserName, user.ColorCode, " entered the game.", true);
+        //    }
+        //}
 
         public void UnsubscribeGameChat(string roomId)
         {
@@ -301,9 +304,31 @@ namespace Juza.Magic.Hubs
         //}
         #endregion CHATLOG HANDLING
 
-        public string GetExistingChatRoomIdForUsers(string[] recipientNames)
+        public void JoinChatRoomWithUserNames(IList<string> userNames)
         {
-            return _chatUserProvider.GetExistingChatRoomIdForUsers(recipientNames);
+            JoinChatRoomWithUsers(FilterInvalidUsers(userNames));
+        }
+
+        public void JoinChatRoomWithUsers(IEnumerable<int> userIds)
+        {
+            var chatRoom = _chatUserProvider.GetChatRoomForUsers(userIds);
+            var roomId = chatRoom.Id;
+
+            _groups.Add(_connectionId, roomId);
+            _chatUserProvider.SubscribeChatRoom(roomId, _connectionId, _userId);
+        }
+
+        private IEnumerable<int> FilterInvalidUsers(IList<string> userNames)
+        {
+            IEnumerable<string> invalidUserNames;
+            var userIds = _chatUserProvider.FindUsersByUserName(userNames, out invalidUserNames);
+
+            foreach (var userName in invalidUserNames)
+            {
+                _clients.Caller.addMessage(ChatRoom.DefaultRoomId, DateTime.Now.ToString("HH:mm:ss"), "ServerInfo", "#000000", "User " + userName + " does not exist!");
+            }
+
+            return userIds;
         }
 
         //public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)

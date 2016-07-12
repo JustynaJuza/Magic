@@ -38,6 +38,16 @@ namespace Juza.Magic.Hubs
 
         }
 
+        public void JoinChatRoomWithUserNames(string[] userNames)
+        {
+            chatService.JoinChatRoomWithUserNames(userNames);
+        }
+
+        public void SendMessage(string messageText, string roomId)
+        {
+            chatService.SendMessage(messageText, roomId);
+        }
+
         public override Task OnConnected()
         {
             chatService.OnConnected();

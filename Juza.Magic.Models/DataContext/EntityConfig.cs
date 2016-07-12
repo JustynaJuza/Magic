@@ -30,8 +30,8 @@ namespace Juza.Magic.Models.DataContext
             modelBuilder.Entity<UserRelation>().HasKey(k => new { k.UserId, k.RelatedUserId });
             modelBuilder.Entity<UserRelation>().HasRequired(ur => ur.User).WithMany(u => u.Relations).HasForeignKey(ur => ur.UserId);
             modelBuilder.Entity<UserRelation>().HasRequired(ur => ur.RelatedUser).WithMany().HasForeignKey(ur => ur.RelatedUserId).WillCascadeOnDelete(false);
-            modelBuilder.Entity<UserRelation>().Map<UserRelationFriend>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Friend));
-            modelBuilder.Entity<UserRelation>().Map<UserRelationIgnored>(r => r.Requires("Discriminator").HasValue((int)UserRelationship.Ignored));
+            modelBuilder.Entity<UserRelation>().Map<UserRelationFriend>(r => r.Requires("Discriminator").HasValue((int) UserRelationship.Friend));
+            modelBuilder.Entity<UserRelation>().Map<UserRelationIgnored>(r => r.Requires("Discriminator").HasValue((int) UserRelationship.Ignored));
 
             modelBuilder.Entity<ChatRoomConnection>().HasKey(k => new { k.ConnectionId, k.UserId, k.ChatRoomId });
             modelBuilder.Entity<ChatRoomConnection>().HasRequired(ruc => ruc.ChatRoom).WithMany(r => r.Connections).HasForeignKey(ruc => ruc.ChatRoomId);
@@ -87,9 +87,9 @@ namespace Juza.Magic.Models.DataContext
 
             //modelBuilder.Entity<CardType>().HasKey(k => k.Name);
             modelBuilder.Entity<CardType>().HasMany(t => t.Cards).WithMany(c => c.Types);
-            modelBuilder.Entity<CardType>().Map<CardSuperType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.SuperType));
-            modelBuilder.Entity<CardType>().Map<CardMainType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.MainType));
-            modelBuilder.Entity<CardType>().Map<CardSubType>(r => r.Requires("Discriminator").HasValue((int)TypeCategory.SubType));
+            modelBuilder.Entity<CardType>().Map<CardSuperType>(r => r.Requires("Discriminator").HasValue((int) TypeCategory.SuperType));
+            modelBuilder.Entity<CardType>().Map<CardMainType>(r => r.Requires("Discriminator").HasValue((int) TypeCategory.MainType));
+            modelBuilder.Entity<CardType>().Map<CardSubType>(r => r.Requires("Discriminator").HasValue((int) TypeCategory.SubType));
 
             modelBuilder.Entity<Card>().HasOptional(c => c.Set).WithMany(s => s.Cards).HasForeignKey(c => c.SetId);
             modelBuilder.Entity<Card>().Map<Card>(r => r.Requires("Discriminator").HasValue("Card"));
@@ -103,7 +103,7 @@ namespace Juza.Magic.Models.DataContext
 
             modelBuilder.Entity<ChatMessageNotification>().HasKey(mn => new { mn.MessageId, mn.LogId, mn.RecipientId });
             modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Recipient).WithMany(r => r.ChatMessages).HasForeignKey(mn => mn.RecipientId);
-            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Message).WithMany(m => m.Recipients).HasForeignKey(mn => new { mn.MessageId, mn.LogId }).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ChatMessageNotification>().HasRequired(mn => mn.Message).WithMany(m => m.RecipientNotifications).HasForeignKey(mn => new { mn.MessageId, mn.LogId }).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<ChatRoom>().HasOptional(r => r.Log).WithOptionalDependent();
         }

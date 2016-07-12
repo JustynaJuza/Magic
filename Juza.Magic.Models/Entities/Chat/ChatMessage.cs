@@ -29,11 +29,11 @@ namespace Juza.Magic.Models.Entities.Chat
         public string Message { get; set; }
         public virtual User Sender { get; set; }
         public virtual ChatLog Log { get; set; }
-        public virtual ICollection<ChatMessageNotification> Recipients { get; set; }
+        public virtual ICollection<ChatMessageNotification> RecipientNotifications { get; set; }
 
         public ChatMessage()
         {
-            Recipients = new List<ChatMessageNotification>();
+            RecipientNotifications = new List<ChatMessageNotification>();
         }
     }
 

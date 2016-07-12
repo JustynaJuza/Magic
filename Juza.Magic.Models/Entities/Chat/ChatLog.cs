@@ -21,7 +21,7 @@ namespace Juza.Magic.Models.Entities.Chat
         {
             return Messages.Select(m => new ChatMessageViewModel(m)
             {
-                IsRead = m.Recipients.Any(r => r.RecipientId == userId)
+                IsRead = m.RecipientNotifications.Any(r => r.RecipientId == userId)
 
             }).ToList();
         }

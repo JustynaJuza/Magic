@@ -160,7 +160,7 @@ $(document).on('click', '#chat-message-send-btn', function () {
         }
 
         // Call the message sending method on server.
-        chat.hub.server.send(chat.newMessage.val(), roomId);
+        chat.hub.server.sendMessage(chat.newMessage.val(), roomId);
         // Clear text box and reset focus for next comment.
         chat.newMessage.val('').focus();
 });
