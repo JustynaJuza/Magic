@@ -23,6 +23,8 @@ namespace Juza.Magic
         {
             using (var context = new MagicDbContext())
             {
+                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [ChatRoomUsers];");
+                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [ChatRoomConnections];");
                 context.Database.ExecuteSqlCommand("TRUNCATE TABLE [UserConnections];");
             }
         }

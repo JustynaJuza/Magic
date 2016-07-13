@@ -221,6 +221,7 @@ namespace Juza.Magic.Hubs
         {
             var chatRoom = _context
                 .Set<ChatRoom>()
+                .Include(x => x.Users.Select(y => y.User))
                 .Where(x => x.Id != ChatRoom.DefaultRoomId)
                 .Where(x => !x.IsGameRoom)
                 .FirstOrDefault(x => x.Users.All(y => userIds.Contains(y.UserId)));

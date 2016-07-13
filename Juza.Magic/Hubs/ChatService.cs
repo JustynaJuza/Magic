@@ -23,10 +23,13 @@ namespace Juza.Magic.Hubs
     public class ChatServiceFactory : IChatServiceFactory
     {
         private readonly IChatDataProvider _chatUserProvider;
+        private readonly IChatEventHandler _chatEventHandler;
 
-        public ChatServiceFactory(IChatDataProvider chatUserProvider)
+        public ChatServiceFactory(IChatDataProvider chatUserProvider,
+            IChatEventHandler chatEventHandler)
         {
             _chatUserProvider = chatUserProvider;
+            _chatEventHandler = chatEventHandler;
         }
 
         public IChatService Create(
@@ -35,7 +38,10 @@ namespace Juza.Magic.Hubs
             IHubCallerConnectionContext<IChatHub> clients,
             IGroupManager groups)
         {
-            return new ChatService(_chatUserProvider, userId, connectionId, clients, groups);
+            return new ChatService(
+                _chatUserProvider,
+                _chatEventHandler,
+                userId, connectionId, clients, groups);
         }
     }
 
@@ -55,7 +61,11 @@ namespace Juza.Magic.Hubs
         private readonly IHubCallerConnectionContext<IChatHub> _clients;
         private readonly IGroupManager _groups;
 
+        private event JoinedRoomEventHandler JoinedRoomEvent;
+
+
         public ChatService(IChatDataProvider chatUserProvider,
+            IChatEventHandler chatEventHandler,
             int userId,
             string connectionId,
             IHubCallerConnectionContext<IChatHub> clients,
@@ -66,6 +76,9 @@ namespace Juza.Magic.Hubs
             _connectionId = connectionId;
             _clients = clients;
             _groups = groups;
+
+
+            JoinedRoomEvent += chatEventHandler.JoinedRoomEventHandler;
         }
 
         public void OnConnected()
@@ -316,6 +329,13 @@ namespace Juza.Magic.Hubs
 
             _groups.Add(_connectionId, roomId);
             _chatUserProvider.SubscribeChatRoom(roomId, _connectionId, _userId);
+
+            OnJoinedRoom(new JoinedRoomEventArgs
+            {
+                ConnectionId = _connectionId,
+                Clients = _clients,
+                ChatRoom = chatRoom
+            });
         }
 
         private IEnumerable<int> FilterInvalidUsers(IList<string> userNames)
@@ -331,20 +351,9 @@ namespace Juza.Magic.Hubs
             return userIds;
         }
 
-        //public void CreateChatRoom(string roomId = null, bool isGameRoom = false, bool isPrivate = false, IList<string> recipientNames = null)
-        //{
-        //    _chatUserProvider.CreateChatRoom(roomId, isGameRoom, isPrivate, recipientNames);
-
-        //    if (!isPrivate) return;
-
-        //    // TODO: check how recipients behave after chacking chatroom existance and if thee can be any null exception
-        //    var recipients = recipientNames.Distinct().Select(userName => _context.Query<User>().FirstOrDefault(u => u.UserName == userName)).ToList();
-
-        //    foreach (var user in recipients)
-        //    {
-        //        AddUserToRoom(chatRoom.Id, user.Id);
-        //        SubscribeActiveConnections(chatRoom.Id, user.Id);
-        //    }
-        //}
+        protected void OnJoinedRoom(JoinedRoomEventArgs e)
+        {
+            JoinedRoomEvent?.Invoke(this, e);
+        }
     }
 }

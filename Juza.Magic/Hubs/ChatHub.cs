@@ -9,6 +9,7 @@ namespace Juza.Magic.Hubs
         void addMessage(string roomId, string time, string sender, string senderColor, string message, bool activateTabAfterwards = false);
         void closeChatRoom(string roomId);
         void updateChatRoomUsers(string chatUsersList, string roomId);
+        void appendChatRoomPartial(string chatRoomPartial);
     }
 
     [Authorize]

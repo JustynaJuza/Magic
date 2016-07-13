@@ -18,7 +18,8 @@
     <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />
 
     <div id="chat-rooms-container">
-        @{Html.RenderAction("GetUserChatRooms", "Chat");}
+        @*@{Html.RenderAction("GetUserChatRooms", "Chat");}*@
+        @{ Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId }); }
         <div id="user-profile-tooltip-container"></div>
     </div>
 

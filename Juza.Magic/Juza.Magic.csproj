@@ -208,7 +208,6 @@
     <Compile Include="App_Start\SignalRConfig.SimpleInjectorScopedHubActivator.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
-    <Compile Include="Areas\Admin\Controllers\CardsController.cs" />
     <Compile Include="Areas\Admin\Controllers\ChatLogsController.cs" />
     <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
     <Compile Include="Areas\Admin\Controllers\PlayersController.cs" />
@@ -227,6 +226,8 @@
     <Compile Include="Helpers\FileHandler.cs" />
     <Compile Include="Helpers\PathProvider.cs" />
     <Compile Include="Helpers\UploaderHelpers.cs" />
+    <Compile Include="Helpers\ViewRenderer.cs" />
+    <Compile Include="Hubs\ChatEventHandler.cs" />
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\ChatService.cs" />
     <Compile Include="Hubs\ChatDataProvider.cs" />

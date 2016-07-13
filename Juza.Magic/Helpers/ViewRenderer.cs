@@ -6,7 +6,35 @@ using System.Web.Routing;
 
 namespace Juza.Magic.Helpers
 {
-    public class ViewRenderer
+    public interface IViewRenderer
+    {
+        /// <summary>
+        /// Renders a full MVC view to a string. Will render with the full MVC
+        /// View engine including running _ViewStart and merging into _Layout        
+        /// </summary>
+        /// <param name="viewPath">
+        /// The path to the view to render. Either in same controller, shared by 
+        /// name or as fully qualified ~/ path including extension
+        /// </param>
+        /// <param name="model">The model to render the view with</param>
+        /// <returns>String of the rendered view or null on error</returns>
+        string RenderViewToString(string viewPath, object model = null);
+
+        /// <summary>
+        /// Renders a partial MVC view to string. Use this method to render
+        /// a partial view that doesn't merge with _Layout and doesn't fire
+        /// _ViewStart.
+        /// </summary>
+        /// <param name="viewPath">
+        /// The path to the view to render. Either in same controller, shared by 
+        /// name or as fully qualified ~/ path including extension
+        /// </param>
+        /// <param name="model">The model to pass to the viewRenderer</param>
+        /// <returns>String of the rendered view or null on error</returns>
+        string RenderPartialViewToString(string viewPath, object model = null);
+    }
+
+    public class ViewRenderer : IViewRenderer
     {
         private static string RenderViewToString(ControllerContext context, string viewPath, object model = null)
         {
@@ -112,8 +140,9 @@ namespace Juza.Magic.Helpers
         /// the controller's context. 
         /// Only leave out the context if no context is otherwise available.
         /// </param>
-        public ViewRenderer(ControllerContext controllerContext = null)
+        public ViewRenderer(/*ControllerContext controllerContext = null*/)
         {
+            ControllerContext controllerContext = null;
             // Create a known controller from HttpContext if no context is passed
             if (controllerContext == null)
             {
@@ -171,12 +200,12 @@ namespace Juza.Magic.Helpers
         /// <param name="model">The model to pass to the viewRenderer</param>
         /// <param name="controllerContext">Active Controller context</param>
         /// <returns>String of the rendered view or null on error</returns>
-        public static string RenderView(string viewPath, object model = null,
-            ControllerContext controllerContext = null)
-        {
-            ViewRenderer renderer = new ViewRenderer(controllerContext);
-            return renderer.RenderViewToString(viewPath, model);
-        }
+        //public static string RenderView(string viewPath, object model = null,
+        //    ControllerContext controllerContext = null)
+        //{
+        //    ViewRenderer renderer = new ViewRenderer(controllerContext);
+        //    return renderer.RenderViewToString(viewPath, model);
+        //}
 
 
 
@@ -192,12 +221,12 @@ namespace Juza.Magic.Helpers
         /// <param name="model">The model to pass to the viewRenderer</param>
         /// <param name="controllerContext">Active controller context</param>
         /// <returns>String of the rendered view or null on error</returns>
-        public static string RenderPartialView(string viewPath, object model = null,
-            ControllerContext controllerContext = null)
-        {
-            ViewRenderer renderer = new ViewRenderer(controllerContext);
-            return renderer.RenderPartialViewToString(viewPath, model);
-        }
+        //public static string RenderPartialView(string viewPath, object model = null,
+        //    ControllerContext controllerContext = null)
+        //{
+        //    ViewRenderer renderer = new ViewRenderer(controllerContext);
+        //    return renderer.RenderPartialViewToString(viewPath, model);
+        //}
 
 
         /// <summary>

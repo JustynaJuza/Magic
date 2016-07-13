@@ -1,3 +1,4 @@
+using Juza.Magic.Helpers;
 using Juza.Magic.Hubs;
 using Juza.Magic.Models;
 using Juza.Magic.Models.DataContext;
@@ -84,6 +85,9 @@ namespace Juza.Magic
             container.RegisterMvcControllers(Assembly.GetExecutingAssembly());
             container.RegisterMvcIntegratedFilterProvider();
 
+            container.RegisterConditional<IViewRenderer, ViewRenderer>(_hybridLifestyle,
+                _ => container.GetCurrentExecutionContextScope() == null);
+
             //// Lists
             //container.Register(typeof(IListModelFilterProvider<,>), new[] { Assembly.GetCallingAssembly() });
             //container.RegisterConditional(typeof(IListModelFilterProvider<,>), typeof(NullListModelFilterProvider<,>), x => !x.Handled);
@@ -112,6 +116,7 @@ namespace Juza.Magic
         {
             container.Register<IChatDataProvider, ChatDataProvider>(_hybridLifestyle);
             container.Register<IChatServiceFactory, ChatServiceFactory>(_hybridLifestyle);
+            container.Register<IChatEventHandler, ChatEventHandler>(_hybridLifestyle);
             container.Register<ChatHub, ChatHub>(_hybridLifestyle);
 
             //container.Register<GameHub, GameHub>(HybridLifestyle);
