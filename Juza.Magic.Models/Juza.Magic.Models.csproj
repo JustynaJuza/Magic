@@ -167,7 +167,7 @@
     <Compile Include="Projections\AutoMapping.cs" />
     <Compile Include="Projections\IMapping.cs" />
     <Compile Include="Projections\MappingFactory.cs" />
-    <Compile Include="Projections\SingleMapping.cs" />
+    <Compile Include="Projections\ObjectMapping.cs" />
     <Compile Include="Projections\TwoPartMapping.cs" />
     <Compile Include="Extensions\ProjectionExtensions.cs" />
     <Compile Include="Migrations\201604102259087_CreateDb.cs" />

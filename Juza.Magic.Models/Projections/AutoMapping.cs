@@ -9,7 +9,7 @@ namespace Juza.Magic.Models.Projections
     /// <summary>
     /// An AutoMapper adapter for existing AutoMapper configurations, plus simple new mappings
     /// </summary>
-    public class AutoMapping<TSource, TDest> : IQueryMapping<TSource, TDest>
+    public class AutoMapping<TSource, TDest> : IObjectMapping<TSource, TDest>
     {
         private readonly IConfigurationProvider _mappingConfiguration;
 
@@ -29,6 +29,12 @@ namespace Juza.Magic.Models.Projections
         public IQueryable<TDest> ApplyAsQuery(IQueryable<TSource> source)
         {
             return source.ProjectTo<TDest>(_mappingConfiguration);
+        }
+
+        public TDest Apply(TSource source)
+        {
+            var mapper = _mappingConfiguration.CreateMapper();
+            return mapper.Map<TSource, TDest>(source);
         }
     }
 

@@ -3,7 +3,6 @@ using Juza.Magic.Models.DataContext;
 using Juza.Magic.Models.Entities;
 using Juza.Magic.Models.Entities.Chat;
 using Juza.Magic.Models.Extensions;
-using Juza.Magic.Models.Projections;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -16,13 +15,10 @@ namespace Juza.Magic.Controllers
     public class ChatController : Controller
     {
         private readonly IDbContext _context;
-        private readonly IQueryMapping<ChatRoom, ChatRoomViewModel> _mapping;
 
-        public ChatController(IDbContext context,
-            IQueryMapping<ChatRoom, ChatRoomViewModel> mapping)
+        public ChatController(IDbContext context)
         {
             _context = context;
-            _mapping = mapping;
         }
 
         public ActionResult GetChatRoomPartial(string roomId = null, bool isPrivate = true, IEnumerable<string> recipientNames = null, bool createHidden = false)
@@ -43,8 +39,8 @@ namespace Juza.Magic.Controllers
                     return PartialView("_ChatRoomPartial", roomViewModel);
                 }
 
-                var userId = User.Identity.GetUserId();
-                roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>(userId);
+                //var userId = User.Identity.GetUserId();
+                //roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
 
                 //ChatHub.SubscribeActiveConnections(roomId, userId);
             }
@@ -123,23 +119,22 @@ namespace Juza.Magic.Controllers
             return "Remove from friends";
         }
 
-        public ActionResult GetUserChatRooms(bool exceptDefaultRoom = false)
-        {
-            var userId = User.Identity.GetUserId<int>();
+        //public ActionResult GetUserChatRooms(bool exceptDefaultRoom = false)
+        //{
+        //    var userId = User.Identity.GetUserId<int>();
 
-            var chatRooms = _context.Set<ChatRoomConnection>()
-                .Where(x => x.UserId == userId)
-                .Select(rc => rc.ChatRoom).Distinct()
-                .Where(r => !r.IsGameRoom)
-                .ToViewModel<ChatRoom, ChatRoomViewModel>();
+        //    var chatRooms = _context.Set<ChatRoomConnection>()
+        //        .Where(x => x.UserId == userId)
+        //        .Select(rc => rc.ChatRoom).Distinct()
+        //        .Where(r => !r.IsGameRoom)
+        //        .ToViewModel<ChatRoom, ChatRoomViewModel>();
 
-            if (exceptDefaultRoom)
-            {
-                chatRooms = chatRooms.Where(x => x.Id == ChatRoom.DefaultRoomId);
-            }
+        //    if (exceptDefaultRoom)
+        //    {
+        //        chatRooms = chatRooms.Where(x => x.Id == ChatRoom.DefaultRoomId);
+        //    }
 
-            return PartialView("_ChatRoomListPartial", chatRooms); //.Select(x => new ChatRoomViewModel(x)));
-            //x.ToViewModel<ChatRoom, ChatRoomViewModel>()));
-        }
+        //    return PartialView("_ChatRoomListPartial", chatRooms.ToList());
+        //}
     }
 }

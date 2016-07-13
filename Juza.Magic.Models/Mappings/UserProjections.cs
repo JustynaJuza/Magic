@@ -3,7 +3,7 @@ using Juza.Magic.Models.Projections;
 
 namespace Juza.Magic.Models.Mappings
 {
-    public class UserToChatUserViewModelProjection : SingleMapping<User, ChatUserViewModel>
+    public class UserToChatUserViewModelProjection : ObjectMapping<User, ChatUserViewModel>
     {
         public UserToChatUserViewModelProjection() :
             base(user => new ChatUserViewModel

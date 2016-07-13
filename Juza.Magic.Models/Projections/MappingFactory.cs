@@ -21,7 +21,7 @@ namespace Juza.Magic.Models.Projections
         {
             public IQueryMapping<TSource, TDest> To<TDest>(Expression<Func<TSource, TDest>> projection)
             {
-                return new SingleMapping<TSource, TDest>(projection);
+                return new ObjectMapping<TSource, TDest>(projection);
             }
 
             public MapIntermediate<TSource, TIntermediate> ToIntermediate<TIntermediate>(Expression<Func<TSource, TIntermediate>> projection)

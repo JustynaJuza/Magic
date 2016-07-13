@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Juza.Magic.Models.Mappings
 {
-    public class ChatRoomToChatRoomViewModelProjection : SingleMapping<ChatRoom, ChatRoomViewModel>
+    public class ChatRoomToChatRoomViewModelProjection : ObjectMapping<ChatRoom, ChatRoomViewModel>
     {
         public ChatRoomToChatRoomViewModelProjection() :
             base(chatRoom => new ChatRoomViewModel
@@ -33,6 +33,25 @@ namespace Juza.Magic.Models.Mappings
                     UserName = chatUser.User.UserName
                 })
             })
-        { }
+        {
+        }
+    }
+
+    public class ChatLogToChatLogViewModelProjection : ObjectMapping<ChatLog, ChatLogViewModel>
+    {
+        public ChatLogToChatLogViewModelProjection() :
+            base(chatLog => new ChatLogViewModel
+            {
+                Id = chatLog.Id,
+                DateCreated = chatLog.DateCreated,
+                Messages = chatLog.Messages.Select(message => new ChatMessageViewModel
+                {
+                    TimeSent = message.TimeSent,
+                    Message = message.Message,
+                    SenderName = message.Sender.UserName
+                })
+            })
+        {
+        }
     }
 }

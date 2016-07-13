@@ -102,9 +102,5 @@ namespace Juza.Magic.Models.Entities.Chat
             Users = room.GetUserList();
             Log = (room.Log != null ? room.Log.ToViewModel<ChatLog, ChatLogViewModel>() : new ChatLogViewModel());
         }
-        public ChatRoomViewModel(ChatRoom room, string userId) : this(room)
-        {
-            Log = (room.Log != null ? room.Log.ToViewModel<ChatLog, ChatLogViewModel>(userId) : new ChatLogViewModel());
-        }
     }
 }
