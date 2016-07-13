@@ -11,17 +11,7 @@ namespace Juza.Magic.Models.Extensions
     /// </summary>
     public static class ProjectionExtensions
     {
-        //public static IEnumerable<TDest> Project<TSource, TDest>(this IQueryable<TSource> source, ICollectionMapping<TSource, TDest> mapping)
-        //{
-        //    return mapping.Apply(source);
-        //}
-
-        //public static IQueryable<TDest> Project<TSource, TDest>(this IQueryable<TSource> source, IQueryMapping<TSource, TDest> mapping)
-        //{
-        //    return mapping.ApplyAsQuery(source);
-        //}
-
-        public static IQueryable<TViewModel> ToViewModel<TModel, TViewModel>(this IQueryable<TModel> source)
+        public static IQueryable<TViewModel> Project<TModel, TViewModel>(this IQueryable<TModel> source)
             where TModel : class
             where TViewModel : IViewModel<TModel>
         {
@@ -37,7 +27,7 @@ namespace Juza.Magic.Models.Extensions
 
             var projection = (IObjectMapping<TModel, TViewModel>) Activator.CreateInstance(projectionConfig);
 
-            return projection.ApplyAsQuery(source);
+            return projection.Apply(source);
         }
     }
 

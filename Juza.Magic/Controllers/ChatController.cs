@@ -40,7 +40,7 @@ namespace Juza.Magic.Controllers
                 }
 
                 //var userId = User.Identity.GetUserId();
-                //roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
+                //roomViewModel = chatRoom.Project<ChatRoom, ChatRoomViewModel>();
 
                 //ChatHub.SubscribeActiveConnections(roomId, userId);
             }
@@ -127,7 +127,7 @@ namespace Juza.Magic.Controllers
         //        .Where(x => x.UserId == userId)
         //        .Select(rc => rc.ChatRoom).Distinct()
         //        .Where(r => !r.IsGameRoom)
-        //        .ToViewModel<ChatRoom, ChatRoomViewModel>();
+        //        .Project<ChatRoom, ChatRoomViewModel>();
 
         //    if (exceptDefaultRoom)
         //    {

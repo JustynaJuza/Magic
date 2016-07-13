@@ -293,7 +293,7 @@ namespace Juza.Magic.Hubs
                 .Where(x => x.ChatRoomId == roomId)
                 .Select(x => x.User);
 
-            return users.ToViewModel<User, ChatUserViewModel>();
+            return users.Project<User, ChatUserViewModel>();
             //return chatRoom.IsPrivate ? chatRoom.GetUserList() : chatRoom.GetActiveUserList();
         }
 

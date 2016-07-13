@@ -33,7 +33,7 @@ namespace Juza.Magic.Hubs
         public void JoinedRoomEventHandler(object sender, JoinedRoomEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Joined room" + e.ConnectionId + " " + e.UserId + " " + e.ChatRoom.Id);
-            //var viewModel = e.ChatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
+            //var viewModel = e.ChatRoom.Project<ChatRoom, ChatRoomViewModel>();
             //var chatRoomPartial = _viewRenderer.RenderPartialViewToString("_ChatRoomPartial", viewModel);
 
             //e.Clients.Client(e.ConnectionId).appendChatRoomPartial(chatRoomPartial);

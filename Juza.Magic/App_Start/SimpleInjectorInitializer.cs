@@ -148,13 +148,11 @@ namespace Juza.Magic
             //    }
             //}
 
-            var assembliesWithMappings = new[] { typeof(MappingFactory).Assembly };
+            var assembliesWithMappings = new[] { typeof(AutoMapping<,>).Assembly };
             container.Register(typeof(IObjectMapping<,>), assembliesWithMappings);
-            //container.Register(typeof(IMapping<,>), assembliesWithMappings);
 
             // Let AutoMapper act as the default mapper
             container.RegisterConditional(typeof(IObjectMapping<,>), typeof(DefaultAutoMapping<,>), x => !x.Handled);
-            //container.RegisterConditional(typeof(IMapping<,>), typeof(DefaultAutoMapping<,>), x => !x.Handled);
         }
 
     }

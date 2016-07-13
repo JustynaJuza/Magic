@@ -21,12 +21,7 @@ namespace Juza.Magic.Models.Projections
             });
         }
 
-        public IEnumerable<TDest> Apply(IQueryable<TSource> source)
-        {
-            return source.ProjectTo<TDest>(_mappingConfiguration);
-        }
-
-        public IQueryable<TDest> ApplyAsQuery(IQueryable<TSource> source)
+        public IQueryable<TDest> Apply(IQueryable<TSource> source)
         {
             return source.ProjectTo<TDest>(_mappingConfiguration);
         }

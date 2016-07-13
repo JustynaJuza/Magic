@@ -42,7 +42,7 @@ namespace Juza.Magic.Models.Projections
                 _projection = projection;
             }
 
-            public IMapping<TSource, TDest> To<TDest>(Func<TIntermediate, TDest> postProcess)
+            public IObjectMapping<TSource, TDest> To<TDest>(Func<TIntermediate, TDest> postProcess)
             {
                 return new TwoPartMapping<TSource, TIntermediate, TDest>(_projection, postProcess);
             }

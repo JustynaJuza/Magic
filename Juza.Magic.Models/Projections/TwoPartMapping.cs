@@ -12,7 +12,7 @@ namespace Juza.Magic.Models.Projections
     /// the user to return a minimal results set from the query while still ending up with
     /// a correctly typed object (eg using ToNullableEnum() which cannot be translated by EF)
     /// </summary>
-    public class TwoPartMapping<TSource, TIntermediate, TDest> : IMapping<TSource, TDest>
+    public class TwoPartMapping<TSource, TIntermediate, TDest> : IObjectMapping<TSource, TDest>
     {
         private readonly Expression<Func<TSource, TIntermediate>> _projection;
         private readonly Func<TIntermediate, TDest> _postProcess;

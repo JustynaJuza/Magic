@@ -7,15 +7,6 @@ namespace Juza.Magic.Models.Extensions
 {
     public static class ObjectExtensions
     {
-        //public static TViewModel ToViewModel<TModel, TViewModel>(this TModel model, params object[] args)
-        //    where TModel : class
-        //    where TViewModel : IViewModel<TModel>
-        //{
-        //    return args.Length > 0
-        //        ? (TViewModel) Activator.CreateInstance(typeof(TViewModel), model, args)
-        //        : (TViewModel) Activator.CreateInstance(typeof(TViewModel), model);
-        //}
-
         public static TViewModel ToViewModel<TModel, TViewModel>(this TModel model)
         {
             var projectionType = typeof(IObjectMapping<TModel, TViewModel>);
