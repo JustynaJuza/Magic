@@ -4,7 +4,6 @@ if ($.connection.hub && $.connection.hub.state === 4) {
     var isGame = typeof game != 'undefined';
 
     if (hasChat) {
-        // If hub handling provided by previously loaded hub script, call initialization functions.
         chat.hub = $.connection.chatHub;
         chat.registerClientCallbacks(chat.hub.client);
     }

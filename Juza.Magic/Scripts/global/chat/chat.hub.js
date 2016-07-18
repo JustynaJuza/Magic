@@ -71,13 +71,6 @@
         //});        
     }
 
-    chat.initialize = function initializeChat() {
-        chat.adjustRoomTabs();
-        chat.roomTabs.first().trigger('click');
-        chat.display.scrollContainerToBottom('#room-messages-container-default');
-    };
-
-    // ---------------------------- HUB ---------------------------- END
 
     // Provide checkboxes for hiding general/private messages.
     //$chatGeneralCheckbox.change(function () {

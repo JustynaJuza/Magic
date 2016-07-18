@@ -87,6 +87,7 @@ namespace Juza.Magic.Hubs
             if (isFirstConnection)
             {
                 _chatUserProvider.AddUserToRoom(_userId, ChatRoom.DefaultRoomId);
+                _chatUserProvider.SaveAll();
             }
 
             _chatUserProvider.RegisterUserConnection(_userId, _connectionId);

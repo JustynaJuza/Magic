@@ -25,7 +25,7 @@ namespace Juza.Magic
                 {
                     scope = _container.BeginExecutionContextScope();
 
-                    return new ScopedHubDecorator((IHub) _container.GetInstance(descriptor.HubType), scope);
+                    return (IHub) _container.GetInstance(descriptor.HubType);
                 }
                 catch
                 {
