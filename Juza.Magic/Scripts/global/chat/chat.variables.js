@@ -2,7 +2,6 @@
 
     chat.userName = $('#user-name').text();
 
-    chat.tabBlinkingTracker = [];
     chat.chatRoomRequestInProgress = [];
     chat.horizontalMouseOverScroll = 0;
     chat.initialized = false;

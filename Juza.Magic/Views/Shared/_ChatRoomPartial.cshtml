@@ -66,10 +66,10 @@
             <ul id="room-messages-@Model.Id" class="chat-room-messages">
                 @foreach (var message in Model.Log.Messages)
                 {
-                    <li class="chat-message">
-                        @message.TimeSent.ToString("HH:mm:ss")
+                    <li class="chat-message clearfix">
+                        <span>@message.TimeSent.ToString("HH:mm:ss")</span>
                         <span class="chat-message-sender display-name">@message.SenderName</span>
-                        @message.Message
+                        <span>@message.Message</span>
                     </li>
                 }
             </ul>

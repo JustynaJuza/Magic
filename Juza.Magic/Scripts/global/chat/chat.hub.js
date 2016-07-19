@@ -10,11 +10,12 @@
 
             $('#room-messages-' + roomId).append(
                 String.format(
-                '<li class="chat-message">{0}' +
+                '<li class="chat-message">' +
+                    '<span>{0}</span>' +
                     '<span class="chat-message-sender" style="color:{1}">' +
                         '{2}' +
                     '</span>' +
-                    '{3}' +
+                    '<span>{3}</span>' +
                 '</li>',
                 time,
                 senderColor,
@@ -22,10 +23,10 @@
                 helpers.htmlEncode(message)));
 
             if (chat.roomSelection.data('chatRoomId') !== roomId) {
-                var tabBlinkerProcess = setInterval(blink, 1000, '#room-tab-' + roomId);
-                tabBlinkingTracker[roomId] = tabBlinkerProcess;
+                var tabBlinkerProcess = setInterval(helpers.blink, 1000, '#room-tab-' +roomId);
+                chat.display.tabBlinkingTracker[roomId] = tabBlinkerProcess;
             } else {
-                chat.scrollContainerToBottom('#room-messages-container-' + roomId);
+                chat.display.scrollContainerToBottom('#room-messages-container-' + roomId);
             }
         };
 

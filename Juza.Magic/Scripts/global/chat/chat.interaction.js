@@ -19,7 +19,6 @@
                 clearTimeout(window.clickTimer);
                 var recipients = [chat.userName, $(this).text()].sort();
                 if (!chat.selectExiststingRoom(recipients)) {
-                    console.log('join')
                     chat.hub.server.joinChatRoomWithUserNames(recipients);
                     //chat.addRoomTab(recipients);
                     chat.newMessage.focus();
@@ -72,9 +71,9 @@
             chat.roomContents.not('#room-content-' + roomId).hide();
             chat.newMessage.focus();
 
-            if (chat.tabBlinkingTracker[roomId]) {
-                clearInterval(chat.tabBlinkingTracker[roomId]);
-                scrollContainerToBottom('#room-messages-container-' + roomId);
+            if (chat.display.tabBlinkingTracker[roomId]) {
+                clearInterval(chat.display.tabBlinkingTracker[roomId]);
+                chat.display.scrollContainerToBottom('#room-messages-container-' + roomId);
             }
 
             chat.roomSelection.data('chatRoomId', roomId);

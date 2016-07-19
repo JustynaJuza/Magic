@@ -2,6 +2,8 @@
 
     (function(display, $) {
 
+        display.tabBlinkingTracker = [];
+
         //function smoothScroll($container, $scrollingEntry) {
         //    var lineHeightInPixels = 20;
         //    var marginSize = 10;

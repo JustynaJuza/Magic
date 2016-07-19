@@ -140,10 +140,17 @@ ul {
     font-weight: bold;
 }
 
+.chat-message span {
+    float: left;
+}
+
 .chat-user,
 .chat-message-sender {
     cursor: pointer;
+    margin: 0 6px;
+
 }
+
 
     .chat-room-tab:hover,
     .chat-user:hover,

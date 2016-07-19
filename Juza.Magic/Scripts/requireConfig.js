@@ -27,6 +27,7 @@
     shim: {
         jqueryValidate: ['jquery'],
         jqueryValidateUnobtrusive: ['jquery', 'jqueryValidate'],
+        helpers: ['jquery'],
         signalr: ['jquery'],
         signalrHubs: ['signalr'],
         chatVariables: ['jquery'],
