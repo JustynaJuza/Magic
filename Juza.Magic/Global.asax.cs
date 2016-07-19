@@ -17,15 +17,14 @@ namespace Juza.Magic
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-        }
 
-        public void Application_End()
-        {
+            var deleteAllConnections = @"TRUNCATE TABLE [ChatRoomUsers];
+                                         TRUNCATE TABLE [ChatRoomConnections];
+                                         DELETE FROM [UserConnections];";
+
             using (var context = new MagicDbContext())
             {
-                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [ChatRoomUsers];");
-                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [ChatRoomConnections];");
-                context.Database.ExecuteSqlCommand("TRUNCATE TABLE [UserConnections];");
+                context.Database.ExecuteSqlCommand(deleteAllConnections);
             }
         }
     }
