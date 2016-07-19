@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -24,6 +25,12 @@ namespace Juza.Magic.Models.Projections
         IQueryable<TDest> IQueryMapping<TSource, TDest>.Apply(IQueryable<TSource> source)
         {
             return Apply(source);
+        }
+
+        IEnumerable<TDest> IObjectMapping<TSource, TDest>.Apply(IEnumerable<TSource> source)
+        {
+            var projection = _projection.Compile();
+            return source.Select(x => projection.Invoke(x));
         }
 
         public IQueryable<TDest> Apply(IQueryable<TSource> source)

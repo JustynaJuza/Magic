@@ -31,6 +31,12 @@ namespace Juza.Magic.Models.Projections
             var mapper = _mappingConfiguration.CreateMapper();
             return mapper.Map<TSource, TDest>(source);
         }
+
+        public IEnumerable<TDest> Apply(IEnumerable<TSource> source)
+        {
+            var mapper = _mappingConfiguration.CreateMapper();
+            return mapper.Map<IEnumerable<TSource>, IEnumerable<TDest>>(source);
+        }
     }
 
     /// <summary>

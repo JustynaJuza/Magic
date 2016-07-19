@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Juza.Magic.Models.Projections
@@ -14,5 +15,6 @@ namespace Juza.Magic.Models.Projections
     public interface IObjectMapping<in TSource, out TDest> : IQueryMapping<TSource, TDest>
     {
         TDest Apply(TSource source);
+        IEnumerable<TDest> Apply(IEnumerable<TSource> source);
     }
 }
