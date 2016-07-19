@@ -10,7 +10,7 @@
 
             $('#room-messages-' + roomId).append(
                 String.format(
-                '<li class="chat-message">' +
+                '<li class="chat-message clearfix">' +
                     '<span>{0}</span>' +
                     '<span class="chat-message-sender" style="color:{1}">' +
                         '{2}' +
