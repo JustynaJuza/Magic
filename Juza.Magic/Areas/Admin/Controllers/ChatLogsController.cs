@@ -10,20 +10,20 @@ namespace Juza.Magic.Areas.Admin.Controllers
     {
         private MagicDbContext context = new MagicDbContext();
 
-        [HttpGet]
-        public ActionResult Index()
-        {
-            return View(context.Set<ChatLog>().ToList());
-        }
+        //[HttpGet]
+        //public ActionResult Index()
+        //{
+        //    return View(context.Set<ChatLog>().ToList());
+        //}
 
-        public ActionResult Messages(string id)
-        {
-            var model = context.Read<ChatLog>().Find(id);
-            if (model != null) return View(model.Messages);
+        //public ActionResult Messages(string id)
+        //{
+        //    var model = context.Read<ChatLog>().Find(id);
+        //    if (model != null) return View(model.Messages);
 
-            TempData["Error"] = MagicDbContext.ShowErrorMessage(new ArgumentNullException());
-            return RedirectToAction("Index");
-        }
+        //    TempData["Error"] = MagicDbContext.ShowErrorMessage(new ArgumentNullException());
+        //    return RedirectToAction("Index");
+        //}
 
         //#region DELETE
         //[ActionName("ChatLogDelete")]

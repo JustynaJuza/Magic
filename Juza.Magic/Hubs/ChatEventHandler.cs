@@ -1,4 +1,3 @@
-using Juza.Magic.Helpers;
 using Juza.Magic.Models.Entities.Chat;
 using Microsoft.AspNet.SignalR.Hubs;
 using System;
@@ -23,13 +22,6 @@ namespace Juza.Magic.Hubs
 
     public class ChatEventHandler : IChatEventHandler
     {
-        private readonly IViewRenderer _viewRenderer;
-
-        public ChatEventHandler(IViewRenderer viewRenderer)
-        {
-            _viewRenderer = viewRenderer;
-        }
-
         public void JoinedRoomEventHandler(object sender, JoinedRoomEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Joined room" + e.ConnectionId + " " + e.UserId + " " + e.ChatRoom.Id);
