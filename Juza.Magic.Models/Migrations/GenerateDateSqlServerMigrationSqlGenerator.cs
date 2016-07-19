@@ -30,7 +30,7 @@ namespace Juza.Magic.Models.Migrations
 
         private static void SetDateCreatedColumn(PropertyModel column)
         {
-            if (column.Name == "DateCreated" || column.Name == "TimeSend")
+            if (column.Name == "DateCreated")
             {
                 column.DefaultValueSql = "GETDATE()";
             }

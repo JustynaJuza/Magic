@@ -3,7 +3,7 @@ namespace Juza.Magic.Models.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class CreateDb : DbMigration
+    public partial class CreateDatabase : DbMigration
     {
         public override void Up()
         {
@@ -13,7 +13,7 @@ namespace Juza.Magic.Models.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(),
-                        DateCreated = c.DateTime(nullable: false),
+                        DateCreated = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                         Creator_Id = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
@@ -29,8 +29,8 @@ namespace Juza.Magic.Models.Migrations
                         Name = c.String(nullable: false),
                         SetId = c.String(maxLength: 128),
                         SetNumber = c.Int(nullable: false),
-                        DateCreated = c.DateTime(nullable: false),
-                        DateReleased = c.DateTime(nullable: false),
+                        DateCreated = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
+                        DateReleased = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                         Image = c.String(),
                         ImagePreview = c.String(),
                         Artist = c.String(),
@@ -127,7 +127,7 @@ namespace Juza.Magic.Models.Migrations
                         Type = c.String(),
                         Block = c.String(),
                         Description = c.String(),
-                        DateReleased = c.DateTime(nullable: false),
+                        DateReleased = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -136,13 +136,13 @@ namespace Juza.Magic.Models.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        DateCreated = c.DateTime(nullable: false),
-                        LastLoginDate = c.DateTime(),
+                        DateCreated = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
+                        LastLoginDate = c.DateTime(precision: 0, storeType: "datetime2"),
                         Title = c.String(),
                         FirstName = c.String(),
                         LastName = c.String(),
                         Status = c.Int(nullable: false),
-                        BirthDate = c.DateTime(),
+                        BirthDate = c.DateTime(precision: 0, storeType: "datetime2"),
                         IsFemale = c.Boolean(nullable: false),
                         Country = c.String(),
                         Image = c.String(),
@@ -154,7 +154,7 @@ namespace Juza.Magic.Models.Migrations
                         PhoneNumber = c.String(),
                         PhoneNumberConfirmed = c.Boolean(nullable: false),
                         TwoFactorEnabled = c.Boolean(nullable: false),
-                        LockoutEndDateUtc = c.DateTime(),
+                        LockoutEndDateUtc = c.DateTime(precision: 0, storeType: "datetime2"),
                         LockoutEnabled = c.Boolean(nullable: false),
                         AccessFailedCount = c.Int(nullable: false),
                         UserName = c.String(nullable: false, maxLength: 256),
@@ -184,7 +184,7 @@ namespace Juza.Magic.Models.Migrations
                         Id = c.Int(nullable: false, identity: true),
                         LogId = c.String(nullable: false, maxLength: 128),
                         SenderId = c.Int(nullable: false),
-                        TimeSent = c.DateTime(nullable: false),
+                        TimeSent = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                         Message = c.String(),
                     })
                 .PrimaryKey(t => new { t.Id, t.LogId })
@@ -198,7 +198,7 @@ namespace Juza.Magic.Models.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
-                        DateCreated = c.DateTime(nullable: false),
+                        DateCreated = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -236,9 +236,9 @@ namespace Juza.Magic.Models.Migrations
                         Id = c.String(nullable: false, maxLength: 128),
                         IsPrivate = c.Boolean(nullable: false),
                         TimePlayed = c.Time(nullable: false, precision: 7),
-                        DateStarted = c.DateTime(),
-                        DateResumed = c.DateTime(),
-                        DateEnded = c.DateTime(),
+                        DateStarted = c.DateTime(precision: 0, storeType: "datetime2"),
+                        DateResumed = c.DateTime(precision: 0, storeType: "datetime2"),
+                        DateEnded = c.DateTime(precision: 0, storeType: "datetime2"),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -328,7 +328,7 @@ namespace Juza.Magic.Models.Migrations
                     {
                         UserId = c.Int(nullable: false),
                         RelatedUserId = c.Int(nullable: false),
-                        DateCreated = c.DateTime(nullable: false),
+                        DateCreated = c.DateTime(nullable: false, precision: 0, storeType: "datetime2"),
                         Discriminator = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => new { t.UserId, t.RelatedUserId })

@@ -165,14 +165,14 @@
     <Compile Include="Mappings\UserProjections.cs" />
     <Compile Include="Mappings\ChatRoomProjections.cs" />
     <Compile Include="CardPlayerService.cs" />
+    <Compile Include="Migrations\201607191105238_CreateDatabase.cs" />
+    <Compile Include="Migrations\201607191105238_CreateDatabase.Designer.cs">
+      <DependentUpon>201607191105238_CreateDatabase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Projections\AutoMapping.cs" />
     <Compile Include="Projections\IMapping.cs" />
     <Compile Include="Projections\ObjectMapping.cs" />
     <Compile Include="Extensions\ProjectionExtensions.cs" />
-    <Compile Include="Migrations\201604102259087_CreateDb.cs" />
-    <Compile Include="Migrations\201604102259087_CreateDb.Designer.cs">
-      <DependentUpon>201604102259087_CreateDb.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\GenerateDateSqlServerMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -183,8 +183,8 @@
     <Compile Include="UserViewModels.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201604102259087_CreateDb.resx">
-      <DependentUpon>201604102259087_CreateDb.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201607191105238_CreateDatabase.resx">
+      <DependentUpon>201607191105238_CreateDatabase.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
