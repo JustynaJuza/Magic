@@ -1,7 +1,6 @@
 using System;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
-using Juza.Magic.Models.Extensions;
 
 namespace Juza.Magic.Models.DataContext
 {
@@ -12,7 +11,7 @@ namespace Juza.Magic.Models.DataContext
         //private readonly IErrorDescriptionResolver _errorDescriptionResolver;
 
         public DatabaseContextHelper(IDbContext context)
-            //IErrorDescriptionResolver errorDescriptionResolver)
+        //IErrorDescriptionResolver errorDescriptionResolver)
         {
             _context = context;
             //_errorDescriptionResolver = errorDescriptionResolver;
@@ -24,7 +23,7 @@ namespace Juza.Magic.Models.DataContext
             typeof (DbEntityValidationException), typeof (NotSupportedException),
             typeof (ObjectDisposedException), typeof (InvalidOperationException)
         };
-        
+
         //public SuccessResult Save()
         //{
         //    var result = new SuccessResult();
@@ -40,6 +39,32 @@ namespace Juza.Magic.Models.DataContext
         //    }
 
         //    return result;
+        //}
+
+        //public static string ShowErrorMessage(Exception ex)
+        //{
+        //    if (ex is ArgumentNullException)
+        //    {
+        //        return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
+        //    }
+
+        //    if (ex is DbEntityValidationException)
+        //    {
+        //        var errors = string.Empty;
+        //        foreach (var validationErrors in ((DbEntityValidationException) ex).EntityValidationErrors)
+        //        {
+        //            foreach (var validationError in validationErrors.ValidationErrors)
+        //            {
+        //                errors += "Property: " + validationError.PropertyName +
+        //                    " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
+        //            }
+        //        }
+
+        //        return errors + ex;
+        //    }
+
+        //    return "There was a problem with saving to the database..." + ex;
+        //    //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again."
         //}
     }
 }

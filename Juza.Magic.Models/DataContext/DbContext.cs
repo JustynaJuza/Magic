@@ -29,7 +29,7 @@ namespace Juza.Magic.Models.DataContext
         Database Database { get; }
     }
 
-    public class MagicDbContext : IdentityDbContext<User, Role, int, UserLogin, UserRole, UserClaim>, IDbContext
+    public partial class MagicDbContext : IdentityDbContext<User, Role, int, UserLogin, UserRole, UserClaim>, IDbContext
     {
         public DbSet<UserConnection> Connections { get; set; }
         public DbSet<UserRelation> UserRelations { get; set; }
@@ -57,33 +57,10 @@ namespace Juza.Magic.Models.DataContext
             // modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention>();
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Conventions.Add(new UseDateTime2Convention());
+            modelBuilder.Conventions.Add(new DateCreatedIsGeneratedConvention());
+
             EntityConfig.ConfigureModelBuilder(modelBuilder);
-        }
-
-        public static string ShowErrorMessage(Exception ex)
-        {
-            if (ex is ArgumentNullException)
-            {
-                return "This item seems to no longer be there... It has probably been deleted in the meanwhile.";
-            }
-
-            if (ex is DbEntityValidationException)
-            {
-                var errors = string.Empty;
-                foreach (var validationErrors in ((DbEntityValidationException) ex).EntityValidationErrors)
-                {
-                    foreach (var validationError in validationErrors.ValidationErrors)
-                    {
-                        errors += "Property: " + validationError.PropertyName +
-                            " <span class=\"text-danger\">Error: " + validationError.ErrorMessage + "</span><br />";
-                    }
-                }
-
-                return errors + ex;
-            }
-
-            return "There was a problem with saving to the database..." + ex;
-            //    return "There was a problem with saving to the database... This is probably a connection problem, maybe try again."
         }
     }
 }
