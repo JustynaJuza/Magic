@@ -23,7 +23,7 @@ namespace Juza.Magic.Models.Mappings
                         TimeSent = message.TimeSent,
                         Message = message.Message,
                         SenderName = message.Sender.UserName
-                    })
+                    }).ToList()
                 },
                 Users = chatRoom.Users.Select(chatUser => new ChatUserViewModel
                 {
@@ -31,10 +31,9 @@ namespace Juza.Magic.Models.Mappings
                     ColorCode = chatUser.User.ColorCode,
                     Status = chatUser.User.Status,
                     UserName = chatUser.User.UserName
-                })
+                }).ToList()
             })
-        {
-        }
+        { }
     }
 
     public class ChatLogToChatLogViewModelProjection : ObjectMapping<ChatLog, ChatLogViewModel>

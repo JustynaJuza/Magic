@@ -28,21 +28,15 @@ namespace Juza.Magic.Controllers
 
             if (!string.IsNullOrEmpty(roomId))
             {
-                var chatRoom = _context.Set<ChatRoom>().Include(x => x.Connections.Select(y => y.User)).First(x => x.Id == roomId);
-                //_context.Read<ChatRoom>()
-                //.Include(x => x.Connections.Select(y => y.User))
-                //.Find(roomId);
+                var chatRoom = _context.Set<ChatRoom>()
+                    .Include(x => x.Users)
+                    .First(x => x.Id == roomId);
 
                 if (!chatRoom.IsPrivate)
                 {
                     roomViewModel = chatRoom.ToViewModel<ChatRoom, ChatRoomViewModel>();
                     return PartialView("_ChatRoomPartial", roomViewModel);
                 }
-
-                //var userId = User.Identity.GetUserId();
-                //roomViewModel = chatRoom.Project<ChatRoom, ChatRoomViewModel>();
-
-                //ChatHub.SubscribeActiveConnections(roomId, userId);
             }
             else if (recipientNames != null)
             {

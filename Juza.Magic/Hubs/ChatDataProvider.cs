@@ -47,7 +47,7 @@ namespace Juza.Magic.Hubs
         IEnumerable<ChatUserViewModel> GetChatRoomUsers(string roomId);
         void SaveMessage(User sender, string roomId, string messageText, DateTime timeSent);
         void UserStatusUpdate(int userId, UserStatus status);
-        void SubscribeChatRoom(string roomId, string connectionId, int userId);
+        void SubscribeConnectionToChatRoom(string roomId, string connectionId, int userId);
         List<string> UnsubscribeChatRoom(int userId, string roomId);
         IEnumerable<string> SubscribeUsersChatRooms(int userId, string connectionId);
         IEnumerable<string> SubscribeActiveConnections(string roomId, int userId);
@@ -132,7 +132,7 @@ namespace Juza.Magic.Hubs
             _context.Delete(chatRoomUser);
         }
 
-        public void SubscribeChatRoom(string roomId, string connectionId, int userId)
+        public void SubscribeConnectionToChatRoom(string roomId, string connectionId, int userId)
         {
             _context.Insert(new ChatRoomConnection
             {
@@ -140,8 +140,6 @@ namespace Juza.Magic.Hubs
                 ConnectionId = connectionId,
                 UserId = userId
             });
-
-            AddUserToRoom(userId, roomId);
         }
 
         public void UserStatusUpdate(int userId, UserStatus status)
@@ -299,18 +297,26 @@ namespace Juza.Magic.Hubs
 
         public void SaveMessage(User sender, string roomId, string messageText, DateTime timeSent)
         {
-            var chatRoomUserIds = _context.Set<ChatRoomUser>().Where(x => x.ChatRoomId == roomId).Select(x => x.UserId);
+            var chatRoomUserIds = _context.Set<ChatRoomUser>()
+                .Where(x => x.ChatRoomId == roomId)
+                .Select(x => x.UserId)
+                .ToList();
+
             var message = new ChatMessage
             {
                 LogId = roomId,
                 Sender = sender,
                 Message = messageText,
-                TimeSent = timeSent,
-                RecipientNotifications = chatRoomUserIds.Select(recipientId => new ChatMessageNotification
+                TimeSent = timeSent
+            };
+
+            if (roomId != ChatRoom.DefaultRoomId)
+            {
+                message.RecipientNotifications = chatRoomUserIds.Select(recipientId => new ChatMessageNotification
                 {
                     RecipientId = recipientId
-                }).ToList()
-            };
+                }).ToList();
+            }
 
             _context.Insert(message);
             _context.SaveChanges();
@@ -456,7 +462,7 @@ namespace Juza.Magic.Hubs
         //        _context.SaveChanges();
         //    }
 
-        //    SubscribeChatRoom(ChatRoom.DefaultRoomId, connectionId, userId);
+        //    SubscribeConnectionToChatRoom(ChatRoom.DefaultRoomId, connectionId, userId);
 
         //    //UpdateChatRoomUsers(ChatRoom.DefaultRoomId);
         //    //foreach (var chatRoom in GetChatRoomsWithUser(userId))

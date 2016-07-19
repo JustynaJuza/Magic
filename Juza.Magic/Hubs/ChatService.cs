@@ -154,13 +154,13 @@ namespace Juza.Magic.Hubs
         {
             switch (status)
             {
-                case UserStatus.AFK: return " is away.";
-                case UserStatus.Online: return " joined the conversation.";
-                case UserStatus.Offline: return " left.";
-                case UserStatus.Observing: return " is observing a duel.";
-                case UserStatus.Playing: return " concentrates on a game right now.";
-                //case UserStatus.Ready: return " is ready for action.";
-                //case UserStatus.Unready: return " seems to be not prepared!";
+                case UserStatus.AFK: return "is away.";
+                case UserStatus.Online: return "joined the conversation.";
+                case UserStatus.Offline: return "left.";
+                case UserStatus.Observing: return "is observing a duel.";
+                case UserStatus.Playing: return "concentrates on a game right now.";
+                //case UserStatus.Ready: return "is ready for action.";
+                //case UserStatus.Unready: return "seems to be not prepared!";
                 default: return null;
             }
         }
@@ -211,7 +211,7 @@ namespace Juza.Magic.Hubs
         public Task SubscribeChatRoom(string roomId)
         {
             var addToGroup = _groups.Add(_connectionId, roomId);
-            _chatUserProvider.SubscribeChatRoom(roomId, _connectionId, _userId);
+            _chatUserProvider.SubscribeConnectionToChatRoom(roomId, _connectionId, _userId);
 
             if (roomId != ChatRoom.DefaultRoomId)
             {
@@ -329,7 +329,7 @@ namespace Juza.Magic.Hubs
             var roomId = chatRoom.Id;
 
             _groups.Add(_connectionId, roomId);
-            _chatUserProvider.SubscribeChatRoom(roomId, _connectionId, _userId);
+            _chatUserProvider.SubscribeConnectionToChatRoom(roomId, _connectionId, _userId);
 
             OnJoinedRoom(new JoinedRoomEventArgs
             {
