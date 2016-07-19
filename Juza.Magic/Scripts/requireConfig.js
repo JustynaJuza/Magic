@@ -4,13 +4,13 @@
     
     baseUrl: '/Scripts/',
     paths: {
-        jquery: 'jquery-2.2.3',
+        jquery: 'jquery-3.1.0',
         jqueryValidate: 'jquery.validate',
         jqueryValidateUnobtrusive: 'jquery.validate.unobtrusive',
         bootstrap: 'bootstrap',
         moment: 'moment',
         lodash: 'lodash',
-        signalr: 'jquery.signalR-2.2.0',
+        signalr: 'jquery.signalR-2.2.1',
         signalrHubs: '/signalr/hubs?',
 
         helpers: 'utilities/helpers',
