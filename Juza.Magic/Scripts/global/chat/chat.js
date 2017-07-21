@@ -9,3 +9,7 @@
     };
 
 }(window.chat = window.chat || {}, jQuery));
+
+    //React.renderComponent(<Chat />, document.body);
+    //React.render('<Chat />', document.getElementById('chat-container'));
+    //ReactDOM.render(React.createElement(Chat, {"isAuthenticated":false,"userName":""}), document.getElementById("chat-container"))

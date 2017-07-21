@@ -1,37 +1,15 @@
 ﻿@using Juza.Magic.Helpers
-@using Juza.Magic.Models.Entities.Chat
-@using Microsoft.AspNet.Identity
 
-<div id="chat-header-bar">
-    @if (User.Identity.IsAuthenticated)
-    {
-        <input id="chat-add-user-btn" class="btn btn-default" type="button" value="+" />
-    }
-    <h3 id="chat-header">
-        Hello
-        @{ if (User.Identity.IsAuthenticated)
-            { <span id=user-name>@User.Identity.GetUserName()</span>} }! 
-    </h3>
-</div>
-
-<div class="chat container">
-    <input id="chat-room-selection" class="btn btn-primary" type="hidden" value="default" />
-
-    <div id="chat-rooms-container">
-        @{ Html.RenderAction("GetChatRoomPartial", "Chat", new { roomId = ChatRoom.DefaultRoomId }); }
-        <div id="user-profile-tooltip-container"></div>
-    </div>
-
-    @if (User.Identity.IsAuthenticated)
-    {
-        <div class="chat-message-new-container container">
-            <input id="chat-message-new" class="form-control" type="text" />
-            <input id="chat-message-send-btn" class="btn btn-primary" type="button" value="Send" />
-        </div>
-    }
-</div>
-
+<script src="/Scripts/global/chat/chat.jsx"></script>
 
 <script>
     @Html.RequireScriptModule("chat")
 </script>
+
+<div id="react-chat"></div>
+
+@Html.React("Chat", new
+{
+    isAuthenticated = @User.Identity.IsAuthenticated,
+    userName = @User.Identity.Name
+}, containerId: "react-chat")

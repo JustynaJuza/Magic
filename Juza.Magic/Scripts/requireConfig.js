@@ -12,6 +12,8 @@
         lodash: 'lodash',
         signalr: 'jquery.signalR-2.2.1',
         signalrHubs: '/signalr/hubs?',
+        react: 'react',
+        reactDom: 'react-dom',
 
         helpers: 'utilities/helpers',
 
@@ -30,6 +32,7 @@
         helpers: ['jquery'],
         signalr: ['jquery'],
         signalrHubs: ['signalr'],
+        reactDom: ['react'],
         chatVariables: ['jquery'],
         chatHub: ['chatVariables', 'signalrHubs'],
         chatInteraction: ['chatVariables', 'helpers'],

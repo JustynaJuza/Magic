@@ -113,6 +113,17 @@ namespace Juza.Magic.Controllers
             return "Remove from friends";
         }
 
+        public ChatRoomViewModel GetDefaultRoom()
+        {
+            var chatRoom = _context.Set<ChatRoom>()
+                .Include(x => x.Users)
+                .Include(x => x.Log.Messages)
+                .First(x => x.Id == ChatRoom.DefaultRoomId)
+                .ToViewModel<ChatRoom, ChatRoomViewModel>();
+
+            return chatRoom; //new JsonResult { Data = chatRoom };
+        }
+
         //public ActionResult GetUserChatRooms(bool exceptDefaultRoom = false)
         //{
         //    var userId = User.Identity.GetUserId<int>();

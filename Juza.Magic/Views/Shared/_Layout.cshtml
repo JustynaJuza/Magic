@@ -7,9 +7,10 @@
     <title>@ViewBag.Title | justyna.heinbockel</title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/chat.css")
-
     @*@Scripts.Render("~/bundles/modernizr")*@
 
+    <script src="https://fb.me/react-15.0.1.js"></script>
+    <script src="https://fb.me/react-dom-15.0.1.js"></script>
 </head>
 <body>
     <!-- Google Tag Manager -->
@@ -54,6 +55,8 @@
         @Html.RequireConditionalScriptModule("hubStart", "game")
     </script>
 
-    @RenderSection("scripts", required: false)
+        @RenderSection("scripts", required: false)
+
+        @Html.ReactInitJavaScript()
 </body>
 </html>
